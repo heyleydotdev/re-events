@@ -55,11 +55,8 @@ final class Assets {
 			return;
 		}
 
-		// Page-scoped wp-admin chrome and the pre-mount loading state.
+		// Page-scoped wp-admin chrome.
 		$reevents_chrome_css  = '#wpfooter{display:none}';
-		$reevents_chrome_css .= '#re-events-loading{display:flex;align-items:center;justify-content:center;gap:.5rem;min-height:180px;color:#50575e;font:14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}';
-		$reevents_chrome_css .= '#re-events-loading svg{animation:re-events-spin .8s linear infinite}';
-		$reevents_chrome_css .= '@keyframes re-events-spin{to{transform:rotate(360deg)}}';
 		$reevents_chrome_css .= '#wpbody-content{padding-bottom:0}';
 
 		wp_register_style( self::HANDLE . '-chrome', false, array(), REEVENTS_VERSION );
@@ -76,7 +73,7 @@ final class Assets {
 			);
 			wp_enqueue_script(
 				self::HANDLE,
-				'http://127.0.0.1:5173/assets/src/admin/index.ts',
+				'http://127.0.0.1:5173/assets/src/admin/index.tsx',
 				array( self::VITE_CLIENT_HANDLE ),
 				REEVENTS_VERSION,
 				true
@@ -86,7 +83,7 @@ final class Assets {
 		}
 
 		$manifest = $this->manifest();
-		$entry    = is_array( $manifest ) ? ( $manifest['assets/src/admin/index.ts'] ?? null ) : null;
+		$entry    = is_array( $manifest ) ? ( $manifest['assets/src/admin/index.tsx'] ?? null ) : null;
 
 		if ( ! is_array( $entry ) || ! isset( $entry['file'] ) || ! is_string( $entry['file'] ) ) {
 			add_action( 'admin_notices', array( $this, 'missing_build_notice' ) );

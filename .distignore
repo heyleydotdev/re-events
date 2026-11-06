@@ -1,10 +1,8 @@
 .git
 .github
 .gitignore
-.gitattributes
 .editorconfig
 .vscode
-.githooks
 AGENTS.md
 PLAN.md
 composer.json
@@ -22,4 +20,5 @@ vite.config.js
 postcss.config.js
 prettier.config.js
 tsconfig.json
+components.json
 scripts

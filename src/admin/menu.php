@@ -99,31 +99,95 @@ final class Menu {
 	}
 
 	/**
-	 * Renders the selected ReEvents view.
+	 * Renders the admin shell and bootstrap data for the React app.
 	 */
 	public function render(): void {
-		$reevents_home_url  = admin_url( 'admin.php?page=' . $this->page_slug( 'events' ) );
 		$reevents_assets    = new Assets();
 		$reevents_nav_items = $this->nav_items();
 		$reevents_view      = $this->current_view( $reevents_nav_items );
+		$reevents_nav       = array();
 
-		$reevents_view_label  = $reevents_nav_items[ $reevents_view ]['label'];
-		$reevents_app_css     = $reevents_assets->inline_css();
-		$reevents_declarative = ! $reevents_assets->is_dev() && null !== $reevents_app_css;
-		$reevents_template    = 'events' === $reevents_view ? 'pages/events' : 'pages/placeholder';
-		$reevents_html        = View::render(
-			$reevents_template,
+		foreach ( $reevents_nav_items as $reevents_key => $reevents_item ) {
+			$reevents_nav[] = array(
+				'key'   => $reevents_key,
+				'label' => $reevents_item['label'],
+				'url'   => $reevents_item['url'],
+			);
+		}
+
+		$reevents_events = array(
 			array(
-				'view_label'   => $reevents_view_label,
-				'app_css'      => (string) $reevents_app_css,
-				'declarative'  => $reevents_declarative,
-				'nav_items'    => $reevents_nav_items,
-				'current_view' => $reevents_view,
-				'home_url'     => $reevents_home_url,
-			)
+				'id'     => 1,
+				'title'  => 'WordPress Meetup',
+				'date'   => 'Nov 12, 2026',
+				'venue'  => 'Berlin',
+				'status' => __( 'Published', 're-events' ),
+				'tone'   => 'success',
+			),
+			array(
+				'id'     => 2,
+				'title'  => 'Design Systems Workshop',
+				'date'   => 'Nov 20, 2026',
+				'venue'  => 'Online',
+				'status' => __( 'Draft', 're-events' ),
+				'tone'   => 'warning',
+			),
+			array(
+				'id'     => 3,
+				'title'  => 'ReEvents Launch Party',
+				'date'   => 'Dec 3, 2026',
+				'venue'  => 'Amsterdam',
+				'status' => __( 'Pending', 're-events' ),
+				'tone'   => 'neutral',
+			),
 		);
 
-		echo $reevents_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Plates-rendered template.
+		$reevents_data = array(
+			'currentView' => $reevents_view,
+			'homeUrl'     => admin_url( 'admin.php?page=' . self::SLUG ),
+			'nav'         => $reevents_nav,
+			'events'      => $reevents_events,
+			'pagination'  => array(
+				'current' => 1,
+				'total'   => 1,
+				'summary' => __( 'Showing 3 of 3 events', 're-events' ),
+			),
+			'restUrl'     => rest_url( 're-events/v1/events' ),
+			'nonce'       => wp_create_nonce( 'wp_rest' ),
+			'canManage'   => current_user_can( self::CAPABILITY ),
+		);
+
+		$reevents_app_css = $reevents_assets->is_dev() ? null : $reevents_assets->inline_css();
+		?>
+		<div id="re-events-host">
+			<template id="re-events-template" shadowrootmode="open">
+				<?php if ( null !== $reevents_app_css && '' !== $reevents_app_css ) : ?>
+					<?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- Shadow DOM stylesheet. ?>
+					<style><?php echo $reevents_app_css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built CSS asset. ?></style>
+				<?php endif; ?>
+				<div id="re-events-loading" role="status" aria-live="polite">
+					<svg width="20" height="20" viewBox="0 0 50 50" aria-hidden="true" focusable="false">
+						<circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-dasharray="31.4 31.4"></circle>
+					</svg>
+					<span><?php esc_html_e( 'Loading…', 're-events' ); ?></span>
+				</div>
+				<div id="re-events-root" class="min-h-[calc(100svh-var(--wp-admin--admin-bar--height))] opacity-0" aria-busy="true"></div>
+			</template>
+			<script type="application/json" id="re-events-data">
+				<?php echo wp_json_encode( $reevents_data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON data. ?>
+			</script>
+			<?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Fallback for browsers without declarative shadow DOM. ?>
+			<script>( function () {
+				var host = document.getElementById( 're-events-host' );
+				var template = host && host.querySelector( '#re-events-template' );
+
+				if ( host && template && ! host.shadowRoot ) {
+					host.attachShadow( { mode: 'open' } ).appendChild( template.content.cloneNode( true ) );
+					template.remove();
+				}
+			}() );</script>
+		</div>
+		<?php
 	}
 
 	/**

@@ -85,7 +85,7 @@ final class Admin_Menu_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The dashboard renders inside the base layout.
+	 * The admin shell renders the React bootstrap data and mount points.
 	 */
 	public function test_dashboard_uses_base_layout(): void {
 		unset( $_GET['page'], $_GET['view'] );
@@ -95,16 +95,12 @@ final class Admin_Menu_Test extends WP_UnitTestCase {
 		$html = (string) ob_get_clean();
 
 		$this->assertStringContainsString( 'id="re-events-host"', $html );
-		$this->assertStringContainsString( 'page=re-events', $html );
-		$this->assertStringContainsString( 'page=re-events-categories', $html );
-		$this->assertStringContainsString( 'page=re-events-taxonomies', $html );
-		$this->assertStringContainsString( 'page=re-events-locations', $html );
-		$this->assertStringContainsString( 'page=re-events-bookings', $html );
-		$this->assertStringContainsString( 'page=re-events-settings', $html );
-		$this->assertStringContainsString( 'bg-gray-800 text-white', $html );
-		$this->assertStringContainsString( 'aria-current="page"', $html );
 		$this->assertStringContainsString( 'id="re-events-template"', $html );
+		$this->assertStringContainsString( 'id="re-events-root"', $html );
 		$this->assertStringContainsString( 'id="re-events-loading"', $html );
+		$this->assertStringContainsString( 'id="re-events-data"', $html );
+		$this->assertStringContainsString( '"currentView":"events"', $html );
+		$this->assertStringContainsString( 'page=re-events-categories', $html );
 
 		$app_css = ( new Assets() )->inline_css();
 
@@ -116,10 +112,10 @@ final class Admin_Menu_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The Events view uses its own template.
+	 * The current view is passed to the app as bootstrap data.
 	 */
-	public function test_events_view_uses_events_template(): void {
-		$_GET['page'] = Menu::SLUG;
+	public function test_page_slug_sets_current_view(): void {
+		$_GET['page'] = Menu::SLUG . '-locations';
 
 		try {
 			ob_start();
@@ -129,13 +125,11 @@ final class Admin_Menu_Test extends WP_UnitTestCase {
 			unset( $_GET['page'] );
 		}
 
-		$this->assertStringContainsString( 'lucide-search', $html );
-		$this->assertStringContainsString( 'Events pagination', $html );
-		$this->assertStringNotContainsString( 'not built yet', $html );
+		$this->assertStringContainsString( '"currentView":"locations"', $html );
 	}
 
 	/**
-	 * The page slug ignores a legacy view query.
+	 * The legacy view query is ignored.
 	 */
 	public function test_page_slug_ignores_view_query(): void {
 		$_GET['page'] = Menu::SLUG . '-locations';
@@ -149,6 +143,6 @@ final class Admin_Menu_Test extends WP_UnitTestCase {
 			unset( $_GET['page'], $_GET['view'] );
 		}
 
-		$this->assertStringContainsString( 'text-gray-900">Locations', $html );
+		$this->assertStringContainsString( '"currentView":"locations"', $html );
 	}
 }
