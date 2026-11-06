@@ -34,6 +34,11 @@ const phpFullReload = () => ({
 
 export default defineConfig({
 	base: './',
+	resolve: {
+		alias: {
+			'@': fileURLToPath(new URL('assets/src/admin', import.meta.url)),
+		},
+	},
 	server: {
 		host: '127.0.0.1',
 		port: 5173,
@@ -47,7 +52,7 @@ export default defineConfig({
 		manifest: true,
 		rollupOptions: {
 			input: {
-				admin: fileURLToPath(new URL('assets/src/admin/index.ts', import.meta.url)),
+				admin: fileURLToPath(new URL('assets/src/admin/index.tsx', import.meta.url)),
 				'admin-css': fileURLToPath(new URL('assets/src/admin/app.css', import.meta.url)),
 				'admin-fonts': fileURLToPath(
 					new URL('node_modules/@fontsource-variable/geist/wght.css', import.meta.url),
