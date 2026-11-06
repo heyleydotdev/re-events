@@ -1,3 +1,4 @@
+import { relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 
@@ -10,10 +11,17 @@ const phpFullReload = () => ({
 		server.watcher.add([`${root}src`, `${root}re-events.php`, `${root}uninstall.php`]);
 
 		const reload = (file) => {
-			if (file.endsWith('.php')) {
-				console.log(`[re-events] PHP changed: ${file}`);
-				server.ws.send({ type: 'full-reload' });
+			const source = relative(root, file);
+
+			if (
+				!file.endsWith('.php') ||
+				(!source.startsWith('src') && source !== 're-events.php' && source !== 'uninstall.php')
+			) {
+				return;
 			}
+
+			console.log(`[re-events] PHP changed: ${file}`);
+			server.ws.send({ type: 'full-reload' });
 		};
 
 		server.watcher.on('change', reload);
