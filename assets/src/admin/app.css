@@ -1,0 +1,50 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+/*
+ * Shadow DOM admin styles.
+ *
+ * PostCSS maps :root, html, and body to :host. Keep selectors unprefixed.
+ */
+
+:host {
+	display: block;
+	margin-left: -20px;
+	width: calc(100% + 20px);
+	background-color: #f0f0f0;
+	--bs-link-decoration: none;
+}
+
+@media (max-width: 782px) {
+	:host {
+		margin-left: -10px;
+		width: calc(100% + 10px);
+	}
+}
+
+:root {
+	--bs-font-sans-serif: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+	--bs-body-font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+}
+
+/*
+ * Bootstrap declares theme variables on :root and inherits their resolved
+ * values. Redeclare them on any nested data-bs-theme element so dark mode
+ * works without per-component overrides.
+ */
+[data-bs-theme='dark'] {
+	--lightningcss-light: ;
+	--lightningcss-dark: initial;
+	--bs-bg-body: var(--bs-gray-975);
+	--bs-bg-1: var(--bs-gray-950);
+	--bs-bg-2: var(--bs-gray-900);
+	--bs-bg-3: var(--bs-gray-800);
+	--bs-fg-body: var(--bs-gray-050);
+	--bs-fg-1: var(--bs-gray-200);
+	--bs-fg-2: var(--bs-gray-300);
+	--bs-fg-3: var(--bs-gray-400);
+	--bs-border-color: var(--bs-gray-800);
+	--bs-border-color-translucent: color-mix(in oklch, var(--bs-gray-050) 15%, transparent);
+	--bs-border-body: var(--bs-gray-800);
+	color-scheme: dark;
+}

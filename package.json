@@ -1,0 +1,25 @@
+{
+  "name": "re-events",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Build tooling for RE Events.",
+  "license": "GPL-2.0-or-later",
+  "type": "module",
+  "packageManager": "bun@1.4.4",
+  "scripts": {
+    "build": "vite build",
+    "watch": "vite build --watch",
+    "dev": "vite",
+    "preview": "vite preview",
+    "format": "prettier --write \"assets/src/**/*.{css,ts}\" \"*.js\" \"tests/js/**/*.js\"",
+    "format:check": "prettier --check \"assets/src/**/*.{css,ts}\" \"*.js\" \"tests/js/**/*.js\"",
+    "test": "bun test tests/js"
+  },
+  "devDependencies": {
+    "@fontsource-variable/geist": "5.3.0",
+    "bootstrap": "6.0.0-alpha.1",
+    "bootstrap-icons": "1.13.2",
+    "prettier": "^3.9.10",
+    "vite": "^8.3.6"
+  }
+}
