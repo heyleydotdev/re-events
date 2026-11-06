@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin navigation.
  *
@@ -9,35 +10,78 @@
  * @package ReEvents
  */
 
-defined( 'ABSPATH' ) || exit;
+defined('ABSPATH') || exit;
 ?>
-<nav class="navbar md:navbar-expand" data-bs-theme="dark">
-	<div class="container-fluid">
-		<a class="navbar-brand" href="<?php echo esc_url( $home_url ); ?>">ReEvents</a>
-		<button class="btn-icon navbar-toggler" type="button" data-bs-toggle="drawer" data-bs-target="#navbarDarkDrawer" aria-controls="navbarDarkDrawer" aria-expanded="false" aria-label="Toggle navigation">
-			<span class="navbar-toggler-icon" aria-hidden="true"></span>
+<nav class="sticky top-(--wp-admin--admin-bar--height) z-50 h-12 border-b bg-white backdrop-blur-md supports-backdrop-filter:bg-white/50">
+	<div class="container flex h-full items-center">
+		<a class="text-base font-semibold text-gray-950" href="<?php echo esc_url($home_url); ?>">ReEvents</a>
+		<button
+			type="button"
+			class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white focus:ring-2 focus:ring-gray-600 focus:outline-none md:hidden"
+			data-reevents-toggle="drawer"
+			data-reevents-target="#re-events-drawer"
+			aria-controls="re-events-drawer"
+			aria-expanded="false">
+			<span class="sr-only"><?php esc_html_e('Open menu', 're-events'); ?></span>
+			<?php
+			$this->insert(
+				'components/icon',
+				array(
+					'name'       => 'menu',
+					'icon_class' => 'h-6 w-6',
+				)
+			);
+			?>
 		</button>
-		<dialog class="drawer drawer-end" tabindex="-1" id="navbarDarkDrawer" aria-labelledby="navbarDarkDrawerLabel">
-			<div class="drawer-header">
-				<h5 class="drawer-title" id="navbarDarkDrawerLabel">Menu</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="drawer" aria-label="Close"></button>
-			</div>
-			<div class="drawer-body mb-2 md:mb-0">
-				<ul class="nav navbar-nav fs-sm me-auto">
-					<?php foreach ( $nav_items as $nav_slug => $nav_item ) : ?>
-						<?php $nav_active = $nav_slug === $current_view; ?>
-						<li class="nav-item">
-							<a
-								class="<?php echo esc_attr( 'nav-link' . ( $nav_active ? ' active' : '' ) ); ?>"
-								href="<?php echo esc_url( (string) $nav_item['url'] ); ?>"
-								aria-current="<?php echo esc_attr( $nav_active ? 'page' : 'false' ); ?>"
-							>
-								<?php echo esc_html( (string) $nav_item['label'] ); ?>
-							</a>
-						</li>
-					<?php endforeach; ?>
-				</ul>
-			</div>
-		</dialog>
+		<ul class="flex h-full flex-1 items-center justify-end gap-1 max-md:hidden">
+			<?php foreach ($nav_items as $nav_slug => $nav_item) : ?>
+				<?php $nav_active = $nav_slug === $current_view; ?>
+				<li>
+					<a
+						class="<?php echo esc_attr('rounded-lg px-3 py-2 text-sm/6 font-medium ' . ($nav_active ? 'text-950' : 'text-gray-400 hover:text-gray-950')); ?>"
+						href="<?php echo esc_url((string) $nav_item['url']); ?>"
+						<?php echo $nav_active ? 'aria-current="page"' : ''; ?>>
+						<?php echo esc_html((string) $nav_item['label']); ?>
+					</a>
+				</li>
+			<?php endforeach; ?>
+		</ul>
 	</div>
+
+	<dialog
+		id="re-events-drawer"
+		data-reevents-drawer
+		class="m-0 ml-auto h-full max-h-none w-80 max-w-none bg-gray-900 p-4 text-gray-400 backdrop:bg-gray-900/60">
+		<div class="mb-4 flex items-center justify-between">
+			<h2 class="text-lg font-semibold text-white"><?php esc_html_e('Menu', 're-events'); ?></h2>
+			<button
+				type="button"
+				class="inline-flex h-9 w-9 items-center justify-center rounded-lg hover:bg-gray-800 hover:text-white focus:ring-2 focus:ring-gray-600 focus:outline-none"
+				data-reevents-dismiss="drawer">
+				<span class="sr-only"><?php esc_html_e('Close menu', 're-events'); ?></span>
+				<?php
+				$this->insert(
+					'components/icon',
+					array(
+						'name'       => 'x',
+						'icon_class' => 'h-5 w-5',
+					)
+				);
+				?>
+			</button>
+		</div>
+		<ul class="space-y-1">
+			<?php foreach ($nav_items as $nav_slug => $nav_item) : ?>
+				<?php $nav_active = $nav_slug === $current_view; ?>
+				<li>
+					<a
+						class="<?php echo esc_attr('block rounded-lg px-3 py-2 text-base font-medium ' . ($nav_active ? 'bg-gray-800 text-white' : 'hover:bg-gray-800 hover:text-white')); ?>"
+						href="<?php echo esc_url((string) $nav_item['url']); ?>"
+						<?php echo $nav_active ? 'aria-current="page"' : ''; ?>>
+						<?php echo esc_html((string) $nav_item['label']); ?>
+					</a>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+	</dialog>
 </nav>

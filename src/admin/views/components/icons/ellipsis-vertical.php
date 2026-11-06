@@ -1,0 +1,16 @@
+<?php
+/**
+ * Ellipsis vertical icon.
+ *
+ * @var string $icon_class Tailwind classes for size and color.
+ *
+ * @package ReEvents
+ */
+
+defined( 'ABSPATH' ) || exit;
+?>
+<svg class="<?php echo esc_attr( 'lucide lucide-ellipsis-vertical ' . $icon_class ); ?>" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+	<circle cx="12" cy="12" r="1" />
+	<circle cx="12" cy="5" r="1" />
+	<circle cx="12" cy="19" r="1" />
+</svg>

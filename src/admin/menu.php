@@ -110,8 +110,9 @@ final class Menu {
 		$reevents_view_label  = $reevents_nav_items[ $reevents_view ]['label'];
 		$reevents_app_css     = $reevents_assets->inline_css();
 		$reevents_declarative = ! $reevents_assets->is_dev() && null !== $reevents_app_css;
+		$reevents_template    = 'events' === $reevents_view ? 'pages/events' : 'pages/placeholder';
 		$reevents_html        = View::render(
-			'pages/placeholder',
+			$reevents_template,
 			array(
 				'view_label'   => $reevents_view_label,
 				'app_css'      => (string) $reevents_app_css,

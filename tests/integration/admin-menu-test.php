@@ -101,8 +101,7 @@ final class Admin_Menu_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'page=re-events-locations', $html );
 		$this->assertStringContainsString( 'page=re-events-bookings', $html );
 		$this->assertStringContainsString( 'page=re-events-settings', $html );
-		$this->assertStringNotContainsString( 'href="#"', $html );
-		$this->assertStringContainsString( 'nav-link active', $html );
+		$this->assertStringContainsString( 'bg-gray-800 text-white', $html );
 		$this->assertStringContainsString( 'aria-current="page"', $html );
 		$this->assertStringContainsString( 'id="re-events-template"', $html );
 		$this->assertStringContainsString( 'id="re-events-loading"', $html );
@@ -114,6 +113,25 @@ final class Admin_Menu_Test extends WP_UnitTestCase {
 			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- Asserting the inlined shadow stylesheet.
 			$this->assertStringContainsString( '<style>', $html );
 		}
+	}
+
+	/**
+	 * The Events view uses its own template.
+	 */
+	public function test_events_view_uses_events_template(): void {
+		$_GET['page'] = Menu::SLUG;
+
+		try {
+			ob_start();
+			( new Menu() )->render();
+			$html = (string) ob_get_clean();
+		} finally {
+			unset( $_GET['page'] );
+		}
+
+		$this->assertStringContainsString( 'lucide-search', $html );
+		$this->assertStringContainsString( 'Events pagination', $html );
+		$this->assertStringNotContainsString( 'not built yet', $html );
 	}
 
 	/**
@@ -131,6 +149,6 @@ final class Admin_Menu_Test extends WP_UnitTestCase {
 			unset( $_GET['page'], $_GET['view'] );
 		}
 
-		$this->assertStringContainsString( 'card-title">Locations', $html );
+		$this->assertStringContainsString( 'text-gray-900">Locations', $html );
 	}
 }
