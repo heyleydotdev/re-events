@@ -20,6 +20,16 @@ defined( 'ABSPATH' ) || exit;
 		</svg>
 		<span><?php esc_html_e( 'Loading…', 're-events' ); ?></span>
 	</div>
+	<?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Replaces the loader when the module fails to load. ?>
+	<script>
+		window.setTimeout( function () {
+			var loader = document.getElementById( 're-events-loading' );
+
+			if ( loader ) {
+				loader.textContent = '<?php echo esc_js( __( 'ReEvents did not load. Check the browser console.', 're-events' ) ); ?>';
+			}
+		}, 8000 );
+	</script>
 	<?php if ( $declarative ) : ?>
 	<template id="re-events-template" shadowrootmode="open">
 	<?php else : ?>

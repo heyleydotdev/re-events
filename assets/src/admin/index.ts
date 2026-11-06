@@ -89,7 +89,9 @@ async function mount(): Promise<void> {
 		return;
 	}
 
-	await injectDevFonts();
+	await injectDevFonts().catch((error: unknown) =>
+		console.warn('[ReEvents] dev font injection failed', error),
+	);
 
 	let shadow = host.shadowRoot;
 
@@ -115,4 +117,12 @@ async function mount(): Promise<void> {
 	initComponents(shadow);
 }
 
-mount();
+mount().catch((error: unknown) => {
+	console.error('[ReEvents] admin mount failed', error);
+
+	const loader = document.getElementById('re-events-loading');
+
+	if (loader) {
+		loader.textContent = 'ReEvents failed to load. Check the browser console.';
+	}
+});
