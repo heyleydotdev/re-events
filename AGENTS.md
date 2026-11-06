@@ -2,7 +2,7 @@
 
 ## Project
 
-- Single-site WordPress event manager plugin. Events will be a `re_event` custom post type with a REST API and a Bootstrap admin.
+- Single-site WordPress event manager plugin. Events will be a `re_event` custom post type with a REST API and a Tailwind CSS 4 + Flowbite admin.
 - Current scaffold: admin dashboard, activation, tooling, tests. The event model/API is not implemented; do not add frontend templates or builder integrations until requested.
 
 ## Commands
@@ -14,6 +14,8 @@
 | Vite dev server | `bun run dev` |
 | Typecheck | `bun check` |
 | Format / check | `bun run format` / `bun run format:check` |
+| Sort Tailwind classes | `bun run format:tw` |
+| Check Tailwind order | `bun run check:tw` |
 | PHP checks | `composer check` |
 | Lint PHP | `composer lint` |
 | Analyze PHP | `composer analyze` |
@@ -42,13 +44,14 @@
 - PHP 8.2+, `declare(strict_types=1)`, tabs.
 - Lowercase-hyphenated files under `src/` and `assets/src/`; StudlyCase classes under `ReEvents\`; snake_case methods and array keys.
 - Prefixes: `reevents`, `REEVENTS`, `ReEvents`, `re_events`; text domain `re-events`.
-- Production uses declarative shadow DOM; dev uses template + JS mount for HMR. Production inlines CSS in the shadow root and fonts in `document.head`; PostCSS maps `:root`/`html`/`body` to `:host`. A light-DOM `#re-events-loading` shows until mount.
-- Do not flatten Bootstrap 6 `@layer` blocks or add a CSS prefix; both are fine inside the shadow root.
+- Production uses declarative shadow DOM; dev uses template + JS mount for HMR. Production inlines CSS in the shadow root, injects fonts and Tailwind `@property` registrations into `document.head`; PostCSS maps `:root`/`html`/`body` to `:host`. A light-DOM `#re-events-loading` shows until mount.
+- Do not flatten Tailwind `@layer` blocks or add a CSS prefix; both are fine inside the shadow root.
 - Admin views are Plates PHP templates: prepare data in `Menu`/services, escape with `esc_*`, call `$this->insert()` inline (it echoes), and keep queries/business logic out of views and REST controllers.
 - Admin screens require `manage_options`, use real WP submenu pages (`re-events-{view}`), and gate assets with `Menu::is_screen()`; do not add `?view=` nav links.
-- Bootstrap is pinned to `6.0.0-alpha.1`. Do not upgrade blindly or use v5 class names.
-- Icons: self-hosted Bootstrap Icons; use `<i class="bi bi-name"></i>` inside the shadow root.
-- Drawer and Menu are initialized manually; keep overlay markup inside the shadow root.
+- Tailwind CSS 4 and Flowbite 4 are pinned in `package.json`. Do not add Bootstrap class names.
+- PHP is formatted with Intelephense (PSR-12 spacing); `phpcs.xml.dist` skips the WordPress spacing sniffs that conflict with it.
+- Icons: Lucide SVGs through `components/icon.php`, e.g. `$this->insert( 'components/icon', array( 'name' => 'search', 'icon_class' => 'w-4 h-4' ) )`. Add new SVGs under `views/components/icons/`; no icon font.
+- Drawer and menu overlays are initialized manually; keep their markup inside the shadow root.
 - Use WordPress APIs; use `$wpdb->prepare()` with `%i` for identifiers. Escape output and verify nonces/capabilities on writes.
 
 ## Definition of done
@@ -56,5 +59,6 @@
 - `composer check` passes.
 - `composer test` passes when logic, queries, or schema change.
 - `bun check` and `bun run format:check` pass when frontend files change.
+- `bun run check:tw` passes when admin templates change.
 - README and this file are updated when commands, architecture, or invariants change.
 - No new runtime dependency without an explicit decision.
