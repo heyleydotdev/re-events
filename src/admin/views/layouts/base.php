@@ -32,7 +32,7 @@ $this->insert(
 );
 ?>
 
-<div class="container-fluid pt-4 pb-12">
+<div class="px-4 pt-4 pb-12">
 	<?php
 	$reevents_main = $this->section( 'main' );
 	echo $reevents_main; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Plates section.

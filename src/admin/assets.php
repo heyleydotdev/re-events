@@ -56,10 +56,11 @@ final class Assets {
 		}
 
 		// Page-scoped wp-admin chrome and the pre-mount loading state.
-		$reevents_chrome_css  = '#wpfooter a { text-decoration: none; }';
+		$reevents_chrome_css  = '#wpfooter{display:none}';
 		$reevents_chrome_css .= '#re-events-loading{display:flex;align-items:center;justify-content:center;gap:.5rem;min-height:180px;color:#50575e;font:14px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}';
 		$reevents_chrome_css .= '#re-events-loading svg{animation:re-events-spin .8s linear infinite}';
 		$reevents_chrome_css .= '@keyframes re-events-spin{to{transform:rotate(360deg)}}';
+		$reevents_chrome_css .= '#wpbody-content{padding-bottom:0}';
 
 		wp_register_style( self::HANDLE . '-chrome', false, array(), REEVENTS_VERSION );
 		wp_enqueue_style( self::HANDLE . '-chrome' );
@@ -105,6 +106,12 @@ final class Assets {
 
 		if ( null !== $fonts_css ) {
 			wp_add_inline_style( self::HANDLE . '-chrome', $fonts_css );
+		}
+
+		$property_css = $this->property_css();
+
+		if ( null !== $property_css ) {
+			wp_add_inline_style( self::HANDLE . '-chrome', $property_css );
 		}
 	}
 
@@ -182,11 +189,29 @@ final class Assets {
 			return null;
 		}
 
-		return (string) preg_replace(
+		$css = (string) preg_replace(
 			'/font-display\s*:\s*swap/',
 			'font-display: optional',
 			$this->absolute_urls( $css )
 		);
+
+		return $css;
+	}
+
+	/**
+	 * Returns the @property rules for the document.
+	 *
+	 * Chromium ignores @property inside a shadow root, and Tailwind utilities
+	 * rely on the registered custom properties.
+	 */
+	private function property_css(): ?string {
+		$css = $this->inline_css();
+
+		if ( null === $css || ! preg_match_all( '/@property\s+[^{]+\{[^}]*\}/', $css, $reevents_matches ) ) {
+			return null;
+		}
+
+		return implode( "\n", $reevents_matches[0] );
 	}
 
 	/**

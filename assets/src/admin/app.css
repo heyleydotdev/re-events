@@ -1,50 +1,47 @@
-@import 'bootstrap/dist/css/bootstrap.min.css';
-@import 'bootstrap-icons/font/bootstrap-icons.css';
+@import 'tailwindcss';
+@import 'flowbite/src/themes/default';
+@plugin 'flowbite/plugin';
+@source '../../../src/admin/views';
+@source '../../../node_modules/flowbite';
 
-/*
- * Shadow DOM admin styles.
- *
- * PostCSS maps :root, html, and body to :host. Keep selectors unprefixed.
- */
+@theme inline {
+	--font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+	--color-border: var(--border);
+}
 
 :host {
+	color-scheme: light;
+
 	display: block;
 	margin-left: -20px;
 	width: calc(100% + 20px);
-	background-color: #f0f0f0;
-	--bs-link-decoration: none;
+	background-color: var(--color-white);
+	min-height: calc(100svh - var(--wp-admin--admin-bar--height));
+
+	--border: var(--color-gray-200);
+	--container-px: --spacing(4);
+
+	@variant sm {
+		--container-px: --spacing(8);
+	}
 }
 
 @media (max-width: 782px) {
 	:host {
 		margin-left: -10px;
 		width: calc(100% + 10px);
+		min-height: calc(100svh - var(--wp-admin--admin-bar--height));
 	}
 }
 
-:root {
-	--bs-font-sans-serif: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
-	--bs-body-font-family: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+@layer base {
+	* {
+		@apply border-border;
+	}
 }
 
-/*
- * Bootstrap declares theme variables on :root and inherits their resolved
- * values. Redeclare them on any nested data-bs-theme element so dark mode
- * works without per-component overrides.
- */
-[data-bs-theme='dark'] {
-	--lightningcss-light: ;
-	--lightningcss-dark: initial;
-	--bs-bg-body: var(--bs-gray-975);
-	--bs-bg-1: var(--bs-gray-950);
-	--bs-bg-2: var(--bs-gray-900);
-	--bs-bg-3: var(--bs-gray-800);
-	--bs-fg-body: var(--bs-gray-050);
-	--bs-fg-1: var(--bs-gray-200);
-	--bs-fg-2: var(--bs-gray-300);
-	--bs-fg-3: var(--bs-gray-400);
-	--bs-border-color: var(--bs-gray-800);
-	--bs-border-color-translucent: color-mix(in oklch, var(--bs-gray-050) 15%, transparent);
-	--bs-border-body: var(--bs-gray-800);
-	color-scheme: dark;
+@utility container {
+	max-width: var(--breakpoint-2xl);
+	margin-inline: auto;
+	padding-inline: var(--container-px);
 }

@@ -46,6 +46,22 @@ final class Assets_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tailwind property registrations are emitted for the document.
+	 */
+	public function test_property_css_is_available(): void {
+		$reevents_assets = new Assets();
+		$reevents_method = new \ReflectionMethod( $reevents_assets, 'property_css' );
+		$reevents_method->setAccessible( true );
+		$reevents_css = $reevents_method->invoke( $reevents_assets );
+
+		if ( null === $reevents_css ) {
+			$this->markTestSkipped( 'Build assets are missing.' );
+		}
+
+		$this->assertStringContainsString( '@property --tw-border-style', $reevents_css );
+	}
+
+	/**
 	 * A submenu screen enqueues the admin script.
 	 */
 	public function test_submenu_enqueues_script(): void {

@@ -1,3 +1,5 @@
+import tailwindcss from '@tailwindcss/postcss';
+
 /**
  * Shadow DOM CSS transform.
  *
@@ -68,5 +70,5 @@ const shadowScope = () => ({
 });
 
 export default {
-	plugins: [shadowScope()],
+	plugins: [tailwindcss(), shadowScope()],
 };

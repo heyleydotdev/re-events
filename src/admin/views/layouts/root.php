@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<div id="re-events-host" data-bs-theme="light">
+<div id="re-events-host">
 	<div id="re-events-loading" role="status" aria-live="polite">
 		<svg width="20" height="20" viewBox="0 0 50 50" aria-hidden="true" focusable="false">
 			<circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-dasharray="31.4 31.4"></circle>

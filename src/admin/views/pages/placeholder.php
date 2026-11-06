@@ -27,16 +27,8 @@ $this->layout(
 
 $this->start( 'main' );
 ?>
-<div class="row g-3">
-	<div class="col-12">
-		<div class="card">
-			<div class="card-body">
-				<h2 class="h4 card-title"><?php echo esc_html( $view_label ); ?></h2>
-				<p class="card-text mb-0">
-					<?php esc_html_e( 'This screen is not built yet.', 're-events' ); ?>
-				</p>
-			</div>
-		</div>
-	</div>
+<div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+	<h2 class="mb-2 text-xl font-semibold text-gray-900"><?php echo esc_html( $view_label ); ?></h2>
+	<p class="text-gray-500"><?php esc_html_e( 'This screen is not built yet.', 're-events' ); ?></p>
 </div>
 <?php $this->stop(); ?>

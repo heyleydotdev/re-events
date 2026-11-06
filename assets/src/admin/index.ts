@@ -1,7 +1,5 @@
-import Drawer from 'bootstrap/js/dist/drawer.js';
-import Menu from 'bootstrap/js/dist/menu.js';
-
 const FONT_FACE_PATTERN = /@font-face\s*{[^}]*}/g;
+const PROPERTY_PATTERN = /@property\s+[^{]+\{[^}]*}/g;
 
 async function injectDevFonts(): Promise<void> {
 	if (!import.meta.env.DEV || document.getElementById('re-events-fonts')) {
@@ -30,55 +28,148 @@ async function injectDevCss(shadow: ShadowRoot): Promise<void> {
 	const style = document.createElement('style');
 	style.textContent = css;
 	shadow.append(style);
+
+	// Chromium ignores @property inside a shadow root; Tailwind utilities need
+	// the registrations at the document level.
+	const properties = css.match(PROPERTY_PATTERN)?.join('\n') ?? '';
+
+	if (properties && !document.getElementById('re-events-properties')) {
+		const head = document.createElement('style');
+		head.id = 're-events-properties';
+		head.textContent = properties;
+		document.head.append(head);
+	}
+}
+
+type OpenMenu = {
+	menu: HTMLElement;
+	toggle: HTMLElement;
+	parent: Node;
+};
+
+let openMenu: OpenMenu | null = null;
+
+function closeMenu(): void {
+	if (!openMenu) {
+		return;
+	}
+
+	const { menu, toggle, parent } = openMenu;
+
+	menu.classList.add('hidden');
+	menu.style.position = '';
+	menu.style.top = '';
+	menu.style.left = '';
+	parent.appendChild(menu);
+	toggle.setAttribute('aria-expanded', 'false');
+	openMenu = null;
+}
+
+// The table scrolls, so the menu is moved to the shadow root and pinned to
+// the toggle with fixed coordinates to escape the overflow clip.
+function showMenu(toggle: HTMLElement, menu: HTMLElement, root: ShadowRoot): void {
+	closeMenu();
+
+	const rect = toggle.getBoundingClientRect();
+	const parent = menu.parentNode ?? root;
+
+	root.append(menu);
+	menu.classList.remove('hidden');
+	menu.style.position = 'fixed';
+	menu.style.top = `${Math.round(rect.bottom + 4)}px`;
+	menu.style.left = `${Math.round(rect.right - menu.offsetWidth)}px`;
+	toggle.setAttribute('aria-expanded', 'true');
+	openMenu = { menu, toggle, parent };
+}
+
+function initDrawer(dialog: HTMLDialogElement, root: ShadowRoot): void {
+	dialog.addEventListener('click', (event) => {
+		if (event.target === dialog) {
+			dialog.close();
+		}
+	});
+
+	dialog.addEventListener('close', () => {
+		for (const toggle of root.querySelectorAll<HTMLElement>(
+			`[data-reevents-target="#${dialog.id}"]`,
+		)) {
+			toggle.setAttribute('aria-expanded', 'false');
+		}
+	});
 }
 
 function initComponents(root: ShadowRoot): void {
+	for (const dialog of root.querySelectorAll<HTMLDialogElement>('dialog[data-reevents-drawer]')) {
+		initDrawer(dialog, root);
+	}
+
 	root.addEventListener('click', (event) => {
 		if (!(event.target instanceof Element)) {
 			return;
 		}
 
-		Menu.clearMenus(event);
-
 		const path = event.composedPath();
+
 		const dismiss = path.find(
 			(node): node is Element =>
-				node instanceof Element && node.matches('[data-bs-dismiss="drawer"]'),
+				node instanceof Element && node.matches('[data-reevents-dismiss="drawer"]'),
 		);
 
 		if (dismiss) {
-			const dialog = dismiss.closest('dialog');
-
-			if (dialog) {
-				Drawer.getOrCreateInstance(dialog).hide();
-			}
-
+			dismiss.closest('dialog')?.close();
 			return;
 		}
 
 		const toggle = path.find(
-			(node): node is Element =>
-				node instanceof Element &&
-				node.matches('[data-bs-toggle="drawer"], [data-bs-toggle="menu"]'),
+			(node): node is Element => node instanceof Element && node.matches('[data-reevents-toggle]'),
 		);
 
-		if (!toggle) {
-			return;
-		}
+		if (toggle instanceof HTMLElement) {
+			const selector = toggle.getAttribute('data-reevents-target');
+			const target = selector ? root.querySelector<HTMLElement>(selector) : null;
 
-		if (toggle.matches('[data-bs-toggle="drawer"]')) {
-			const selector = toggle.getAttribute('data-bs-target');
-			const target = selector ? root.querySelector(selector) : null;
-
-			if (target) {
-				Drawer.getOrCreateInstance(target).toggle();
+			if (!target) {
+				return;
 			}
 
-			return;
+			if (
+				toggle.getAttribute('data-reevents-toggle') === 'drawer' &&
+				target instanceof HTMLDialogElement
+			) {
+				if (target.open) {
+					target.close();
+				} else {
+					target.showModal();
+					toggle.setAttribute('aria-expanded', 'true');
+				}
+
+				return;
+			}
+
+			if (toggle.getAttribute('data-reevents-toggle') === 'menu') {
+				if (openMenu?.toggle === toggle) {
+					closeMenu();
+				} else {
+					showMenu(toggle, target, root);
+				}
+
+				return;
+			}
 		}
 
-		event.preventDefault();
-		Menu.getOrCreateInstance(toggle).toggle();
+		if (openMenu) {
+			if (path.includes(openMenu.menu) && !event.target.closest('a, button')) {
+				return;
+			}
+
+			closeMenu();
+		}
+	});
+
+	root.addEventListener('keydown', (event) => {
+		if (event instanceof KeyboardEvent && event.key === 'Escape') {
+			closeMenu();
+		}
 	});
 }
 
