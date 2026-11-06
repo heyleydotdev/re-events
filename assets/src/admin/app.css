@@ -65,32 +65,8 @@
 	}
 }
 
-#re-events-loading {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 0.5rem;
-	min-height: calc(100svh - var(--wp-admin--admin-bar--height));
-	color: var(--muted-foreground);
-	font-size: 14px;
-}
-
-#re-events-loading svg {
-	animation: re-events-spin 0.8s linear infinite;
-}
-
-@keyframes re-events-spin {
-	to {
-		transform: rotate(360deg);
-	}
-}
-
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
-	}
-
-	body {
-		@apply bg-background text-foreground;
 	}
 }

@@ -32,6 +32,7 @@ async function injectDevCss(shadow: ShadowRoot): Promise<void> {
 
 	const { default: css } = await import('./app.css?inline');
 	const style = document.createElement('style');
+	style.dataset.reeventsApp = 'true';
 	style.textContent = css;
 	shadow.prepend(style);
 
@@ -96,7 +97,7 @@ async function mount(): Promise<void> {
 	try {
 		await injectDevFonts();
 
-		if (!shadow.querySelector('style, link[rel="stylesheet"]')) {
+		if (!shadow.querySelector('style[data-reevents-app], link[rel="stylesheet"]')) {
 			await injectDevCss(shadow);
 		}
 
@@ -106,7 +107,7 @@ async function mount(): Promise<void> {
 		await nextPaint();
 
 		loader?.remove();
-		rootElement.classList.remove('opacity-0');
+		rootElement.style.opacity = '1';
 		rootElement.removeAttribute('aria-busy');
 	} catch (error) {
 		console.error('[ReEvents] admin mount failed', error);

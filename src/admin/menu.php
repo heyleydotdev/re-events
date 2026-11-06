@@ -161,9 +161,45 @@ final class Menu {
 		?>
 		<div id="re-events-host">
 			<template id="re-events-template" shadowrootmode="open">
+				<style>
+					:host {
+						display: block;
+						margin-left: -20px;
+						width: calc(100% + 20px);
+						min-height: calc(100svh - var(--wp-admin--admin-bar--height));
+						background: #fff;
+					}
+					@media (max-width: 782px) {
+						:host {
+							margin-left: -10px;
+							width: calc(100% + 10px);
+						}
+					}
+					#re-events-loading {
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						gap: 0.5rem;
+						min-height: calc(100svh - var(--wp-admin--admin-bar--height));
+						color: #6b7280;
+						font: 14px/1.4 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+					}
+					#re-events-loading svg {
+						animation: re-events-spin 0.8s linear infinite;
+					}
+					#re-events-root {
+						opacity: 0;
+						transition: opacity 0.15s ease-out;
+					}
+					@keyframes re-events-spin {
+						to {
+							transform: rotate(360deg);
+						}
+					}
+				</style>
 				<?php if ( null !== $reevents_app_css && '' !== $reevents_app_css ) : ?>
 					<?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet -- Shadow DOM stylesheet. ?>
-					<style><?php echo $reevents_app_css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built CSS asset. ?></style>
+					<style data-reevents-app><?php echo $reevents_app_css; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built CSS asset. ?></style>
 				<?php endif; ?>
 				<div id="re-events-loading" role="status" aria-live="polite">
 					<svg width="20" height="20" viewBox="0 0 50 50" aria-hidden="true" focusable="false">
@@ -171,7 +207,7 @@ final class Menu {
 					</svg>
 					<span><?php esc_html_e( 'Loading…', 're-events' ); ?></span>
 				</div>
-				<div id="re-events-root" class="min-h-[calc(100svh-var(--wp-admin--admin-bar--height))] opacity-0" aria-busy="true"></div>
+				<div id="re-events-root" aria-busy="true"></div>
 			</template>
 			<script type="application/json" id="re-events-data">
 				<?php echo wp_json_encode( $reevents_data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON data. ?>
