@@ -1,9 +1,0 @@
-#!/bin/sh
-# Sort Tailwind classes in staged admin templates before committing.
-
-git diff --cached --name-only --diff-filter=ACMR -- 'src/admin/views/*.php' |
-	while IFS= read -r file; do
-		[ -z "$file" ] && continue
-		bun run format:tw:file -- "$file" || exit 1
-		git add -- "$file"
-	done

@@ -4,8 +4,7 @@
 	"license": "GPL-2.0-or-later",
 	"type": "wordpress-plugin",
 	"require": {
-		"php": ">=8.2",
-		"league/plates": "^3"
+		"php": ">=8.2"
 	},
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",

@@ -34,7 +34,6 @@
 	<config name="testVersion" value="8.2-"/>
 
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
-		<exclude-pattern>src/admin/views/*</exclude-pattern>
 		<properties>
 			<property name="prefixes" type="array">
 				<element value="reevents"/>
