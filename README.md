@@ -1,4 +1,4 @@
-# RE Events
+# ReEvents
 
 Event management for WordPress with a REST API and a Bootstrap admin.
 
@@ -8,7 +8,7 @@ Event management for WordPress with a REST API and a Bootstrap admin.
 ![Vite 8](https://img.shields.io/badge/Vite-8-646cff)
 
 > [!WARNING]
-> RE Events is under active development. The event post type, REST API, and event screens are not implemented yet. The current release is a scaffold and is not production-ready.
+> ReEvents is under active development. The event post type, REST API, and event screens are not implemented yet. The current release is a scaffold and is not production-ready.
 
 ## Requirements
 
@@ -25,7 +25,7 @@ Event management for WordPress with a REST API and a Bootstrap admin.
 1. Copy the plugin to `wp-content/plugins/re-events`.
 2. Run `composer install` in the plugin directory.
 3. Run `bun install` and `bun run build`.
-4. Activate **RE Events** in the Plugins screen.
+4. Activate **ReEvents** in the Plugins screen.
 
 > [!IMPORTANT]
 > `vendor/` and `assets/build/` are not committed. `composer install` and `bun run build` are required before the admin UI can render.

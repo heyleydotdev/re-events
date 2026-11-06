@@ -139,7 +139,7 @@ final class Assets {
 	public function missing_build_notice(): void {
 		printf(
 			'<div class="notice notice-error"><p>%s</p></div>',
-			esc_html__( 'RE Events admin assets are missing. Run bun install and bun run build.', 're-events' )
+			esc_html__( 'ReEvents admin assets are missing. Run bun install and bun run build.', 're-events' )
 		);
 	}
 

@@ -1,6 +1,6 @@
 # Integration tests
 
-RE Events uses the WordPress PHPUnit library from `wp-phpunit/wp-phpunit` and a
+ReEvents uses the WordPress PHPUnit library from `wp-phpunit/wp-phpunit` and a
 dedicated test database. The WordPress test suite drops and recreates tables in
 that database, so never point it at a site database you care about.
 

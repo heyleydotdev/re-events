@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       RE Events
+ * Plugin Name:       ReEvents
  * Description:       Event management for WordPress.
  * Version:           0.1.0
  * Requires at least: 6.8

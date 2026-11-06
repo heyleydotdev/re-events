@@ -44,6 +44,6 @@ $table_prefix = 'wptests_';
 
 define( 'WP_TESTS_DOMAIN', 'example.org' );
 define( 'WP_TESTS_EMAIL', 'admin@example.org' );
-define( 'WP_TESTS_TITLE', 'RE Events Test Blog' );
+define( 'WP_TESTS_TITLE', 'ReEvents Test Blog' );
 define( 'WP_PHP_BINARY', PHP_BINARY );
 define( 'WPLANG', '' );

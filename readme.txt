@@ -1,4 +1,4 @@
-=== RE Events ===
+=== ReEvents ===
 Contributors: re
 Tags: events, calendar, event management
 Requires at least: 6.8
@@ -12,7 +12,7 @@ Event management for WordPress with a REST API and a Bootstrap admin.
 
 == Description ==
 
-RE Events adds event management to WordPress. Events are stored as a custom post type so builders, query loops, SEO plugins, revisions, and media keep working.
+ReEvents adds event management to WordPress. Events are stored as a custom post type so builders, query loops, SEO plugins, revisions, and media keep working.
 
 The plugin is API-first. A complete REST API will expose event reads and writes. The admin uses server-rendered Bootstrap pages; the event editor keeps the native WordPress editor.
 
