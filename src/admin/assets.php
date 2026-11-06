@@ -51,7 +51,7 @@ final class Assets {
 	 * @param string $hook_suffix Current admin screen.
 	 */
 	public function enqueue( string $hook_suffix ): void {
-		if ( 'toplevel_page_' . Menu::SLUG !== $hook_suffix ) {
+		if ( ! Menu::is_screen( $hook_suffix ) ) {
 			return;
 		}
 
@@ -182,9 +182,9 @@ final class Assets {
 			return null;
 		}
 
-		return str_replace(
-			'font-display:swap',
-			'font-display:optional',
+		return (string) preg_replace(
+			'/font-display\s*:\s*swap/',
+			'font-display: optional',
 			$this->absolute_urls( $css )
 		);
 	}
