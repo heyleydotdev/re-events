@@ -1,0 +1,27 @@
+{
+	"[php]": {
+		"editor.defaultFormatter": "bmewburn.vscode-intelephense-client",
+		"editor.formatOnSave": true,
+		"editor.insertSpaces": false,
+		"editor.tabSize": 4
+	},
+	"[css]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[javascript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[json]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"phpsab.executablePathCS": "./vendor/bin/phpcs.bat",
+	"phpsab.executablePathCBF": "./vendor/bin/phpcbf.bat",
+	"phpsab.standard": "./phpcs.xml.dist",
+	"phpsab.autoRulesetSearch": false,
+	"phpsab.fixerEnable": true,
+	"phpsab.snifferEnable": true,
+	"phpsab.snifferShowSources": true
+}

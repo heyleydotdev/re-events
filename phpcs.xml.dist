@@ -9,8 +9,25 @@
 	<arg name="extensions" value="php"/>
 	<arg value="sp"/>
 
-	<rule ref="WordPress-Extra"/>
-	<rule ref="WordPress-Docs"/>
+	<!--
+	 * PHP is formatted with Intelephense, which follows PSR-12 spacing.
+	 * The sniffs below require WordPress-style paren spacing and a blank line
+	 * after the file comment, so they are not enforced.
+	-->
+	<rule ref="WordPress-Extra">
+		<exclude name="PEAR.Functions.FunctionCallSignature"/>
+		<exclude name="WordPress.WhiteSpace.CastStructureSpacing"/>
+		<exclude name="WordPress.WhiteSpace.ControlStructureSpacing"/>
+		<exclude name="Generic.WhiteSpace.ArbitraryParenthesesSpacing"/>
+		<exclude name="NormalizedArrays.Arrays.ArrayBraceSpacing"/>
+		<exclude name="WordPress.Arrays.ArrayKeySpacingRestrictions"/>
+		<exclude name="WordPress.WhiteSpace.OperatorSpacing"/>
+		<exclude name="Universal.WhiteSpace.DisallowInlineTabs"/>
+		<exclude name="Squiz.Strings.DoubleQuoteUsage"/>
+	</rule>
+	<rule ref="WordPress-Docs">
+		<exclude name="Squiz.Commenting.FileComment.SpacingAfterOpen"/>
+	</rule>
 	<rule ref="PHPCompatibilityWP"/>
 
 	<config name="minimum_supported_wp_version" value="6.8"/>

@@ -1,0 +1,8 @@
+{
+	"recommendations": [
+		"valeryanm.vscode-phpsab",
+		"esbenp.prettier-vscode",
+		"bradlc.vscode-tailwindcss",
+		"emeraldwalk.runonsave"
+	]
+}
