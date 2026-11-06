@@ -1,5 +1,6 @@
 import { relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 const phpFullReload = () => ({
@@ -32,6 +33,18 @@ const phpFullReload = () => ({
 	},
 });
 
+const selfAcceptingHmr = () => ({
+	name: 'self-accepting-hmr',
+	handleHotUpdate(ctx) {
+		// Tailwind's @source makes Vite treat every TSX file as a CSS dependency
+		// too, and that second module is not self-accepting. Ignore it so React
+		// Fast Refresh handles the update instead of a full reload.
+		const modules = ctx.modules.filter((module) => module.isSelfAccepting);
+
+		return modules.length > 0 ? modules : undefined;
+	},
+});
+
 export default defineConfig({
 	base: './',
 	resolve: {
@@ -45,7 +58,7 @@ export default defineConfig({
 		strictPort: true,
 		origin: 'http://127.0.0.1:5173',
 	},
-	plugins: [phpFullReload()],
+	plugins: [react(), selfAcceptingHmr(), phpFullReload()],
 	build: {
 		outDir: 'assets/build',
 		emptyOutDir: true,

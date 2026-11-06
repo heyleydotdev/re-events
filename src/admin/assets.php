@@ -25,6 +25,11 @@ final class Assets {
 	public const VITE_CLIENT_HANDLE = 'reevents-vite-client';
 
 	/**
+	 * React Fast Refresh preamble handle (dev only).
+	 */
+	public const PREAMBLE_HANDLE = 'reevents-react-preamble';
+
+	/**
 	 * Cached production shadow CSS.
 	 *
 	 * @var string|null
@@ -72,9 +77,16 @@ final class Assets {
 				true
 			);
 			wp_enqueue_script(
+				self::PREAMBLE_HANDLE,
+				'http://127.0.0.1:5173/assets/src/admin/preamble.ts',
+				array( self::VITE_CLIENT_HANDLE ),
+				REEVENTS_VERSION,
+				true
+			);
+			wp_enqueue_script(
 				self::HANDLE,
 				'http://127.0.0.1:5173/assets/src/admin/index.tsx',
-				array( self::VITE_CLIENT_HANDLE ),
+				array( self::VITE_CLIENT_HANDLE, self::PREAMBLE_HANDLE ),
 				REEVENTS_VERSION,
 				true
 			);
@@ -119,7 +131,7 @@ final class Assets {
 	 * @param string $handle Script handle.
 	 */
 	public function module_script( string $tag, string $handle ): string {
-		if ( ! in_array( $handle, array( self::HANDLE, self::VITE_CLIENT_HANDLE ), true ) ) {
+		if ( ! in_array( $handle, array( self::HANDLE, self::VITE_CLIENT_HANDLE, self::PREAMBLE_HANDLE ), true ) ) {
 			return $tag;
 		}
 
