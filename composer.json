@@ -52,6 +52,7 @@
 		],
 		"check:audit": "composer audit",
 		"check:normalize": "composer normalize --dry-run",
+		"check:release": "php scripts/check-release.php",
 		"check:validate": "composer validate --strict",
 		"format": [
 			"@lint:fix",

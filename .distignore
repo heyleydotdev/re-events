@@ -11,10 +11,12 @@ phpstan.neon.dist
 phpunit.xml.dist
 README.md
 tests
-vendor
 node_modules
 assets/src
 package.json
 bun.lock
 vite.config.js
 postcss.config.js
+prettier.config.js
+tsconfig.json
+scripts
