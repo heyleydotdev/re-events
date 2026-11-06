@@ -1,0 +1,13 @@
+includes:
+	- vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+	level: 6
+	paths:
+		- src
+		- re-events.php
+		- uninstall.php
+	excludePaths:
+		- vendor/*
+		- src/admin/views/*
+	treatPhpDocTypesAsCertain: false

@@ -1,0 +1,65 @@
+{
+	"name": "re-events/re-events",
+	"description": "Event management plugin for WordPress.",
+	"license": "GPL-2.0-or-later",
+	"type": "wordpress-plugin",
+	"require": {
+		"php": ">=8.2",
+		"league/plates": "^3"
+	},
+	"require-dev": {
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+		"ergebnis/composer-normalize": "^2.54",
+		"php-stubs/wordpress-stubs": "^6.8",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"phpstan/phpstan": "^2.1",
+		"phpunit/phpunit": "^9.6",
+		"szepeviktor/phpstan-wordpress": "^2.0",
+		"wp-coding-standards/wpcs": "^3.1",
+		"wp-phpunit/wp-phpunit": "^7.1",
+		"yoast/phpunit-polyfills": "^3.1"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"autoload-dev": {
+		"classmap": [
+			"tests/"
+		]
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true,
+			"ergebnis/composer-normalize": true
+		},
+		"classmap-authoritative": true,
+		"optimize-autoloader": true,
+		"platform": {
+			"php": "8.2"
+		},
+		"sort-packages": true
+	},
+	"scripts": {
+		"analyze": "phpstan analyse --memory-limit=1G",
+		"check": [
+			"@check:validate",
+			"@check:normalize",
+			"@lint",
+			"@analyze",
+			"@check:audit"
+		],
+		"check:audit": "composer audit",
+		"check:normalize": "composer normalize --dry-run",
+		"check:validate": "composer validate --strict",
+		"format": [
+			"@lint:fix",
+			"composer normalize"
+		],
+		"lint": "phpcs",
+		"lint:fix": "phpcbf",
+		"test": "phpunit",
+		"test:integration": "phpunit --testsuite integration"
+	}
+}

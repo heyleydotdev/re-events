@@ -1,0 +1,11 @@
+# Local planning notes — must not be committed
+PLAN.md
+
+# Local tooling
+/vendor/
+/node_modules/
+/assets/build/
+.DS_Store
+*.log
+.phpunit.result.cache
+.phpunit.cache/
