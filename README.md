@@ -29,6 +29,14 @@ Event management for WordPress with a REST API and a Bootstrap admin.
 
 > [!IMPORTANT]
 > `vendor/` and `assets/build/` are not committed. `composer install` and `bun run build` are required before the admin UI can render.
+>
+> Release packages must run `composer install --no-dev -o`, `bun install`, and `bun run build`, then include `vendor/` and `assets/build/`.
+
+```bash
+composer install --no-dev -o
+bun install && bun run build
+composer check:release
+```
 
 ## Development
 
@@ -65,7 +73,7 @@ CSS and JavaScript update through Vite HMR. PHP changes trigger a full page relo
 
 1. `Admin\Menu` builds the nav data for the current view.
 2. `Admin\View` renders `src/admin/views/pages/*` through Plates.
-3. `src/admin/views/layouts/base.php` outputs the host element and a declarative shadow `<template>` with the built CSS inlined.
+3. `src/admin/views/layouts/root.php` outputs the host element and a declarative shadow `<template>` with the built CSS inlined. `layouts/base.php` adds the dashboard nav and content inside it.
 4. `assets/src/admin/index.ts` mounts the shadow root in dev and fallback modes, wires Drawer and Menu, and injects dev CSS and fonts.
 5. A small inline boot script handles browsers that ignore `shadowrootmode`.
 6. Fonts live in `document.head` because `@font-face` inside a shadow root is unreliable.
@@ -84,7 +92,8 @@ src/
     assets.php                 Asset loading and shadow CSS handoff
     view.php                   Plates renderer
     views/
-      layouts/base.php         Host, shadow template, fallback boot script
+      layouts/root.php         Host, shadow template, loader, fallback scripts
+      layouts/base.php         Dashboard nav and content
       components/nav.php       Navigation and drawer
       pages/placeholder.php    Placeholder section
 assets/src/admin/

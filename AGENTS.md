@@ -21,7 +21,7 @@
 | Test one PHP file | `composer test -- tests/integration/admin-menu-test.php` |
 | Frontend tests | `bun test` |
 
-`composer check` runs Composer validate/normalize, PHPCS, PHPStan, and audit. Run `bun run build` after changing `assets/src/`, or leave `bun run watch` running.
+`composer check` runs Composer validate/normalize, PHPCS, PHPStan, and audit. Run `bun run build` after changing `assets/src/`, or leave `bun run watch` running. Run `composer check:release` before packaging.
 
 ## External References
 
@@ -33,7 +33,7 @@
 ## Architecture
 
 - `re-events.php` bootstraps; `src/plugin.php` wires hooks; `src/activation.php` handles activation.
-- Admin: `Admin\Menu` renders Plates templates through `Admin\View`. `src/admin/views/layouts/base.php` owns the host, declarative shadow template, and fallback boot script; pages live in `views/pages/`, partials in `views/components/`.
+- Admin: `Admin\Menu` renders Plates templates through `Admin\View`. Pages extend `layouts/base.php` (dashboard nav and content), which extends `layouts/root.php` (host, declarative shadow template, loader, fallback scripts). Pages live in `views/pages/`, partials in `views/components/`.
 - Vite builds `assets/src/admin/index.ts` and `app.css` into `assets/build/` (ignored). Never edit `assets/build/`.
 - `PLAN.md` is a local roadmap and must not be committed.
 
@@ -45,6 +45,7 @@
 - Production uses declarative shadow DOM; dev uses template + JS mount for HMR. Production inlines CSS in the shadow root and fonts in `document.head`; PostCSS maps `:root`/`html`/`body` to `:host`. A light-DOM `#re-events-loading` shows until mount.
 - Do not flatten Bootstrap 6 `@layer` blocks or add a CSS prefix; both are fine inside the shadow root.
 - Admin views are Plates PHP templates: prepare data in `Menu`/services, escape with `esc_*`, call `$this->insert()` inline (it echoes), and keep queries/business logic out of views and REST controllers.
+- Admin screens require `manage_options`, use real WP submenu pages (`re-events-{view}`), and gate assets with `Menu::is_screen()`; do not add `?view=` nav links.
 - Bootstrap is pinned to `6.0.0-alpha.1`. Do not upgrade blindly or use v5 class names.
 - Icons: self-hosted Bootstrap Icons; use `<i class="bi bi-name"></i>` inside the shadow root.
 - Drawer and Menu are initialized manually; keep overlay markup inside the shadow root.
