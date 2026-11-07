@@ -8,13 +8,13 @@ Stable tag: 0.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Event management for WordPress with a REST API and a Bootstrap admin.
+Event management for WordPress with a REST API and a React + shadcn/ui admin.
 
 == Description ==
 
 ReEvents adds event management to WordPress. Events are stored as a custom post type so builders, query loops, SEO plugins, revisions, and media keep working.
 
-The plugin is API-first. A complete REST API will expose event reads and writes. The admin uses server-rendered Bootstrap pages; the event editor keeps the native WordPress editor.
+The plugin is API-first. A complete REST API will expose event reads and writes. The admin is a React app mounted in a shadow root; the event editor keeps the native WordPress editor.
 
 This release is the scaffold. The admin shell and section navigation are present; the event post type and REST API are not available yet.
 

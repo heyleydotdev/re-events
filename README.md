@@ -57,7 +57,7 @@ composer check:release
 
 `composer check` runs Composer validation, normalization, PHPCS, PHPStan, and audit. Run `bun run build` after changing `assets/src/`, or leave `bun run watch` running.
 
-`bun run format` runs Prettier over the admin bundle and sorts Tailwind classes in the TSX components. PHP is formatted by the Intelephense VS Code formatter; `phpcs.xml.dist` skips the WordPress spacing sniffs that conflict with its PSR-12 output.
+`bun run format` runs Bun's formatter over the admin bundle and sorts Tailwind classes in the TSX components. PHP is formatted by the Intelephense VS Code formatter; `phpcs.xml.dist` skips the WordPress spacing sniffs that conflict with its PSR-12 output.
 
 ### Hot reload
 
@@ -74,10 +74,10 @@ CSS and JavaScript update through Vite HMR. PHP changes trigger a full page relo
 
 ## How it works
 
-1. `Admin\Menu` builds the bootstrap data: current view, nav, events, REST URL, nonce, and capabilities.
+1. `Admin\Menu` builds the bootstrap data: current view, nav, events, and pagination.
 2. `Admin\Menu::render()` prints a declarative shadow `<template>` containing the loader and React mount point, plus a JSON data script. Production inlines the built CSS in the template; dev lets Vite inject it.
 3. `assets/src/admin/index.tsx` waits for fonts and styles, mounts the React app into the shadow root, then reveals it and removes the loader.
-4. `HashRouter` switches views inside the page. The six WordPress submenu pages remain real screens, so refresh, permissions, and menu highlighting still work.
+4. Nav links are the real WordPress submenu pages; React renders the page from `currentView`, so the admin menu, permissions, refresh, and bookmarks stay native.
 5. A small inline boot script attaches the shadow root for browsers without declarative shadow DOM.
 6. Fonts and Tailwind `@property` registrations live in `document.head` because Chromium ignores both inside a shadow root.
 
@@ -116,15 +116,16 @@ tests/
 ## Testing
 
 ```bash
-composer test    # PHPUnit integration tests
-bun test         # Frontend unit tests
+bun install && bun run build   # the asset tests read assets/build/
+composer test                  # PHPUnit integration tests
+bun test                       # Frontend unit tests
 ```
 
 Integration tests need a disposable MySQL database. Configure `WP_TESTS_DB_*` and see `tests/README.md` for the setup.
 
 ## Notes
 
-- React 19, React Router 7, Tailwind CSS 4, and shadcn/ui are pinned in `package.json`. Do not add Bootstrap or Flowbite class names.
+- React 19, Tailwind CSS 4, and shadcn/ui are pinned in `package.json`. Do not add Bootstrap or Flowbite class names.
 - Single-site plugin. Multisite handling is out of scope unless requested.
 - Keep bootstrap data in `Admin\Menu`; React reads it from the JSON script and never queries the database.
 - The admin UI is isolated by Shadow DOM. Do not add a global CSS prefix or flatten Tailwind `@layer` blocks.
