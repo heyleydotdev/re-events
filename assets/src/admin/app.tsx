@@ -1,10 +1,12 @@
 import { AppLayout } from '@/components/app-layout';
 import { EventsPage } from '@/pages/events-page';
 import { PlaceholderPage } from '@/pages/placeholder-page';
-import { BootstrapProvider } from '@/lib/bootstrap-context';
+import { BootstrapProvider, useBootstrap } from '@/lib/bootstrap-context';
 import type { BootstrapData } from '@/lib/data';
 
-function CurrentPage({ data }: { data: BootstrapData }) {
+function CurrentPage() {
+	const data = useBootstrap();
+
 	if (data.currentView === 'events') {
 		return <EventsPage />;
 	}
@@ -18,7 +20,7 @@ export function App({ data }: { data: BootstrapData }) {
 	return (
 		<BootstrapProvider data={data}>
 			<AppLayout>
-				<CurrentPage data={data} />
+				<CurrentPage />
 			</AppLayout>
 		</BootstrapProvider>
 	);

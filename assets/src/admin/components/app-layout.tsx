@@ -5,11 +5,11 @@ import { useBootstrap } from '@/lib/bootstrap-context';
 
 export function AppLayout({ children }: { children: ReactNode }) {
 	const data = useBootstrap();
-	const current = data.nav.find((item) => item.key === data.currentView) ?? data.nav[0];
+	const label = data.nav.find((item) => item.key === data.currentView)?.label ?? 'ReEvents';
 
 	useEffect(() => {
-		document.title = `${current.label} ‹ ReEvents`;
-	}, [current.label]);
+		document.title = `${label} ‹ ReEvents`;
+	}, [label]);
 
 	return (
 		<>
