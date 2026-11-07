@@ -125,7 +125,7 @@ Integration tests need a disposable MySQL database. Configure `WP_TESTS_DB_*` an
 
 ## Notes
 
-- React 19, Tailwind CSS 4, and shadcn/ui are pinned in `package.json`. Do not add Bootstrap or Flowbite class names.
+- React 19 with React Compiler, Tailwind CSS 4, and shadcn/ui are pinned in `package.json`. Style with Tailwind and shadcn/ui only.
 - Single-site plugin. Multisite handling is out of scope unless requested.
 - Keep bootstrap data in `Admin\Menu`; React reads it from the JSON script and never queries the database.
 - The admin UI is isolated by Shadow DOM. Do not add a global CSS prefix or flatten Tailwind `@layer` blocks.

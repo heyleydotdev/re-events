@@ -47,7 +47,8 @@
 - Do not flatten Tailwind `@layer` blocks or add a CSS prefix; both are fine inside the shadow root.
 - Bootstrap data comes from `Admin\Menu` as JSON; React reads it through `lib/bootstrap-context.tsx`. Do not query the database from React.
 - Admin screens require `manage_options`, use real WP submenu pages (`re-events-{view}`), and gate assets with `Menu::is_screen()`; do not add `?view=` nav links.
-- React 19, Tailwind CSS 4, and shadcn/ui are pinned in `package.json`. Do not add Bootstrap or Flowbite class names.
+- React 19, Tailwind CSS 4, and shadcn/ui are pinned in `package.json`. Style with Tailwind and shadcn/ui only.
+- React Compiler runs first in the Babel pipeline. Write plain components and hooks; do not add `useMemo`, `useCallback`, or `React.memo` unless it is a deliberate escape hatch (for example, to keep an effect from re-running). Follow the Rules of React; `"use no memo"` is a temporary opt-out only.
 - PHP is formatted with Intelephense (PSR-12 spacing); `phpcs.xml.dist` skips the WordPress spacing sniffs that conflict with it.
 - Icons: `lucide-react` inside components; no icon font or SVG partials.
 - Keep the host and app at `calc(100svh - var(--wp-admin--admin-bar--height))` so the loader and rendered app share the same height.
