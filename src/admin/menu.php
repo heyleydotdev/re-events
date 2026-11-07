@@ -222,6 +222,17 @@ final class Menu {
 					template.remove();
 				}
 			}() );</script>
+			<?php // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Replaces the loader when the bundle fails to load. ?>
+			<script>
+				window.setTimeout( function () {
+					var host = document.getElementById( 're-events-host' );
+					var loader = host && host.shadowRoot && host.shadowRoot.querySelector( '#re-events-loading' );
+
+					if ( loader ) {
+						loader.textContent = '<?php echo esc_js( __( 'ReEvents did not load. Check the browser console.', 're-events' ) ); ?>';
+					}
+				}, 8000 );
+			</script>
 		</div>
 		<?php
 	}

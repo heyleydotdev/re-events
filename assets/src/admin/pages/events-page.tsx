@@ -40,6 +40,13 @@ export function EventsPage() {
 		);
 	}, [events, query]);
 
+	const pageCount = Math.max(1, pagination.total);
+	const pageStart = Math.max(1, Math.min(pagination.current - 2, pageCount - 4));
+	const pages = Array.from({ length: Math.min(5, pageCount) }, (_, index) => pageStart + index);
+	const summary = query
+		? `Showing ${filtered.length} of ${events.length} events`
+		: pagination.summary;
+
 	return (
 		<div className="flex flex-col gap-6">
 			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -54,7 +61,7 @@ export function EventsPage() {
 						className="pl-9"
 					/>
 				</div>
-				<Button type="button">
+				<Button type="button" title="Event creation is not wired yet.">
 					<Plus />
 					Create event
 				</Button>
@@ -92,22 +99,24 @@ export function EventsPage() {
 				</Table>
 
 				<div className="flex flex-col gap-3 border-t px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-					<span>{pagination.summary}</span>
+					<span>{summary}</span>
 					<div className="flex items-center gap-1">
-						<Button variant="ghost" size="sm" disabled={pagination.current <= 1}>
+						<Button variant="ghost" size="sm" title="Pagination is not wired yet.">
 							Previous
 						</Button>
-						{Array.from({ length: pagination.total }, (_, index) => index + 1).map((page) => (
+						{pages.map((page) => (
 							<Button
 								key={page}
 								variant={page === pagination.current ? 'secondary' : 'ghost'}
 								size="sm"
+								disabled
+								title="Pagination is not wired yet."
 								aria-current={page === pagination.current ? 'page' : undefined}
 							>
 								{page}
 							</Button>
 						))}
-						<Button variant="ghost" size="sm" disabled={pagination.current >= pagination.total}>
+						<Button variant="ghost" size="sm" title="Pagination is not wired yet.">
 							Next
 						</Button>
 					</div>

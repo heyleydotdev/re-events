@@ -34,7 +34,7 @@ async function injectDevCss(shadow: ShadowRoot): Promise<void> {
 	const style = document.createElement('style');
 	style.dataset.reeventsApp = 'true';
 	style.textContent = css;
-	shadow.prepend(style);
+	shadow.append(style);
 
 	// Chromium ignores @property inside a shadow root, and Tailwind utilities
 	// rely on the registrations.
@@ -61,8 +61,28 @@ function waitForFonts(): Promise<unknown> {
 
 function nextPaint(): Promise<void> {
 	return new Promise((resolve) => {
-		requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+		let settled = false;
+		const finish = (): void => {
+			if (!settled) {
+				settled = true;
+				resolve();
+			}
+		};
+
+		requestAnimationFrame(() => requestAnimationFrame(finish));
+		window.setTimeout(finish, 100);
 	});
+}
+
+function setLoaderMessage(message: string): void {
+	const host = document.getElementById('re-events-host');
+	const loader =
+		host?.shadowRoot?.querySelector<HTMLElement>('#re-events-loading') ??
+		document.getElementById('re-events-loading');
+
+	if (loader) {
+		loader.textContent = message;
+	}
 }
 
 async function mount(): Promise<void> {
@@ -70,6 +90,7 @@ async function mount(): Promise<void> {
 	const data = readBootstrapData();
 
 	if (!host || !data) {
+		setLoaderMessage('ReEvents failed to load. Check the browser console.');
 		return;
 	}
 
@@ -111,10 +132,7 @@ async function mount(): Promise<void> {
 		rootElement.removeAttribute('aria-busy');
 	} catch (error) {
 		console.error('[ReEvents] admin mount failed', error);
-
-		if (loader) {
-			loader.textContent = 'ReEvents failed to load. Check the browser console.';
-		}
+		setLoaderMessage('ReEvents failed to load. Check the browser console.');
 	}
 }
 
