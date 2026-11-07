@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function PlaceholderPage({ title }: { title: string }) {
 	return (
@@ -7,7 +7,6 @@ export function PlaceholderPage({ title }: { title: string }) {
 				<CardTitle>{title}</CardTitle>
 				<CardDescription>This screen is not built yet.</CardDescription>
 			</CardHeader>
-			<CardContent />
 		</Card>
 	);
 }
