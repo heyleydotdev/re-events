@@ -13,6 +13,7 @@
 | Watch assets | `bun run watch` |
 | Vite dev server | `bun run dev` |
 | Typecheck | `bun check` |
+| Lint JS | `bun run lint` |
 | Format / check | `bun run format` / `bun run format:check` |
 | PHP checks | `composer check` |
 | Lint PHP | `composer lint` |
@@ -58,6 +59,6 @@
 
 - `composer check` passes.
 - `composer test` passes when logic, queries, or schema change.
-- `bun check` and `bun run format:check` pass when frontend files change.
+- `bun check`, `bun run lint`, and `bun run format:check` pass when frontend files change.
 - README and this file are updated when commands, architecture, or invariants change.
 - No new runtime dependency without an explicit decision.

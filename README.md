@@ -47,6 +47,7 @@ composer check:release
 | Watch assets | `bun run watch` |
 | Vite dev server | `bun run dev` |
 | Typecheck | `bun check` |
+| Lint JS | `bun run lint` |
 | Format | `bun run format` |
 | Format check | `bun run format:check` |
 | PHP checks | `composer check` |
