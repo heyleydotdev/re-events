@@ -25,9 +25,6 @@ export type BootstrapData = {
 	nav: NavItem[];
 	events: EventRow[];
 	pagination: Pagination;
-	restUrl: string;
-	nonce: string;
-	canManage: boolean;
 };
 
 export function readBootstrapData(): BootstrapData | null {

@@ -152,9 +152,6 @@ final class Menu {
 				'total'   => 1,
 				'summary' => __( 'Showing 3 of 3 events', 're-events' ),
 			),
-			'restUrl'     => rest_url( 're-events/v1/events' ),
-			'nonce'       => wp_create_nonce( 'wp_rest' ),
-			'canManage'   => current_user_can( self::CAPABILITY ),
 		);
 
 		$reevents_app_css = $reevents_assets->is_dev() ? null : $reevents_assets->inline_css();

@@ -9,5 +9,4 @@ parameters:
 		- uninstall.php
 	excludePaths:
 		- vendor/*
-		- src/admin/views/*
 	treatPhpDocTypesAsCertain: false
