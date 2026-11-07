@@ -19,6 +19,7 @@ bun.lock
 vite.config.js
 postcss.config.js
 prettier.config.js
+eslint.config.js
 tsconfig.json
 components.json
 scripts
