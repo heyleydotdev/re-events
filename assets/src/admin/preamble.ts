@@ -1,6 +1,6 @@
-// @ts-nocheck
 // Dev-only React Fast Refresh preamble; Vite injects this into HTML entries,
 // but our bundle is mounted from WordPress.
+// @ts-expect-error -- Vite virtual module.
 import RefreshRuntime from '/@react-refresh';
 
 RefreshRuntime.injectIntoGlobalHook(window);

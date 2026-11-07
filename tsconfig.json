@@ -13,5 +13,9 @@
 			"@/*": ["./assets/src/admin/*"]
 		}
 	},
-	"include": ["assets/src/admin/**/*.ts", "assets/src/admin/**/*.tsx"]
+	"include": [
+		"assets/src/admin/**/*.ts",
+		"assets/src/admin/**/*.tsx",
+		"assets/src/admin/**/*.d.ts"
+	]
 }
