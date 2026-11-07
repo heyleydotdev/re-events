@@ -13,7 +13,6 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import { useBootstrap } from '@/lib/bootstrap-context';
-import type { EventRow } from '@/lib/data';
 
 const badgeVariant = {
 	success: 'success',
@@ -56,7 +55,7 @@ export function EventsPage() {
 						className="pl-9"
 					/>
 				</div>
-				<Button type="button" title="Event creation is not wired yet.">
+				<Button type="button" disabled>
 					<Plus />
 					Create event
 				</Button>
@@ -73,7 +72,7 @@ export function EventsPage() {
 						</TableRow>
 					</TableHeader>
 					<TableBody>
-						{filtered.map((event: EventRow) => (
+						{filtered.map((event) => (
 							<TableRow key={event.id}>
 								<TableCell className="font-medium text-foreground">{event.title}</TableCell>
 								<TableCell className="text-muted-foreground">{event.date}</TableCell>
@@ -96,7 +95,7 @@ export function EventsPage() {
 				<div className="flex flex-col gap-3 border-t px-4 py-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
 					<span>{summary}</span>
 					<div className="flex items-center gap-1">
-						<Button variant="ghost" size="sm" title="Pagination is not wired yet.">
+						<Button variant="ghost" size="sm" disabled>
 							Previous
 						</Button>
 						{pages.map((page) => (
@@ -105,13 +104,12 @@ export function EventsPage() {
 								variant={page === pagination.current ? 'secondary' : 'ghost'}
 								size="sm"
 								disabled
-								title="Pagination is not wired yet."
 								aria-current={page === pagination.current ? 'page' : undefined}
 							>
 								{page}
 							</Button>
 						))}
-						<Button variant="ghost" size="sm" title="Pagination is not wired yet.">
+						<Button variant="ghost" size="sm" disabled>
 							Next
 						</Button>
 					</div>
