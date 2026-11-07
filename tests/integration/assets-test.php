@@ -36,7 +36,7 @@ final class Assets_Test extends WP_UnitTestCase {
 		$reevents_css = $reevents_method->invoke( $reevents_assets );
 
 		if ( null === $reevents_css ) {
-			$this->markTestSkipped( 'Build assets are missing.' );
+			$this->fail( 'Build assets are missing. Run bun run build.' );
 		}
 
 		$this->assertStringContainsString( '@font-face', $reevents_css );
@@ -55,7 +55,7 @@ final class Assets_Test extends WP_UnitTestCase {
 		$reevents_css = $reevents_method->invoke( $reevents_assets );
 
 		if ( null === $reevents_css ) {
-			$this->markTestSkipped( 'Build assets are missing.' );
+			$this->fail( 'Build assets are missing. Run bun run build.' );
 		}
 
 		$this->assertStringContainsString( '@property --tw-border-style', $reevents_css );
@@ -68,7 +68,7 @@ final class Assets_Test extends WP_UnitTestCase {
 		$reevents_assets = new Assets();
 
 		if ( null === $reevents_assets->inline_css() ) {
-			$this->markTestSkipped( 'Build assets are missing.' );
+			$this->fail( 'Build assets are missing. Run bun run build.' );
 		}
 
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );

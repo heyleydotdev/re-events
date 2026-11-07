@@ -12,14 +12,20 @@ that database, so never point it at a site database you care about.
    composer install
    ```
 
-2. Create an empty test database. For example, with Local's MySQL:
+2. Build the admin assets. The asset tests read `assets/build/` and fail when it is missing:
+
+   ```bash
+   bun install && bun run build
+   ```
+
+3. Create an empty test database. For example, with Local's MySQL:
 
    ```bash
    mysql -h 127.0.0.1 -P 10004 -u root -p \
      -e "CREATE DATABASE IF NOT EXISTS reevents_tests CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
    ```
 
-3. Point the test suite at that database. The defaults are `reevents_tests`,
+4. Point the test suite at that database. The defaults are `reevents_tests`,
    `root`, an empty password, and `localhost`. Override them with:
 
    - `WP_TESTS_DB_NAME`
