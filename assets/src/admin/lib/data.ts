@@ -22,8 +22,8 @@ export type Pagination = {
 export type BootstrapData = {
 	currentView: string;
 	homeUrl: string;
-	nav: NavItem[];
-	events: EventRow[];
+	nav: Array<NavItem>;
+	events: Array<EventRow>;
 	pagination: Pagination;
 };
 
@@ -73,22 +73,27 @@ function isPagination(value: unknown): value is Pagination {
 
 export function parseBootstrapData(text: string): BootstrapData | null {
 	try {
-		const data = JSON.parse(text) as Partial<BootstrapData>;
+		const data: unknown = JSON.parse(text);
+
+		if (!data || typeof data !== 'object') {
+			return null;
+		}
+
+		const payload = data as Partial<BootstrapData>;
 
 		if (
-			!data ||
-			!isString(data.currentView) ||
-			!isString(data.homeUrl) ||
-			!Array.isArray(data.nav) ||
-			!data.nav.every(isNavItem) ||
-			!Array.isArray(data.events) ||
-			!data.events.every(isEventRow) ||
-			!isPagination(data.pagination)
+			!isString(payload.currentView) ||
+			!isString(payload.homeUrl) ||
+			!Array.isArray(payload.nav) ||
+			!payload.nav.every(isNavItem) ||
+			!Array.isArray(payload.events) ||
+			!payload.events.every(isEventRow) ||
+			!isPagination(payload.pagination)
 		) {
 			return null;
 		}
 
-		return data as BootstrapData;
+		return payload as BootstrapData;
 	} catch {
 		return null;
 	}

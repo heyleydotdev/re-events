@@ -51,10 +51,6 @@ async function injectDevStyles(shadow: ShadowRoot): Promise<void> {
 }
 
 function waitForFonts(): Promise<unknown> {
-	if (!document.fonts) {
-		return Promise.resolve();
-	}
-
 	return Promise.race([
 		document.fonts.ready,
 		new Promise((resolve) => window.setTimeout(resolve, FONT_TIMEOUT)),
