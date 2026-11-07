@@ -3,49 +3,51 @@ import { createRoot } from 'react-dom/client';
 import { App } from './app';
 import { readBootstrapData } from './lib/data';
 
-const FONT_FACE_PATTERN = /@font-face\s*{[^}]*}/g;
 const PROPERTY_PATTERN = /@property\s+[^{]+\{[^}]*}/g;
 const FONT_TIMEOUT = 2500;
 
-async function injectDevFonts(): Promise<void> {
-	if (!import.meta.env.DEV || document.getElementById('re-events-fonts')) {
-		return;
+let appStyle: HTMLStyleElement | null = null;
+let propertiesStyle: HTMLStyleElement | null = null;
+
+function applyDevCss(css: string, shadow: ShadowRoot | null): void {
+	if (!appStyle && shadow) {
+		appStyle = document.createElement('style');
+		shadow.append(appStyle);
 	}
 
-	const { default: css } = await import('@fontsource-variable/geist/wght.css?inline');
-	const faces = css.match(FONT_FACE_PATTERN)?.join('\n') ?? '';
-
-	if (!faces) {
-		return;
+	if (appStyle) {
+		appStyle.textContent = css;
 	}
-
-	const style = document.createElement('style');
-	style.id = 're-events-fonts';
-	style.textContent = faces;
-	document.head.append(style);
-}
-
-async function injectDevCss(shadow: ShadowRoot): Promise<void> {
-	if (!import.meta.env.DEV) {
-		return;
-	}
-
-	const { default: css } = await import('./app.css?inline');
-	const style = document.createElement('style');
-	style.dataset.reeventsApp = 'true';
-	style.textContent = css;
-	shadow.append(style);
 
 	// Chromium ignores @property inside a shadow root, and Tailwind utilities
 	// rely on the registrations.
 	const properties = css.match(PROPERTY_PATTERN)?.join('\n') ?? '';
 
-	if (properties && !document.getElementById('re-events-properties')) {
-		const head = document.createElement('style');
-		head.id = 're-events-properties';
-		head.textContent = properties;
-		document.head.append(head);
+	if (!propertiesStyle && properties) {
+		propertiesStyle = document.createElement('style');
+		document.head.append(propertiesStyle);
 	}
+
+	if (propertiesStyle) {
+		propertiesStyle.textContent = properties;
+	}
+}
+
+async function injectDevStyles(shadow: ShadowRoot): Promise<void> {
+	if (!import.meta.env.DEV) {
+		return;
+	}
+
+	const [{ default: fonts }, { default: css }] = await Promise.all([
+		import('@fontsource-variable/geist/wght.css?inline'),
+		import('./app.css?inline'),
+	]);
+
+	const fontStyle = document.createElement('style');
+	fontStyle.textContent = fonts;
+	document.head.append(fontStyle);
+
+	applyDevCss(css, shadow);
 }
 
 function waitForFonts(): Promise<unknown> {
@@ -61,24 +63,15 @@ function waitForFonts(): Promise<unknown> {
 
 function nextPaint(): Promise<void> {
 	return new Promise((resolve) => {
-		let settled = false;
-		const finish = (): void => {
-			if (!settled) {
-				settled = true;
-				resolve();
-			}
-		};
-
-		requestAnimationFrame(() => requestAnimationFrame(finish));
-		window.setTimeout(finish, 100);
+		requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+		window.setTimeout(resolve, 100);
 	});
 }
 
 function setLoaderMessage(message: string): void {
-	const host = document.getElementById('re-events-host');
-	const loader =
-		host?.shadowRoot?.querySelector<HTMLElement>('#re-events-loading') ??
-		document.getElementById('re-events-loading');
+	const loader = document
+		.getElementById('re-events-host')
+		?.shadowRoot?.querySelector<HTMLElement>('#re-events-loading');
 
 	if (loader) {
 		loader.textContent = message;
@@ -100,6 +93,7 @@ async function mount(): Promise<void> {
 		const template = host.querySelector<HTMLTemplateElement>('#re-events-template');
 
 		if (!template) {
+			setLoaderMessage('ReEvents failed to load. Check the browser console.');
 			return;
 		}
 
@@ -112,15 +106,12 @@ async function mount(): Promise<void> {
 	const loader = shadow.querySelector<HTMLElement>('#re-events-loading');
 
 	if (!rootElement) {
+		setLoaderMessage('ReEvents failed to load. Check the browser console.');
 		return;
 	}
 
 	try {
-		await injectDevFonts();
-
-		if (!shadow.querySelector('style[data-reevents-app], link[rel="stylesheet"]')) {
-			await injectDevCss(shadow);
-		}
+		await injectDevStyles(shadow);
 
 		createRoot(rootElement).render(<App data={data} />);
 
@@ -134,6 +125,14 @@ async function mount(): Promise<void> {
 		console.error('[ReEvents] admin mount failed', error);
 		setLoaderMessage('ReEvents failed to load. Check the browser console.');
 	}
+}
+
+// ?inline CSS bypasses Vite's CSS HMR, so swap the shadow copies in place.
+if (import.meta.hot) {
+	import.meta.hot.accept('./app.css?inline', (module) => {
+		const shadow = document.getElementById('re-events-host')?.shadowRoot ?? null;
+		applyDevCss(module?.default ?? '', shadow);
+	});
 }
 
 mount();
