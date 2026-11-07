@@ -128,7 +128,7 @@ async function mount(): Promise<void> {
 		await nextPaint();
 
 		loader?.remove();
-		rootElement.style.opacity = '1';
+		rootElement.hidden = false;
 		rootElement.removeAttribute('aria-busy');
 	} catch (error) {
 		console.error('[ReEvents] admin mount failed', error);

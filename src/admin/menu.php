@@ -184,10 +184,6 @@ final class Menu {
 					#re-events-loading svg {
 						animation: re-events-spin 0.8s linear infinite;
 					}
-					#re-events-root {
-						opacity: 0;
-						transition: opacity 0.15s ease-out;
-					}
 					@keyframes re-events-spin {
 						to {
 							transform: rotate(360deg);
@@ -204,7 +200,7 @@ final class Menu {
 					</svg>
 					<span><?php esc_html_e( 'Loading…', 're-events' ); ?></span>
 				</div>
-				<div id="re-events-root" aria-busy="true"></div>
+				<div id="re-events-root" aria-busy="true" hidden></div>
 			</template>
 			<script type="application/json" id="re-events-data">
 				<?php echo wp_json_encode( $reevents_data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON data. ?>

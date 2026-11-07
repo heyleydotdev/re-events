@@ -97,6 +97,7 @@ final class Admin_Menu_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'id="re-events-host"', $html );
 		$this->assertStringContainsString( 'id="re-events-template"', $html );
 		$this->assertStringContainsString( 'id="re-events-root"', $html );
+		$this->assertStringContainsString( 'id="re-events-root" aria-busy="true" hidden', $html );
 		$this->assertStringContainsString( 'id="re-events-loading"', $html );
 		$this->assertStringContainsString( 'id="re-events-data"', $html );
 		$this->assertStringContainsString( '"currentView":"events"', $html );
