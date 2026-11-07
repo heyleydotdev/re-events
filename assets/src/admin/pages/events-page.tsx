@@ -1,5 +1,5 @@
 import { Plus, Search } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -26,19 +26,14 @@ export function EventsPage() {
 	const { events, pagination } = useBootstrap();
 	const [query, setQuery] = useState('');
 
-	const filtered = useMemo(() => {
-		const needle = query.trim().toLowerCase();
-
-		if (!needle) {
-			return events;
-		}
-
-		return events.filter((event) =>
-			[event.title, event.venue, event.status].some((value) =>
-				value.toLowerCase().includes(needle),
-			),
-		);
-	}, [events, query]);
+	const needle = query.trim().toLowerCase();
+	const filtered = needle
+		? events.filter((event) =>
+				[event.title, event.venue, event.status].some((value) =>
+					value.toLowerCase().includes(needle),
+				),
+			)
+		: events;
 
 	const pageCount = Math.max(1, pagination.total);
 	const pageStart = Math.max(1, Math.min(pagination.current - 2, pageCount - 4));

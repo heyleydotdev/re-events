@@ -1,6 +1,7 @@
 import { relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import react from '@vitejs/plugin-react';
+import react, { reactCompilerPreset } from '@vitejs/plugin-react';
+import babel from '@rolldown/plugin-babel';
 import { defineConfig } from 'vite';
 
 const phpFullReload = () => ({
@@ -35,7 +36,7 @@ const phpFullReload = () => ({
 
 const selfAcceptingHmr = () => ({
 	name: 'self-accepting-hmr',
-	handleHotUpdate(ctx) {
+	hotUpdate(ctx) {
 		// Tailwind's @source makes Vite treat every TSX file as a CSS dependency
 		// too, and that second module is not self-accepting. Ignore it so React
 		// Fast Refresh handles the update instead of a full reload.
@@ -58,12 +59,19 @@ export default defineConfig({
 		strictPort: true,
 		origin: 'http://127.0.0.1:5173',
 	},
-	plugins: [react(), selfAcceptingHmr(), phpFullReload()],
+	plugins: [
+		react(),
+		babel({
+			presets: [reactCompilerPreset()],
+		}),
+		selfAcceptingHmr(),
+		phpFullReload(),
+	],
 	build: {
 		outDir: 'assets/build',
 		emptyOutDir: true,
 		manifest: true,
-		rollupOptions: {
+		rolldownOptions: {
 			input: {
 				admin: fileURLToPath(new URL('assets/src/admin/index.tsx', import.meta.url)),
 				'admin-css': fileURLToPath(new URL('assets/src/admin/app.css', import.meta.url)),
