@@ -57,3 +57,6 @@ add_action(
 		\ReEvents\Plugin::instance()->boot();
 	}
 );
+
+register_activation_hook( __FILE__, [ \ReEvents\Activation::class, 'activate' ] );
+register_deactivation_hook( __FILE__, [ \ReEvents\Activation::class, 'deactivate' ] );
