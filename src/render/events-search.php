@@ -73,9 +73,9 @@ final class Events_Search {
 	 */
 	private static function filters(): array {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only filters.
-		$search   = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+		$search   = isset( $_GET['reevents_search'] ) ? sanitize_text_field( wp_unslash( $_GET['reevents_search'] ) ) : '';
 		$category = isset( $_GET['reevents_category'] ) ? absint( wp_unslash( $_GET['reevents_category'] ) ) : 0;
-		$venue    = isset( $_GET['reevents_venue'] ) ? absint( wp_unslash( $_GET['reevents_venue'] ) ) : 0;
+		$venue    = isset( $_GET['reevents_venue_filter'] ) ? absint( wp_unslash( $_GET['reevents_venue_filter'] ) ) : 0;
 		$from     = self::date( isset( $_GET['reevents_from'] ) ? sanitize_text_field( wp_unslash( $_GET['reevents_from'] ) ) : '' );
 		$to       = self::date( isset( $_GET['reevents_to'] ) ? sanitize_text_field( wp_unslash( $_GET['reevents_to'] ) ) : '' );
 		$upcoming = ! empty( $_GET['reevents_upcoming'] );

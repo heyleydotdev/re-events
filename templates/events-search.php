@@ -27,7 +27,7 @@ echo '<form class="reevents-search" method="get" action="' . esc_url( $form_acti
 if ( ! empty( $widget_args['show_keyword'] ) ) {
 	echo '<p class="reevents-search-field">';
 	echo '<label for="reevents-search-keyword">' . esc_html__( 'Search', 're-events' ) . '</label>';
-	echo '<input type="search" id="reevents-search-keyword" name="s" value="' . esc_attr( $filters['search'] ) . '" />';
+	echo '<input type="search" id="reevents-search-keyword" name="reevents_search" value="' . esc_attr( $filters['search'] ) . '" />';
 	echo '</p>';
 }
 
@@ -48,7 +48,7 @@ if ( ! empty( $widget_args['show_category'] ) && ! empty( $categories ) ) {
 if ( ! empty( $widget_args['show_venue'] ) && ! empty( $venues ) ) {
 	echo '<p class="reevents-search-field">';
 	echo '<label for="reevents-search-venue">' . esc_html__( 'Venue', 're-events' ) . '</label>';
-	echo '<select id="reevents-search-venue" name="reevents_venue">';
+	echo '<select id="reevents-search-venue" name="reevents_venue_filter">';
 	echo '<option value="0">' . esc_html__( 'All venues', 're-events' ) . '</option>';
 
 	foreach ( $venues as $venue ) {

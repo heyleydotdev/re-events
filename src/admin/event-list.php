@@ -96,8 +96,8 @@ final class Event_List {
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only filters.
-		$category = isset( $_GET['reevents_event_category'] ) ? absint( wp_unslash( $_GET['reevents_event_category'] ) ) : 0;
-		$venue    = isset( $_GET['reevents_venue'] ) ? absint( wp_unslash( $_GET['reevents_venue'] ) ) : 0;
+		$category = isset( $_GET['reevents_category_filter'] ) ? absint( wp_unslash( $_GET['reevents_category_filter'] ) ) : 0;
+		$venue    = isset( $_GET['reevents_venue_filter'] ) ? absint( wp_unslash( $_GET['reevents_venue_filter'] ) ) : 0;
 		// phpcs:enable
 
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Core-generated dropdowns.
@@ -114,7 +114,7 @@ final class Event_List {
 			wp_dropdown_categories(
 				[
 					'taxonomy'        => 'reevents_event_category',
-					'name'            => 'reevents_event_category',
+					'name'            => 'reevents_category_filter',
 					'value_field'     => 'term_id',
 					'show_option_all' => __( 'All categories', 're-events' ),
 					'selected'        => $category,
@@ -138,7 +138,7 @@ final class Event_List {
 			wp_dropdown_pages(
 				[
 					'post_type'         => 'reevents_venue',
-					'name'              => 'reevents_venue',
+					'name'              => 'reevents_venue_filter',
 					'show_option_none'  => __( 'All venues', 're-events' ),
 					'option_none_value' => '0',
 					'selected'          => $venue,
@@ -166,8 +166,8 @@ final class Event_List {
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only filters.
-		$category = isset( $_GET['reevents_event_category'] ) ? absint( wp_unslash( $_GET['reevents_event_category'] ) ) : 0;
-		$venue    = isset( $_GET['reevents_venue'] ) ? absint( wp_unslash( $_GET['reevents_venue'] ) ) : 0;
+		$category = isset( $_GET['reevents_category_filter'] ) ? absint( wp_unslash( $_GET['reevents_category_filter'] ) ) : 0;
+		$venue    = isset( $_GET['reevents_venue_filter'] ) ? absint( wp_unslash( $_GET['reevents_venue_filter'] ) ) : 0;
 		// phpcs:enable
 
 		if ( $category ) {
