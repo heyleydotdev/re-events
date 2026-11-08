@@ -53,6 +53,20 @@ final class Settings {
 		);
 		self::add_field(
 			'general',
+			'time_display',
+			__( 'Time display', 're-events' ),
+			[
+				'type'        => 'select',
+				'options'     => [
+					'site'    => __( 'Site timezone', 're-events' ),
+					'event'   => __( 'Event timezone', 're-events' ),
+					'visitor' => __( 'Visitor timezone', 're-events' ),
+				],
+				'description' => __( 'How event times are shown on the front end.', 're-events' ),
+			]
+		);
+		self::add_field(
+			'general',
 			'currency',
 			__( 'Currency', 're-events' ),
 			[
@@ -193,8 +207,9 @@ final class Settings {
 
 		switch ( $tab ) {
 			case 'general':
-				$settings['timezone'] = self::sanitize_timezone( $input['timezone'] ?? 'UTC' );
-				$settings['currency'] = self::sanitize_currency( $input['currency'] ?? 'USD' );
+				$settings['timezone']     = self::sanitize_timezone( $input['timezone'] ?? 'UTC' );
+				$settings['time_display'] = self::sanitize_time_display( $input['time_display'] ?? 'event' );
+				$settings['currency']     = self::sanitize_currency( $input['currency'] ?? 'USD' );
 				break;
 
 			case 'formats':
@@ -234,6 +249,7 @@ final class Settings {
 	private static function defaults(): array {
 		return [
 			'timezone'        => 'UTC',
+			'time_display'    => 'event',
 			'currency'        => 'USD',
 			'date_format'     => get_option( 'date_format', 'F j, Y' ),
 			'time_format'     => get_option( 'time_format', 'g:i a' ),
@@ -361,6 +377,17 @@ final class Settings {
 		$value = sanitize_text_field( (string) $value );
 
 		return in_array( $value, timezone_identifiers_list(), true ) ? $value : 'UTC';
+	}
+
+	/**
+	 * Sanitize the time display mode.
+	 *
+	 * @param mixed $value Raw value.
+	 */
+	private static function sanitize_time_display( $value ): string {
+		$value = sanitize_key( (string) $value );
+
+		return in_array( $value, [ 'site', 'event', 'visitor' ], true ) ? $value : 'event';
 	}
 
 	/**
