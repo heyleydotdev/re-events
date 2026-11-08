@@ -1,0 +1,45 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ReEvents API",
+    "version": "0.1.0",
+    "description": "REST API for events, venues, organizers, bookings and availability."
+  },
+  "servers": [
+    {
+      "url": "/wp-json/re-events/v1",
+      "description": "Current site"
+    }
+  ],
+  "tags": [
+    { "name": "System", "description": "Health and metadata." },
+    { "name": "Events", "description": "Events and occurrences." },
+    { "name": "Venues", "description": "Venues and locations." },
+    { "name": "Organizers", "description": "Event organizers." },
+    { "name": "Bookings", "description": "Bookings, tickets and availability." }
+  ],
+  "paths": {
+    "/ping": {
+      "get": {
+        "summary": "Health check",
+        "tags": [ "System" ],
+        "responses": {
+          "200": {
+            "description": "API is reachable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "ok" },
+                    "version": { "type": "string", "example": "0.1.0" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents;
 
+use ReEvents\Admin\API_Docs;
 use ReEvents\Admin\Assets;
 use ReEvents\Admin\Event_List;
 use ReEvents\Admin\Menu;
@@ -19,6 +20,7 @@ use ReEvents\Frontend\Assets as Frontend_Assets;
 use ReEvents\Frontend\Blocks;
 use ReEvents\Frontend\Shortcodes;
 use ReEvents\Render\Widget_Registry;
+use ReEvents\REST\Routes;
 use ReEvents\Data\Meta;
 use ReEvents\Data\Post_Types;
 use ReEvents\Data\Schema;
@@ -60,11 +62,13 @@ final class Plugin {
 		Meta_Boxes::register();
 		Venue_Meta_Boxes::register();
 		Assets::register();
+		API_Docs::register();
 		Settings::register();
 		Event_List::register();
 		Widget_Registry::register_defaults();
 		Shortcodes::register();
 		Blocks::register();
+		Routes::register();
 		Frontend_Assets::register();
 		Menu::register();
 	}
