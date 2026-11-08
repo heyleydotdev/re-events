@@ -29,6 +29,7 @@
 		setupRepeater('reevents-online-urls', 'reevents-url-template', 'reevents-add-url', 'reevents-remove-url', 'reevents-url-row');
 		setupRepeater('reevents-exdates', 'reevents-exdate-template', 'reevents-add-exdate', 'reevents-remove-exdate', 'reevents-exdate-row');
 		setupRepeater('reevents-rdates', 'reevents-rdate-template', 'reevents-add-rdate', 'reevents-remove-rdate', 'reevents-rdate-row');
+		setupRepeater('reevents-timeslots', 'reevents-timeslot-template', 'reevents-add-timeslot', 'reevents-remove-timeslot', 'reevents-timeslot-row');
 
 		const allDay = document.getElementById('reevents-all-day');
 		const start = document.getElementById('reevents-start');

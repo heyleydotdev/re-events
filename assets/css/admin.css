@@ -1,10 +1,15 @@
 .reevents-url-row,
 .reevents-exdate-row,
-.reevents-rdate-row {
+.reevents-rdate-row,
+.reevents-timeslot-row {
 	display: flex;
 	gap: 8px;
 	align-items: center;
 	margin-bottom: 8px;
+}
+
+.reevents-timeslot-row input[type="number"] {
+	width: 8em;
 }
 
 .reevents-weekday {

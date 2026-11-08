@@ -86,6 +86,15 @@ final class Meta_Boxes {
 			'normal',
 			'default'
 		);
+
+		add_meta_box(
+			'reevents-event-timeslots',
+			__( 'Timeslots', 're-events' ),
+			[ self::class, 'render_timeslots' ],
+			'reevents_event',
+			'normal',
+			'default'
+		);
 	}
 
 	/**
@@ -422,6 +431,50 @@ final class Meta_Boxes {
 	}
 
 	/**
+	 * Render the timeslots box.
+	 *
+	 * @param WP_Post $post Post object.
+	 */
+	public static function render_timeslots( WP_Post $post ): void {
+		$data  = self::data( $post );
+		$event = $data['event'];
+
+		wp_nonce_field( 'reevents_event_details', 'reevents_event_details_nonce' );
+		?>
+		<div id="reevents-timeslots">
+			<?php foreach ( $event->timeslots as $slot ) : ?>
+				<div class="reevents-timeslot-row">
+					<input type="time" name="reevents_timeslots[start][]" value="<?php echo esc_attr( $slot['start'] ); ?>" aria-label="<?php esc_attr_e( 'Start', 're-events' ); ?>" />
+					<input type="time" name="reevents_timeslots[end][]" value="<?php echo esc_attr( $slot['end'] ); ?>" aria-label="<?php esc_attr_e( 'End', 're-events' ); ?>" />
+					<input type="number" name="reevents_timeslots[capacity][]" min="0" step="1" value="<?php echo esc_attr( (string) $slot['capacity'] ); ?>" placeholder="<?php esc_attr_e( 'Capacity', 're-events' ); ?>" />
+					<button type="button" class="button reevents-remove-timeslot"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
+				</div>
+			<?php endforeach; ?>
+			<?php if ( empty( $event->timeslots ) ) : ?>
+				<div class="reevents-timeslot-row">
+					<input type="time" name="reevents_timeslots[start][]" value="" aria-label="<?php esc_attr_e( 'Start', 're-events' ); ?>" />
+					<input type="time" name="reevents_timeslots[end][]" value="" aria-label="<?php esc_attr_e( 'End', 're-events' ); ?>" />
+					<input type="number" name="reevents_timeslots[capacity][]" min="0" step="1" value="" placeholder="<?php esc_attr_e( 'Capacity', 're-events' ); ?>" />
+					<button type="button" class="button reevents-remove-timeslot"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
+				</div>
+			<?php endif; ?>
+		</div>
+		<p>
+			<button type="button" class="button" id="reevents-add-timeslot"><?php esc_html_e( 'Add timeslot', 're-events' ); ?></button>
+		</p>
+		<p class="description"><?php esc_html_e( 'Optional. Split each event date into bookable timeslots.', 're-events' ); ?></p>
+		<template id="reevents-timeslot-template">
+			<div class="reevents-timeslot-row">
+				<input type="time" name="reevents_timeslots[start][]" value="" aria-label="<?php esc_attr_e( 'Start', 're-events' ); ?>" />
+				<input type="time" name="reevents_timeslots[end][]" value="" aria-label="<?php esc_attr_e( 'End', 're-events' ); ?>" />
+				<input type="number" name="reevents_timeslots[capacity][]" min="0" step="1" value="" placeholder="<?php esc_attr_e( 'Capacity', 're-events' ); ?>" />
+				<button type="button" class="button reevents-remove-timeslot"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
+			</div>
+		</template>
+		<?php
+	}
+
+	/**
 	 * Get cached event data.
 	 *
 	 * @param WP_Post $post Post object.
@@ -560,6 +613,27 @@ final class Meta_Boxes {
 			$online_urls = Meta::sanitize_urls( $items );
 		}
 
+		$timeslots = [];
+
+		if ( isset( $_POST['reevents_timeslots'] ) && is_array( $_POST['reevents_timeslots'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Meta::sanitize_timeslots().
+			$raw_timeslots = (array) wp_unslash( $_POST['reevents_timeslots'] );
+			$starts        = isset( $raw_timeslots['start'] ) && is_array( $raw_timeslots['start'] ) ? $raw_timeslots['start'] : [];
+			$ends          = isset( $raw_timeslots['end'] ) && is_array( $raw_timeslots['end'] ) ? $raw_timeslots['end'] : [];
+			$capacities    = isset( $raw_timeslots['capacity'] ) && is_array( $raw_timeslots['capacity'] ) ? $raw_timeslots['capacity'] : [];
+			$items         = [];
+
+			foreach ( $starts as $index => $slot_start ) {
+				$items[] = [
+					'start'    => $slot_start,
+					'end'      => $ends[ $index ] ?? '',
+					'capacity' => $capacities[ $index ] ?? 0,
+				];
+			}
+
+			$timeslots = Meta::sanitize_timeslots( $items );
+		}
+
 		$advanced = sanitize_text_field( wp_unslash( $_POST['reevents_rrule'] ?? '' ) );
 		$rrule    = '' !== $advanced ? $advanced : Recurrence_Rule::build(
 			[
@@ -580,6 +654,7 @@ final class Meta_Boxes {
 		update_post_meta( $post_id, '_reevents_rrule', $rrule );
 		update_post_meta( $post_id, '_reevents_exdates', $exdates );
 		update_post_meta( $post_id, '_reevents_rdates', $rdates );
+		update_post_meta( $post_id, '_reevents_timeslots', $timeslots );
 		update_post_meta( $post_id, '_reevents_venue_id', absint( wp_unslash( $_POST['reevents_venue_id'] ?? 0 ) ) );
 		update_post_meta( $post_id, '_reevents_organizer_ids', $organizer_ids );
 		update_post_meta( $post_id, '_reevents_capacity', absint( wp_unslash( $_POST['reevents_capacity'] ?? 0 ) ) );
