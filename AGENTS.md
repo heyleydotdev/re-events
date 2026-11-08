@@ -15,11 +15,14 @@ ReEvents is a WordPress event manager plugin. GPL-2.0-or-later, no pro tier, no 
 
 ## Commands
 
-- `composer install` — install dev tools
+- `composer install` — install PHP dev tools
 - `composer hooks` — install the pre-commit hook (one-time)
 - `composer format` — auto-fix PHPCS issues
 - `composer lint` — PHPCS
 - `composer analyze` — PHPStan
+- `bun install` — install JS dev tools
+- `bun run build` — build blocks into `blocks/build/`
+- `bun run lint:js` — JS lint
 
 The pre-commit hook formats and lints staged PHP files. It blocks the commit if unfixable errors remain.
 

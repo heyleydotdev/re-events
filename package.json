@@ -1,0 +1,14 @@
+{
+  "name": "reevents",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "wp-scripts build --webpack-src-dir=blocks/src --output-path=blocks/build",
+    "start": "wp-scripts start --webpack-src-dir=blocks/src --output-path=blocks/build",
+    "lint:js": "wp-scripts lint-js blocks/src"
+  },
+  "devDependencies": {
+    "@wordpress/scripts": "^30.0.0",
+    "typescript": "^5.9.3"
+  }
+}
