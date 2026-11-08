@@ -31,13 +31,19 @@ final class Blocks {
 			'events-list'   => 'events-list',
 			'event-details' => 'event-details',
 			'venues-list'   => 'venues-list',
+			'events-search' => 'events-search',
 		];
 
 		$attribute_map = [
+			'showKeyword'     => 'show_keyword',
 			'showVenue'       => 'show_venue',
+			'showCategory'    => 'show_category',
 			'showOrganizers'  => 'show_organizers',
 			'showOnlineLinks' => 'show_online_links',
 			'showContent'     => 'show_content',
+			'showDates'       => 'show_dates',
+			'showUpcoming'    => 'show_upcoming',
+			'showResults'     => 'show_results',
 			'showDescription' => 'show_description',
 		];
 
