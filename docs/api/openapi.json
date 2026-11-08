@@ -40,6 +40,241 @@
           }
         }
       }
+    },
+    "/events": {
+      "get": {
+        "summary": "List events",
+        "description": "Returns published events ordered by start time.",
+        "tags": [ "Events" ],
+        "parameters": [
+          { "$ref": "#/components/parameters/Page" },
+          { "$ref": "#/components/parameters/PerPage" },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Limit results to events matching a search term.",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Limit results to a category term ID.",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "venue",
+            "in": "query",
+            "description": "Limit results to a venue ID.",
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Only events starting on or after this date (Y-m-d, UTC).",
+            "schema": { "type": "string", "format": "date" }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Only events starting on or before this date (Y-m-d, UTC).",
+            "schema": { "type": "string", "format": "date" }
+          },
+          {
+            "name": "upcoming",
+            "in": "query",
+            "description": "Only include upcoming events.",
+            "schema": { "type": "boolean" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of events.",
+            "headers": {
+              "X-WP-Total": {
+                "description": "Total number of matching events.",
+                "schema": { "type": "integer" }
+              },
+              "X-WP-TotalPages": {
+                "description": "Total number of result pages.",
+                "schema": { "type": "integer" }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Event" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/{id}": {
+      "get": {
+        "summary": "Get an event",
+        "tags": [ "Events" ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Event post ID.",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Event" }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events/{id}/occurrences": {
+      "get": {
+        "summary": "List event occurrences",
+        "description": "Returns the stored occurrences generated for an event, including recurrence and timeslot rows.",
+        "tags": [ "Events" ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Event post ID.",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of occurrences ordered by start time.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Occurrence" }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "Page": {
+        "name": "page",
+        "in": "query",
+        "description": "Current page of the collection.",
+        "schema": { "type": "integer", "minimum": 1, "default": 1 }
+      },
+      "PerPage": {
+        "name": "per_page",
+        "in": "query",
+        "description": "Maximum number of items to return (1-100).",
+        "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 10 }
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "string" },
+          "message": { "type": "string" },
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "integer" }
+            }
+          }
+        }
+      },
+      "Timeslot": {
+        "type": "object",
+        "properties": {
+          "start": { "type": "string", "example": "18:00" },
+          "end": { "type": "string", "example": "19:00" },
+          "capacity": { "type": "integer" }
+        }
+      },
+      "OnlineUrl": {
+        "type": "object",
+        "properties": {
+          "label": { "type": "string" },
+          "url": { "type": "string", "format": "uri" }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "title": { "type": "string" },
+          "start_utc": { "type": "string", "description": "Start time in UTC." },
+          "end_utc": { "type": "string", "description": "End time in UTC." },
+          "timezone": { "type": "string", "example": "Europe/London" },
+          "all_day": { "type": "boolean" },
+          "rrule": { "type": "string", "example": "FREQ=WEEKLY;COUNT=4" },
+          "exdates": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "rdates": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "timeslots": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Timeslot" }
+          },
+          "venue_id": { "type": "integer" },
+          "organizer_ids": {
+            "type": "array",
+            "items": { "type": "integer" }
+          },
+          "capacity": { "type": "integer" },
+          "online_urls": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/OnlineUrl" }
+          },
+          "status": { "type": "string" },
+          "permalink": { "type": "string", "format": "uri" }
+        }
+      },
+      "Occurrence": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "event_id": { "type": "integer" },
+          "start_utc": { "type": "string" },
+          "end_utc": { "type": "string" },
+          "timezone": { "type": "string" },
+          "timeslot_key": { "type": "string" },
+          "capacity": { "type": "integer" },
+          "status": { "type": "string" }
+        }
+      }
     }
   }
 }

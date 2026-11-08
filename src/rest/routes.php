@@ -36,6 +36,9 @@ final class Routes {
 				'permission_callback' => '__return_true',
 			]
 		);
+
+		$events = new Events_Controller();
+		$events->register_routes();
 	}
 
 	/**

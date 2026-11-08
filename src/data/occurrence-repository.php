@@ -91,4 +91,30 @@ final class Occurrence_Repository {
 
 		return is_array( $results ) ? $results : [];
 	}
+
+	/**
+	 * Get occurrences for an event.
+	 *
+	 * @param int $event_id Event ID.
+	 * @param int $limit    Maximum rows.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function get_for_event( int $event_id, int $limit = 500 ): array {
+		global $wpdb;
+
+		$table = $this->table();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$table} WHERE event_id = %d ORDER BY start_utc ASC LIMIT %d",
+				$event_id,
+				max( 1, $limit )
+			),
+			ARRAY_A
+		);
+		// phpcs:enable
+
+		return is_array( $results ) ? $results : [];
+	}
 }
