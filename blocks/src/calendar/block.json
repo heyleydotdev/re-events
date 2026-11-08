@@ -1,0 +1,21 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "reevents/calendar",
+	"title": "Events Calendar",
+	"category": "widgets",
+	"icon": "calendar-alt",
+	"description": "Display a month calendar of events.",
+	"keywords": [ "events", "calendar", "reevents" ],
+	"textdomain": "re-events",
+	"attributes": {
+		"showNav": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"supports": {
+		"html": false
+	},
+	"editorScript": "file:./index.js"
+}

@@ -32,6 +32,7 @@ final class Blocks {
 			'event-details' => 'event-details',
 			'venues-list'   => 'venues-list',
 			'events-search' => 'events-search',
+			'calendar'      => 'calendar',
 		];
 
 		$attribute_map = [
@@ -45,6 +46,7 @@ final class Blocks {
 			'showUpcoming'    => 'show_upcoming',
 			'showResults'     => 'show_results',
 			'showDescription' => 'show_description',
+			'showNav'         => 'show_nav',
 		];
 
 		foreach ( $blocks as $block => $widget ) {
