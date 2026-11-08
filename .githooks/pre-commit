@@ -1,0 +1,17 @@
+#!/bin/sh
+# Installed by `composer hooks`. Formats and lints staged PHP files.
+set -e
+
+if [ ! -f vendor/bin/phpcs ]; then
+	echo "ReEvents: vendor/ missing, run 'composer install'. Skipping checks."
+	exit 0
+fi
+
+if ! git diff --cached --name-only --diff-filter=ACM -- '*.php' | grep -q .; then
+	exit 0
+fi
+
+# shortcut: phpcbf rewrites the working tree, so partially staged files are staged whole.
+git diff --cached --name-only --diff-filter=ACM -z -- '*.php' | xargs -0 php vendor/bin/phpcbf --standard=phpcs.xml.dist -q || true
+git diff --cached --name-only --diff-filter=ACM -z -- '*.php' | xargs -0 git add --
+git diff --cached --name-only --diff-filter=ACM -z -- '*.php' | xargs -0 php vendor/bin/phpcs --standard=phpcs.xml.dist -q
