@@ -62,33 +62,44 @@ final class Occurrence_Service {
 		$end         = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', $event->end_utc, new DateTimeZone( 'UTC' ) );
 		$duration    = $end instanceof DateTimeImmutable ? max( 0, $end->getTimestamp() - $start->getTimestamp() ) : 0;
 
-		if ( '' === $event->rrule ) {
-			return [ self::row( $start_local, $duration, $event, $timezone ) ];
+		$set      = new RSet();
+		$has_rule = '' !== $event->rrule;
+
+		if ( $has_rule ) {
+			try {
+				$set->addRRule( new RRule( $event->rrule, new DateTime( $start_local->format( 'Y-m-d H:i:s' ), $timezone ) ) );
+			} catch ( InvalidArgumentException ) {
+				$has_rule = false;
+			}
 		}
 
-		try {
-			$rule = new RRule( $event->rrule, new DateTime( $start_local->format( 'Y-m-d H:i:s' ), $timezone ) );
-			$set  = new RSet();
-			$set->addRRule( $rule );
-
-			foreach ( $event->exdates as $exdate ) {
-				$date = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', $exdate, new DateTimeZone( 'UTC' ) );
-
-				if ( $date instanceof DateTimeImmutable ) {
-					$set->addExDate( new DateTime( $date->setTimezone( $timezone )->format( 'Y-m-d H:i:s' ), $timezone ) );
-				}
-			}
-
-			$occurrences = [];
-
-			foreach ( $set->getOccurrencesBetween( $start_local, $start_local->modify( '+2 years' ), $limit ) as $date ) {
-				$occurrences[] = self::row( $date, $duration, $event, $timezone );
-			}
-
-			return $occurrences;
-		} catch ( InvalidArgumentException ) {
-			return [ self::row( $start_local, $duration, $event, $timezone ) ];
+		if ( ! $has_rule ) {
+			$set->addDate( new DateTime( $start_local->format( 'Y-m-d H:i:s' ), $timezone ) );
 		}
+
+		foreach ( $event->rdates as $rdate ) {
+			$date = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', $rdate, new DateTimeZone( 'UTC' ) );
+
+			if ( $date instanceof DateTimeImmutable ) {
+				$set->addDate( new DateTime( $date->setTimezone( $timezone )->format( 'Y-m-d H:i:s' ), $timezone ) );
+			}
+		}
+
+		foreach ( $event->exdates as $exdate ) {
+			$date = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', $exdate, new DateTimeZone( 'UTC' ) );
+
+			if ( $date instanceof DateTimeImmutable ) {
+				$set->addExDate( new DateTime( $date->setTimezone( $timezone )->format( 'Y-m-d H:i:s' ), $timezone ) );
+			}
+		}
+
+		$occurrences = [];
+
+		foreach ( $set->getOccurrencesBetween( $start_local, $start_local->modify( '+2 years' ), $limit ) as $date ) {
+			$occurrences[] = self::row( $date, $duration, $event, $timezone );
+		}
+
+		return $occurrences;
 	}
 
 	/**

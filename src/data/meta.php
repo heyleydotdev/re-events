@@ -110,6 +110,19 @@ final class Meta {
 
 		register_post_meta(
 			'reevents_event',
+			'_reevents_rdates',
+			[
+				'type'              => 'array',
+				'description'       => __( 'Additional occurrence dates.', 're-events' ),
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => [ self::class, 'sanitize_string_array' ],
+				'auth_callback'     => $auth,
+			]
+		);
+
+		register_post_meta(
+			'reevents_event',
 			'_reevents_venue_id',
 			[
 				'type'              => 'integer',

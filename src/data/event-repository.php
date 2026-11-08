@@ -81,6 +81,7 @@ final class Event_Repository {
 	 */
 	private function hydrate( WP_Post $post ): Event {
 		$exdates       = get_post_meta( $post->ID, '_reevents_exdates', true );
+		$rdates        = get_post_meta( $post->ID, '_reevents_rdates', true );
 		$organizer_ids = get_post_meta( $post->ID, '_reevents_organizer_ids', true );
 
 		return new Event(
@@ -92,6 +93,7 @@ final class Event_Repository {
 			(bool) get_post_meta( $post->ID, '_reevents_all_day', true ),
 			(string) get_post_meta( $post->ID, '_reevents_rrule', true ),
 			is_array( $exdates ) ? array_values( array_map( 'strval', $exdates ) ) : [],
+			is_array( $rdates ) ? array_values( array_map( 'strval', $rdates ) ) : [],
 			(int) get_post_meta( $post->ID, '_reevents_venue_id', true ),
 			is_array( $organizer_ids ) ? array_values( array_map( 'intval', $organizer_ids ) ) : [],
 			(int) get_post_meta( $post->ID, '_reevents_capacity', true ),
@@ -114,6 +116,7 @@ final class Event_Repository {
 			'_reevents_all_day'       => $event->all_day,
 			'_reevents_rrule'         => $event->rrule,
 			'_reevents_exdates'       => $event->exdates,
+			'_reevents_rdates'        => $event->rdates,
 			'_reevents_venue_id'      => $event->venue_id,
 			'_reevents_organizer_ids' => $event->organizer_ids,
 			'_reevents_capacity'      => $event->capacity,

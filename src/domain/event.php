@@ -25,6 +25,7 @@ final class Event {
 	 * @param bool                                       $all_day       All-day flag.
 	 * @param string                                     $rrule         Recurrence rule.
 	 * @param string[]                                   $exdates       Excluded dates.
+	 * @param string[]                                   $rdates        Added dates.
 	 * @param int                                        $venue_id      Venue post ID.
 	 * @param int[]                                      $organizer_ids Organizer post IDs.
 	 * @param int                                        $capacity      Capacity.
@@ -40,6 +41,7 @@ final class Event {
 		public bool $all_day = false,
 		public string $rrule = '',
 		public array $exdates = [],
+		public array $rdates = [],
 		public int $venue_id = 0,
 		public array $organizer_ids = [],
 		public int $capacity = 0,
