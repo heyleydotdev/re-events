@@ -1,0 +1,37 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "reevents/event-details",
+	"title": "Event Details",
+	"category": "widgets",
+	"icon": "calendar",
+	"description": "Display a single event.",
+	"keywords": [ "event", "details", "reevents" ],
+	"textdomain": "re-events",
+	"attributes": {
+		"id": {
+			"type": "number",
+			"default": 0
+		},
+		"showVenue": {
+			"type": "boolean",
+			"default": true
+		},
+		"showOrganizers": {
+			"type": "boolean",
+			"default": true
+		},
+		"showOnlineLinks": {
+			"type": "boolean",
+			"default": true
+		},
+		"showContent": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"supports": {
+		"html": false
+	},
+	"editorScript": "file:./index.js"
+}

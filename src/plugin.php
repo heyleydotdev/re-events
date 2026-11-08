@@ -15,6 +15,7 @@ use ReEvents\Admin\Menu;
 use ReEvents\Admin\Meta_Boxes;
 use ReEvents\Admin\Settings;
 use ReEvents\Frontend\Assets as Frontend_Assets;
+use ReEvents\Frontend\Blocks;
 use ReEvents\Frontend\Shortcodes;
 use ReEvents\Render\Widget_Registry;
 use ReEvents\Data\Meta;
@@ -61,6 +62,7 @@ final class Plugin {
 		Event_List::register();
 		Widget_Registry::register_defaults();
 		Shortcodes::register();
+		Blocks::register();
 		Frontend_Assets::register();
 		Menu::register();
 	}
