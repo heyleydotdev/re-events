@@ -12,6 +12,7 @@ namespace ReEvents;
 use ReEvents\Admin\Assets;
 use ReEvents\Admin\Menu;
 use ReEvents\Admin\Meta_Boxes;
+use ReEvents\Admin\Settings;
 use ReEvents\Data\Meta;
 use ReEvents\Data\Post_Types;
 use ReEvents\Data\Schema;
@@ -51,6 +52,7 @@ final class Plugin {
 		Meta::register();
 		Meta_Boxes::register();
 		Assets::register();
+		Settings::register();
 		Menu::register();
 	}
 

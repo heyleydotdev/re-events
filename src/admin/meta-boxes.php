@@ -50,8 +50,9 @@ final class Meta_Boxes {
 	 * @param WP_Post $post Post object.
 	 */
 	public static function render( WP_Post $post ): void {
-		$event      = ( new Event_Repository() )->find( $post->ID ) ?? new Event();
-		$timezone   = $event->timezone ? $event->timezone : 'UTC';
+		$default_tz = (string) Settings::get( 'timezone', 'UTC' );
+		$event      = ( new Event_Repository() )->find( $post->ID ) ?? new Event( timezone: $default_tz );
+		$timezone   = $event->timezone ? $event->timezone : $default_tz;
 		$rule       = Recurrence_Rule::parse( $event->rrule );
 		$start_ts   = '' !== $event->start_utc ? strtotime( $event->start_utc . ' UTC' ) : false;
 		$monthday   = $rule['monthday'] > 0 ? $rule['monthday'] : ( $start_ts ? (int) gmdate( 'j', $start_ts ) : 1 );
@@ -101,11 +102,21 @@ final class Meta_Boxes {
 				<th scope="row"><label for="reevents-timezone"><?php esc_html_e( 'Timezone', 're-events' ); ?></label></th>
 				<td>
 					<select id="reevents-timezone" name="reevents_timezone">
-						<?php
-						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Core-generated, escaped options.
-						echo wp_timezone_choice( $timezone, get_user_locale() );
-						?>
+						<?php foreach ( timezone_identifiers_list() as $zone ) : ?>
+							<option value="<?php echo esc_attr( $zone ); ?>" <?php selected( $timezone, $zone ); ?>><?php echo esc_html( $zone ); ?></option>
+						<?php endforeach; ?>
 					</select>
+					<p class="description">
+						<?php
+						echo wp_kses_post(
+							sprintf(
+								/* translators: %s: link to the ReEvents settings page. */
+								__( 'Defaults to the ReEvents settings. Change it for this event only. %s', 're-events' ),
+								'<a href="' . esc_url( admin_url( 'admin.php?page=reevents-settings&tab=general' ) ) . '">' . esc_html__( 'Edit default', 're-events' ) . '</a>'
+							)
+						);
+						?>
+					</p>
 				</td>
 			</tr>
 			<tr>

@@ -47,4 +47,13 @@
 			</property>
 		</properties>
 	</rule>
+
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="reevents_manage_settings"/>
+				<element value="reevents_manage_bookings"/>
+			</property>
+		</properties>
+	</rule>
 </ruleset>
