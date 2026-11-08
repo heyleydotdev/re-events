@@ -55,6 +55,56 @@ final class Widget_Registry {
 				],
 			]
 		);
+
+		self::register(
+			'event-details',
+			[
+				'label'     => __( 'Event Details', 're-events' ),
+				'shortcode' => 'reevents_event',
+				'renderer'  => [ Event_Details::class, 'render' ],
+				'args'      => [
+					'id'                => [
+						'type'    => 'number',
+						'default' => 0,
+					],
+					'show_venue'        => [
+						'type'    => 'toggle',
+						'default' => true,
+					],
+					'show_organizers'   => [
+						'type'    => 'toggle',
+						'default' => true,
+					],
+					'show_online_links' => [
+						'type'    => 'toggle',
+						'default' => true,
+					],
+					'show_content'      => [
+						'type'    => 'toggle',
+						'default' => true,
+					],
+				],
+			]
+		);
+
+		self::register(
+			'venues-list',
+			[
+				'label'     => __( 'Venues List', 're-events' ),
+				'shortcode' => 'reevents_venues',
+				'renderer'  => [ Venues_List::class, 'render' ],
+				'args'      => [
+					'limit'            => [
+						'type'    => 'number',
+						'default' => 10,
+					],
+					'show_description' => [
+						'type'    => 'toggle',
+						'default' => true,
+					],
+				],
+			]
+		);
 	}
 
 	/**

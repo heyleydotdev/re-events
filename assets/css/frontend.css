@@ -24,3 +24,44 @@
 	font-size: 0.9em;
 	opacity: 0.8;
 }
+
+.reevents-event-details {
+	margin: 0 0 1.5em;
+}
+
+.reevents-event-details .reevents-event-when,
+.reevents-event-details .reevents-event-venue,
+.reevents-event-details .reevents-event-organizers,
+.reevents-event-details .reevents-event-status {
+	margin: 0.25em 0;
+}
+
+.reevents-event-links {
+	margin: 0.5em 0;
+	padding-left: 1.25em;
+}
+
+.reevents-venues-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.reevents-venue {
+	padding: 0.75em 0;
+	border-bottom: 1px solid var(--reevents-border, rgba(0, 0, 0, 0.1));
+}
+
+.reevents-venue:last-child {
+	border-bottom: 0;
+}
+
+.reevents-venue-title {
+	font-weight: 600;
+}
+
+.reevents-venue-description {
+	margin: 0.25em 0 0;
+	font-size: 0.9em;
+	opacity: 0.8;
+}
