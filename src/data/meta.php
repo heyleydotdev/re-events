@@ -198,6 +198,58 @@ final class Meta {
 				'auth_callback'     => $auth,
 			]
 		);
+
+		register_post_meta(
+			'reevents_venue',
+			'_reevents_address',
+			[
+				'type'              => 'string',
+				'description'       => __( 'Venue address.', 're-events' ),
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'sanitize_textarea_field',
+				'auth_callback'     => $auth,
+			]
+		);
+
+		register_post_meta(
+			'reevents_venue',
+			'_reevents_lat',
+			[
+				'type'              => 'string',
+				'description'       => __( 'Venue latitude.', 're-events' ),
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => [ self::class, 'sanitize_latitude' ],
+				'auth_callback'     => $auth,
+			]
+		);
+
+		register_post_meta(
+			'reevents_venue',
+			'_reevents_lng',
+			[
+				'type'              => 'string',
+				'description'       => __( 'Venue longitude.', 're-events' ),
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => [ self::class, 'sanitize_longitude' ],
+				'auth_callback'     => $auth,
+			]
+		);
+
+		register_post_meta(
+			'reevents_venue',
+			'_reevents_website',
+			[
+				'type'              => 'string',
+				'description'       => __( 'Venue website.', 're-events' ),
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => 'esc_url_raw',
+				'auth_callback'     => $auth,
+			]
+		);
 	}
 
 	/**
@@ -347,6 +399,43 @@ final class Meta {
 		}
 
 		return $slots;
+	}
+
+	/**
+	 * Sanitize a latitude.
+	 *
+	 * @param mixed $value Raw value.
+	 */
+	public static function sanitize_latitude( $value ): string {
+		return self::sanitize_coordinate( $value, -90, 90 );
+	}
+
+	/**
+	 * Sanitize a longitude.
+	 *
+	 * @param mixed $value Raw value.
+	 */
+	public static function sanitize_longitude( $value ): string {
+		return self::sanitize_coordinate( $value, -180, 180 );
+	}
+
+	/**
+	 * Sanitize a coordinate.
+	 *
+	 * @param mixed $value Raw value.
+	 * @param float $min   Minimum.
+	 * @param float $max   Maximum.
+	 */
+	private static function sanitize_coordinate( $value, float $min, float $max ): string {
+		$value = trim( sanitize_text_field( (string) $value ) );
+
+		if ( '' === $value || ! is_numeric( $value ) ) {
+			return '';
+		}
+
+		$number = (float) $value;
+
+		return $number >= $min && $number <= $max ? (string) $number : '';
 	}
 
 	/**

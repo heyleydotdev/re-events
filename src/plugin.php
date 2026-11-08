@@ -14,6 +14,7 @@ use ReEvents\Admin\Event_List;
 use ReEvents\Admin\Menu;
 use ReEvents\Admin\Meta_Boxes;
 use ReEvents\Admin\Settings;
+use ReEvents\Admin\Venue_Meta_Boxes;
 use ReEvents\Frontend\Assets as Frontend_Assets;
 use ReEvents\Frontend\Blocks;
 use ReEvents\Frontend\Shortcodes;
@@ -57,6 +58,7 @@ final class Plugin {
 		Taxonomies::register();
 		Meta::register();
 		Meta_Boxes::register();
+		Venue_Meta_Boxes::register();
 		Assets::register();
 		Settings::register();
 		Event_List::register();
