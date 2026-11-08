@@ -33,6 +33,7 @@ final class Blocks {
 			'venues-list'   => 'venues-list',
 			'events-search' => 'events-search',
 			'calendar'      => 'calendar',
+			'map'           => 'map',
 		];
 
 		$attribute_map = [
