@@ -144,6 +144,25 @@ final class Widget_Registry {
 				],
 			]
 		);
+
+		self::register(
+			'calendar',
+			[
+				'label'     => __( 'Calendar', 're-events' ),
+				'shortcode' => 'reevents_calendar',
+				'renderer'  => [ Calendar::class, 'render' ],
+				'args'      => [
+					'month'    => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'show_nav' => [
+						'type'    => 'toggle',
+						'default' => true,
+					],
+				],
+			]
+		);
 	}
 
 	/**
