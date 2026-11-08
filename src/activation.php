@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace ReEvents;
 
+use ReEvents\Data\Schema;
+
 /**
  * Runs on plugin activation and version changes.
  */
@@ -43,6 +45,7 @@ final class Activation {
 	 * Grant capabilities and refresh rewrite rules.
 	 */
 	private static function upgrade(): void {
+		Schema::install();
 		Capabilities::add();
 		flush_rewrite_rules();
 		update_option( 're_events_version', RE_EVENTS_VERSION );

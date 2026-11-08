@@ -12,6 +12,7 @@ namespace ReEvents;
 use ReEvents\Admin\Menu;
 use ReEvents\Data\Meta;
 use ReEvents\Data\Post_Types;
+use ReEvents\Data\Schema;
 use ReEvents\Data\Taxonomies;
 /**
  * Wires the plugin services together.
@@ -42,6 +43,7 @@ final class Plugin {
 	public function boot(): void {
 		add_action( 'init', [ $this, 'load_textdomain' ] );
 		add_action( 'admin_init', [ Activation::class, 'maybe_upgrade' ] );
+		add_action( 'admin_init', [ Schema::class, 'maybe_install' ] );
 		Post_Types::register();
 		Taxonomies::register();
 		Meta::register();
