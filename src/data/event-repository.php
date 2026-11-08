@@ -26,7 +26,7 @@ final class Event_Repository {
 	public function find( int $id ): ?Event {
 		$post = get_post( $id );
 
-		if ( ! $post instanceof WP_Post || 're_event' !== $post->post_type ) {
+		if ( ! $post instanceof WP_Post || 'reevents_event' !== $post->post_type ) {
 			return null;
 		}
 
@@ -52,7 +52,7 @@ final class Event_Repository {
 
 		$postarr = [
 			'ID'          => $event->id,
-			'post_type'   => 're_event',
+			'post_type'   => 'reevents_event',
 			'post_title'  => $event->title,
 			'post_status' => $post_status,
 			'meta_input'  => $this->meta( $event ),
@@ -67,7 +67,7 @@ final class Event_Repository {
 	 * @param int $id Post ID.
 	 */
 	public function delete( int $id ): bool {
-		if ( 're_event' !== get_post_type( $id ) ) {
+		if ( 'reevents_event' !== get_post_type( $id ) ) {
 			return false;
 		}
 
@@ -80,23 +80,23 @@ final class Event_Repository {
 	 * @param WP_Post $post Post object.
 	 */
 	private function hydrate( WP_Post $post ): Event {
-		$exdates       = get_post_meta( $post->ID, '_re_exdates', true );
-		$organizer_ids = get_post_meta( $post->ID, '_re_organizer_ids', true );
+		$exdates       = get_post_meta( $post->ID, '_reevents_exdates', true );
+		$organizer_ids = get_post_meta( $post->ID, '_reevents_organizer_ids', true );
 
 		return new Event(
 			$post->ID,
 			$post->post_title,
-			(string) get_post_meta( $post->ID, '_re_start_utc', true ),
-			(string) get_post_meta( $post->ID, '_re_end_utc', true ),
-			(string) get_post_meta( $post->ID, '_re_timezone', true ),
-			(bool) get_post_meta( $post->ID, '_re_all_day', true ),
-			(string) get_post_meta( $post->ID, '_re_rrule', true ),
+			(string) get_post_meta( $post->ID, '_reevents_start_utc', true ),
+			(string) get_post_meta( $post->ID, '_reevents_end_utc', true ),
+			(string) get_post_meta( $post->ID, '_reevents_timezone', true ),
+			(bool) get_post_meta( $post->ID, '_reevents_all_day', true ),
+			(string) get_post_meta( $post->ID, '_reevents_rrule', true ),
 			is_array( $exdates ) ? array_values( array_map( 'strval', $exdates ) ) : [],
-			(int) get_post_meta( $post->ID, '_re_venue_id', true ),
+			(int) get_post_meta( $post->ID, '_reevents_venue_id', true ),
 			is_array( $organizer_ids ) ? array_values( array_map( 'intval', $organizer_ids ) ) : [],
-			(int) get_post_meta( $post->ID, '_re_capacity', true ),
-			(string) get_post_meta( $post->ID, '_re_online_url', true ),
-			(string) get_post_meta( $post->ID, '_re_status', true )
+			(int) get_post_meta( $post->ID, '_reevents_capacity', true ),
+			(string) get_post_meta( $post->ID, '_reevents_online_url', true ),
+			(string) get_post_meta( $post->ID, '_reevents_status', true )
 		);
 	}
 
@@ -108,17 +108,17 @@ final class Event_Repository {
 	 */
 	private function meta( Event $event ): array {
 		return [
-			'_re_start_utc'     => $event->start_utc,
-			'_re_end_utc'       => $event->end_utc,
-			'_re_timezone'      => $event->timezone,
-			'_re_all_day'       => $event->all_day,
-			'_re_rrule'         => $event->rrule,
-			'_re_exdates'       => $event->exdates,
-			'_re_venue_id'      => $event->venue_id,
-			'_re_organizer_ids' => $event->organizer_ids,
-			'_re_capacity'      => $event->capacity,
-			'_re_online_url'    => $event->online_url,
-			'_re_status'        => $event->status,
+			'_reevents_start_utc'     => $event->start_utc,
+			'_reevents_end_utc'       => $event->end_utc,
+			'_reevents_timezone'      => $event->timezone,
+			'_reevents_all_day'       => $event->all_day,
+			'_reevents_rrule'         => $event->rrule,
+			'_reevents_exdates'       => $event->exdates,
+			'_reevents_venue_id'      => $event->venue_id,
+			'_reevents_organizer_ids' => $event->organizer_ids,
+			'_reevents_capacity'      => $event->capacity,
+			'_reevents_online_url'    => $event->online_url,
+			'_reevents_status'        => $event->status,
 		];
 	}
 }

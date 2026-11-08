@@ -49,7 +49,7 @@ final class Menu {
 	 * post types nested under a custom menu need this.
 	 */
 	private static function add_taxonomy_submenus(): void {
-		foreach ( [ 're_event_category', 're_event_tag' ] as $taxonomy_name ) {
+		foreach ( [ 'reevents_event_category', 'reevents_event_tag' ] as $taxonomy_name ) {
 			$taxonomy = get_taxonomy( $taxonomy_name );
 
 			if ( ! $taxonomy ) {
@@ -61,7 +61,7 @@ final class Menu {
 				$taxonomy->labels->name,
 				$taxonomy->labels->menu_name,
 				$taxonomy->cap->manage_terms,
-				'edit-tags.php?taxonomy=' . $taxonomy->name . '&post_type=re_event'
+				'edit-tags.php?taxonomy=' . $taxonomy->name . '&post_type=reevents_event'
 			);
 		}
 	}
@@ -87,7 +87,7 @@ final class Menu {
 			return $submenu_file;
 		}
 
-		return 'edit-tags.php?taxonomy=' . $screen->taxonomy . '&post_type=re_event';
+		return 'edit-tags.php?taxonomy=' . $screen->taxonomy . '&post_type=reevents_event';
 	}
 
 	/**
@@ -100,11 +100,11 @@ final class Menu {
 			return null;
 		}
 
-		if ( 're_event' !== $screen->post_type ) {
+		if ( 'reevents_event' !== $screen->post_type ) {
 			return null;
 		}
 
-		if ( ! in_array( $screen->taxonomy, [ 're_event_category', 're_event_tag' ], true ) ) {
+		if ( ! in_array( $screen->taxonomy, [ 'reevents_event_category', 'reevents_event_tag' ], true ) ) {
 			return null;
 		}
 

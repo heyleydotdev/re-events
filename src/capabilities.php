@@ -21,12 +21,12 @@ final class Capabilities {
 	 */
 	public static function all(): array {
 		return array_merge(
-			self::post_type_caps( 're_event' ),
-			self::post_type_caps( 're_venue' ),
-			self::post_type_caps( 're_organizer' ),
+			self::post_type_caps( 'reevents_event' ),
+			self::post_type_caps( 'reevents_venue' ),
+			self::post_type_caps( 'reevents_organizer' ),
 			[
-				're_events_manage_bookings',
-				're_events_manage_settings',
+				'reevents_manage_bookings',
+				'reevents_manage_settings',
 			]
 		);
 	}

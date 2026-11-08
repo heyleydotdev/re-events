@@ -8,7 +8,7 @@ ReEvents is a WordPress event manager plugin. GPL-2.0-or-later, no pro tier, no 
 
 - PHP 8.0+, WordPress 6.5+
 - Namespace `ReEvents\` maps to `src/` (kebab-case paths)
-- Prefixes: `re_events_`, `RE_EVENTS_`, meta keys `_re_`
+- Prefixes: `reevents_` for DB identifiers; `re_events_` / `RE_EVENTS_` for PHP globals; meta keys `_reevents_`
 - Text domain: `re-events`
 - File names are kebab-case; classes autoload by class name (`ReEvents\Admin\Menu` → `src/admin/menu.php`)
 - Tabs, WordPress Coding Standards

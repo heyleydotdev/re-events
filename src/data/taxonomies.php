@@ -26,14 +26,14 @@ final class Taxonomies {
 	 */
 	public static function register_taxonomies(): void {
 		register_taxonomy(
-			're_event_category',
-			[ 're_event' ],
+			'reevents_event_category',
+			[ 'reevents_event' ],
 			[
 				'labels'            => self::labels( __( 'Category', 're-events' ), __( 'Categories', 're-events' ) ),
 				'hierarchical'      => true,
 				'public'            => true,
 				'show_in_rest'      => true,
-				'rest_base'         => 'event-categories',
+				'rest_base'         => 'reevents-event-categories',
 				'rewrite'           => [
 					'slug'       => 'event-category',
 					'with_front' => false,
@@ -43,14 +43,14 @@ final class Taxonomies {
 		);
 
 		register_taxonomy(
-			're_event_tag',
-			[ 're_event' ],
+			'reevents_event_tag',
+			[ 'reevents_event' ],
 			[
 				'labels'            => self::labels( __( 'Tag', 're-events' ), __( 'Tags', 're-events' ) ),
 				'hierarchical'      => false,
 				'public'            => true,
 				'show_in_rest'      => true,
-				'rest_base'         => 'event-tags',
+				'rest_base'         => 'reevents-event-tags',
 				'rewrite'           => [
 					'slug'       => 'event-tag',
 					'with_front' => false,

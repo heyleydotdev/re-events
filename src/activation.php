@@ -34,7 +34,7 @@ final class Activation {
 	 * Apply upgrades when the plugin version changes.
 	 */
 	public static function maybe_upgrade(): void {
-		if ( version_compare( (string) get_option( 're_events_version', '0' ), RE_EVENTS_VERSION, '>=' ) ) {
+		if ( version_compare( (string) get_option( 'reevents_version', '0' ), RE_EVENTS_VERSION, '>=' ) ) {
 			return;
 		}
 
@@ -48,6 +48,6 @@ final class Activation {
 		Schema::install();
 		Capabilities::add();
 		flush_rewrite_rules();
-		update_option( 're_events_version', RE_EVENTS_VERSION );
+		update_option( 'reevents_version', RE_EVENTS_VERSION );
 	}
 }

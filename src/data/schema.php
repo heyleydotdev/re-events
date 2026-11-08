@@ -22,7 +22,7 @@ final class Schema {
 	/**
 	 * Schema version option.
 	 */
-	private const OPTION = 're_events_db_version';
+	private const OPTION = 'reevents_db_version';
 
 	/**
 	 * Install tables when the schema version changes.
@@ -77,10 +77,10 @@ final class Schema {
 		global $wpdb;
 
 		return [
-			$wpdb->prefix . 're_occurrences',
-			$wpdb->prefix . 're_tickets',
-			$wpdb->prefix . 're_bookings',
-			$wpdb->prefix . 're_attendees',
+			$wpdb->prefix . 'reevents_occurrences',
+			$wpdb->prefix . 'reevents_tickets',
+			$wpdb->prefix . 'reevents_bookings',
+			$wpdb->prefix . 'reevents_attendees',
 		];
 	}
 
@@ -93,7 +93,7 @@ final class Schema {
 		$charset = $wpdb->get_charset_collate();
 		$prefix  = $wpdb->prefix;
 
-		$occurrences = "CREATE TABLE {$prefix}re_occurrences (
+		$occurrences = "CREATE TABLE {$prefix}reevents_occurrences (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			event_id bigint(20) unsigned NOT NULL,
 			start_utc datetime NOT NULL,
@@ -107,7 +107,7 @@ final class Schema {
 			KEY start_end (start_utc,end_utc)
 		) {$charset};";
 
-		$tickets = "CREATE TABLE {$prefix}re_tickets (
+		$tickets = "CREATE TABLE {$prefix}reevents_tickets (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			event_id bigint(20) unsigned NOT NULL,
 			name varchar(191) NOT NULL DEFAULT '',
@@ -123,7 +123,7 @@ final class Schema {
 			KEY event_id (event_id)
 		) {$charset};";
 
-		$bookings = "CREATE TABLE {$prefix}re_bookings (
+		$bookings = "CREATE TABLE {$prefix}reevents_bookings (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			event_id bigint(20) unsigned NOT NULL,
 			occurrence_id bigint(20) unsigned NOT NULL DEFAULT 0,
@@ -141,7 +141,7 @@ final class Schema {
 			KEY user_id (user_id)
 		) {$charset};";
 
-		$attendees = "CREATE TABLE {$prefix}re_attendees (
+		$attendees = "CREATE TABLE {$prefix}reevents_attendees (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			booking_id bigint(20) unsigned NOT NULL,
 			ticket_id bigint(20) unsigned NOT NULL DEFAULT 0,

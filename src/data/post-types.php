@@ -26,12 +26,12 @@ final class Post_Types {
 	 */
 	public static function register_post_types(): void {
 		register_post_type(
-			're_event',
+			'reevents_event',
 			[
 				'labels'          => self::labels( __( 'Event', 're-events' ), __( 'Events', 're-events' ) ),
 				'public'          => true,
 				'show_in_rest'    => true,
-				'rest_base'       => 'events',
+				'rest_base'       => 'reevents-events',
 				'has_archive'     => 'events',
 				'rewrite'         => [
 					'slug'       => 'events',
@@ -39,19 +39,19 @@ final class Post_Types {
 				],
 				'show_in_menu'    => 're-events',
 				'supports'        => [ 'title', 'editor', 'excerpt', 'thumbnail', 'author', 'revisions' ],
-				'capability_type' => 're_event',
+				'capability_type' => 'reevents_event',
 				'map_meta_cap'    => true,
-				'taxonomies'      => [ 're_event_category', 're_event_tag' ],
+				'taxonomies'      => [ 'reevents_event_category', 'reevents_event_tag' ],
 			]
 		);
 
 		register_post_type(
-			're_venue',
+			'reevents_venue',
 			[
 				'labels'          => self::labels( __( 'Venue', 're-events' ), __( 'Venues', 're-events' ) ),
 				'public'          => true,
 				'show_in_rest'    => true,
-				'rest_base'       => 'venues',
+				'rest_base'       => 'reevents-venues',
 				'has_archive'     => 'venues',
 				'rewrite'         => [
 					'slug'       => 'venues',
@@ -59,18 +59,18 @@ final class Post_Types {
 				],
 				'show_in_menu'    => 're-events',
 				'supports'        => [ 'title', 'editor', 'thumbnail', 'revisions' ],
-				'capability_type' => 're_venue',
+				'capability_type' => 'reevents_venue',
 				'map_meta_cap'    => true,
 			]
 		);
 
 		register_post_type(
-			're_organizer',
+			'reevents_organizer',
 			[
 				'labels'          => self::labels( __( 'Organizer', 're-events' ), __( 'Organizers', 're-events' ) ),
 				'public'          => true,
 				'show_in_rest'    => true,
-				'rest_base'       => 'organizers',
+				'rest_base'       => 'reevents-organizers',
 				'has_archive'     => 'organizers',
 				'rewrite'         => [
 					'slug'       => 'organizers',
@@ -78,7 +78,7 @@ final class Post_Types {
 				],
 				'show_in_menu'    => 're-events',
 				'supports'        => [ 'title', 'editor', 'thumbnail', 'revisions' ],
-				'capability_type' => 're_organizer',
+				'capability_type' => 'reevents_organizer',
 				'map_meta_cap'    => true,
 			]
 		);

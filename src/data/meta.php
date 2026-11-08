@@ -31,8 +31,8 @@ final class Meta {
 		$auth = [ self::class, 'auth_edit_post' ];
 
 		register_post_meta(
-			're_event',
-			'_re_start_utc',
+			'reevents_event',
+			'_reevents_start_utc',
 			[
 				'type'              => 'string',
 				'description'       => __( 'Start time in UTC.', 're-events' ),
@@ -44,8 +44,8 @@ final class Meta {
 		);
 
 		register_post_meta(
-			're_event',
-			'_re_end_utc',
+			'reevents_event',
+			'_reevents_end_utc',
 			[
 				'type'              => 'string',
 				'description'       => __( 'End time in UTC.', 're-events' ),
@@ -57,8 +57,8 @@ final class Meta {
 		);
 
 		register_post_meta(
-			're_event',
-			'_re_timezone',
+			'reevents_event',
+			'_reevents_timezone',
 			[
 				'type'              => 'string',
 				'description'       => __( 'Event timezone.', 're-events' ),
@@ -70,8 +70,8 @@ final class Meta {
 		);
 
 		register_post_meta(
-			're_event',
-			'_re_all_day',
+			'reevents_event',
+			'_reevents_all_day',
 			[
 				'type'              => 'boolean',
 				'description'       => __( 'Whether the event lasts all day.', 're-events' ),
@@ -83,8 +83,8 @@ final class Meta {
 		);
 
 		register_post_meta(
-			're_event',
-			'_re_rrule',
+			'reevents_event',
+			'_reevents_rrule',
 			[
 				'type'              => 'string',
 				'description'       => __( 'Recurrence rule.', 're-events' ),
@@ -96,8 +96,8 @@ final class Meta {
 		);
 
 		register_post_meta(
-			're_event',
-			'_re_exdates',
+			'reevents_event',
+			'_reevents_exdates',
 			[
 				'type'              => 'array',
 				'description'       => __( 'Excluded occurrence dates.', 're-events' ),
@@ -109,8 +109,8 @@ final class Meta {
 		);
 
 		register_post_meta(
-			're_event',
-			'_re_venue_id',
+			'reevents_event',
+			'_reevents_venue_id',
 			[
 				'type'              => 'integer',
 				'description'       => __( 'Venue post ID.', 're-events' ),
@@ -122,8 +122,8 @@ final class Meta {
 		);
 
 		register_post_meta(
-			're_event',
-			'_re_organizer_ids',
+			'reevents_event',
+			'_reevents_organizer_ids',
 			[
 				'type'              => 'array',
 				'description'       => __( 'Organizer post IDs.', 're-events' ),
@@ -135,8 +135,8 @@ final class Meta {
 		);
 
 		register_post_meta(
-			're_event',
-			'_re_capacity',
+			'reevents_event',
+			'_reevents_capacity',
 			[
 				'type'              => 'integer',
 				'description'       => __( 'Event capacity.', 're-events' ),
@@ -148,8 +148,8 @@ final class Meta {
 		);
 
 		register_post_meta(
-			're_event',
-			'_re_online_url',
+			'reevents_event',
+			'_reevents_online_url',
 			[
 				'type'              => 'string',
 				'description'       => __( 'Online event URL.', 're-events' ),
@@ -161,8 +161,8 @@ final class Meta {
 		);
 
 		register_post_meta(
-			're_event',
-			'_re_status',
+			'reevents_event',
+			'_reevents_status',
 			[
 				'type'              => 'string',
 				'description'       => __( 'Event status.', 're-events' ),
