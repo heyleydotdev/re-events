@@ -53,6 +53,7 @@
 			<property name="custom_capabilities" type="array">
 				<element value="reevents_manage_settings"/>
 				<element value="reevents_manage_bookings"/>
+				<element value="publish_reevents_events"/>
 			</property>
 		</properties>
 	</rule>

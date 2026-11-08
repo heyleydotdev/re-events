@@ -109,6 +109,52 @@
             }
           }
         }
+      },
+      "post": {
+        "summary": "Create an event",
+        "description": "Requires the publish_reevents_events capability.",
+        "tags": [ "Events" ],
+        "security": [ { "ApplicationPassword": [] } ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/EventInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Event created.",
+            "headers": {
+              "Location": {
+                "description": "URL of the created event.",
+                "schema": { "type": "string", "format": "uri" }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Event" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid event data.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
       }
     },
     "/events/{id}": {
@@ -130,6 +176,88 @@
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/Event" }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update an event",
+        "description": "Rebuilds stored occurrences. Requires edit access to the event.",
+        "tags": [ "Events" ],
+        "security": [ { "ApplicationPassword": [] } ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Event post ID.",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/EventInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated event.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Event" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid event data.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an event",
+        "description": "Permanently deletes the event and its stored occurrences.",
+        "tags": [ "Events" ],
+        "security": [ { "ApplicationPassword": [] } ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Event post ID.",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event deleted.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DeletedEvent" }
               }
             }
           },
@@ -180,9 +308,54 @@
           }
         }
       }
+    },
+    "/events/{id}/occurrences/sync": {
+      "post": {
+        "summary": "Rebuild event occurrences",
+        "description": "Regenerates stored occurrence rows from the event's recurrence and timeslots.",
+        "tags": [ "Events" ],
+        "security": [ { "ApplicationPassword": [] } ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Event post ID.",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rebuilt occurrences.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Occurrence" }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
+    "securitySchemes": {
+      "ApplicationPassword": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "WordPress Application Password."
+      }
+    },
     "parameters": {
       "Page": {
         "name": "page",
@@ -226,6 +399,44 @@
           "url": { "type": "string", "format": "uri" }
         }
       },
+      "EventInput": {
+        "type": "object",
+        "description": "Writable event fields. title and start_utc are required on create.",
+        "properties": {
+          "title": { "type": "string" },
+          "start_utc": { "type": "string", "description": "Y-m-d H:i:s in UTC." },
+          "end_utc": { "type": "string", "description": "Y-m-d H:i:s in UTC." },
+          "timezone": { "type": "string", "example": "Europe/London" },
+          "all_day": { "type": "boolean" },
+          "rrule": { "type": "string", "example": "FREQ=WEEKLY;COUNT=4" },
+          "exdates": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "rdates": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "timeslots": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/Timeslot" }
+          },
+          "venue_id": { "type": "integer" },
+          "organizer_ids": {
+            "type": "array",
+            "items": { "type": "integer" }
+          },
+          "capacity": { "type": "integer", "minimum": 0 },
+          "online_urls": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/OnlineUrl" }
+          },
+          "status": {
+            "type": "string",
+            "enum": [ "scheduled", "cancelled" ]
+          }
+        }
+      },
       "Event": {
         "type": "object",
         "properties": {
@@ -260,6 +471,13 @@
           },
           "status": { "type": "string" },
           "permalink": { "type": "string", "format": "uri" }
+        }
+      },
+      "DeletedEvent": {
+        "type": "object",
+        "properties": {
+          "deleted": { "type": "boolean" },
+          "previous": { "$ref": "#/components/schemas/Event" }
         }
       },
       "Occurrence": {
