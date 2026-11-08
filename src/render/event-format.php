@@ -11,7 +11,6 @@ namespace ReEvents\Render;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use Exception;
 use ReEvents\Domain\Event;
 
 /**
@@ -67,21 +66,8 @@ final class Event_Format {
 			$format .= ' ' . $time_format;
 		}
 
-		$formatted = wp_date( $format, $date->getTimestamp(), self::timezone( $timezone ) );
+		$formatted = wp_date( $format, $date->getTimestamp(), Time_Display::timezone( $timezone ) );
 
 		return false !== $formatted ? $formatted : '';
-	}
-
-	/**
-	 * Get a timezone, falling back to UTC.
-	 *
-	 * @param string $name IANA timezone.
-	 */
-	private static function timezone( string $name ): DateTimeZone {
-		try {
-			return new DateTimeZone( $name ? $name : 'UTC' );
-		} catch ( Exception $e ) {
-			return new DateTimeZone( 'UTC' );
-		}
 	}
 }

@@ -11,7 +11,7 @@ namespace ReEvents\Admin;
 
 use DateTimeImmutable;
 use DateTimeZone;
-use Exception;
+use ReEvents\Render\Time_Display;
 use WP_Query;
 
 /**
@@ -221,7 +221,7 @@ final class Event_List {
 			$format .= ' ' . (string) Settings::get( 'time_format', get_option( 'time_format' ) );
 		}
 
-		$formatted = wp_date( $format, $date->getTimestamp(), self::timezone( $timezone ) );
+		$formatted = wp_date( $format, $date->getTimestamp(), Time_Display::timezone( $timezone ) );
 
 		return false !== $formatted ? $formatted : '—';
 	}
@@ -238,18 +238,5 @@ final class Event_List {
 		];
 
 		return $labels[ $status ] ?? $labels['scheduled'];
-	}
-
-	/**
-	 * Get a timezone, falling back to UTC.
-	 *
-	 * @param string $name IANA timezone.
-	 */
-	private static function timezone( string $name ): DateTimeZone {
-		try {
-			return new DateTimeZone( $name );
-		} catch ( Exception $e ) {
-			return new DateTimeZone( 'UTC' );
-		}
 	}
 }
