@@ -14,10 +14,14 @@ use ReEvents\Admin\Event_List;
 use ReEvents\Admin\Menu;
 use ReEvents\Admin\Meta_Boxes;
 use ReEvents\Admin\Settings;
+use ReEvents\Frontend\Assets as Frontend_Assets;
+use ReEvents\Frontend\Shortcodes;
+use ReEvents\Render\Widget_Registry;
 use ReEvents\Data\Meta;
 use ReEvents\Data\Post_Types;
 use ReEvents\Data\Schema;
 use ReEvents\Data\Taxonomies;
+
 /**
  * Wires the plugin services together.
  */
@@ -55,6 +59,9 @@ final class Plugin {
 		Assets::register();
 		Settings::register();
 		Event_List::register();
+		Widget_Registry::register_defaults();
+		Shortcodes::register();
+		Frontend_Assets::register();
 		Menu::register();
 	}
 

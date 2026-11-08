@@ -1,0 +1,26 @@
+.reevents-events-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.reevents-event {
+	padding: 0.75em 0;
+	border-bottom: 1px solid var(--reevents-border, rgba(0, 0, 0, 0.1));
+}
+
+.reevents-event:last-child {
+	border-bottom: 0;
+}
+
+.reevents-event-title {
+	display: block;
+	font-weight: 600;
+}
+
+.reevents-event-start,
+.reevents-event-venue {
+	display: block;
+	font-size: 0.9em;
+	opacity: 0.8;
+}
