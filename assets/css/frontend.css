@@ -134,3 +134,8 @@
 .reevents-calendar-time {
 	opacity: 0.8;
 }
+
+.reevents-map {
+	width: 100%;
+	min-height: 200px;
+}

@@ -163,6 +163,25 @@ final class Widget_Registry {
 				],
 			]
 		);
+
+		self::register(
+			'map',
+			[
+				'label'     => __( 'Map', 're-events' ),
+				'shortcode' => 'reevents_map',
+				'renderer'  => [ Map::class, 'render' ],
+				'args'      => [
+					'limit'  => [
+						'type'    => 'number',
+						'default' => 50,
+					],
+					'height' => [
+						'type'    => 'number',
+						'default' => 400,
+					],
+				],
+			]
+		);
 	}
 
 	/**
