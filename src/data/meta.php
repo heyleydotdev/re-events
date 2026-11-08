@@ -149,13 +149,13 @@ final class Meta {
 
 		register_post_meta(
 			'reevents_event',
-			'_reevents_online_url',
+			'_reevents_online_urls',
 			[
-				'type'              => 'string',
-				'description'       => __( 'Online event URL.', 're-events' ),
+				'type'              => 'array',
+				'description'       => __( 'Online event links.', 're-events' ),
 				'single'            => true,
 				'show_in_rest'      => true,
-				'sanitize_callback' => 'esc_url_raw',
+				'sanitize_callback' => [ self::class, 'sanitize_urls' ],
 				'auth_callback'     => $auth,
 			]
 		);
@@ -253,5 +253,38 @@ final class Meta {
 				)
 			)
 		);
+	}
+
+	/**
+	 * Sanitize a list of labelled URLs.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return array<int, array{label:string,url:string}>
+	 */
+	public static function sanitize_urls( $value ): array {
+		if ( ! is_array( $value ) ) {
+			return [];
+		}
+
+		$urls = [];
+
+		foreach ( $value as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+
+			$url = esc_url_raw( (string) ( $item['url'] ?? '' ) );
+
+			if ( '' === $url ) {
+				continue;
+			}
+
+			$urls[] = [
+				'label' => sanitize_text_field( (string) ( $item['label'] ?? '' ) ),
+				'url'   => $url,
+			];
+		}
+
+		return $urls;
 	}
 }

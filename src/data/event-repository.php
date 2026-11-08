@@ -95,7 +95,7 @@ final class Event_Repository {
 			(int) get_post_meta( $post->ID, '_reevents_venue_id', true ),
 			is_array( $organizer_ids ) ? array_values( array_map( 'intval', $organizer_ids ) ) : [],
 			(int) get_post_meta( $post->ID, '_reevents_capacity', true ),
-			(string) get_post_meta( $post->ID, '_reevents_online_url', true ),
+			Meta::sanitize_urls( get_post_meta( $post->ID, '_reevents_online_urls', true ) ),
 			(string) get_post_meta( $post->ID, '_reevents_status', true )
 		);
 	}
@@ -117,7 +117,7 @@ final class Event_Repository {
 			'_reevents_venue_id'      => $event->venue_id,
 			'_reevents_organizer_ids' => $event->organizer_ids,
 			'_reevents_capacity'      => $event->capacity,
-			'_reevents_online_url'    => $event->online_url,
+			'_reevents_online_urls'   => $event->online_urls,
 			'_reevents_status'        => $event->status,
 		];
 	}

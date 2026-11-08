@@ -1,0 +1,11 @@
+.reevents-url-row,
+.reevents-exdate-row {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.reevents-weekday {
+	margin-right: 1em;
+}

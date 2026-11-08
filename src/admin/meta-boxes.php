@@ -1,0 +1,492 @@
+<?php
+/**
+ * Event meta boxes.
+ *
+ * @package ReEvents
+ */
+
+declare( strict_types=1 );
+
+namespace ReEvents\Admin;
+
+use DateTimeImmutable;
+use DateTimeZone;
+use ReEvents\Data\Event_Repository;
+use ReEvents\Data\Meta;
+use ReEvents\Domain\Event;
+use ReEvents\Domain\Recurrence_Rule;
+use WP_Post;
+
+/**
+ * Registers event meta boxes.
+ */
+final class Meta_Boxes {
+
+	/**
+	 * Hook into WordPress.
+	 */
+	public static function register(): void {
+		add_action( 'add_meta_boxes_reevents_event', [ self::class, 'add' ] );
+		add_action( 'save_post_reevents_event', [ self::class, 'save' ] );
+	}
+
+	/**
+	 * Add the event details meta box.
+	 */
+	public static function add(): void {
+		add_meta_box(
+			'reevents-event-details',
+			__( 'Event details', 're-events' ),
+			[ self::class, 'render' ],
+			'reevents_event',
+			'normal',
+			'high'
+		);
+	}
+
+	/**
+	 * Render the meta box.
+	 *
+	 * @param WP_Post $post Post object.
+	 */
+	public static function render( WP_Post $post ): void {
+		$event      = ( new Event_Repository() )->find( $post->ID ) ?? new Event();
+		$timezone   = $event->timezone ? $event->timezone : 'UTC';
+		$rule       = Recurrence_Rule::parse( $event->rrule );
+		$start_ts   = '' !== $event->start_utc ? strtotime( $event->start_utc . ' UTC' ) : false;
+		$monthday   = $rule['monthday'] > 0 ? $rule['monthday'] : ( $start_ts ? (int) gmdate( 'j', $start_ts ) : 1 );
+		$input_type = $event->all_day ? 'date' : 'datetime-local';
+		$weekdays   = [
+			'MO' => __( 'Mon', 're-events' ),
+			'TU' => __( 'Tue', 're-events' ),
+			'WE' => __( 'Wed', 're-events' ),
+			'TH' => __( 'Thu', 're-events' ),
+			'FR' => __( 'Fri', 're-events' ),
+			'SA' => __( 'Sat', 're-events' ),
+			'SU' => __( 'Sun', 're-events' ),
+		];
+		$venues     = get_posts(
+			[
+				'post_type'   => 'reevents_venue',
+				'numberposts' => -1,
+				'orderby'     => 'title',
+				'order'       => 'ASC',
+			]
+		);
+		$organizers = get_posts(
+			[
+				'post_type'   => 'reevents_organizer',
+				'numberposts' => -1,
+				'orderby'     => 'title',
+				'order'       => 'ASC',
+			]
+		);
+
+		wp_nonce_field( 'reevents_event_details', 'reevents_event_details_nonce' );
+		?>
+		<table class="form-table" role="presentation">
+			<tr>
+				<th scope="row"><label for="reevents-start"><?php esc_html_e( 'Starts', 're-events' ); ?></label></th>
+				<td>
+					<input type="datetime-local" id="reevents-start" name="reevents_start" value="<?php echo esc_attr( self::to_local_input( $event->start_utc, $timezone ) ); ?>" />
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="reevents-end-time"><?php esc_html_e( 'Ends', 're-events' ); ?></label></th>
+				<td>
+					<input type="datetime-local" id="reevents-end-time" name="reevents_end" value="<?php echo esc_attr( self::to_local_input( $event->end_utc, $timezone ) ); ?>" />
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="reevents-timezone"><?php esc_html_e( 'Timezone', 're-events' ); ?></label></th>
+				<td>
+					<select id="reevents-timezone" name="reevents_timezone">
+						<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Core-generated, escaped options.
+						echo wp_timezone_choice( $timezone, get_user_locale() );
+						?>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'All day', 're-events' ); ?></th>
+				<td>
+					<label>
+						<input type="checkbox" id="reevents-all-day" name="reevents_all_day" value="1" <?php checked( $event->all_day ); ?> />
+						<?php esc_html_e( 'This event lasts all day.', 're-events' ); ?>
+					</label>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="reevents-venue"><?php esc_html_e( 'Venue', 're-events' ); ?></label></th>
+				<td>
+					<?php if ( empty( $venues ) ) : ?>
+						<p class="description">
+							<?php esc_html_e( 'No venues yet.', 're-events' ); ?>
+							<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=reevents_venue' ) ); ?>" target="_blank" rel="noopener noreferrer">
+								<?php esc_html_e( 'Add a venue', 're-events' ); ?>
+							</a>
+						</p>
+					<?php else : ?>
+						<select id="reevents-venue" name="reevents_venue_id">
+							<option value="0"><?php esc_html_e( 'None', 're-events' ); ?></option>
+							<?php foreach ( $venues as $venue ) : ?>
+								<option value="<?php echo esc_attr( (string) $venue->ID ); ?>" <?php selected( $event->venue_id, $venue->ID ); ?>>
+									<?php echo esc_html( $venue->post_title ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					<?php endif; ?>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="reevents-organizers"><?php esc_html_e( 'Organizers', 're-events' ); ?></label></th>
+				<td>
+					<?php if ( empty( $organizers ) ) : ?>
+						<p class="description">
+							<?php esc_html_e( 'No organizers yet.', 're-events' ); ?>
+							<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=reevents_organizer' ) ); ?>" target="_blank" rel="noopener noreferrer">
+								<?php esc_html_e( 'Add an organizer', 're-events' ); ?>
+							</a>
+						</p>
+					<?php else : ?>
+						<select id="reevents-organizers" name="reevents_organizer_ids[]" multiple size="5">
+							<?php foreach ( $organizers as $organizer ) : ?>
+								<option value="<?php echo esc_attr( (string) $organizer->ID ); ?>" <?php selected( in_array( $organizer->ID, $event->organizer_ids, true ), true ); ?>>
+									<?php echo esc_html( $organizer->post_title ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					<?php endif; ?>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="reevents-capacity"><?php esc_html_e( 'Capacity', 're-events' ); ?></label></th>
+				<td>
+					<input type="number" id="reevents-capacity" name="reevents_capacity" min="0" step="1" value="<?php echo esc_attr( (string) $event->capacity ); ?>" />
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Online links', 're-events' ); ?></th>
+				<td>
+					<div id="reevents-online-urls">
+						<?php foreach ( $event->online_urls as $link ) : ?>
+							<div class="reevents-url-row">
+								<input type="text" name="reevents_online_urls[label][]" value="<?php echo esc_attr( $link['label'] ); ?>" placeholder="<?php esc_attr_e( 'Label', 're-events' ); ?>" />
+								<input type="url" name="reevents_online_urls[url][]" class="regular-text" value="<?php echo esc_attr( $link['url'] ); ?>" placeholder="https://" />
+								<button type="button" class="button reevents-remove-url"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
+							</div>
+						<?php endforeach; ?>
+						<?php if ( empty( $event->online_urls ) ) : ?>
+							<div class="reevents-url-row">
+								<input type="text" name="reevents_online_urls[label][]" value="" placeholder="<?php esc_attr_e( 'Label', 're-events' ); ?>" />
+								<input type="url" name="reevents_online_urls[url][]" class="regular-text" value="" placeholder="https://" />
+								<button type="button" class="button reevents-remove-url"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
+							</div>
+						<?php endif; ?>
+					</div>
+					<p>
+						<button type="button" class="button" id="reevents-add-url"><?php esc_html_e( 'Add link', 're-events' ); ?></button>
+					</p>
+					<p class="description"><?php esc_html_e( 'Optional. Add join or watch links for online and hybrid events.', 're-events' ); ?></p>
+					<template id="reevents-url-template">
+						<div class="reevents-url-row">
+							<input type="text" name="reevents_online_urls[label][]" value="" placeholder="<?php esc_attr_e( 'Label', 're-events' ); ?>" />
+							<input type="url" name="reevents_online_urls[url][]" class="regular-text" value="" placeholder="https://" />
+							<button type="button" class="button reevents-remove-url"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
+						</div>
+					</template>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="reevents-status"><?php esc_html_e( 'Status', 're-events' ); ?></label></th>
+				<td>
+					<select id="reevents-status" name="reevents_status">
+						<option value="scheduled" <?php selected( $event->status, 'scheduled' ); ?>><?php esc_html_e( 'Scheduled', 're-events' ); ?></option>
+						<option value="cancelled" <?php selected( $event->status, 'cancelled' ); ?>><?php esc_html_e( 'Cancelled', 're-events' ); ?></option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="reevents-repeat"><?php esc_html_e( 'Repeat', 're-events' ); ?></label></th>
+				<td>
+					<select id="reevents-repeat" name="reevents_repeat">
+						<option value="none" <?php selected( $rule['freq'], 'none' ); ?>><?php esc_html_e( 'Does not repeat', 're-events' ); ?></option>
+						<option value="daily" <?php selected( $rule['freq'], 'daily' ); ?>><?php esc_html_e( 'Daily', 're-events' ); ?></option>
+						<option value="weekly" <?php selected( $rule['freq'], 'weekly' ); ?>><?php esc_html_e( 'Weekly', 're-events' ); ?></option>
+						<option value="monthly" <?php selected( $rule['freq'], 'monthly' ); ?>><?php esc_html_e( 'Monthly', 're-events' ); ?></option>
+						<option value="yearly" <?php selected( $rule['freq'], 'yearly' ); ?>><?php esc_html_e( 'Yearly', 're-events' ); ?></option>
+					</select>
+				</td>
+			</tr>
+			<tr id="reevents-interval-row">
+				<th scope="row"><label for="reevents-interval"><?php esc_html_e( 'Interval', 're-events' ); ?></label></th>
+				<td>
+					<label>
+						<?php esc_html_e( 'Every', 're-events' ); ?>
+						<input type="number" id="reevents-interval" name="reevents_interval" min="1" step="1" value="<?php echo esc_attr( (string) $rule['interval'] ); ?>" />
+						<span id="reevents-interval-unit"><?php esc_html_e( 'week(s)', 're-events' ); ?></span>
+					</label>
+				</td>
+			</tr>
+			<tr id="reevents-weekly-row">
+				<th scope="row"><?php esc_html_e( 'Repeat on', 're-events' ); ?></th>
+				<td>
+					<?php foreach ( $weekdays as $value => $label ) : ?>
+						<label class="reevents-weekday">
+							<input type="checkbox" name="reevents_weekdays[]" value="<?php echo esc_attr( $value ); ?>" <?php checked( in_array( $value, $rule['weekdays'], true ) ); ?> />
+							<?php echo esc_html( $label ); ?>
+						</label>
+					<?php endforeach; ?>
+				</td>
+			</tr>
+			<tr id="reevents-monthly-row">
+				<th scope="row"><label for="reevents-monthday"><?php esc_html_e( 'Monthly on day', 're-events' ); ?></label></th>
+				<td>
+					<input type="number" id="reevents-monthday" name="reevents_monthday" min="1" max="31" step="1" value="<?php echo esc_attr( (string) $monthday ); ?>" />
+				</td>
+			</tr>
+			<tr id="reevents-end-row">
+				<th scope="row"><label for="reevents-end"><?php esc_html_e( 'Ends', 're-events' ); ?></label></th>
+				<td>
+					<select id="reevents-end" name="reevents_end">
+						<option value="never" <?php selected( $rule['end'], 'never' ); ?>><?php esc_html_e( 'Never', 're-events' ); ?></option>
+						<option value="until" <?php selected( $rule['end'], 'until' ); ?>><?php esc_html_e( 'On date', 're-events' ); ?></option>
+						<option value="count" <?php selected( $rule['end'], 'count' ); ?>><?php esc_html_e( 'After occurrences', 're-events' ); ?></option>
+					</select>
+				</td>
+			</tr>
+			<tr id="reevents-until-row">
+				<th scope="row"><label for="reevents-until"><?php esc_html_e( 'End date', 're-events' ); ?></label></th>
+				<td>
+					<input type="date" id="reevents-until" name="reevents_until" value="<?php echo esc_attr( $rule['until'] ); ?>" />
+				</td>
+			</tr>
+			<tr id="reevents-count-row">
+				<th scope="row"><label for="reevents-count"><?php esc_html_e( 'Occurrences', 're-events' ); ?></label></th>
+				<td>
+					<input type="number" id="reevents-count" name="reevents_count" min="1" step="1" value="<?php echo esc_attr( (string) ( $rule['count'] > 0 ? $rule['count'] : 1 ) ); ?>" />
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Advanced', 're-events' ); ?></th>
+				<td>
+					<details>
+						<summary><?php esc_html_e( 'Advanced recurrence rule', 're-events' ); ?></summary>
+						<p class="description"><?php esc_html_e( 'Leave empty to use the fields above. A value here overrides them.', 're-events' ); ?></p>
+						<input type="text" id="reevents-rrule" name="reevents_rrule" class="regular-text" value="<?php echo esc_attr( $event->rrule ); ?>" placeholder="FREQ=WEEKLY;INTERVAL=1" />
+					</details>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Excluded occurrences', 're-events' ); ?></th>
+				<td>
+					<div id="reevents-exdates">
+						<?php foreach ( $event->exdates as $exdate ) : ?>
+							<div class="reevents-exdate-row">
+								<input type="<?php echo esc_attr( $input_type ); ?>" name="reevents_exdates[]" value="<?php echo esc_attr( $event->all_day ? self::to_local_date( $exdate, $timezone ) : self::to_local_input( $exdate, $timezone ) ); ?>" />
+								<button type="button" class="button reevents-remove-exdate"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
+							</div>
+						<?php endforeach; ?>
+						<?php if ( empty( $event->exdates ) ) : ?>
+							<div class="reevents-exdate-row">
+								<input type="<?php echo esc_attr( $input_type ); ?>" name="reevents_exdates[]" value="" />
+								<button type="button" class="button reevents-remove-exdate"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
+							</div>
+						<?php endif; ?>
+					</div>
+					<p>
+						<button type="button" class="button" id="reevents-add-exdate"><?php esc_html_e( 'Add occurrence', 're-events' ); ?></button>
+					</p>
+					<p class="description"><?php esc_html_e( 'Skip specific occurrences of this recurrence.', 're-events' ); ?></p>
+					<template id="reevents-exdate-template">
+						<div class="reevents-exdate-row">
+							<input type="<?php echo esc_attr( $input_type ); ?>" name="reevents_exdates[]" value="" />
+							<button type="button" class="button reevents-remove-exdate"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
+						</div>
+					</template>
+				</td>
+			</tr>
+		</table>
+		<?php
+	}
+
+	/**
+	 * Save the event meta.
+	 *
+	 * @param int $post_id Post ID.
+	 */
+	public static function save( int $post_id ): void {
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		if ( ! isset( $_POST['reevents_event_details_nonce'] ) ) {
+			return;
+		}
+
+		$nonce = sanitize_text_field( wp_unslash( $_POST['reevents_event_details_nonce'] ) );
+
+		if ( ! wp_verify_nonce( $nonce, 'reevents_event_details' ) ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
+
+		$timezone = Meta::sanitize_timezone( sanitize_text_field( wp_unslash( $_POST['reevents_timezone'] ?? 'UTC' ) ) );
+		$start    = self::to_utc( sanitize_text_field( wp_unslash( $_POST['reevents_start'] ?? '' ) ), $timezone );
+		$end      = self::to_utc( sanitize_text_field( wp_unslash( $_POST['reevents_end'] ?? '' ) ), $timezone );
+		$exdates  = [];
+
+		if ( isset( $_POST['reevents_exdates'] ) && is_array( $_POST['reevents_exdates'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized in parse_exdates().
+			$exdates = self::parse_exdates( (array) wp_unslash( $_POST['reevents_exdates'] ), $timezone );
+		}
+
+		$organizer_ids = [];
+
+		if ( isset( $_POST['reevents_organizer_ids'] ) && is_array( $_POST['reevents_organizer_ids'] ) ) {
+			$organizer_ids = array_values( array_unique( array_map( 'absint', (array) wp_unslash( $_POST['reevents_organizer_ids'] ) ) ) );
+		}
+
+		$weekdays = [];
+
+		if ( isset( $_POST['reevents_weekdays'] ) && is_array( $_POST['reevents_weekdays'] ) ) {
+			$weekdays = array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['reevents_weekdays'] ) );
+		}
+
+		$online_urls = [];
+
+		if ( isset( $_POST['reevents_online_urls'] ) && is_array( $_POST['reevents_online_urls'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Meta::sanitize_urls().
+			$raw_urls = (array) wp_unslash( $_POST['reevents_online_urls'] );
+			$labels   = isset( $raw_urls['label'] ) && is_array( $raw_urls['label'] ) ? $raw_urls['label'] : [];
+			$urls     = isset( $raw_urls['url'] ) && is_array( $raw_urls['url'] ) ? $raw_urls['url'] : [];
+			$items    = [];
+
+			foreach ( $urls as $index => $url ) {
+				$items[] = [
+					'label' => $labels[ $index ] ?? '',
+					'url'   => $url,
+				];
+			}
+
+			$online_urls = Meta::sanitize_urls( $items );
+		}
+
+		$advanced = sanitize_text_field( wp_unslash( $_POST['reevents_rrule'] ?? '' ) );
+		$rrule    = '' !== $advanced ? $advanced : Recurrence_Rule::build(
+			[
+				'freq'     => sanitize_key( wp_unslash( $_POST['reevents_repeat'] ?? 'none' ) ),
+				'interval' => absint( wp_unslash( $_POST['reevents_interval'] ?? 1 ) ),
+				'weekdays' => $weekdays,
+				'monthday' => absint( wp_unslash( $_POST['reevents_monthday'] ?? 0 ) ),
+				'end'      => sanitize_key( wp_unslash( $_POST['reevents_end'] ?? 'never' ) ),
+				'until'    => sanitize_text_field( wp_unslash( $_POST['reevents_until'] ?? '' ) ),
+				'count'    => absint( wp_unslash( $_POST['reevents_count'] ?? 0 ) ),
+			]
+		);
+
+		update_post_meta( $post_id, '_reevents_start_utc', $start );
+		update_post_meta( $post_id, '_reevents_end_utc', $end );
+		update_post_meta( $post_id, '_reevents_timezone', $timezone );
+		update_post_meta( $post_id, '_reevents_all_day', isset( $_POST['reevents_all_day'] ) ? 1 : 0 );
+		update_post_meta( $post_id, '_reevents_rrule', $rrule );
+		update_post_meta( $post_id, '_reevents_exdates', $exdates );
+		update_post_meta( $post_id, '_reevents_venue_id', absint( wp_unslash( $_POST['reevents_venue_id'] ?? 0 ) ) );
+		update_post_meta( $post_id, '_reevents_organizer_ids', $organizer_ids );
+		update_post_meta( $post_id, '_reevents_capacity', absint( wp_unslash( $_POST['reevents_capacity'] ?? 0 ) ) );
+		update_post_meta( $post_id, '_reevents_online_urls', $online_urls );
+		update_post_meta( $post_id, '_reevents_status', self::sanitize_status( sanitize_key( wp_unslash( $_POST['reevents_status'] ?? 'scheduled' ) ) ) );
+	}
+
+	/**
+	 * Convert a UTC datetime to a datetime-local value.
+	 *
+	 * @param string $utc      UTC datetime.
+	 * @param string $timezone IANA timezone.
+	 */
+	private static function to_local_input( string $utc, string $timezone ): string {
+		if ( '' === $utc ) {
+			return '';
+		}
+
+		$date = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', $utc, new DateTimeZone( 'UTC' ) );
+
+		return $date instanceof DateTimeImmutable ? $date->setTimezone( new DateTimeZone( $timezone ) )->format( 'Y-m-d\TH:i' ) : '';
+	}
+
+	/**
+	 * Convert a UTC datetime to a local date.
+	 *
+	 * @param string $utc      UTC datetime.
+	 * @param string $timezone IANA timezone.
+	 */
+	private static function to_local_date( string $utc, string $timezone ): string {
+		if ( '' === $utc ) {
+			return '';
+		}
+
+		$date = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', $utc, new DateTimeZone( 'UTC' ) );
+
+		return $date instanceof DateTimeImmutable ? $date->setTimezone( new DateTimeZone( $timezone ) )->format( 'Y-m-d' ) : '';
+	}
+
+	/**
+	 * Convert a local datetime to UTC.
+	 *
+	 * @param string $local    Local datetime.
+	 * @param string $timezone IANA timezone.
+	 */
+	private static function to_utc( string $local, string $timezone ): string {
+		$local = trim( $local );
+
+		if ( '' === $local ) {
+			return '';
+		}
+
+		foreach ( [ '!Y-m-d\TH:i', '!Y-m-d H:i', '!Y-m-d H:i:s', '!Y-m-d' ] as $format ) {
+			$date = DateTimeImmutable::createFromFormat( $format, $local, new DateTimeZone( $timezone ) );
+
+			if ( $date instanceof DateTimeImmutable ) {
+				return $date->setTimezone( new DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Parse local exdates into UTC datetimes.
+	 *
+	 * @param array<int, mixed> $values   Local datetimes.
+	 * @param string            $timezone IANA timezone.
+	 * @return string[]
+	 */
+	private static function parse_exdates( array $values, string $timezone ): array {
+		$exdates = [];
+
+		foreach ( $values as $value ) {
+			$utc = self::to_utc( sanitize_text_field( (string) $value ), $timezone );
+
+			if ( '' !== $utc ) {
+				$exdates[] = $utc;
+			}
+		}
+
+		return $exdates;
+	}
+
+	/**
+	 * Sanitize the event status.
+	 *
+	 * @param string $status Raw status.
+	 */
+	private static function sanitize_status( string $status ): string {
+		$status = sanitize_key( $status );
+
+		return in_array( $status, [ 'scheduled', 'cancelled' ], true ) ? $status : 'scheduled';
+	}
+}

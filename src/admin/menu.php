@@ -69,18 +69,18 @@ final class Menu {
 	/**
 	 * Keep the ReEvents menu highlighted on taxonomy screens.
 	 *
-	 * @param string $parent_file Current parent file.
+	 * @param string|null $parent_file Current parent file.
 	 */
-	public static function fix_taxonomy_parent( string $parent_file ): string {
+	public static function fix_taxonomy_parent( ?string $parent_file ): ?string {
 		return self::event_taxonomy_screen() ? 're-events' : $parent_file;
 	}
 
 	/**
 	 * Highlight the current taxonomy submenu item.
 	 *
-	 * @param string $submenu_file Current submenu file.
+	 * @param string|null $submenu_file Current submenu file.
 	 */
-	public static function fix_taxonomy_submenu( string $submenu_file ): string {
+	public static function fix_taxonomy_submenu( ?string $submenu_file ): ?string {
 		$screen = self::event_taxonomy_screen();
 
 		if ( ! $screen ) {

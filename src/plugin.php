@@ -9,7 +9,9 @@ declare( strict_types=1 );
 
 namespace ReEvents;
 
+use ReEvents\Admin\Assets;
 use ReEvents\Admin\Menu;
+use ReEvents\Admin\Meta_Boxes;
 use ReEvents\Data\Meta;
 use ReEvents\Data\Post_Types;
 use ReEvents\Data\Schema;
@@ -47,6 +49,8 @@ final class Plugin {
 		Post_Types::register();
 		Taxonomies::register();
 		Meta::register();
+		Meta_Boxes::register();
+		Assets::register();
 		Menu::register();
 	}
 
