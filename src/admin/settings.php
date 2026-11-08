@@ -95,7 +95,8 @@ final class Settings {
 			__( 'REST API', 're-events' ),
 			[
 				'type'        => 'checkbox',
-				'description' => __( 'Enable the ReEvents REST API.', 're-events' ),
+				'label'       => __( 'Enable the ReEvents REST API', 're-events' ),
+				'description' => __( 'Namespace: re-events/v1', 're-events' ),
 			]
 		);
 	}
@@ -299,7 +300,14 @@ final class Settings {
 		$id    = 'reevents_' . $key;
 
 		if ( 'checkbox' === $type ) {
+			echo '<label for="' . esc_attr( $id ) . '">';
 			echo '<input type="checkbox" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="1" ' . checked( (bool) $value, true, false ) . ' />';
+
+			if ( ! empty( $args['label'] ) ) {
+				echo ' ' . esc_html( (string) $args['label'] );
+			}
+
+			echo '</label>';
 		} elseif ( 'select' === $type ) {
 			echo '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '">';
 

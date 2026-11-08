@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace ReEvents;
 
 use ReEvents\Admin\Assets;
+use ReEvents\Admin\Event_List;
 use ReEvents\Admin\Menu;
 use ReEvents\Admin\Meta_Boxes;
 use ReEvents\Admin\Settings;
@@ -53,6 +54,7 @@ final class Plugin {
 		Meta_Boxes::register();
 		Assets::register();
 		Settings::register();
+		Event_List::register();
 		Menu::register();
 	}
 
