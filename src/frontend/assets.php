@@ -25,6 +25,14 @@ final class Assets {
 	 * Enqueue frontend styles.
 	 */
 	public static function enqueue(): void {
+		wp_enqueue_script(
+			'reevents-frontend',
+			plugins_url( 'assets/js/frontend.js', RE_EVENTS_FILE ),
+			[],
+			RE_EVENTS_VERSION,
+			true
+		);
+
 		wp_enqueue_style(
 			'reevents-frontend',
 			plugins_url( 'assets/css/frontend.css', RE_EVENTS_FILE ),
