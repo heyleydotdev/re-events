@@ -15,12 +15,29 @@ use ReEvents\Data\Event_Repository;
 use ReEvents\Data\Meta;
 use ReEvents\Domain\Event;
 use ReEvents\Domain\Recurrence_Rule;
+use ReEvents\Services\Occurrence_Service;
 use WP_Post;
 
 /**
  * Registers event meta boxes.
  */
 final class Meta_Boxes {
+
+	/**
+	 * Cached event data per post.
+	 *
+	 * @var array<int, array{
+	 *     event: Event,
+	 *     timezone: string,
+	 *     rule: array{freq:string,interval:int,weekdays:string[],monthday:int,end:string,until:string,count:int},
+	 *     monthday: int,
+	 *     input_type: string,
+	 *     weekdays: array<string, string>,
+	 *     venues: WP_Post[],
+	 *     organizers: WP_Post[]
+	 * }>
+	 */
+	private static array $data = [];
 
 	/**
 	 * Hook into WordPress.
@@ -31,57 +48,55 @@ final class Meta_Boxes {
 	}
 
 	/**
-	 * Add the event details meta box.
+	 * Add the event meta boxes.
 	 */
 	public static function add(): void {
 		add_meta_box(
-			'reevents-event-details',
-			__( 'Event details', 're-events' ),
-			[ self::class, 'render' ],
+			'reevents-event-when',
+			__( 'Date & time', 're-events' ),
+			[ self::class, 'render_when' ],
 			'reevents_event',
 			'normal',
 			'high'
 		);
+
+		add_meta_box(
+			'reevents-event-recurrence',
+			__( 'Recurrence', 're-events' ),
+			[ self::class, 'render_recurrence' ],
+			'reevents_event',
+			'normal',
+			'high'
+		);
+
+		add_meta_box(
+			'reevents-event-location',
+			__( 'Location', 're-events' ),
+			[ self::class, 'render_location' ],
+			'reevents_event',
+			'normal',
+			'default'
+		);
+
+		add_meta_box(
+			'reevents-event-details',
+			__( 'Details', 're-events' ),
+			[ self::class, 'render_details' ],
+			'reevents_event',
+			'normal',
+			'default'
+		);
 	}
 
 	/**
-	 * Render the meta box.
+	 * Render the date and time box.
 	 *
 	 * @param WP_Post $post Post object.
 	 */
-	public static function render( WP_Post $post ): void {
-		$default_tz = (string) Settings::get( 'timezone', 'UTC' );
-		$event      = ( new Event_Repository() )->find( $post->ID ) ?? new Event( timezone: $default_tz );
-		$timezone   = $event->timezone ? $event->timezone : $default_tz;
-		$rule       = Recurrence_Rule::parse( $event->rrule );
-		$start_ts   = '' !== $event->start_utc ? strtotime( $event->start_utc . ' UTC' ) : false;
-		$monthday   = $rule['monthday'] > 0 ? $rule['monthday'] : ( $start_ts ? (int) gmdate( 'j', $start_ts ) : 1 );
-		$input_type = $event->all_day ? 'date' : 'datetime-local';
-		$weekdays   = [
-			'MO' => __( 'Mon', 're-events' ),
-			'TU' => __( 'Tue', 're-events' ),
-			'WE' => __( 'Wed', 're-events' ),
-			'TH' => __( 'Thu', 're-events' ),
-			'FR' => __( 'Fri', 're-events' ),
-			'SA' => __( 'Sat', 're-events' ),
-			'SU' => __( 'Sun', 're-events' ),
-		];
-		$venues     = get_posts(
-			[
-				'post_type'   => 'reevents_venue',
-				'numberposts' => -1,
-				'orderby'     => 'title',
-				'order'       => 'ASC',
-			]
-		);
-		$organizers = get_posts(
-			[
-				'post_type'   => 'reevents_organizer',
-				'numberposts' => -1,
-				'orderby'     => 'title',
-				'order'       => 'ASC',
-			]
-		);
+	public static function render_when( WP_Post $post ): void {
+		$data     = self::data( $post );
+		$event    = $data['event'];
+		$timezone = $data['timezone'];
 
 		wp_nonce_field( 'reevents_event_details', 'reevents_event_details_nonce' );
 		?>
@@ -128,96 +143,27 @@ final class Meta_Boxes {
 					</label>
 				</td>
 			</tr>
-			<tr>
-				<th scope="row"><label for="reevents-venue"><?php esc_html_e( 'Venue', 're-events' ); ?></label></th>
-				<td>
-					<?php if ( empty( $venues ) ) : ?>
-						<p class="description">
-							<?php esc_html_e( 'No venues yet.', 're-events' ); ?>
-							<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=reevents_venue' ) ); ?>" target="_blank" rel="noopener noreferrer">
-								<?php esc_html_e( 'Add a venue', 're-events' ); ?>
-							</a>
-						</p>
-					<?php else : ?>
-						<select id="reevents-venue" name="reevents_venue_id">
-							<option value="0"><?php esc_html_e( 'None', 're-events' ); ?></option>
-							<?php foreach ( $venues as $venue ) : ?>
-								<option value="<?php echo esc_attr( (string) $venue->ID ); ?>" <?php selected( $event->venue_id, $venue->ID ); ?>>
-									<?php echo esc_html( $venue->post_title ); ?>
-								</option>
-							<?php endforeach; ?>
-						</select>
-					<?php endif; ?>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="reevents-organizers"><?php esc_html_e( 'Organizers', 're-events' ); ?></label></th>
-				<td>
-					<?php if ( empty( $organizers ) ) : ?>
-						<p class="description">
-							<?php esc_html_e( 'No organizers yet.', 're-events' ); ?>
-							<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=reevents_organizer' ) ); ?>" target="_blank" rel="noopener noreferrer">
-								<?php esc_html_e( 'Add an organizer', 're-events' ); ?>
-							</a>
-						</p>
-					<?php else : ?>
-						<select id="reevents-organizers" name="reevents_organizer_ids[]" multiple size="5">
-							<?php foreach ( $organizers as $organizer ) : ?>
-								<option value="<?php echo esc_attr( (string) $organizer->ID ); ?>" <?php selected( in_array( $organizer->ID, $event->organizer_ids, true ), true ); ?>>
-									<?php echo esc_html( $organizer->post_title ); ?>
-								</option>
-							<?php endforeach; ?>
-						</select>
-					<?php endif; ?>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="reevents-capacity"><?php esc_html_e( 'Capacity', 're-events' ); ?></label></th>
-				<td>
-					<input type="number" id="reevents-capacity" name="reevents_capacity" min="0" step="1" value="<?php echo esc_attr( (string) $event->capacity ); ?>" />
-				</td>
-			</tr>
-			<tr>
-				<th scope="row"><?php esc_html_e( 'Online links', 're-events' ); ?></th>
-				<td>
-					<div id="reevents-online-urls">
-						<?php foreach ( $event->online_urls as $link ) : ?>
-							<div class="reevents-url-row">
-								<input type="text" name="reevents_online_urls[label][]" value="<?php echo esc_attr( $link['label'] ); ?>" placeholder="<?php esc_attr_e( 'Label', 're-events' ); ?>" />
-								<input type="url" name="reevents_online_urls[url][]" class="regular-text" value="<?php echo esc_attr( $link['url'] ); ?>" placeholder="https://" />
-								<button type="button" class="button reevents-remove-url"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
-							</div>
-						<?php endforeach; ?>
-						<?php if ( empty( $event->online_urls ) ) : ?>
-							<div class="reevents-url-row">
-								<input type="text" name="reevents_online_urls[label][]" value="" placeholder="<?php esc_attr_e( 'Label', 're-events' ); ?>" />
-								<input type="url" name="reevents_online_urls[url][]" class="regular-text" value="" placeholder="https://" />
-								<button type="button" class="button reevents-remove-url"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
-							</div>
-						<?php endif; ?>
-					</div>
-					<p>
-						<button type="button" class="button" id="reevents-add-url"><?php esc_html_e( 'Add link', 're-events' ); ?></button>
-					</p>
-					<p class="description"><?php esc_html_e( 'Optional. Add join or watch links for online and hybrid events.', 're-events' ); ?></p>
-					<template id="reevents-url-template">
-						<div class="reevents-url-row">
-							<input type="text" name="reevents_online_urls[label][]" value="" placeholder="<?php esc_attr_e( 'Label', 're-events' ); ?>" />
-							<input type="url" name="reevents_online_urls[url][]" class="regular-text" value="" placeholder="https://" />
-							<button type="button" class="button reevents-remove-url"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
-						</div>
-					</template>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row"><label for="reevents-status"><?php esc_html_e( 'Status', 're-events' ); ?></label></th>
-				<td>
-					<select id="reevents-status" name="reevents_status">
-						<option value="scheduled" <?php selected( $event->status, 'scheduled' ); ?>><?php esc_html_e( 'Scheduled', 're-events' ); ?></option>
-						<option value="cancelled" <?php selected( $event->status, 'cancelled' ); ?>><?php esc_html_e( 'Cancelled', 're-events' ); ?></option>
-					</select>
-				</td>
-			</tr>
+		</table>
+		<?php
+	}
+
+	/**
+	 * Render the recurrence box.
+	 *
+	 * @param WP_Post $post Post object.
+	 */
+	public static function render_recurrence( WP_Post $post ): void {
+		$data       = self::data( $post );
+		$event      = $data['event'];
+		$rule       = $data['rule'];
+		$monthday   = $data['monthday'];
+		$input_type = $data['input_type'];
+		$weekdays   = $data['weekdays'];
+		$timezone   = $data['timezone'];
+
+		wp_nonce_field( 'reevents_event_details', 'reevents_event_details_nonce' );
+		?>
+		<table class="form-table" role="presentation">
 			<tr>
 				<th scope="row"><label for="reevents-repeat"><?php esc_html_e( 'Repeat', 're-events' ); ?></label></th>
 				<td>
@@ -323,6 +269,197 @@ final class Meta_Boxes {
 	}
 
 	/**
+	 * Render the location box.
+	 *
+	 * @param WP_Post $post Post object.
+	 */
+	public static function render_location( WP_Post $post ): void {
+		$data   = self::data( $post );
+		$event  = $data['event'];
+		$venues = $data['venues'];
+
+		wp_nonce_field( 'reevents_event_details', 'reevents_event_details_nonce' );
+		?>
+		<table class="form-table" role="presentation">
+			<tr>
+				<th scope="row"><label for="reevents-venue"><?php esc_html_e( 'Venue', 're-events' ); ?></label></th>
+				<td>
+					<?php if ( empty( $venues ) ) : ?>
+						<p class="description">
+							<?php esc_html_e( 'No venues yet.', 're-events' ); ?>
+							<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=reevents_venue' ) ); ?>" target="_blank" rel="noopener noreferrer">
+								<?php esc_html_e( 'Add a venue', 're-events' ); ?>
+							</a>
+						</p>
+					<?php else : ?>
+						<select id="reevents-venue" name="reevents_venue_id">
+							<option value="0"><?php esc_html_e( 'None', 're-events' ); ?></option>
+							<?php foreach ( $venues as $venue ) : ?>
+								<option value="<?php echo esc_attr( (string) $venue->ID ); ?>" <?php selected( $event->venue_id, $venue->ID ); ?>>
+									<?php echo esc_html( $venue->post_title ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					<?php endif; ?>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Online links', 're-events' ); ?></th>
+				<td>
+					<div id="reevents-online-urls">
+						<?php foreach ( $event->online_urls as $link ) : ?>
+							<div class="reevents-url-row">
+								<input type="text" name="reevents_online_urls[label][]" value="<?php echo esc_attr( $link['label'] ); ?>" placeholder="<?php esc_attr_e( 'Label', 're-events' ); ?>" />
+								<input type="url" name="reevents_online_urls[url][]" class="regular-text" value="<?php echo esc_attr( $link['url'] ); ?>" placeholder="https://" />
+								<button type="button" class="button reevents-remove-url"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
+							</div>
+						<?php endforeach; ?>
+						<?php if ( empty( $event->online_urls ) ) : ?>
+							<div class="reevents-url-row">
+								<input type="text" name="reevents_online_urls[label][]" value="" placeholder="<?php esc_attr_e( 'Label', 're-events' ); ?>" />
+								<input type="url" name="reevents_online_urls[url][]" class="regular-text" value="" placeholder="https://" />
+								<button type="button" class="button reevents-remove-url"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
+							</div>
+						<?php endif; ?>
+					</div>
+					<p>
+						<button type="button" class="button" id="reevents-add-url"><?php esc_html_e( 'Add link', 're-events' ); ?></button>
+					</p>
+					<p class="description"><?php esc_html_e( 'Optional. Add join or watch links for online and hybrid events.', 're-events' ); ?></p>
+					<template id="reevents-url-template">
+						<div class="reevents-url-row">
+							<input type="text" name="reevents_online_urls[label][]" value="" placeholder="<?php esc_attr_e( 'Label', 're-events' ); ?>" />
+							<input type="url" name="reevents_online_urls[url][]" class="regular-text" value="" placeholder="https://" />
+							<button type="button" class="button reevents-remove-url"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
+						</div>
+					</template>
+				</td>
+			</tr>
+		</table>
+		<?php
+	}
+
+	/**
+	 * Render the details box.
+	 *
+	 * @param WP_Post $post Post object.
+	 */
+	public static function render_details( WP_Post $post ): void {
+		$data       = self::data( $post );
+		$event      = $data['event'];
+		$organizers = $data['organizers'];
+
+		wp_nonce_field( 'reevents_event_details', 'reevents_event_details_nonce' );
+		?>
+		<table class="form-table" role="presentation">
+			<tr>
+				<th scope="row"><label for="reevents-organizers"><?php esc_html_e( 'Organizers', 're-events' ); ?></label></th>
+				<td>
+					<?php if ( empty( $organizers ) ) : ?>
+						<p class="description">
+							<?php esc_html_e( 'No organizers yet.', 're-events' ); ?>
+							<a href="<?php echo esc_url( admin_url( 'post-new.php?post_type=reevents_organizer' ) ); ?>" target="_blank" rel="noopener noreferrer">
+								<?php esc_html_e( 'Add an organizer', 're-events' ); ?>
+							</a>
+						</p>
+					<?php else : ?>
+						<select id="reevents-organizers" name="reevents_organizer_ids[]" multiple size="5">
+							<?php foreach ( $organizers as $organizer ) : ?>
+								<option value="<?php echo esc_attr( (string) $organizer->ID ); ?>" <?php selected( in_array( $organizer->ID, $event->organizer_ids, true ), true ); ?>>
+									<?php echo esc_html( $organizer->post_title ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					<?php endif; ?>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="reevents-capacity"><?php esc_html_e( 'Capacity', 're-events' ); ?></label></th>
+				<td>
+					<input type="number" id="reevents-capacity" name="reevents_capacity" min="0" step="1" value="<?php echo esc_attr( (string) $event->capacity ); ?>" />
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="reevents-status"><?php esc_html_e( 'Status', 're-events' ); ?></label></th>
+				<td>
+					<select id="reevents-status" name="reevents_status">
+						<option value="scheduled" <?php selected( $event->status, 'scheduled' ); ?>><?php esc_html_e( 'Scheduled', 're-events' ); ?></option>
+						<option value="cancelled" <?php selected( $event->status, 'cancelled' ); ?>><?php esc_html_e( 'Cancelled', 're-events' ); ?></option>
+					</select>
+				</td>
+			</tr>
+		</table>
+		<?php
+	}
+
+	/**
+	 * Get cached event data.
+	 *
+	 * @param WP_Post $post Post object.
+	 * @return array{
+	 *     event: Event,
+	 *     timezone: string,
+	 *     rule: array{freq:string,interval:int,weekdays:string[],monthday:int,end:string,until:string,count:int},
+	 *     monthday: int,
+	 *     input_type: string,
+	 *     weekdays: array<string, string>,
+	 *     venues: WP_Post[],
+	 *     organizers: WP_Post[]
+	 * }
+	 */
+	private static function data( WP_Post $post ): array {
+		if ( isset( self::$data[ $post->ID ] ) ) {
+			return self::$data[ $post->ID ];
+		}
+
+		$default_tz = (string) Settings::get( 'timezone', 'UTC' );
+		$event      = ( new Event_Repository() )->find( $post->ID ) ?? new Event( timezone: $default_tz );
+		$timezone   = $event->timezone ? $event->timezone : $default_tz;
+		$rule       = Recurrence_Rule::parse( $event->rrule );
+		$start_ts   = '' !== $event->start_utc ? strtotime( $event->start_utc . ' UTC' ) : false;
+		$monthday   = $rule['monthday'] > 0 ? $rule['monthday'] : ( $start_ts ? (int) gmdate( 'j', $start_ts ) : 1 );
+		$input_type = $event->all_day ? 'date' : 'datetime-local';
+		$weekdays   = [
+			'MO' => __( 'Mon', 're-events' ),
+			'TU' => __( 'Tue', 're-events' ),
+			'WE' => __( 'Wed', 're-events' ),
+			'TH' => __( 'Thu', 're-events' ),
+			'FR' => __( 'Fri', 're-events' ),
+			'SA' => __( 'Sat', 're-events' ),
+			'SU' => __( 'Sun', 're-events' ),
+		];
+		$venues     = get_posts(
+			[
+				'post_type'   => 'reevents_venue',
+				'numberposts' => -1,
+				'orderby'     => 'title',
+				'order'       => 'ASC',
+			]
+		);
+		$organizers = get_posts(
+			[
+				'post_type'   => 'reevents_organizer',
+				'numberposts' => -1,
+				'orderby'     => 'title',
+				'order'       => 'ASC',
+			]
+		);
+
+		self::$data[ $post->ID ] = [
+			'event'      => $event,
+			'timezone'   => $timezone,
+			'rule'       => $rule,
+			'monthday'   => $monthday,
+			'input_type' => $input_type,
+			'weekdays'   => $weekdays,
+			'venues'     => $venues,
+			'organizers' => $organizers,
+		];
+
+		return self::$data[ $post->ID ];
+	}
+
+	/**
 	 * Save the event meta.
 	 *
 	 * @param int $post_id Post ID.
@@ -411,6 +548,8 @@ final class Meta_Boxes {
 		update_post_meta( $post_id, '_reevents_capacity', absint( wp_unslash( $_POST['reevents_capacity'] ?? 0 ) ) );
 		update_post_meta( $post_id, '_reevents_online_urls', $online_urls );
 		update_post_meta( $post_id, '_reevents_status', self::sanitize_status( sanitize_key( wp_unslash( $_POST['reevents_status'] ?? 'scheduled' ) ) ) );
+
+		Occurrence_Service::sync( $post_id );
 	}
 
 	/**
