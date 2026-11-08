@@ -17,20 +17,21 @@ final class Event {
 	/**
 	 * Constructor.
 	 *
-	 * @param int                                        $id            Post ID.
-	 * @param string                                     $title         Title.
-	 * @param string                                     $start_utc     Start in UTC (Y-m-d H:i:s).
-	 * @param string                                     $end_utc       End in UTC (Y-m-d H:i:s).
-	 * @param string                                     $timezone      IANA timezone.
-	 * @param bool                                       $all_day       All-day flag.
-	 * @param string                                     $rrule         Recurrence rule.
-	 * @param string[]                                   $exdates       Excluded dates.
-	 * @param string[]                                   $rdates        Added dates.
-	 * @param int                                        $venue_id      Venue post ID.
-	 * @param int[]                                      $organizer_ids Organizer post IDs.
-	 * @param int                                        $capacity      Capacity.
-	 * @param array<int, array{label:string,url:string}> $online_urls Online event links.
-	 * @param string                                     $status        Event status.
+	 * @param int                                                     $id            Post ID.
+	 * @param string                                                  $title         Title.
+	 * @param string                                                  $start_utc     Start in UTC (Y-m-d H:i:s).
+	 * @param string                                                  $end_utc       End in UTC (Y-m-d H:i:s).
+	 * @param string                                                  $timezone      IANA timezone.
+	 * @param bool                                                    $all_day       All-day flag.
+	 * @param string                                                  $rrule         Recurrence rule.
+	 * @param string[]                                                $exdates       Excluded dates.
+	 * @param string[]                                                $rdates        Added dates.
+	 * @param array<int, array{start:string,end:string,capacity:int}> $timeslots Daily timeslots.
+	 * @param int                                                     $venue_id      Venue post ID.
+	 * @param int[]                                                   $organizer_ids Organizer post IDs.
+	 * @param int                                                     $capacity      Capacity.
+	 * @param array<int, array{label:string,url:string}>              $online_urls Online event links.
+	 * @param string                                                  $status        Event status.
 	 */
 	public function __construct(
 		public int $id = 0,
@@ -42,6 +43,7 @@ final class Event {
 		public string $rrule = '',
 		public array $exdates = [],
 		public array $rdates = [],
+		public array $timeslots = [],
 		public int $venue_id = 0,
 		public array $organizer_ids = [],
 		public int $capacity = 0,

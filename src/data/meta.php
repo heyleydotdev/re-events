@@ -123,6 +123,19 @@ final class Meta {
 
 		register_post_meta(
 			'reevents_event',
+			'_reevents_timeslots',
+			[
+				'type'              => 'array',
+				'description'       => __( 'Daily timeslots.', 're-events' ),
+				'single'            => true,
+				'show_in_rest'      => true,
+				'sanitize_callback' => [ self::class, 'sanitize_timeslots' ],
+				'auth_callback'     => $auth,
+			]
+		);
+
+		register_post_meta(
+			'reevents_event',
 			'_reevents_venue_id',
 			[
 				'type'              => 'integer',
@@ -299,5 +312,51 @@ final class Meta {
 		}
 
 		return $urls;
+	}
+
+	/**
+	 * Sanitize timeslots.
+	 *
+	 * @param mixed $value Raw value.
+	 * @return array<int, array{start:string,end:string,capacity:int}>
+	 */
+	public static function sanitize_timeslots( $value ): array {
+		if ( ! is_array( $value ) ) {
+			return [];
+		}
+
+		$slots = [];
+
+		foreach ( $value as $item ) {
+			if ( ! is_array( $item ) ) {
+				continue;
+			}
+
+			$start = self::sanitize_time( (string) ( $item['start'] ?? '' ) );
+			$end   = self::sanitize_time( (string) ( $item['end'] ?? '' ) );
+
+			if ( '' === $start || '' === $end ) {
+				continue;
+			}
+
+			$slots[] = [
+				'start'    => $start,
+				'end'      => $end,
+				'capacity' => absint( $item['capacity'] ?? 0 ),
+			];
+		}
+
+		return $slots;
+	}
+
+	/**
+	 * Sanitize an H:i time.
+	 *
+	 * @param string $value Raw time.
+	 */
+	private static function sanitize_time( string $value ): string {
+		$time = DateTimeImmutable::createFromFormat( '!H:i', $value, new DateTimeZone( 'UTC' ) );
+
+		return $time instanceof DateTimeImmutable ? $time->format( 'H:i' ) : '';
 	}
 }

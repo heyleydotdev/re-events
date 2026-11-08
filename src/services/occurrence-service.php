@@ -96,10 +96,48 @@ final class Occurrence_Service {
 		$occurrences = [];
 
 		foreach ( $set->getOccurrencesBetween( $start_local, $start_local->modify( '+2 years' ), $limit ) as $date ) {
-			$occurrences[] = self::row( $date, $duration, $event, $timezone );
+			if ( ! empty( $event->timeslots ) ) {
+				foreach ( $event->timeslots as $slot ) {
+					$occurrences[] = self::slot_row( $date, $slot, $event, $timezone );
+				}
+			} else {
+				$occurrences[] = self::row( $date, $duration, $event, $timezone );
+			}
 		}
 
 		return $occurrences;
+	}
+
+	/**
+	 * Build a timeslot occurrence row.
+	 *
+	 * @param DateTimeInterface                           $date     Occurrence date.
+	 * @param array{start:string,end:string,capacity:int} $slot Slot.
+	 * @param Event                                       $event    Event.
+	 * @param DateTimeZone                                $timezone Event timezone.
+	 * @return array{start_utc:string,end_utc:string,timezone:string,timeslot_key:string,capacity:int,status:string}
+	 */
+	private static function slot_row( DateTimeInterface $date, array $slot, Event $event, DateTimeZone $timezone ): array {
+		$local = DateTimeImmutable::createFromInterface( $date )->setTimezone( $timezone );
+		$day   = $local->format( 'Y-m-d' );
+		$start = new DateTime( $day . ' ' . $slot['start'], $timezone );
+		$end   = new DateTime( $day . ' ' . $slot['end'], $timezone );
+
+		if ( $end <= $start ) {
+			$end->modify( '+1 day' );
+		}
+
+		$utc_start = ( new DateTimeImmutable( $start->format( 'Y-m-d H:i:s' ), $timezone ) )->setTimezone( new DateTimeZone( 'UTC' ) );
+		$utc_end   = ( new DateTimeImmutable( $end->format( 'Y-m-d H:i:s' ), $timezone ) )->setTimezone( new DateTimeZone( 'UTC' ) );
+
+		return [
+			'start_utc'    => $utc_start->format( 'Y-m-d H:i:s' ),
+			'end_utc'      => $utc_end->format( 'Y-m-d H:i:s' ),
+			'timezone'     => $timezone->getName(),
+			'timeslot_key' => $slot['start'] . '-' . $slot['end'],
+			'capacity'     => (int) $slot['capacity'],
+			'status'       => $event->status,
+		];
 	}
 
 	/**
