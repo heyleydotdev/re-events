@@ -264,6 +264,35 @@ final class Meta_Boxes {
 					</template>
 				</td>
 			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Added occurrences', 're-events' ); ?></th>
+				<td>
+					<div id="reevents-rdates">
+						<?php foreach ( $event->rdates as $rdate ) : ?>
+							<div class="reevents-rdate-row">
+								<input type="<?php echo esc_attr( $input_type ); ?>" name="reevents_rdates[]" value="<?php echo esc_attr( $event->all_day ? self::to_local_date( $rdate, $timezone ) : self::to_local_input( $rdate, $timezone ) ); ?>" />
+								<button type="button" class="button reevents-remove-rdate"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
+							</div>
+						<?php endforeach; ?>
+						<?php if ( empty( $event->rdates ) ) : ?>
+							<div class="reevents-rdate-row">
+								<input type="<?php echo esc_attr( $input_type ); ?>" name="reevents_rdates[]" value="" />
+								<button type="button" class="button reevents-remove-rdate"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
+							</div>
+						<?php endif; ?>
+					</div>
+					<p>
+						<button type="button" class="button" id="reevents-add-rdate"><?php esc_html_e( 'Add occurrence', 're-events' ); ?></button>
+					</p>
+					<p class="description"><?php esc_html_e( 'Add one-off occurrences outside the recurrence pattern.', 're-events' ); ?></p>
+					<template id="reevents-rdate-template">
+						<div class="reevents-rdate-row">
+							<input type="<?php echo esc_attr( $input_type ); ?>" name="reevents_rdates[]" value="" />
+							<button type="button" class="button reevents-remove-rdate"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
+						</div>
+					</template>
+				</td>
+			</tr>
 		</table>
 		<?php
 	}
@@ -489,8 +518,15 @@ final class Meta_Boxes {
 		$exdates  = [];
 
 		if ( isset( $_POST['reevents_exdates'] ) && is_array( $_POST['reevents_exdates'] ) ) {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized in parse_exdates().
-			$exdates = self::parse_exdates( (array) wp_unslash( $_POST['reevents_exdates'] ), $timezone );
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized in parse_datetime_rows().
+			$exdates = self::parse_datetime_rows( (array) wp_unslash( $_POST['reevents_exdates'] ), $timezone );
+		}
+
+		$rdates = [];
+
+		if ( isset( $_POST['reevents_rdates'] ) && is_array( $_POST['reevents_rdates'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized in parse_datetime_rows().
+			$rdates = self::parse_datetime_rows( (array) wp_unslash( $_POST['reevents_rdates'] ), $timezone );
 		}
 
 		$organizer_ids = [];
@@ -543,6 +579,7 @@ final class Meta_Boxes {
 		update_post_meta( $post_id, '_reevents_all_day', isset( $_POST['reevents_all_day'] ) ? 1 : 0 );
 		update_post_meta( $post_id, '_reevents_rrule', $rrule );
 		update_post_meta( $post_id, '_reevents_exdates', $exdates );
+		update_post_meta( $post_id, '_reevents_rdates', $rdates );
 		update_post_meta( $post_id, '_reevents_venue_id', absint( wp_unslash( $_POST['reevents_venue_id'] ?? 0 ) ) );
 		update_post_meta( $post_id, '_reevents_organizer_ids', $organizer_ids );
 		update_post_meta( $post_id, '_reevents_capacity', absint( wp_unslash( $_POST['reevents_capacity'] ?? 0 ) ) );
@@ -609,24 +646,24 @@ final class Meta_Boxes {
 	}
 
 	/**
-	 * Parse local exdates into UTC datetimes.
+	 * Parse local datetime rows into UTC datetimes.
 	 *
 	 * @param array<int, mixed> $values   Local datetimes.
 	 * @param string            $timezone IANA timezone.
 	 * @return string[]
 	 */
-	private static function parse_exdates( array $values, string $timezone ): array {
-		$exdates = [];
+	private static function parse_datetime_rows( array $values, string $timezone ): array {
+		$datetimes = [];
 
 		foreach ( $values as $value ) {
 			$utc = self::to_utc( sanitize_text_field( (string) $value ), $timezone );
 
 			if ( '' !== $utc ) {
-				$exdates[] = $utc;
+				$datetimes[] = $utc;
 			}
 		}
 
-		return $exdates;
+		return $datetimes;
 	}
 
 	/**

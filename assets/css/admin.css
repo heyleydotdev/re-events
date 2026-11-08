@@ -1,5 +1,6 @@
 .reevents-url-row,
-.reevents-exdate-row {
+.reevents-exdate-row,
+.reevents-rdate-row {
 	display: flex;
 	gap: 8px;
 	align-items: center;

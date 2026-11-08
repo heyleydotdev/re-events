@@ -28,17 +28,19 @@
 	function init() {
 		setupRepeater('reevents-online-urls', 'reevents-url-template', 'reevents-add-url', 'reevents-remove-url', 'reevents-url-row');
 		setupRepeater('reevents-exdates', 'reevents-exdate-template', 'reevents-add-exdate', 'reevents-remove-exdate', 'reevents-exdate-row');
+		setupRepeater('reevents-rdates', 'reevents-rdate-template', 'reevents-add-rdate', 'reevents-remove-rdate', 'reevents-rdate-row');
 
 		const allDay = document.getElementById('reevents-all-day');
 		const start = document.getElementById('reevents-start');
 		const exdateTemplate = document.getElementById('reevents-exdate-template');
+		const rdateTemplate = document.getElementById('reevents-rdate-template');
 
 		if (allDay) {
 			allDay.addEventListener('change', function () {
 				const type = allDay.checked ? 'date' : 'datetime-local';
 				const time = start && start.value.includes('T') ? start.value.slice(11) : '00:00';
 
-				document.querySelectorAll('#reevents-exdates input[name="reevents_exdates[]"]').forEach(function (input) {
+				document.querySelectorAll('#reevents-exdates input[name="reevents_exdates[]"], #reevents-rdates input[name="reevents_rdates[]"]').forEach(function (input) {
 					input.type = type;
 
 					if (type === 'date') {
@@ -48,13 +50,17 @@
 					}
 				});
 
-				if (exdateTemplate) {
-					const templateInput = exdateTemplate.content.querySelector('input[name="reevents_exdates[]"]');
+				[exdateTemplate, rdateTemplate].forEach(function (template) {
+					if (!template) {
+						return;
+					}
+
+					const templateInput = template.content.querySelector('input');
 
 					if (templateInput) {
 						templateInput.type = type;
 					}
-				}
+				});
 			});
 		}
 
