@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace ReEvents\Render;
 
+use DateTimeImmutable;
+use DateTimeZone;
 use ReEvents\Data\Event_Repository;
 use WP_Query;
 
@@ -53,6 +55,31 @@ final class Events_List {
 			];
 		}
 
+		if ( ! empty( $args['search'] ) ) {
+			$query_args['s'] = sanitize_text_field( (string) $args['search'] );
+		}
+
+		$from = self::date( (string) ( $args['from'] ?? '' ) );
+		$to   = self::date( (string) ( $args['to'] ?? '' ) );
+
+		if ( '' !== $from ) {
+			$query_args['meta_query'][] = [
+				'key'     => '_reevents_start_utc',
+				'value'   => $from . ' 00:00:00',
+				'compare' => '>=',
+				'type'    => 'DATETIME',
+			];
+		}
+
+		if ( '' !== $to ) {
+			$query_args['meta_query'][] = [
+				'key'     => '_reevents_start_utc',
+				'value'   => $to . ' 23:59:59',
+				'compare' => '<=',
+				'type'    => 'DATETIME',
+			];
+		}
+
 		if ( ! empty( $args['upcoming'] ) ) {
 			$query_args['meta_query'][] = [
 				'key'     => '_reevents_start_utc',
@@ -83,5 +110,22 @@ final class Events_List {
 				'args'   => $args,
 			]
 		);
+	}
+
+	/**
+	 * Validate a Y-m-d date.
+	 *
+	 * @param string $value Raw date.
+	 */
+	private static function date( string $value ): string {
+		$value = trim( $value );
+
+		if ( '' === $value ) {
+			return '';
+		}
+
+		$date = DateTimeImmutable::createFromFormat( '!Y-m-d', $value, new DateTimeZone( 'UTC' ) );
+
+		return $date instanceof DateTimeImmutable ? $date->format( 'Y-m-d' ) : '';
 	}
 }

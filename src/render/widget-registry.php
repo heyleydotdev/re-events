@@ -105,6 +105,45 @@ final class Widget_Registry {
 				],
 			]
 		);
+
+		self::register(
+			'events-search',
+			[
+				'label'     => __( 'Events Search', 're-events' ),
+				'shortcode' => 'reevents_search',
+				'renderer'  => [ Events_Search::class, 'render' ],
+				'args'      => [
+					'limit'         => [
+						'type'    => 'number',
+						'default' => 20,
+					],
+					'show_keyword'  => [
+						'type'    => 'toggle',
+						'default' => true,
+					],
+					'show_category' => [
+						'type'    => 'toggle',
+						'default' => true,
+					],
+					'show_venue'    => [
+						'type'    => 'toggle',
+						'default' => true,
+					],
+					'show_dates'    => [
+						'type'    => 'toggle',
+						'default' => true,
+					],
+					'show_upcoming' => [
+						'type'    => 'toggle',
+						'default' => true,
+					],
+					'show_results'  => [
+						'type'    => 'toggle',
+						'default' => true,
+					],
+				],
+			]
+		);
 	}
 
 	/**
