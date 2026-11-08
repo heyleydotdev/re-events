@@ -29,7 +29,7 @@ final class Taxonomies {
 			're_event_category',
 			[ 're_event' ],
 			[
-				'labels'            => self::labels( __( 'Event Category', 're-events' ), __( 'Event Categories', 're-events' ) ),
+				'labels'            => self::labels( __( 'Category', 're-events' ), __( 'Categories', 're-events' ) ),
 				'hierarchical'      => true,
 				'public'            => true,
 				'show_in_rest'      => true,
@@ -46,7 +46,7 @@ final class Taxonomies {
 			're_event_tag',
 			[ 're_event' ],
 			[
-				'labels'            => self::labels( __( 'Event Tag', 're-events' ), __( 'Event Tags', 're-events' ) ),
+				'labels'            => self::labels( __( 'Tag', 're-events' ), __( 'Tags', 're-events' ) ),
 				'hierarchical'      => false,
 				'public'            => true,
 				'show_in_rest'      => true,
