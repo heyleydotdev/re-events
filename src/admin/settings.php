@@ -185,13 +185,14 @@ final class Settings {
 				<form method="post" action="options.php">
 					<?php
 					settings_fields( 'reevents_settings' );
-					submit_button( __( 'Save Changes', 're-events' ), 'primary', 'submit', true, [ 'id' => 'reevents-save-top' ] );
 					?>
 					<input type="hidden" name="<?php echo esc_attr( self::OPTION ); ?>[reevents_tab]" value="<?php echo esc_attr( $tab ); ?>" />
 					<?php
 					do_settings_sections( 'reevents-settings-' . $tab );
-					submit_button();
 					?>
+					<p class="submit" style="text-align:right;">
+						<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 're-events' ); ?>" />
+					</p>
 				</form>
 			<?php endif; ?>
 		</div>
