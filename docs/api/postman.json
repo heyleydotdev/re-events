@@ -1,0 +1,63 @@
+{
+  "info": {
+    "name": "ReEvents API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:10005/wp-json/re-events/v1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/ping"
+      }
+    },
+    {
+      "name": "List events",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/events?upcoming=1&per_page=10"
+      }
+    },
+    {
+      "name": "Get event",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/events/68"
+      }
+    },
+    {
+      "name": "List occurrences",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/events/68/occurrences"
+      }
+    },
+    {
+      "name": "Create event",
+      "request": {
+        "auth": {
+          "type": "basic",
+          "basic": [
+            { "key": "username", "value": "editor" },
+            { "key": "password", "value": "app password" }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Postman event\",\n  \"start_utc\": \"2026-12-01 18:00:00\"\n}"
+        },
+        "url": "{{baseUrl}}/events"
+      }
+    }
+  ]
+}
