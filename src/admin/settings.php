@@ -70,7 +70,7 @@ final class Settings {
 		self::add_field( 'formats', 'date_format', __( 'Date format', 're-events' ), [ 'placeholder' => 'F j, Y' ] );
 		self::add_field( 'formats', 'time_format', __( 'Time format', 're-events' ), [ 'placeholder' => 'g:i a' ] );
 
-		self::add_section( 'bookings', __( 'Bookings', 're-events' ) );
+		self::add_section( 'bookings', __( 'Booking rules', 're-events' ), 'bookings_rules' );
 		self::add_field(
 			'bookings',
 			'require_approval',
@@ -79,7 +79,8 @@ final class Settings {
 				'type'        => 'checkbox',
 				'label'       => __( 'Require approval for every booking', 're-events' ),
 				'description' => __( 'Free bookings stay pending until an administrator confirms them.', 're-events' ),
-			]
+			],
+			'bookings_rules'
 		);
 		self::add_field(
 			'bookings',
@@ -90,8 +91,10 @@ final class Settings {
 				'min'         => 5,
 				'max'         => 1440,
 				'description' => __( 'Minutes before an unpaid booking is cancelled. Minimum 5.', 're-events' ),
-			]
+			],
+			'bookings_rules'
 		);
+		self::add_section( 'bookings', __( 'Attendee fields', 're-events' ), 'bookings_fields' );
 		self::add_field(
 			'bookings',
 			'attendee_fields',
@@ -99,7 +102,31 @@ final class Settings {
 			[
 				'type'        => 'textarea',
 				'description' => __( 'One per line: key|Label|type|required. Types: text, email, tel, textarea. Required: 1 or 0.', 're-events' ),
-			]
+			],
+			'bookings_fields'
+		);
+		self::add_section( 'bookings', __( 'Emails', 're-events' ), 'bookings_emails' );
+		self::add_field( 'bookings', 'email_admin_subject', __( 'Admin subject', 're-events' ), [ 'description' => __( 'Placeholders: {event}, {date}, {venue}, {reference}, {name}, {email}, {quantity}, {total}, {site}, {status}.', 're-events' ) ], 'bookings_emails' );
+		self::add_field(
+			'bookings',
+			'email_admin_body',
+			__( 'Admin body', 're-events' ),
+			[
+				'type'        => 'textarea',
+				'description' => __( 'Same placeholders as the subject.', 're-events' ),
+			],
+			'bookings_emails'
+		);
+		self::add_field( 'bookings', 'email_attendee_subject', __( 'Attendee subject', 're-events' ), [ 'description' => __( 'Same placeholders as the admin subject.', 're-events' ) ], 'bookings_emails' );
+		self::add_field(
+			'bookings',
+			'email_attendee_body',
+			__( 'Attendee body', 're-events' ),
+			[
+				'type'        => 'textarea',
+				'description' => __( 'Same placeholders as the admin subject.', 're-events' ),
+			],
+			'bookings_emails'
 		);
 	}
 
@@ -149,7 +176,10 @@ final class Settings {
 				<?php endforeach; ?>
 			</nav>
 			<form method="post" action="options.php">
-				<?php settings_fields( 'reevents_settings' ); ?>
+				<?php
+				settings_fields( 'reevents_settings' );
+				submit_button( __( 'Save Changes', 're-events' ), 'primary', 'submit', true, [ 'id' => 'reevents-save-top' ] );
+				?>
 				<input type="hidden" name="<?php echo esc_attr( self::OPTION ); ?>[reevents_tab]" value="<?php echo esc_attr( $tab ); ?>" />
 				<?php
 				do_settings_sections( 'reevents-settings-' . $tab );
@@ -203,9 +233,13 @@ final class Settings {
 				break;
 
 			case 'bookings':
-				$settings['require_approval'] = ! empty( $input['require_approval'] );
-				$settings['hold_minutes']     = max( 5, min( 1440, absint( $input['hold_minutes'] ?? 30 ) ) );
-				$settings['attendee_fields']  = self::sanitize_attendee_fields( (string) ( $input['attendee_fields'] ?? '' ) );
+				$settings['require_approval']       = ! empty( $input['require_approval'] );
+				$settings['hold_minutes']           = max( 5, min( 1440, absint( $input['hold_minutes'] ?? 30 ) ) );
+				$settings['attendee_fields']        = self::sanitize_attendee_fields( (string) ( $input['attendee_fields'] ?? '' ) );
+				$settings['email_admin_subject']    = sanitize_text_field( (string) ( $input['email_admin_subject'] ?? '' ) );
+				$settings['email_admin_body']       = sanitize_textarea_field( (string) ( $input['email_admin_body'] ?? '' ) );
+				$settings['email_attendee_subject'] = sanitize_text_field( (string) ( $input['email_attendee_subject'] ?? '' ) );
+				$settings['email_attendee_body']    = sanitize_textarea_field( (string) ( $input['email_attendee_body'] ?? '' ) );
 				break;
 		}
 
@@ -217,27 +251,34 @@ final class Settings {
 	 *
 	 * @return array<string, mixed>
 	 */
-	private static function defaults(): array {
+	public static function defaults(): array {
 		return [
-			'timezone'         => 'UTC',
-			'time_display'     => 'event',
-			'date_format'      => get_option( 'date_format', 'F j, Y' ),
-			'time_format'      => get_option( 'time_format', 'g:i a' ),
-			'require_approval' => false,
-			'hold_minutes'     => 30,
-			'attendee_fields'  => [],
+			'timezone'               => 'UTC',
+			'time_display'           => 'event',
+			'date_format'            => get_option( 'date_format', 'F j, Y' ),
+			'time_format'            => get_option( 'time_format', 'g:i a' ),
+			'require_approval'       => false,
+			'hold_minutes'           => 30,
+			'attendee_fields'        => [],
+			'email_admin_subject'    => __( '[{site}] New booking {reference}', 're-events' ),
+			'email_admin_body'       => __( "A new booking was created.\n\nEvent: {event}\nWhen: {date}\nVenue: {venue}\nReference: {reference}\nAttendee: {name} <{email}>\nSeats: {quantity}\nTotal: {total}", 're-events' ),
+			'email_attendee_subject' => __( 'Booking {status}: {event}', 're-events' ),
+			'email_attendee_body'    => __( "Hello {name},\n\nYour booking is {status}.\n\nEvent: {event}\nWhen: {date}\nVenue: {venue}\nReference: {reference}\nSeats: {quantity}\nTotal: {total}", 're-events' ),
 		];
 	}
 
 	/**
 	 * Add a settings section.
 	 *
-	 * @param string $tab   Tab slug.
-	 * @param string $title Section title.
+	 * @param string $tab     Tab slug.
+	 * @param string $title   Section title.
+	 * @param string $section Optional section slug.
 	 */
-	private static function add_section( string $tab, string $title ): void {
+	private static function add_section( string $tab, string $title, string $section = '' ): void {
+		$section = '' !== $section ? $section : $tab;
+
 		add_settings_section(
-			'reevents_' . $tab,
+			'reevents_' . $section,
 			$title,
 			'__return_null',
 			'reevents-settings-' . $tab
@@ -249,16 +290,19 @@ final class Settings {
 	 *
 	 * @param string               $tab   Tab slug.
 	 * @param string               $key   Setting key.
-	 * @param string               $title Field title.
-	 * @param array<string, mixed> $args  Extra arguments.
+	 * @param string               $title   Field title.
+	 * @param array<string, mixed> $args    Extra arguments.
+	 * @param string               $section Optional section slug.
 	 */
-	private static function add_field( string $tab, string $key, string $title, array $args = [] ): void {
+	private static function add_field( string $tab, string $key, string $title, array $args = [], string $section = '' ): void {
+		$section = '' !== $section ? $section : $tab;
+
 		add_settings_field(
 			'reevents_' . $key,
 			$title,
 			[ self::class, 'render_field' ],
 			'reevents-settings-' . $tab,
-			'reevents_' . $tab,
+			'reevents_' . $section,
 			array_merge(
 				[
 					'key'       => $key,
