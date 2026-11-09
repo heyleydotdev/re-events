@@ -321,6 +321,20 @@ final class Settings {
 			<p><?php esc_html_e( 'Rebuild stored occurrences for every published event.', 're-events' ); ?></p>
 			<?php submit_button( __( 'Rebuild occurrences', 're-events' ), 'secondary', 'submit', false ); ?>
 		</form>
+		<h2><?php esc_html_e( 'Uninstall', 're-events' ); ?></h2>
+		<form method="post" action="options.php">
+			<?php settings_fields( 'reevents_settings' ); ?>
+			<input type="hidden" name="<?php echo esc_attr( self::OPTION ); ?>[reevents_tab]" value="tools" />
+			<input type="hidden" name="<?php echo esc_attr( self::OPTION ); ?>[delete_data_on_uninstall]" value="0" />
+			<p>
+				<label>
+					<input type="checkbox" name="<?php echo esc_attr( self::OPTION ); ?>[delete_data_on_uninstall]" value="1" <?php checked( (bool) self::get( 'delete_data_on_uninstall', false ) ); ?> />
+					<?php esc_html_e( 'Delete all ReEvents data when the plugin is uninstalled.', 're-events' ); ?>
+				</label>
+			</p>
+			<p class="description"><?php esc_html_e( 'Removes events, venues, organizers, bookings, attendees, settings and API keys. This cannot be undone.', 're-events' ); ?></p>
+			<?php submit_button( __( 'Save', 're-events' ), 'secondary', 'submit', false ); ?>
+		</form>
 		<?php
 	}
 
@@ -577,6 +591,10 @@ final class Settings {
 				$settings['email_attendee_body']    = sanitize_textarea_field( (string) ( $input['email_attendee_body'] ?? '' ) );
 				break;
 
+			case 'tools':
+				$settings['delete_data_on_uninstall'] = ! empty( $input['delete_data_on_uninstall'] );
+				break;
+
 			case 'api':
 				$settings['api_enabled']    = ! empty( $input['api_enabled'] );
 				$settings['api_public']     = ! empty( $input['api_public'] );
@@ -596,22 +614,23 @@ final class Settings {
 	 */
 	public static function defaults(): array {
 		return [
-			'timezone'               => 'UTC',
-			'time_display'           => 'event',
-			'date_format'            => get_option( 'date_format', 'F j, Y' ),
-			'time_format'            => get_option( 'time_format', 'g:i a' ),
-			'require_approval'       => false,
-			'hold_minutes'           => 30,
-			'attendee_fields'        => [],
-			'email_admin_subject'    => __( '[{site}] New booking {reference}', 're-events' ),
-			'email_admin_body'       => __( "A new booking was created.\n\nEvent: {event}\nWhen: {date}\nVenue: {venue}\nReference: {reference}\nAttendee: {name} <{email}>\nSeats: {quantity}\nTotal: {total}", 're-events' ),
-			'email_attendee_subject' => __( 'Booking {status}: {event}', 're-events' ),
-			'email_attendee_body'    => __( "Hello {name},\n\nYour booking is {status}.\n\nEvent: {event}\nWhen: {date}\nVenue: {venue}\nReference: {reference}\nSeats: {quantity}\nTotal: {total}", 're-events' ),
-			'api_enabled'            => true,
-			'api_public'             => true,
-			'api_per_page'           => 10,
-			'api_rate_limit'         => 0,
-			'api_cors'               => '',
+			'timezone'                 => 'UTC',
+			'time_display'             => 'event',
+			'date_format'              => get_option( 'date_format', 'F j, Y' ),
+			'time_format'              => get_option( 'time_format', 'g:i a' ),
+			'require_approval'         => false,
+			'hold_minutes'             => 30,
+			'attendee_fields'          => [],
+			'email_admin_subject'      => __( '[{site}] New booking {reference}', 're-events' ),
+			'email_admin_body'         => __( "A new booking was created.\n\nEvent: {event}\nWhen: {date}\nVenue: {venue}\nReference: {reference}\nAttendee: {name} <{email}>\nSeats: {quantity}\nTotal: {total}", 're-events' ),
+			'email_attendee_subject'   => __( 'Booking {status}: {event}', 're-events' ),
+			'email_attendee_body'      => __( "Hello {name},\n\nYour booking is {status}.\n\nEvent: {event}\nWhen: {date}\nVenue: {venue}\nReference: {reference}\nSeats: {quantity}\nTotal: {total}", 're-events' ),
+			'api_enabled'              => true,
+			'api_public'               => true,
+			'api_per_page'             => 10,
+			'api_rate_limit'           => 0,
+			'api_cors'                 => '',
+			'delete_data_on_uninstall' => false,
 		];
 	}
 
