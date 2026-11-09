@@ -20,11 +20,53 @@ use ReEvents\Data\Occurrence_Repository;
 use ReEvents\Domain\Event;
 use RRule\RRule;
 use RRule\RSet;
+use WP_Post;
 
 /**
  * Expands and stores event occurrences.
  */
 final class Occurrence_Service {
+
+	/**
+	 * Hook into WordPress.
+	 */
+	public static function register(): void {
+		add_action( 'deleted_post', [ self::class, 'on_delete' ], 10, 2 );
+		add_action( 'transition_post_status', [ self::class, 'on_status_change' ], 10, 3 );
+	}
+
+	/**
+	 * Delete occurrences when an event is deleted.
+	 *
+	 * @param int     $post_id Post ID.
+	 * @param WP_Post $post    Post object.
+	 */
+	public static function on_delete( int $post_id, WP_Post $post ): void {
+		if ( 'reevents_event' !== $post->post_type ) {
+			return;
+		}
+
+		( new Occurrence_Repository() )->delete_for_event( $post_id );
+	}
+
+	/**
+	 * Rebuild or clear occurrences when an event changes status.
+	 *
+	 * @param string  $new_status New status.
+	 * @param string  $old_status Old status.
+	 * @param WP_Post $post       Post object.
+	 */
+	public static function on_status_change( string $new_status, string $old_status, WP_Post $post ): void {
+		if ( 'reevents_event' !== $post->post_type || $new_status === $old_status ) {
+			return;
+		}
+
+		if ( 'publish' !== $new_status && 'publish' !== $old_status ) {
+			return;
+		}
+
+		self::sync( $post->ID );
+	}
 
 	/**
 	 * Rebuild occurrences for an event.
@@ -35,7 +77,7 @@ final class Occurrence_Service {
 		$event = ( new Event_Repository() )->find( $event_id );
 		$repo  = new Occurrence_Repository();
 
-		if ( ! $event || '' === $event->start_utc ) {
+		if ( ! $event || 'publish' !== get_post_status( $event_id ) || '' === $event->start_utc ) {
 			$repo->delete_for_event( $event_id );
 			return;
 		}
@@ -47,7 +89,7 @@ final class Occurrence_Service {
 	 * Expand an event into occurrence rows.
 	 *
 	 * @param Event $event Event.
-	 * @param int   $limit Maximum occurrences.
+	 * @param int   $limit Maximum occurrence dates.
 	 * @return array<int, array{start_utc:string,end_utc:string,timezone:string,timeslot_key:string,capacity:int,status:string}>
 	 */
 	public static function expand( Event $event, int $limit = 500 ): array {
@@ -61,6 +103,16 @@ final class Occurrence_Service {
 		$start_local = $start->setTimezone( $timezone );
 		$end         = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', $event->end_utc, new DateTimeZone( 'UTC' ) );
 		$duration    = $end instanceof DateTimeImmutable ? max( 0, $end->getTimestamp() - $start->getTimestamp() ) : 0;
+
+		// shortcut: keep one year of past and future occurrences; extend with a cron when bookings need more history.
+		$now           = new DateTimeImmutable( 'now', $timezone );
+		$window_start  = $start_local < $now->modify( '-1 year' ) ? $now->modify( '-1 year' ) : $start_local;
+		$window_end    = $now->modify( '+1 year' );
+		$start_horizon = $start_local->modify( '+1 year' );
+
+		if ( $start_horizon > $window_end ) {
+			$window_end = $start_horizon;
+		}
 
 		$set      = new RSet();
 		$has_rule = '' !== $event->rrule;
@@ -95,7 +147,7 @@ final class Occurrence_Service {
 
 		$occurrences = [];
 
-		foreach ( $set->getOccurrencesBetween( $start_local, $start_local->modify( '+2 years' ), $limit ) as $date ) {
+		foreach ( $set->getOccurrencesBetween( $window_start, $window_end, $limit ) as $date ) {
 			if ( ! empty( $event->timeslots ) ) {
 				foreach ( $event->timeslots as $slot ) {
 					$occurrences[] = self::slot_row( $date, $slot, $event, $timezone );

@@ -16,11 +16,14 @@ use ReEvents\Admin\Menu;
 use ReEvents\Admin\Meta_Boxes;
 use ReEvents\Admin\Settings;
 use ReEvents\Admin\Venue_Meta_Boxes;
+use ReEvents\CLI\OpenAPI;
+use ReEvents\CLI\Self_Test;
 use ReEvents\Frontend\Assets as Frontend_Assets;
 use ReEvents\Frontend\Blocks;
 use ReEvents\Frontend\Shortcodes;
 use ReEvents\Render\Widget_Registry;
 use ReEvents\REST\Routes;
+use ReEvents\Services\Occurrence_Service;
 use ReEvents\Data\Meta;
 use ReEvents\Data\Post_Types;
 use ReEvents\Data\Schema;
@@ -54,8 +57,8 @@ final class Plugin {
 	 */
 	public function boot(): void {
 		add_action( 'init', [ $this, 'load_textdomain' ] );
+		add_action( 'init', [ Schema::class, 'maybe_install' ] );
 		add_action( 'admin_init', [ Activation::class, 'maybe_upgrade' ] );
-		add_action( 'admin_init', [ Schema::class, 'maybe_install' ] );
 		Post_Types::register();
 		Taxonomies::register();
 		Meta::register();
@@ -69,8 +72,22 @@ final class Plugin {
 		Shortcodes::register();
 		Blocks::register();
 		Routes::register();
+		Occurrence_Service::register();
 		Frontend_Assets::register();
 		Menu::register();
+
+		add_action(
+			'cli_init',
+			static function (): void {
+				if ( class_exists( OpenAPI::class ) ) {
+					\WP_CLI::add_command( 're-events openapi', [ OpenAPI::class, 'generate' ] );
+				}
+
+				if ( class_exists( Self_Test::class ) ) {
+					\WP_CLI::add_command( 're-events self-test', [ Self_Test::class, 'run' ] );
+				}
+			}
+		);
 	}
 
 	/**
