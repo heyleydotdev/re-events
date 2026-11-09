@@ -49,11 +49,18 @@ final class Settings {
 		}
 
 		wp_enqueue_script(
-			'reevents-emails',
-			plugins_url( 'assets/js/admin-emails.js', RE_EVENTS_FILE ),
+			'reevents-settings',
+			plugins_url( 'assets/js/admin-settings.js', RE_EVENTS_FILE ),
 			[],
 			RE_EVENTS_VERSION,
 			true
+		);
+
+		wp_enqueue_style(
+			'reevents-settings',
+			plugins_url( 'assets/css/admin-settings.css', RE_EVENTS_FILE ),
+			[],
+			RE_EVENTS_VERSION
 		);
 	}
 
@@ -130,8 +137,8 @@ final class Settings {
 			'attendee_fields',
 			__( 'Attendee fields', 're-events' ),
 			[
-				'type'        => 'textarea',
-				'description' => __( 'One per line: key|Label|type|required. Types: text, email, tel, textarea. Required: 1 or 0.', 're-events' ),
+				'type'        => 'attendee_fields',
+				'description' => __( 'Name and email are always collected. These fields are added to the booking form.', 're-events' ),
 			],
 			'bookings_fields'
 		);
@@ -403,7 +410,7 @@ final class Settings {
 			case 'bookings':
 				$settings['require_approval'] = ! empty( $input['require_approval'] );
 				$settings['hold_minutes']     = max( 5, min( 1440, absint( $input['hold_minutes'] ?? 30 ) ) );
-				$settings['attendee_fields']  = self::sanitize_attendee_fields( (string) ( $input['attendee_fields'] ?? '' ) );
+				$settings['attendee_fields']  = self::sanitize_attendee_fields( $input['attendee_fields'] ?? [] );
 				break;
 
 			case 'emails':
@@ -485,6 +492,63 @@ final class Settings {
 	}
 
 	/**
+	 * Render the attendee field repeater.
+	 *
+	 * @param array<string, mixed> $fields Saved fields.
+	 */
+	private static function render_attendee_fields( array $fields ): void {
+		$types = [
+			'text'     => __( 'Text', 're-events' ),
+			'email'    => __( 'Email', 're-events' ),
+			'tel'      => __( 'Telephone', 're-events' ),
+			'textarea' => __( 'Textarea', 're-events' ),
+		];
+		?>
+		<div id="reevents-attendee-fields" class="reevents-attendee-fields">
+			<div id="reevents-attendee-rows">
+				<?php foreach ( $fields as $key => $field ) : ?>
+					<?php self::render_attendee_field_row( (string) $key, is_array( $field ) ? $field : [], $types ); ?>
+				<?php endforeach; ?>
+			</div>
+			<template id="reevents-attendee-field-template">
+				<?php self::render_attendee_field_row( '', [], $types, true ); ?>
+			</template>
+			<p><button type="button" class="button" id="reevents-add-attendee-field"><?php esc_html_e( 'Add field', 're-events' ); ?></button></p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render one attendee field row.
+	 *
+	 * @param string                $key    Field key.
+	 * @param array<string, mixed>  $field  Field data.
+	 * @param array<string, string> $types Field types.
+	 * @param bool                  $is_new Whether this is the template row.
+	 */
+	private static function render_attendee_field_row( string $key, array $field, array $types, bool $is_new = false ): void {
+		$name = self::OPTION . '[attendee_fields][]';
+		?>
+		<div class="reevents-attendee-row" data-new="<?php echo esc_attr( $is_new ? '1' : '' ); ?>">
+			<input type="text" name="<?php echo esc_attr( $name ); ?>[label]" value="<?php echo esc_attr( (string) ( $field['label'] ?? '' ) ); ?>" class="regular-text" placeholder="<?php esc_attr_e( 'Label', 're-events' ); ?>" data-reevents-label />
+			<select name="<?php echo esc_attr( $name ); ?>[type]" aria-label="<?php esc_attr_e( 'Type', 're-events' ); ?>">
+				<?php foreach ( $types as $type => $label ) : ?>
+					<option value="<?php echo esc_attr( $type ); ?>" <?php selected( (string) ( $field['type'] ?? 'text' ), $type ); ?>><?php echo esc_html( $label ); ?></option>
+				<?php endforeach; ?>
+			</select>
+			<label class="reevents-attendee-required">
+				<input type="checkbox" name="<?php echo esc_attr( $name ); ?>[required]" value="1" <?php checked( ! empty( $field['required'] ) ); ?> />
+				<?php esc_html_e( 'Required', 're-events' ); ?>
+			</label>
+			<input type="hidden" name="<?php echo esc_attr( $name ); ?>[key]" value="<?php echo esc_attr( $key ); ?>" data-reevents-key />
+			<button type="button" class="button-link reevents-move-up" aria-label="<?php esc_attr_e( 'Move up', 're-events' ); ?>">&uarr;</button>
+			<button type="button" class="button-link reevents-move-down" aria-label="<?php esc_attr_e( 'Move down', 're-events' ); ?>">&darr;</button>
+			<button type="button" class="button-link reevents-remove-attendee-field" aria-label="<?php esc_attr_e( 'Remove field', 're-events' ); ?>"><?php esc_html_e( 'Remove', 're-events' ); ?></button>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Render a settings field.
 	 *
 	 * @param array<string, mixed> $args Field arguments.
@@ -513,21 +577,9 @@ final class Settings {
 			}
 
 			echo '</select>';
+		} elseif ( 'attendee_fields' === $type ) {
+			self::render_attendee_fields( is_array( $value ) ? $value : [] );
 		} elseif ( 'textarea' === $type ) {
-			if ( 'attendee_fields' === $key ) {
-				$lines = [];
-
-				foreach ( (array) $value as $field_key => $field ) {
-					if ( ! is_array( $field ) ) {
-						continue;
-					}
-
-					$lines[] = $field_key . '|' . (string) ( $field['label'] ?? '' ) . '|' . (string) ( $field['type'] ?? 'text' ) . '|' . ( ! empty( $field['required'] ) ? '1' : '0' );
-				}
-
-				$value = implode( "\n", $lines );
-			}
-
 			echo '<textarea id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" rows="6" class="large-text code">' . esc_textarea( (string) $value ) . '</textarea>';
 
 			if ( ! empty( $args['palette'] ) ) {
@@ -600,13 +652,76 @@ final class Settings {
 	/**
 	 * Sanitize attendee field definitions.
 	 *
-	 * @param string $value Raw textarea.
+	 * @param mixed $value Repeater rows or legacy one-per-line text.
 	 * @return array<string, array{label:string,type:string,required:bool}>
 	 */
-	private static function sanitize_attendee_fields( string $value ): array {
+	private static function sanitize_attendee_fields( $value ): array {
+		if ( is_string( $value ) ) {
+			$value = self::parse_attendee_field_lines( $value );
+		}
+
+		if ( ! is_array( $value ) ) {
+			return [];
+		}
+
 		$fields = [];
-		$lines  = preg_split( '/\r\n|\r|\n/', $value );
-		$lines  = is_array( $lines ) ? $lines : [];
+		$types  = [ 'text', 'email', 'tel', 'textarea' ];
+
+		foreach ( $value as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+
+			$label = sanitize_text_field( (string) ( $row['label'] ?? '' ) );
+
+			if ( '' === $label ) {
+				continue;
+			}
+
+			$key = sanitize_key( (string) ( $row['key'] ?? '' ) );
+
+			if ( '' === $key ) {
+				$key = sanitize_key( sanitize_title( $label ) );
+			}
+
+			if ( '' === $key ) {
+				$key = 'field-' . ( count( $fields ) + 1 );
+			}
+
+			$base = $key;
+			$i    = 2;
+
+			while ( isset( $fields[ $key ] ) ) {
+				$key = $base . '-' . $i;
+				++$i;
+			}
+
+			$type = sanitize_key( (string) ( $row['type'] ?? 'text' ) );
+
+			if ( ! in_array( $type, $types, true ) ) {
+				$type = 'text';
+			}
+
+			$fields[ $key ] = [
+				'label'    => $label,
+				'type'     => $type,
+				'required' => ! empty( $row['required'] ),
+			];
+		}
+
+		return $fields;
+	}
+
+	/**
+	 * Parse legacy one-per-line attendee fields.
+	 *
+	 * @param string $value Raw textarea.
+	 * @return array<int, array<string, mixed>>
+	 */
+	private static function parse_attendee_field_lines( string $value ): array {
+		$rows  = [];
+		$lines = preg_split( '/\r\n|\r|\n/', $value );
+		$lines = is_array( $lines ) ? $lines : [];
 
 		foreach ( $lines as $line ) {
 			$parts = array_map( 'trim', explode( '|', $line ) );
@@ -615,25 +730,14 @@ final class Settings {
 				continue;
 			}
 
-			$key   = sanitize_key( $parts[0] );
-			$label = sanitize_text_field( $parts[1] );
-			$type  = $parts[2] ?? 'text';
-
-			if ( ! in_array( $type, [ 'text', 'email', 'tel', 'textarea' ], true ) ) {
-				$type = 'text';
-			}
-
-			if ( '' === $key || '' === $label ) {
-				continue;
-			}
-
-			$fields[ $key ] = [
-				'label'    => $label,
-				'type'     => $type,
+			$rows[] = [
+				'key'      => $parts[0],
+				'label'    => $parts[1],
+				'type'     => $parts[2] ?? 'text',
 				'required' => '1' === ( $parts[3] ?? '' ),
 			];
 		}
 
-		return $fields;
+		return $rows;
 	}
 }

@@ -1,0 +1,32 @@
+.reevents-attendee-fields {
+	max-width: 56em;
+}
+
+.reevents-attendee-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	padding: 5px 0;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.reevents-attendee-row input.regular-text {
+	flex: 1 1 14em;
+	min-width: 8em;
+}
+
+.reevents-attendee-required {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	white-space: nowrap;
+}
+
+.reevents-attendee-row .button-link {
+	padding: 0 2px;
+}
+
+.reevents-remove-attendee-field {
+	color: #b32d2e;
+}
