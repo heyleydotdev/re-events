@@ -204,6 +204,11 @@ final class Self_Test {
 		self::check_rest_resource( 'venues', [ 'title' => 'Self test venue' ], $failures );
 		self::check_rest_resource( 'organizers', [ 'title' => 'Self test organizer' ], $failures );
 		self::check_rest_resource( 'categories', [ 'name' => 'Self test category' ], $failures );
+
+		$settings = new WP_REST_Request( 'GET', '/re-events/v1/settings' );
+		$response = rest_do_request( $settings );
+
+		self::assert( 200 === $response->get_status(), 'Settings read failed.', $failures );
 	}
 
 	/**
