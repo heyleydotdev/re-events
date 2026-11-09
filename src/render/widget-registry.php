@@ -182,6 +182,21 @@ final class Widget_Registry {
 				],
 			]
 		);
+
+		self::register(
+			'booking-form',
+			[
+				'label'     => __( 'Booking Form', 're-events' ),
+				'shortcode' => 'reevents_booking',
+				'renderer'  => [ Booking_Form::class, 'render' ],
+				'args'      => [
+					'event' => [
+						'type'    => 'number',
+						'default' => 0,
+					],
+				],
+			]
+		);
 	}
 
 	/**

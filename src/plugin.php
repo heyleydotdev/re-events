@@ -20,6 +20,7 @@ use ReEvents\CLI\OpenAPI;
 use ReEvents\CLI\Self_Test;
 use ReEvents\Frontend\Assets as Frontend_Assets;
 use ReEvents\Frontend\Blocks;
+use ReEvents\Frontend\Booking_Handler;
 use ReEvents\Frontend\Shortcodes;
 use ReEvents\Render\Widget_Registry;
 use ReEvents\REST\Routes;
@@ -73,6 +74,7 @@ final class Plugin {
 		Blocks::register();
 		Routes::register();
 		Occurrence_Service::register();
+		Booking_Handler::register();
 		Frontend_Assets::register();
 		Menu::register();
 

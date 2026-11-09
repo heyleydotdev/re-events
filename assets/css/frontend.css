@@ -139,3 +139,39 @@
 	width: 100%;
 	min-height: 200px;
 }
+
+.reevents-booking-form p {
+	margin: 0 0 1em;
+}
+
+.reevents-booking-form label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 0.25em;
+}
+
+.reevents-booking-form input,
+.reevents-booking-form select {
+	max-width: 100%;
+	width: 100%;
+}
+
+.reevents-booking-form button {
+	cursor: pointer;
+}
+
+.reevents-honeypot {
+	position: absolute;
+	left: -9999px;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+}
+
+.reevents-booking-success {
+	color: #146c2e;
+}
+
+.reevents-booking-error {
+	color: #b32d2e;
+}
