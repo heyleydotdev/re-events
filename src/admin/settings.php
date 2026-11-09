@@ -62,57 +62,13 @@ final class Settings {
 					'event'   => __( 'Event timezone', 're-events' ),
 					'visitor' => __( 'Visitor timezone', 're-events' ),
 				],
-				'description' => __( 'How event times are shown on the front end.', 're-events' ),
-			]
-		);
-		self::add_field(
-			'general',
-			'currency',
-			__( 'Currency', 're-events' ),
-			[
-				'maxlength'   => 3,
-				'description' => __( 'Three-letter ISO code, e.g. USD.', 're-events' ),
+				'description' => __( 'How event times are shown on the front end. The calendar always uses the site or visitor timezone.', 're-events' ),
 			]
 		);
 
 		self::add_section( 'formats', __( 'Formats', 're-events' ) );
 		self::add_field( 'formats', 'date_format', __( 'Date format', 're-events' ), [ 'placeholder' => 'F j, Y' ] );
 		self::add_field( 'formats', 'time_format', __( 'Time format', 're-events' ), [ 'placeholder' => 'g:i a' ] );
-
-		self::add_section( 'pages', __( 'Pages', 're-events' ) );
-		self::add_field( 'pages', 'submission_page', __( 'Event submission page', 're-events' ), [ 'type' => 'page' ] );
-		self::add_field( 'pages', 'bookings_page', __( 'My bookings page', 're-events' ), [ 'type' => 'page' ] );
-
-		self::add_section( 'emails', __( 'Emails', 're-events' ) );
-		self::add_field( 'emails', 'from_name', __( 'From name', 're-events' ) );
-		self::add_field( 'emails', 'from_email', __( 'From email', 're-events' ), [ 'type' => 'email' ] );
-
-		self::add_section( 'maps', __( 'Maps', 're-events' ) );
-		self::add_field(
-			'maps',
-			'map_provider',
-			__( 'Map provider', 're-events' ),
-			[
-				'type'    => 'select',
-				'options' => [
-					'osm'    => __( 'OpenStreetMap', 're-events' ),
-					'google' => __( 'Google Maps', 're-events' ),
-				],
-			]
-		);
-		self::add_field( 'maps', 'google_maps_key', __( 'Google Maps API key', 're-events' ), [ 'description' => __( 'Required only for Google Maps.', 're-events' ) ] );
-
-		self::add_section( 'api', __( 'API', 're-events' ) );
-		self::add_field(
-			'api',
-			'rest_enabled',
-			__( 'REST API', 're-events' ),
-			[
-				'type'        => 'checkbox',
-				'label'       => __( 'Enable the ReEvents REST API', 're-events' ),
-				'description' => __( 'Namespace: re-events/v1', 're-events' ),
-			]
-		);
 	}
 
 	/**
@@ -140,10 +96,6 @@ final class Settings {
 		$tabs = [
 			'general' => __( 'General', 're-events' ),
 			'formats' => __( 'Formats', 're-events' ),
-			'pages'   => __( 'Pages', 're-events' ),
-			'emails'  => __( 'Emails', 're-events' ),
-			'maps'    => __( 'Maps', 're-events' ),
-			'api'     => __( 'API', 're-events' ),
 		];
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Tab navigation only.
@@ -209,32 +161,11 @@ final class Settings {
 			case 'general':
 				$settings['timezone']     = self::sanitize_timezone( $input['timezone'] ?? 'UTC' );
 				$settings['time_display'] = self::sanitize_time_display( $input['time_display'] ?? 'event' );
-				$settings['currency']     = self::sanitize_currency( $input['currency'] ?? 'USD' );
 				break;
 
 			case 'formats':
 				$settings['date_format'] = sanitize_text_field( (string) ( $input['date_format'] ?? '' ) );
 				$settings['time_format'] = sanitize_text_field( (string) ( $input['time_format'] ?? '' ) );
-				break;
-
-			case 'pages':
-				$settings['submission_page'] = self::sanitize_page( $input['submission_page'] ?? 0 );
-				$settings['bookings_page']   = self::sanitize_page( $input['bookings_page'] ?? 0 );
-				break;
-
-			case 'emails':
-				$settings['from_name']  = sanitize_text_field( (string) ( $input['from_name'] ?? '' ) );
-				$settings['from_email'] = self::sanitize_email_address( $input['from_email'] ?? '', (string) $settings['from_email'] );
-				break;
-
-			case 'maps':
-				$provider                    = sanitize_key( (string) ( $input['map_provider'] ?? 'osm' ) );
-				$settings['map_provider']    = in_array( $provider, [ 'osm', 'google' ], true ) ? $provider : 'osm';
-				$settings['google_maps_key'] = sanitize_text_field( (string) ( $input['google_maps_key'] ?? '' ) );
-				break;
-
-			case 'api':
-				$settings['rest_enabled'] = ! empty( $input['rest_enabled'] );
 				break;
 		}
 
@@ -248,18 +179,10 @@ final class Settings {
 	 */
 	private static function defaults(): array {
 		return [
-			'timezone'        => 'UTC',
-			'time_display'    => 'event',
-			'currency'        => 'USD',
-			'date_format'     => get_option( 'date_format', 'F j, Y' ),
-			'time_format'     => get_option( 'time_format', 'g:i a' ),
-			'submission_page' => 0,
-			'bookings_page'   => 0,
-			'from_name'       => get_bloginfo( 'name' ),
-			'from_email'      => get_option( 'admin_email', '' ),
-			'map_provider'    => 'osm',
-			'google_maps_key' => '',
-			'rest_enabled'    => true,
+			'timezone'     => 'UTC',
+			'time_display' => 'event',
+			'date_format'  => get_option( 'date_format', 'F j, Y' ),
+			'time_format'  => get_option( 'time_format', 'g:i a' ),
 		];
 	}
 
@@ -332,17 +255,6 @@ final class Settings {
 			}
 
 			echo '</select>';
-		} elseif ( 'page' === $type ) {
-			$pages = get_pages( [ 'post_status' => 'publish' ] );
-
-			echo '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '">';
-			echo '<option value="0">' . esc_html__( 'None', 're-events' ) . '</option>';
-
-			foreach ( $pages as $page ) {
-				echo '<option value="' . esc_attr( (string) $page->ID ) . '" ' . selected( (int) $value, $page->ID, false ) . '>' . esc_html( $page->post_title ) . '</option>';
-			}
-
-			echo '</select>';
 		} elseif ( 'timezone' === $type ) {
 			echo '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '">';
 
@@ -388,39 +300,5 @@ final class Settings {
 		$value = sanitize_key( (string) $value );
 
 		return in_array( $value, [ 'site', 'event', 'visitor' ], true ) ? $value : 'event';
-	}
-
-	/**
-	 * Sanitize a three-letter currency code.
-	 *
-	 * @param mixed $value Raw value.
-	 */
-	private static function sanitize_currency( $value ): string {
-		$value = strtoupper( preg_replace( '/[^A-Za-z]/', '', (string) $value ) ?? '' );
-
-		return 3 === strlen( $value ) ? $value : 'USD';
-	}
-
-	/**
-	 * Sanitize a page ID.
-	 *
-	 * @param mixed $value Raw value.
-	 */
-	private static function sanitize_page( $value ): int {
-		$page_id = absint( $value );
-
-		return $page_id && 'page' === get_post_type( $page_id ) ? $page_id : 0;
-	}
-
-	/**
-	 * Sanitize an email address, keeping the previous value if invalid.
-	 *
-	 * @param mixed  $value    Raw value.
-	 * @param string $fallback Fallback email.
-	 */
-	private static function sanitize_email_address( $value, string $fallback ): string {
-		$email = sanitize_email( (string) $value );
-
-		return $email ? $email : $fallback;
 	}
 }
