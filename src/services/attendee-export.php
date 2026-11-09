@@ -22,7 +22,7 @@ final class Attendee_Export {
 	 * @return string[]
 	 */
 	public static function header(): array {
-		return [ 'Booking', 'Reference', 'Status', 'Event', 'Ticket', 'Name', 'Email', 'Checked in', 'Created' ];
+		return [ 'Booking', 'Reference', 'Status', 'Event', 'Ticket', 'Name', 'Email', 'Fields', 'Checked in', 'Created' ];
 	}
 
 	/**
@@ -44,12 +44,36 @@ final class Attendee_Export {
 				(string) ( $record['ticket_name'] ?? '' ),
 				(string) ( $record['name'] ?? '' ),
 				(string) ( $record['email'] ?? '' ),
+				self::fields( $record['fields_json'] ?? '' ),
 				! empty( $record['checked_in'] ) ? 'yes' : 'no',
 				(string) ( $record['created_utc'] ?? '' ),
 			];
 		}
 
 		return $rows;
+	}
+
+	/**
+	 * Format custom fields.
+	 *
+	 * @param mixed $json Stored JSON.
+	 */
+	private static function fields( $json ): string {
+		$fields = json_decode( (string) $json, true );
+
+		if ( ! is_array( $fields ) ) {
+			return '';
+		}
+
+		$parts = [];
+
+		foreach ( $fields as $key => $value ) {
+			if ( is_scalar( $value ) ) {
+				$parts[] = $key . '=' . $value;
+			}
+		}
+
+		return implode( '; ', $parts );
 	}
 
 	/**

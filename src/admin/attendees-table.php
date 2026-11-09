@@ -56,6 +56,7 @@ final class Attendees_Table extends \WP_List_Table {
 			'ticket'     => __( 'Ticket', 're-events' ),
 			'name'       => __( 'Name', 're-events' ),
 			'email'      => __( 'Email', 're-events' ),
+			'fields'     => __( 'Fields', 're-events' ),
 			'checked_in' => __( 'Checked in', 're-events' ),
 			'created'    => __( 'Created', 're-events' ),
 		];
@@ -239,6 +240,22 @@ final class Attendees_Table extends \WP_List_Table {
 				return esc_html( (string) ( $item['name'] ?? '' ) );
 			case 'email':
 				return esc_html( (string) ( $item['email'] ?? '' ) );
+			case 'fields':
+				$fields = json_decode( (string) ( $item['fields_json'] ?? '[]' ), true );
+
+				if ( ! is_array( $fields ) ) {
+					return '';
+				}
+
+				$parts = [];
+
+				foreach ( $fields as $key => $value ) {
+					if ( is_scalar( $value ) ) {
+						$parts[] = $key . '=' . $value;
+					}
+				}
+
+				return esc_html( implode( '; ', $parts ) );
 			default:
 				return '';
 		}
