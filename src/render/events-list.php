@@ -37,12 +37,8 @@ final class Events_List {
 		$repo   = new Event_Repository();
 		$events = [];
 
-		foreach ( $result['ids'] as $id ) {
-			$event = $repo->find( $id );
-
-			if ( $event ) {
-				$events[] = $event;
-			}
+		foreach ( $repo->find_many( $result['ids'] ) as $event ) {
+			$events[] = $event;
 		}
 
 		return Template::render(

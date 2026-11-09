@@ -34,6 +34,38 @@ final class Event_Repository {
 	}
 
 	/**
+	 * Find many events in one query.
+	 *
+	 * @param int[] $ids Post IDs.
+	 * @return array<int, Event> Events keyed by post ID.
+	 */
+	public function find_many( array $ids ): array {
+		$ids = array_values( array_unique( array_map( 'intval', $ids ) ) );
+
+		if ( ! $ids ) {
+			return [];
+		}
+
+		$posts  = get_posts(
+			[
+				'post_type'      => 'reevents_event',
+				'post_status'    => 'publish',
+				'post__in'       => $ids,
+				'posts_per_page' => count( $ids ),
+				'orderby'        => 'post__in',
+				'no_found_rows'  => true,
+			]
+		);
+		$events = [];
+
+		foreach ( $posts as $post ) {
+			$events[ $post->ID ] = $this->hydrate( $post );
+		}
+
+		return $events;
+	}
+
+	/**
 	 * Save an event.
 	 *
 	 * @param Event $event Event data.

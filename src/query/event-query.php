@@ -11,6 +11,7 @@ namespace ReEvents\Query;
 
 use DateTimeImmutable;
 use DateTimeZone;
+use ReEvents\Data\Occurrence_Repository;
 use WP_Query;
 
 /**
@@ -25,10 +26,11 @@ final class Event_Query {
 	 * @return array{ids:int[],total:int,pages:int}
 	 */
 	public static function query( array $args = [] ): array {
-		$per_page = max( 1, (int) ( $args['per_page'] ?? $args['limit'] ?? 10 ) );
+		$per_page = min( 100, max( 1, (int) ( $args['per_page'] ?? $args['limit'] ?? 10 ) ) );
 		$page     = max( 1, (int) ( $args['page'] ?? 1 ) );
 		$from     = self::date( (string) ( $args['from'] ?? '' ) );
 		$to       = self::date( (string) ( $args['to'] ?? '' ) );
+		$upcoming = ! empty( $args['upcoming'] );
 
 		// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_query, WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Event queries filter by date, venue and category.
 		$query_args = [
@@ -66,31 +68,37 @@ final class Event_Query {
 			];
 		}
 
-		if ( '' !== $from ) {
-			$query_args['meta_query'][] = [
-				'key'     => '_reevents_start_utc',
-				'value'   => $from . ' 00:00:00',
-				'compare' => '>=',
-				'type'    => 'DATETIME',
-			];
-		}
+		if ( '' !== $from || '' !== $to || $upcoming ) {
+			$now   = current_time( 'mysql', true );
+			$start = '' !== $from ? $from . ' 00:00:00' : $now;
 
-		if ( '' !== $to ) {
-			$query_args['meta_query'][] = [
-				'key'     => '_reevents_start_utc',
-				'value'   => $to . ' 23:59:59',
-				'compare' => '<=',
-				'type'    => 'DATETIME',
-			];
-		}
+			if ( $upcoming && $start < $now ) {
+				$start = $now;
+			}
 
-		if ( ! empty( $args['upcoming'] ) ) {
-			$query_args['meta_query'][] = [
-				'key'     => '_reevents_start_utc',
-				'value'   => current_time( 'mysql', true ),
-				'compare' => '>=',
-				'type'    => 'DATETIME',
-			];
+			$end = '' !== $to ? $to . ' 23:59:59' : gmdate( 'Y-m-d H:i:s', strtotime( '+1 year', strtotime( $start ) ) );
+
+			if ( $end < $start ) {
+				return [
+					'ids'   => [],
+					'total' => 0,
+					'pages' => 0,
+				];
+			}
+
+			$ids = ( new Occurrence_Repository() )->event_ids_between( $start, $end );
+
+			if ( ! $ids ) {
+				return [
+					'ids'   => [],
+					'total' => 0,
+					'pages' => 0,
+				];
+			}
+
+			$query_args['post__in'] = $ids;
+			$query_args['orderby']  = 'post__in';
+			unset( $query_args['meta_key'], $query_args['meta_type'] );
 		}
 
 		$query = new WP_Query( $query_args );

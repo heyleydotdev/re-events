@@ -1,498 +1,1006 @@
 {
-  "openapi": "3.1.0",
-  "info": {
-    "title": "ReEvents API",
-    "version": "0.1.0",
-    "description": "REST API for events, venues, organizers, bookings and availability."
-  },
-  "servers": [
-    {
-      "url": "/wp-json/re-events/v1",
-      "description": "Current site"
-    }
-  ],
-  "tags": [
-    { "name": "System", "description": "Health and metadata." },
-    { "name": "Events", "description": "Events and occurrences." },
-    { "name": "Venues", "description": "Venues and locations." },
-    { "name": "Organizers", "description": "Event organizers." },
-    { "name": "Bookings", "description": "Bookings, tickets and availability." }
-  ],
-  "paths": {
-    "/ping": {
-      "get": {
-        "summary": "Health check",
-        "tags": [ "System" ],
-        "responses": {
-          "200": {
-            "description": "API is reachable.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": { "type": "string", "example": "ok" },
-                    "version": { "type": "string", "example": "0.1.0" }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+    "openapi": "3.1.0",
+    "info": {
+        "title": "ReEvents API",
+        "version": "0.1.0",
+        "description": "REST API for events, venues, organizers and bookings."
     },
-    "/events": {
-      "get": {
-        "summary": "List events",
-        "description": "Returns published events ordered by start time.",
-        "tags": [ "Events" ],
-        "parameters": [
-          { "$ref": "#/components/parameters/Page" },
-          { "$ref": "#/components/parameters/PerPage" },
-          {
-            "name": "search",
-            "in": "query",
-            "description": "Limit results to events matching a search term.",
-            "schema": { "type": "string" }
-          },
-          {
-            "name": "category",
-            "in": "query",
-            "description": "Limit results to a category term ID.",
-            "schema": { "type": "integer" }
-          },
-          {
-            "name": "venue",
-            "in": "query",
-            "description": "Limit results to a venue ID.",
-            "schema": { "type": "integer" }
-          },
-          {
-            "name": "from",
-            "in": "query",
-            "description": "Only events starting on or after this date (Y-m-d, UTC).",
-            "schema": { "type": "string", "format": "date" }
-          },
-          {
-            "name": "to",
-            "in": "query",
-            "description": "Only events starting on or before this date (Y-m-d, UTC).",
-            "schema": { "type": "string", "format": "date" }
-          },
-          {
-            "name": "upcoming",
-            "in": "query",
-            "description": "Only include upcoming events.",
-            "schema": { "type": "boolean" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of events.",
-            "headers": {
-              "X-WP-Total": {
-                "description": "Total number of matching events.",
-                "schema": { "type": "integer" }
-              },
-              "X-WP-TotalPages": {
-                "description": "Total number of result pages.",
-                "schema": { "type": "integer" }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/Event" }
-                }
-              }
-            }
-          }
+    "servers": [
+        {
+            "url": "/wp-json/re-events/v1",
+            "description": "Current site"
         }
-      },
-      "post": {
-        "summary": "Create an event",
-        "description": "Requires the publish_reevents_events capability.",
-        "tags": [ "Events" ],
-        "security": [ { "ApplicationPassword": [] } ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/EventInput" }
-            }
-          }
+    ],
+    "tags": [
+        {
+            "name": "System"
         },
-        "responses": {
-          "201": {
-            "description": "Event created.",
-            "headers": {
-              "Location": {
-                "description": "URL of the created event.",
-                "schema": { "type": "string", "format": "uri" }
-              }
-            },
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Event" }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid event data.",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" }
-              }
-            }
-          },
-          "401": {
-            "description": "Authentication required.",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" }
-              }
-            }
-          }
+        {
+            "name": "Events"
         }
-      }
-    },
-    "/events/{id}": {
-      "get": {
-        "summary": "Get an event",
-        "tags": [ "Events" ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "Event post ID.",
-            "schema": { "type": "integer" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Event.",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Event" }
-              }
+    ],
+    "paths": {
+        "/ping": {
+            "get": {
+                "operationId": "get_ping",
+                "tags": [
+                    "System"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Health"
+                                }
+                            }
+                        }
+                    }
+                }
             }
-          },
-          "404": {
-            "description": "Event not found.",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" }
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "summary": "Update an event",
-        "description": "Rebuilds stored occurrences. Requires edit access to the event.",
-        "tags": [ "Events" ],
-        "security": [ { "ApplicationPassword": [] } ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "Event post ID.",
-            "schema": { "type": "integer" }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": { "$ref": "#/components/schemas/EventInput" }
-            }
-          }
         },
-        "responses": {
-          "200": {
-            "description": "Updated event.",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Event" }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid event data.",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" }
-              }
-            }
-          },
-          "404": {
-            "description": "Event not found.",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "summary": "Delete an event",
-        "description": "Permanently deletes the event and its stored occurrences.",
-        "tags": [ "Events" ],
-        "security": [ { "ApplicationPassword": [] } ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "Event post ID.",
-            "schema": { "type": "integer" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Event deleted.",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/DeletedEvent" }
-              }
-            }
-          },
-          "404": {
-            "description": "Event not found.",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/events/{id}/occurrences": {
-      "get": {
-        "summary": "List event occurrences",
-        "description": "Returns the stored occurrences generated for an event, including recurrence and timeslot rows.",
-        "tags": [ "Events" ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "Event post ID.",
-            "schema": { "type": "integer" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of occurrences ordered by start time.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/Occurrence" }
+        "/events": {
+            "get": {
+                "operationId": "get_events",
+                "tags": [
+                    "Events"
+                ],
+                "summary": "List Events",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Event"
+                                    }
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-WP-Total": {
+                                "description": "Total number of matching items.",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            },
+                            "X-WP-TotalPages": {
+                                "description": "Total number of result pages.",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "context",
+                        "in": "query",
+                        "required": false,
+                        "description": "Scope under which the request is made; determines fields present in response.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "Current page of the collection.",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "description": "Maximum number of items to be returned in result set.",
+                        "schema": {
+                            "type": "integer",
+                            "default": 10,
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "description": "Limit results to events matching a search term.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "required": false,
+                        "description": "Limit results to a category term ID.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "venue",
+                        "in": "query",
+                        "required": false,
+                        "description": "Limit results to a venue ID.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "description": "Only events starting on or after this date (Y-m-d, UTC).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "description": "Only events starting on or before this date (Y-m-d, UTC).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "upcoming",
+                        "in": "query",
+                        "required": false,
+                        "description": "Only include upcoming events.",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "post_events",
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Create Event",
+                "responses": {
+                    "201": {
+                        "description": "Item created.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Event"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Location": {
+                                "description": "URL of the created item.",
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uri"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApplicationPassword": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "description": "Event title."
+                                    },
+                                    "start_utc": {
+                                        "type": "string",
+                                        "description": "Start time in UTC (Y-m-d H:i:s)."
+                                    },
+                                    "end_utc": {
+                                        "type": "string",
+                                        "description": "End time in UTC (Y-m-d H:i:s)."
+                                    },
+                                    "timezone": {
+                                        "type": "string",
+                                        "description": "IANA timezone."
+                                    },
+                                    "all_day": {
+                                        "type": "boolean",
+                                        "description": "Whether the event lasts all day."
+                                    },
+                                    "rrule": {
+                                        "type": "string",
+                                        "description": "RFC 5545 recurrence rule."
+                                    },
+                                    "exdates": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Excluded occurrence dates in UTC (Y-m-d H:i:s)."
+                                    },
+                                    "rdates": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Additional occurrence dates in UTC (Y-m-d H:i:s)."
+                                    },
+                                    "timeslots": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "start": {
+                                                    "type": "string"
+                                                },
+                                                "end": {
+                                                    "type": "string"
+                                                },
+                                                "capacity": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "description": "Daily timeslots."
+                                    },
+                                    "venue_id": {
+                                        "type": "integer",
+                                        "description": "Venue post ID."
+                                    },
+                                    "organizer_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "description": "Organizer post IDs."
+                                    },
+                                    "capacity": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "description": "Event capacity."
+                                    },
+                                    "online_urls": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "label": {
+                                                    "type": "string"
+                                                },
+                                                "url": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "description": "Online event links."
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "scheduled",
+                                            "cancelled"
+                                        ],
+                                        "description": "Event status."
+                                    }
+                                },
+                                "required": [
+                                    "title",
+                                    "start_utc"
+                                ]
+                            }
+                        }
+                    }
                 }
-              }
             }
-          },
-          "404": {
-            "description": "Event not found.",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/events/{id}/occurrences/sync": {
-      "post": {
-        "summary": "Rebuild event occurrences",
-        "description": "Regenerates stored occurrence rows from the event's recurrence and timeslots.",
-        "tags": [ "Events" ],
-        "security": [ { "ApplicationPassword": [] } ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "Event post ID.",
-            "schema": { "type": "integer" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Rebuilt occurrences.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/Occurrence" }
+        },
+        "/events/{id}": {
+            "get": {
+                "operationId": "get_events_id",
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Get Event",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Event"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier for the event.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ]
+            },
+            "patch": {
+                "operationId": "patch_events_id",
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Update Event",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Event"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApplicationPassword": []
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "description": "Event title."
+                                    },
+                                    "start_utc": {
+                                        "type": "string",
+                                        "description": "Start time in UTC (Y-m-d H:i:s)."
+                                    },
+                                    "end_utc": {
+                                        "type": "string",
+                                        "description": "End time in UTC (Y-m-d H:i:s)."
+                                    },
+                                    "timezone": {
+                                        "type": "string",
+                                        "description": "IANA timezone."
+                                    },
+                                    "all_day": {
+                                        "type": "boolean",
+                                        "description": "Whether the event lasts all day."
+                                    },
+                                    "rrule": {
+                                        "type": "string",
+                                        "description": "RFC 5545 recurrence rule."
+                                    },
+                                    "exdates": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Excluded occurrence dates in UTC (Y-m-d H:i:s)."
+                                    },
+                                    "rdates": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "Additional occurrence dates in UTC (Y-m-d H:i:s)."
+                                    },
+                                    "timeslots": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "start": {
+                                                    "type": "string"
+                                                },
+                                                "end": {
+                                                    "type": "string"
+                                                },
+                                                "capacity": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        },
+                                        "description": "Daily timeslots."
+                                    },
+                                    "venue_id": {
+                                        "type": "integer",
+                                        "description": "Venue post ID."
+                                    },
+                                    "organizer_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "integer"
+                                        },
+                                        "description": "Organizer post IDs."
+                                    },
+                                    "capacity": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "description": "Event capacity."
+                                    },
+                                    "online_urls": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "label": {
+                                                    "type": "string"
+                                                },
+                                                "url": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "description": "Online event links."
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "scheduled",
+                                            "cancelled"
+                                        ],
+                                        "description": "Event status."
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-              }
+            },
+            "delete": {
+                "operationId": "delete_events_id",
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Delete Event",
+                "responses": {
+                    "200": {
+                        "description": "Item deleted.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "deleted": {
+                                            "type": "boolean"
+                                        },
+                                        "previous": {
+                                            "$ref": "#/components/schemas/Event"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApplicationPassword": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier for the event.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ]
             }
-          },
-          "404": {
-            "description": "Event not found.",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/Error" }
-              }
+        },
+        "/events/{id}/occurrences": {
+            "get": {
+                "operationId": "get_events_id_occurrences",
+                "tags": [
+                    "Events"
+                ],
+                "summary": "List Occurrences",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Occurrence"
+                                    }
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-WP-Total": {
+                                "description": "Total number of matching items.",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            },
+                            "X-WP-TotalPages": {
+                                "description": "Total number of result pages.",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier for the event.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "Current page of the collection.",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "description": "Maximum number of items to return (1-100).",
+                        "schema": {
+                            "type": "integer",
+                            "default": 100,
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    }
+                ]
             }
-          }
+        },
+        "/events/{id}/occurrences/sync": {
+            "post": {
+                "operationId": "post_events_id_occurrences_sync",
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Sync Occurrences",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Occurrence"
+                                    }
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-WP-Total": {
+                                "description": "Total number of matching items.",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            },
+                            "X-WP-TotalPages": {
+                                "description": "Total number of result pages.",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApplicationPassword": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier for the event.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ]
+            }
         }
-      }
-    }
-  },
-  "components": {
-    "securitySchemes": {
-      "ApplicationPassword": {
-        "type": "http",
-        "scheme": "basic",
-        "description": "WordPress Application Password."
-      }
     },
-    "parameters": {
-      "Page": {
-        "name": "page",
-        "in": "query",
-        "description": "Current page of the collection.",
-        "schema": { "type": "integer", "minimum": 1, "default": 1 }
-      },
-      "PerPage": {
-        "name": "per_page",
-        "in": "query",
-        "description": "Maximum number of items to return (1-100).",
-        "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 10 }
-      }
-    },
-    "schemas": {
-      "Error": {
-        "type": "object",
-        "properties": {
-          "code": { "type": "string" },
-          "message": { "type": "string" },
-          "data": {
-            "type": "object",
-            "properties": {
-              "status": { "type": "integer" }
+    "components": {
+        "securitySchemes": {
+            "ApplicationPassword": {
+                "type": "http",
+                "scheme": "basic",
+                "description": "WordPress Application Password."
             }
-          }
+        },
+        "schemas": {
+            "Error": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "object",
+                        "properties": {
+                            "status": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            },
+            "Health": {
+                "title": "health",
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Event": {
+                "title": "event",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "Unique identifier for the event.",
+                        "type": "integer",
+                        "readonly": true
+                    },
+                    "title": {
+                        "description": "Event title.",
+                        "type": "string"
+                    },
+                    "start_utc": {
+                        "description": "Start time in UTC.",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "end_utc": {
+                        "description": "End time in UTC.",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "timezone": {
+                        "description": "Event timezone.",
+                        "type": "string"
+                    },
+                    "all_day": {
+                        "description": "Whether the event lasts all day.",
+                        "type": "boolean"
+                    },
+                    "rrule": {
+                        "description": "Recurrence rule.",
+                        "type": "string"
+                    },
+                    "exdates": {
+                        "description": "Excluded occurrence dates.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "rdates": {
+                        "description": "Additional occurrence dates.",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "timeslots": {
+                        "description": "Daily timeslots.",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "start": {
+                                    "type": "string"
+                                },
+                                "end": {
+                                    "type": "string"
+                                },
+                                "capacity": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "venue_id": {
+                        "description": "Venue post ID.",
+                        "type": "integer"
+                    },
+                    "organizer_ids": {
+                        "description": "Organizer post IDs.",
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    },
+                    "capacity": {
+                        "description": "Event capacity.",
+                        "type": "integer"
+                    },
+                    "online_urls": {
+                        "description": "Online event links.",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "label": {
+                                    "type": "string"
+                                },
+                                "url": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "status": {
+                        "description": "Event status.",
+                        "type": "string"
+                    },
+                    "permalink": {
+                        "description": "Event permalink.",
+                        "type": "string",
+                        "format": "uri"
+                    }
+                }
+            },
+            "Occurrence": {
+                "title": "occurrence",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "Unique identifier for the occurrence.",
+                        "type": "integer",
+                        "readonly": true
+                    },
+                    "event_id": {
+                        "description": "Event post ID.",
+                        "type": "integer"
+                    },
+                    "start_utc": {
+                        "description": "Start time in UTC.",
+                        "type": "string"
+                    },
+                    "end_utc": {
+                        "description": "End time in UTC.",
+                        "type": "string"
+                    },
+                    "timezone": {
+                        "description": "Occurrence timezone.",
+                        "type": "string"
+                    },
+                    "timeslot_key": {
+                        "description": "Timeslot identifier.",
+                        "type": "string"
+                    },
+                    "capacity": {
+                        "description": "Occurrence capacity.",
+                        "type": "integer"
+                    },
+                    "status": {
+                        "description": "Occurrence status.",
+                        "type": "string"
+                    }
+                }
+            }
         }
-      },
-      "Timeslot": {
-        "type": "object",
-        "properties": {
-          "start": { "type": "string", "example": "18:00" },
-          "end": { "type": "string", "example": "19:00" },
-          "capacity": { "type": "integer" }
-        }
-      },
-      "OnlineUrl": {
-        "type": "object",
-        "properties": {
-          "label": { "type": "string" },
-          "url": { "type": "string", "format": "uri" }
-        }
-      },
-      "EventInput": {
-        "type": "object",
-        "description": "Writable event fields. title and start_utc are required on create.",
-        "properties": {
-          "title": { "type": "string" },
-          "start_utc": { "type": "string", "description": "Y-m-d H:i:s in UTC." },
-          "end_utc": { "type": "string", "description": "Y-m-d H:i:s in UTC." },
-          "timezone": { "type": "string", "example": "Europe/London" },
-          "all_day": { "type": "boolean" },
-          "rrule": { "type": "string", "example": "FREQ=WEEKLY;COUNT=4" },
-          "exdates": {
-            "type": "array",
-            "items": { "type": "string" }
-          },
-          "rdates": {
-            "type": "array",
-            "items": { "type": "string" }
-          },
-          "timeslots": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/Timeslot" }
-          },
-          "venue_id": { "type": "integer" },
-          "organizer_ids": {
-            "type": "array",
-            "items": { "type": "integer" }
-          },
-          "capacity": { "type": "integer", "minimum": 0 },
-          "online_urls": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/OnlineUrl" }
-          },
-          "status": {
-            "type": "string",
-            "enum": [ "scheduled", "cancelled" ]
-          }
-        }
-      },
-      "Event": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "integer" },
-          "title": { "type": "string" },
-          "start_utc": { "type": "string", "description": "Start time in UTC." },
-          "end_utc": { "type": "string", "description": "End time in UTC." },
-          "timezone": { "type": "string", "example": "Europe/London" },
-          "all_day": { "type": "boolean" },
-          "rrule": { "type": "string", "example": "FREQ=WEEKLY;COUNT=4" },
-          "exdates": {
-            "type": "array",
-            "items": { "type": "string" }
-          },
-          "rdates": {
-            "type": "array",
-            "items": { "type": "string" }
-          },
-          "timeslots": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/Timeslot" }
-          },
-          "venue_id": { "type": "integer" },
-          "organizer_ids": {
-            "type": "array",
-            "items": { "type": "integer" }
-          },
-          "capacity": { "type": "integer" },
-          "online_urls": {
-            "type": "array",
-            "items": { "$ref": "#/components/schemas/OnlineUrl" }
-          },
-          "status": { "type": "string" },
-          "permalink": { "type": "string", "format": "uri" }
-        }
-      },
-      "DeletedEvent": {
-        "type": "object",
-        "properties": {
-          "deleted": { "type": "boolean" },
-          "previous": { "$ref": "#/components/schemas/Event" }
-        }
-      },
-      "Occurrence": {
-        "type": "object",
-        "properties": {
-          "id": { "type": "integer" },
-          "event_id": { "type": "integer" },
-          "start_utc": { "type": "string" },
-          "end_utc": { "type": "string" },
-          "timezone": { "type": "string" },
-          "timeslot_key": { "type": "string" },
-          "capacity": { "type": "integer" },
-          "status": { "type": "string" }
-        }
-      }
     }
-  }
 }

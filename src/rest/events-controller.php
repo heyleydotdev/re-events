@@ -86,7 +86,7 @@ final class Events_Controller extends WP_REST_Controller {
 					],
 				],
 				[
-					'methods'             => WP_REST_Server::EDITABLE,
+					'methods'             => 'PATCH',
 					'callback'            => [ $this, 'update_item' ],
 					'permission_callback' => [ $this, 'update_item_permissions_check' ],
 					'args'                => $this->get_write_args( false ),
@@ -116,13 +116,30 @@ final class Events_Controller extends WP_REST_Controller {
 					'callback'            => [ $this, 'get_occurrences' ],
 					'permission_callback' => [ $this, 'get_item_permissions_check' ],
 					'args'                => [
-						'id' => [
+						'id'       => [
 							'description'       => __( 'Unique identifier for the event.', 're-events' ),
 							'type'              => 'integer',
 							'sanitize_callback' => 'absint',
 						],
+						'page'     => [
+							'description'       => __( 'Current page of the collection.', 're-events' ),
+							'type'              => 'integer',
+							'default'           => 1,
+							'minimum'           => 1,
+							'sanitize_callback' => 'absint',
+						],
+						'per_page' => [
+							'description'       => __( 'Maximum number of items to return (1-100).', 're-events' ),
+							'type'              => 'integer',
+							'default'           => 100,
+							'minimum'           => 1,
+							'maximum'           => 100,
+							'sanitize_callback' => 'absint',
+						],
 					],
 				],
+				'schema'   => [ $this, 'get_occurrence_schema' ],
+				'response' => 'collection',
 			]
 		);
 
@@ -142,6 +159,8 @@ final class Events_Controller extends WP_REST_Controller {
 						],
 					],
 				],
+				'schema'   => [ $this, 'get_occurrence_schema' ],
+				'response' => 'collection',
 			]
 		);
 	}
@@ -237,13 +256,12 @@ final class Events_Controller extends WP_REST_Controller {
 			]
 		);
 		$repo   = new Event_Repository();
+		$events = $repo->find_many( $result['ids'] );
 		$items  = [];
 
 		foreach ( $result['ids'] as $id ) {
-			$event = $repo->find( $id );
-
-			if ( $event ) {
-				$items[] = (array) $this->prepare_item_for_response( $event, $request )->get_data();
+			if ( isset( $events[ $id ] ) ) {
+				$items[] = (array) $this->prepare_item_for_response( $events[ $id ], $request )->get_data();
 			}
 		}
 
@@ -283,8 +301,12 @@ final class Events_Controller extends WP_REST_Controller {
 			return new WP_Error( 'rest_event_invalid_id', __( 'Invalid event ID.', 're-events' ), [ 'status' => 404 ] );
 		}
 
-		$rows  = ( new Occurrence_Repository() )->get_for_event( $event->id );
-		$items = [];
+		$per_page = min( 100, max( 1, (int) ( $request['per_page'] ?? 100 ) ) );
+		$page     = max( 1, (int) ( $request['page'] ?? 1 ) );
+		$repo     = new Occurrence_Repository();
+		$rows     = $repo->get_for_event( $event->id, $per_page, ( $page - 1 ) * $per_page );
+		$total    = $repo->count_for_event( $event->id );
+		$items    = [];
 
 		foreach ( $rows as $row ) {
 			$items[] = [
@@ -299,7 +321,11 @@ final class Events_Controller extends WP_REST_Controller {
 			];
 		}
 
-		return rest_ensure_response( $items );
+		$response = rest_ensure_response( $items );
+		$response->header( 'X-WP-Total', (string) $total );
+		$response->header( 'X-WP-TotalPages', (string) (int) ceil( $total / $per_page ) );
+
+		return $response;
 	}
 
 	/**
@@ -491,9 +517,7 @@ final class Events_Controller extends WP_REST_Controller {
 	 * @return true|WP_Error
 	 */
 	public static function validate_datetime( $value ) {
-		$date = DateTimeImmutable::createFromFormat( 'Y-m-d H:i:s', (string) $value, new DateTimeZone( 'UTC' ) );
-
-		return $date instanceof DateTimeImmutable
+		return '' !== Meta::sanitize_datetime( $value )
 			? true
 			: new WP_Error( 'rest_event_invalid_datetime', __( 'Use the Y-m-d H:i:s format in UTC.', 're-events' ) );
 	}
@@ -821,6 +845,54 @@ final class Events_Controller extends WP_REST_Controller {
 					'description' => __( 'Event permalink.', 're-events' ),
 					'type'        => 'string',
 					'format'      => 'uri',
+				],
+			],
+		];
+	}
+
+	/**
+	 * Occurrence schema.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function get_occurrence_schema() {
+		return [
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'occurrence',
+			'type'       => 'object',
+			'properties' => [
+				'id'           => [
+					'description' => __( 'Unique identifier for the occurrence.', 're-events' ),
+					'type'        => 'integer',
+					'readonly'    => true,
+				],
+				'event_id'     => [
+					'description' => __( 'Event post ID.', 're-events' ),
+					'type'        => 'integer',
+				],
+				'start_utc'    => [
+					'description' => __( 'Start time in UTC.', 're-events' ),
+					'type'        => 'string',
+				],
+				'end_utc'      => [
+					'description' => __( 'End time in UTC.', 're-events' ),
+					'type'        => 'string',
+				],
+				'timezone'     => [
+					'description' => __( 'Occurrence timezone.', 're-events' ),
+					'type'        => 'string',
+				],
+				'timeslot_key' => [
+					'description' => __( 'Timeslot identifier.', 're-events' ),
+					'type'        => 'string',
+				],
+				'capacity'     => [
+					'description' => __( 'Occurrence capacity.', 're-events' ),
+					'type'        => 'integer',
+				],
+				'status'       => [
+					'description' => __( 'Occurrence status.', 're-events' ),
+					'type'        => 'string',
 				],
 			],
 		];
