@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace ReEvents\Admin;
 
 use ReEvents\Data\Booking_Repository;
+use ReEvents\Services\Booking_Service;
 
 if ( ! class_exists( '\WP_List_Table' ) ) {
 	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
@@ -49,6 +50,7 @@ final class Bookings_Table extends \WP_List_Table {
 	 */
 	public static function default_columns(): array {
 		return [
+			'cb'        => '<input type="checkbox" />',
 			'reference' => __( 'Reference', 're-events' ),
 			'event'     => __( 'Event', 're-events' ),
 			'status'    => __( 'Status', 're-events' ),
@@ -73,6 +75,8 @@ final class Bookings_Table extends \WP_List_Table {
 	 * Prepare items.
 	 */
 	public function prepare_items(): void {
+		$this->process_bulk_action();
+
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only table state.
 		$event_id = isset( $_GET['event'] ) ? absint( wp_unslash( $_GET['event'] ) ) : 0;
 		$status   = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : '';
@@ -106,6 +110,48 @@ final class Bookings_Table extends \WP_List_Table {
 				'total_pages' => (int) ceil( $result['total'] / $per_page ),
 			]
 		);
+	}
+
+	/**
+	 * Bulk actions.
+	 *
+	 * @return array<string, string>
+	 */
+	public function get_bulk_actions(): array {
+		return [
+			'confirm' => __( 'Mark confirmed', 're-events' ),
+			'cancel'  => __( 'Cancel', 're-events' ),
+		];
+	}
+
+	/**
+	 * Process bulk actions.
+	 */
+	private function process_bulk_action(): void {
+		$action = $this->current_action();
+
+		if ( ! in_array( $action, [ 'confirm', 'cancel' ], true ) || ! current_user_can( 'reevents_manage_bookings' ) ) {
+			return;
+		}
+
+		check_admin_referer( 'bulk-bookings' );
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce checked above.
+		$ids    = isset( $_REQUEST['booking'] ) ? array_map( 'absint', (array) wp_unslash( $_REQUEST['booking'] ) ) : [];
+		$status = 'confirm' === $action ? 'confirmed' : 'cancelled';
+
+		foreach ( $ids as $id ) {
+			Booking_Service::update_status( (int) $id, $status );
+		}
+	}
+
+	/**
+	 * Checkbox column.
+	 *
+	 * @param array<string, mixed> $item Row.
+	 */
+	public function column_cb( $item ): string {
+		return '<input type="checkbox" name="booking[]" value="' . esc_attr( (string) ( $item['id'] ?? 0 ) ) . '" />';
 	}
 
 	/**
