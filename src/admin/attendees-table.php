@@ -211,7 +211,7 @@ final class Attendees_Table extends \WP_List_Table {
 	 * Primary column for narrow screens.
 	 */
 	protected function get_primary_column_name(): string {
-		return 'name';
+		return 'reference';
 	}
 
 	/**
@@ -281,7 +281,8 @@ final class Attendees_Table extends \WP_List_Table {
 
 		return $this->row_actions(
 			[
-				'resend' => '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Resend email', 're-events' ) . '</a>',
+				'quick_view' => '<a href="#" class="reevents-quick-view" data-booking-id="' . esc_attr( (string) $booking_id ) . '">' . esc_html__( 'Quick view', 're-events' ) . '</a>',
+				'resend'     => '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Resend email', 're-events' ) . '</a>',
 			]
 		) . parent::handle_row_actions( $item, $column_name, $primary );
 	}
