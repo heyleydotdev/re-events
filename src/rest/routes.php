@@ -52,6 +52,9 @@ final class Routes {
 
 		$categories = new Categories_Controller();
 		$categories->register_routes();
+
+		$settings = new Settings_Controller();
+		$settings->register_routes();
 	}
 
 	/**

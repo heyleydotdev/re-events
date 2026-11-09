@@ -1989,6 +1989,27 @@
                     }
                 ]
             }
+        },
+        "/settings": {
+            "get": {
+                "operationId": "get_settings",
+                "tags": [
+                    "System"
+                ],
+                "summary": "Get Settings",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Settings"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -2279,6 +2300,33 @@
                         "type": "string",
                         "format": "uri",
                         "readonly": true
+                    }
+                }
+            },
+            "Settings": {
+                "title": "settings",
+                "type": "object",
+                "properties": {
+                    "timezone": {
+                        "description": "Default event timezone.",
+                        "type": "string"
+                    },
+                    "time_display": {
+                        "description": "Time display mode.",
+                        "type": "string",
+                        "enum": [
+                            "site",
+                            "event",
+                            "visitor"
+                        ]
+                    },
+                    "date_format": {
+                        "description": "Date format.",
+                        "type": "string"
+                    },
+                    "time_format": {
+                        "description": "Time format.",
+                        "type": "string"
                     }
                 }
             }
