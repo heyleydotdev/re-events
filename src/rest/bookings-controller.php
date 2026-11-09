@@ -76,7 +76,7 @@ final class Bookings_Controller extends WP_REST_Controller {
 					'methods'             => 'PATCH',
 					'callback'            => [ $this, 'update_item' ],
 					'permission_callback' => [ $this, 'update_item_permissions_check' ],
-					'args'                => $this->get_status_arg(),
+					'args'                => array_merge( $this->get_id_arg(), $this->get_status_arg() ),
 				],
 				'schema' => [ $this, 'get_public_item_schema' ],
 			]

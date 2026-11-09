@@ -74,7 +74,7 @@ final class Venues_Controller extends WP_REST_Controller {
 					'methods'             => 'PATCH',
 					'callback'            => [ $this, 'update_item' ],
 					'permission_callback' => [ $this, 'update_item_permissions_check' ],
-					'args'                => $this->get_write_args( false ),
+					'args'                => array_merge( $this->get_id_arg(), $this->get_write_args( false ) ),
 				],
 				[
 					'methods'             => WP_REST_Server::DELETABLE,
