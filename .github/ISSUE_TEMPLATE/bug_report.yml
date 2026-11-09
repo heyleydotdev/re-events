@@ -1,0 +1,62 @@
+name: Bug report
+description: Report a reproducible problem in ReEvents.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not report security vulnerabilities here. Use the private security advisory channel instead.
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to ...
+        2. Click ...
+        3. See ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: plugin-version
+    attributes:
+      label: ReEvents version
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: wp-version
+    attributes:
+      label: WordPress version
+      placeholder: 6.8
+    validations:
+      required: true
+  - type: input
+    id: php-version
+    attributes:
+      label: PHP version
+      placeholder: 8.2
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Theme and other plugins
+      description: List active plugins and the theme. Note whether the problem happens with other plugins disabled.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Paste relevant PHP errors, browser console output, or screenshots.
