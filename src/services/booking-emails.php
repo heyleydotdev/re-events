@@ -30,9 +30,10 @@ final class Booking_Emails {
 	/**
 	 * Send emails for a new booking.
 	 *
-	 * @param int $booking_id Booking ID.
+	 * @param int  $booking_id   Booking ID.
+	 * @param bool $notify_admin Send the admin copy.
 	 */
-	public static function send( int $booking_id ): void {
+	public static function send( int $booking_id, bool $notify_admin = true ): void {
 		$repo    = new Booking_Repository();
 		$booking = $repo->find( $booking_id );
 
@@ -42,9 +43,11 @@ final class Booking_Emails {
 
 		$event     = ( new Event_Repository() )->find( (int) $booking['event_id'] );
 		$attendees = $repo->attendees( $booking_id );
-		$admin     = self::compose( $booking, $event, $attendees, 'admin' );
 
-		wp_mail( (string) get_option( 'admin_email' ), $admin['subject'], $admin['body'] );
+		if ( $notify_admin ) {
+			$admin = self::compose( $booking, $event, $attendees, 'admin' );
+			wp_mail( (string) get_option( 'admin_email' ), $admin['subject'], $admin['body'] );
+		}
 
 		foreach ( $attendees as $attendee ) {
 			if ( ! is_email( (string) $attendee['email'] ) ) {

@@ -245,6 +245,31 @@ final class Attendees_Table extends \WP_List_Table {
 	}
 
 	/**
+	 * Row actions.
+	 *
+	 * @param array<string, mixed> $item        Row.
+	 * @param string               $column_name Column.
+	 * @param string               $primary     Primary column.
+	 */
+	protected function handle_row_actions( $item, $column_name, $primary ): string {
+		if ( $column_name !== $primary ) {
+			return '';
+		}
+
+		$booking_id = (int) ( $item['booking_id'] ?? 0 );
+		$url        = wp_nonce_url(
+			admin_url( 'admin-post.php?action=reevents_resend_booking_email&booking_id=' . $booking_id ),
+			'reevents_resend_email_' . $booking_id
+		);
+
+		return $this->row_actions(
+			[
+				'resend' => '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Resend email', 're-events' ) . '</a>',
+			]
+		) . parent::handle_row_actions( $item, $column_name, $primary );
+	}
+
+	/**
 	 * Empty state.
 	 */
 	public function no_items(): void {
