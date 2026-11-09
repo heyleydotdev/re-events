@@ -1,0 +1,22 @@
+# Development and CI files
+.git
+.github
+.githooks
+.vscode
+.wp-env.json
+.editorconfig
+.gitignore
+.distignore
+AGENTS.md
+PLAN.md
+composer.json
+composer.lock
+package.json
+bun.lock
+phpcs.xml.dist
+phpstan.neon.dist
+phpstan-baseline.neon
+node_modules
+src/cli
+stubs
+tests

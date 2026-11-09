@@ -23,6 +23,13 @@ ReEvents is a WordPress event manager plugin. GPL-2.0-or-later, no pro tier, no 
 - `bun install` — install JS dev tools
 - `bun run build` — build blocks into `blocks/build/`
 - `bun run lint:js` — JS lint
+- `bun run wp-env start` — start the local WordPress environment
+- `wp re-events openapi > docs/api/openapi.json` — regenerate the API spec from registered routes
+- `wp re-events self-test` — run recurrence, query and REST checks
+
+`docs/api/openapi.json` is generated from the registered routes and their schema callbacks: paths, parameters, request bodies and response schemas all come from code. CI regenerates the spec and fails if the committed file is stale.
+
+Release builds use `.distignore` and `composer install --no-dev --optimize-autoloader`; development files are not shipped.
 
 The pre-commit hook formats and lints staged PHP files. It blocks the commit if unfixable errors remain.
 
