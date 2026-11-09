@@ -13,6 +13,9 @@ build/
 .phpstan-cache/
 phpstan-baseline.neon.tmp
 tests/e2e/artifacts/
+test-results/
+playwright-report/
+blob-report/
 coverage/
 .wp-env.override.json
 

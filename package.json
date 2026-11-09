@@ -8,9 +8,11 @@
     "lint:js": "wp-scripts lint-js blocks/src",
     "wp-env": "wp-env",
     "lint:api": "redocly lint docs/api/openapi.json",
-    "docs:build": "bun run tools/docs.ts"
+    "docs:build": "bun run tools/docs.ts",
+    "test:e2e": "playwright test"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.0",
     "@redocly/cli": "^2.77.0",
     "@wordpress/env": "^12.1.0",
     "@wordpress/scripts": "^30.0.0",

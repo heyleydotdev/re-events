@@ -17,6 +17,7 @@ phpcs.xml.dist
 phpstan.neon.dist
 phpunit.xml.dist
 phpunit-integration.xml.dist
+playwright.config.ts
 bin/
 phpstan-baseline.neon
 node_modules

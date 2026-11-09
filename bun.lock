@@ -5,6 +5,7 @@
     "": {
       "name": "reevents",
       "devDependencies": {
+        "@playwright/test": "^1.65.0",
         "@redocly/cli": "^2.77.0",
         "@wordpress/env": "^12.1.0",
         "@wordpress/scripts": "^30.0.0",
