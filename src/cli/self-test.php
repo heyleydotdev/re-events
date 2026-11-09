@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace ReEvents\CLI;
 
 use ReEvents\Data\Occurrence_Repository;
+use ReEvents\Data\Ticket_Repository;
 use ReEvents\Domain\Event;
 use ReEvents\Query\Event_Query;
 use ReEvents\Services\Occurrence_Service;
@@ -30,6 +31,7 @@ final class Self_Test {
 		self::check_expansion( $failures );
 		self::check_timeslots( $failures );
 		self::check_upcoming_query( $failures );
+		self::check_availability( $failures );
 		self::check_rest( $failures );
 
 		if ( $failures ) {
@@ -141,6 +143,51 @@ final class Self_Test {
 		wp_delete_post( (int) $id, true );
 
 		self::assert( 0 === ( new Occurrence_Repository() )->count_for_event( (int) $id ), 'Deleting an event left occurrences behind.', $failures );
+	}
+
+	/**
+	 * Check that ticket capacity is reserved atomically.
+	 *
+	 * @param string[] $failures Failures.
+	 */
+	private static function check_availability( array &$failures ): void {
+		$event_id = wp_insert_post(
+			[
+				'post_type'   => 'reevents_event',
+				'post_status' => 'publish',
+				'post_title'  => 'Self test capacity',
+			]
+		);
+
+		if ( ! $event_id ) {
+			$failures[] = 'Could not create a capacity test event.';
+			return;
+		}
+
+		$repo      = new Ticket_Repository();
+		$ticket_id = $repo->save(
+			[
+				'event_id' => (int) $event_id,
+				'name'     => 'Capacity ticket',
+				'capacity' => 1,
+			]
+		);
+
+		if ( is_wp_error( $ticket_id ) ) {
+			wp_delete_post( (int) $event_id, true );
+			$failures[] = 'Could not create a capacity test ticket.';
+			return;
+		}
+
+		self::assert( $repo->reserve( (int) $ticket_id, 1 ), 'First seat was not reserved.', $failures );
+		self::assert( ! $repo->reserve( (int) $ticket_id, 1 ), 'Capacity was exceeded.', $failures );
+
+		$repo->release( (int) $ticket_id, 1 );
+
+		self::assert( $repo->reserve( (int) $ticket_id, 1 ), 'Released seat was not reserved again.', $failures );
+
+		$repo->delete( (int) $ticket_id );
+		wp_delete_post( (int) $event_id, true );
 	}
 
 	/**
