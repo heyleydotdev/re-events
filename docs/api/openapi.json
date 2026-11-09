@@ -2931,6 +2931,48 @@
                     }
                 }
             }
+        },
+        "/events/{event_id}/booking-form": {
+            "get": {
+                "operationId": "get_events_event_id_booking_form",
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Get BookingForm",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingForm"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Event ID.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -3403,6 +3445,42 @@
                                 }
                             }
                         }
+                    }
+                }
+            },
+            "BookingForm": {
+                "title": "booking-form",
+                "type": "object",
+                "properties": {
+                    "event_id": {
+                        "type": "integer"
+                    },
+                    "event_title": {
+                        "type": "string"
+                    },
+                    "tickets": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "fields": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    },
+                    "submit_url": {
+                        "type": "string"
+                    },
+                    "honeypot": {
+                        "type": "string"
+                    },
+                    "token_field": {
+                        "type": "string"
+                    },
+                    "nonce": {
+                        "type": "string"
                     }
                 }
             }

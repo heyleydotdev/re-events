@@ -5,6 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": ">=8.0",
+		"rakit/validation": "^1.4",
 		"rlanvin/php-rrule": "^3.0"
 	},
 	"autoload-dev": {

@@ -12,6 +12,7 @@ namespace ReEvents\REST;
 use ReEvents\Data\Booking_Repository;
 use ReEvents\Data\Ticket_Repository;
 use ReEvents\Services\Booking_Service;
+use ReEvents\Services\Booking_Validator;
 use ReEvents\Services\Rate_Limit;
 use WP_Error;
 use WP_REST_Controller;
@@ -229,19 +230,36 @@ final class Bookings_Controller extends WP_REST_Controller {
 
 		$attendees = (array) $request['attendees'];
 		$quantity  = max( 1, (int) $request['quantity'] );
+		$errors    = Booking_Validator::validate(
+			[
+				'event_id'      => (int) $request['event_id'],
+				'ticket_id'     => (int) $request['ticket_id'],
+				'quantity'      => $quantity,
+				'attendees'     => $attendees,
+				'booking_token' => $token,
+			]
+		);
 
-		if ( ! $attendees ) {
-			return new WP_Error( 'rest_booking_attendees_required', __( 'At least one attendee is required.', 're-events' ), [ 'status' => 400 ] );
+		if ( $errors ) {
+			return new WP_Error(
+				'rest_booking_invalid',
+				__( 'Please correct the booking fields.', 're-events' ),
+				[
+					'status' => 400,
+					'errors' => $errors,
+				]
+			);
 		}
 
 		if ( count( $attendees ) > $quantity ) {
-			return new WP_Error( 'rest_booking_too_many_attendees', __( 'There are more attendees than seats.', 're-events' ), [ 'status' => 400 ] );
-		}
-
-		foreach ( $attendees as $attendee ) {
-			if ( ! is_array( $attendee ) || '' === sanitize_text_field( (string) ( $attendee['name'] ?? '' ) ) || ! is_email( sanitize_email( (string) ( $attendee['email'] ?? '' ) ) ) ) {
-				return new WP_Error( 'rest_booking_invalid_attendee', __( 'Enter a valid name and email address.', 're-events' ), [ 'status' => 400 ] );
-			}
+			return new WP_Error(
+				'rest_booking_too_many_attendees',
+				__( 'There are more attendees than seats.', 're-events' ),
+				[
+					'status' => 400,
+					'errors' => [ 'attendees' => __( 'There are more attendees than seats.', 're-events' ) ],
+				]
+			);
 		}
 
 		$result = Booking_Service::create(

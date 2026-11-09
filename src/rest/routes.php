@@ -158,6 +158,9 @@ final class Routes {
 
 		$bookings = new Bookings_Controller();
 		$bookings->register_routes();
+
+		$booking_form = new Booking_Form_Controller();
+		$booking_form->register_routes();
 	}
 
 	/**
