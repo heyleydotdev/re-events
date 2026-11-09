@@ -243,7 +243,13 @@ final class Widget_Registry {
 		$merged = [];
 
 		foreach ( $schema as $key => $definition ) {
-			$merged[ $key ] = array_key_exists( $key, $args ) ? $args[ $key ] : ( $definition['default'] ?? null );
+			$value = array_key_exists( $key, $args ) ? $args[ $key ] : ( $definition['default'] ?? null );
+
+			if ( 'toggle' === ( $definition['type'] ?? '' ) ) {
+				$value = filter_var( $value, FILTER_VALIDATE_BOOLEAN );
+			}
+
+			$merged[ $key ] = $value;
 		}
 
 		return $merged;

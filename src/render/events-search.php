@@ -43,7 +43,7 @@ final class Events_Search {
 			);
 		}
 
-		$action = get_permalink();
+		$action = is_post_type_archive( 'reevents_event' ) ? get_post_type_archive_link( 'reevents_event' ) : get_permalink();
 
 		if ( ! $action ) {
 			$action = get_post_type_archive_link( 'reevents_event' );
@@ -144,7 +144,7 @@ final class Events_Search {
 			[
 				'post_type'      => 'reevents_venue',
 				'post_status'    => 'publish',
-				'posts_per_page' => -1,
+				'posts_per_page' => 100,
 				'orderby'        => 'title',
 				'order'          => 'ASC',
 			]

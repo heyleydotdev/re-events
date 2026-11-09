@@ -24,17 +24,16 @@ final class Calendar {
 	 * @param array<string, mixed> $args Widget arguments.
 	 */
 	public static function render( array $args ): string {
-		$display_tz  = Time_Display::timezone( wp_timezone()->getName() );
+		$display_tz  = 'visitor' === Time_Display::mode() ? Time_Display::timezone( '' ) : wp_timezone();
 		$month       = self::month( (string) ( $args['month'] ?? '' ), $display_tz );
 		$month_start = new DateTimeImmutable( $month . '-01 00:00:00', $display_tz );
 		$month_end   = $month_start->modify( 'last day of this month' )->setTime( 23, 59, 59 );
 		$utc         = new DateTimeZone( 'UTC' );
 		$rows        = ( new Occurrence_Repository() )->get_between(
 			$month_start->setTimezone( $utc )->format( 'Y-m-d H:i:s' ),
-			$month_end->setTimezone( $utc )->format( 'Y-m-d H:i:s' ),
-			500
+			$month_end->setTimezone( $utc )->format( 'Y-m-d H:i:s' )
 		);
-		$base        = get_permalink();
+		$base        = is_post_type_archive( 'reevents_event' ) ? get_post_type_archive_link( 'reevents_event' ) : get_permalink();
 
 		if ( ! $base ) {
 			$base = get_post_type_archive_link( 'reevents_event' );
