@@ -86,6 +86,7 @@ final class OpenAPI {
 				'version'     => RE_EVENTS_VERSION,
 				'description' => 'REST API for events, venues, organizers and bookings.',
 			],
+			'security'   => [],
 			'servers'    => [
 				[
 					'url'         => '/wp-json/re-events/v1',
@@ -369,6 +370,27 @@ final class OpenAPI {
 	 */
 	private static function clean_schema( array $schema ): array {
 		unset( $schema['$schema'] );
+
+		return self::normalize_schema( $schema );
+	}
+
+	/**
+	 * Normalize WordPress schema keys for OpenAPI.
+	 *
+	 * @param array<string, mixed> $schema Schema.
+	 * @return array<string, mixed>
+	 */
+	private static function normalize_schema( array $schema ): array {
+		if ( isset( $schema['readonly'] ) ) {
+			$schema['readOnly'] = (bool) $schema['readonly'];
+			unset( $schema['readonly'] );
+		}
+
+		foreach ( $schema as $key => $value ) {
+			if ( is_array( $value ) ) {
+				$schema[ $key ] = self::normalize_schema( $value );
+			}
+		}
 
 		return $schema;
 	}

@@ -50,7 +50,9 @@ jobs:
           bun run wp-env run cli wp re-events openapi > /tmp/openapi.out
           sed -n '/^{/,$p' /tmp/openapi.out > /tmp/openapi.json
       - name: Validate spec
-        run: php -r 'json_decode( file_get_contents( "/tmp/openapi.json" ), true, 512, JSON_THROW_ON_ERROR );'
+        run: |
+          php -r 'json_decode( file_get_contents( "/tmp/openapi.json" ), true, 512, JSON_THROW_ON_ERROR );'
+          bunx redocly lint /tmp/openapi.json
       - name: Check spec is current
         run: diff -u docs/api/openapi.json /tmp/openapi.json
       - name: Run self-test

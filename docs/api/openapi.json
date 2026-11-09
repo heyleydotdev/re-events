@@ -5,6 +5,7 @@
         "version": "0.1.0",
         "description": "REST API for events, venues, organizers and bookings."
     },
+    "security": [],
     "servers": [
         {
             "url": "/wp-json/re-events/v1",
@@ -455,6 +456,17 @@
                 "security": [
                     {
                         "ApplicationPassword": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier for the event.",
+                        "schema": {
+                            "type": "integer"
+                        }
                     }
                 ],
                 "requestBody": {
@@ -1112,6 +1124,17 @@
                         "ApplicationPassword": []
                     }
                 ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier for the venue.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": false,
                     "content": {
@@ -1504,6 +1527,17 @@
                         "ApplicationPassword": []
                     }
                 ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier for the organizer.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": false,
                     "content": {
@@ -1882,6 +1916,17 @@
                 "security": [
                     {
                         "ApplicationPassword": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier for the category.",
+                        "schema": {
+                            "type": "integer"
+                        }
                     }
                 ],
                 "requestBody": {
@@ -2324,6 +2369,17 @@
                         "ApplicationPassword": []
                     }
                 ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier for the ticket.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": false,
                     "content": {
@@ -2696,6 +2752,12 @@
                                                 },
                                                 "email": {
                                                     "type": "string"
+                                                },
+                                                "fields": {
+                                                    "type": "object",
+                                                    "additionalProperties": {
+                                                        "type": "string"
+                                                    }
                                                 }
                                             }
                                         },
@@ -2828,6 +2890,17 @@
                         "ApplicationPassword": []
                     }
                 ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier for the booking.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -2903,7 +2976,7 @@
                     "id": {
                         "description": "Unique identifier for the event.",
                         "type": "integer",
-                        "readonly": true
+                        "readOnly": true
                     },
                     "title": {
                         "description": "Event title.",
@@ -2911,13 +2984,11 @@
                     },
                     "start_utc": {
                         "description": "Start time in UTC.",
-                        "type": "string",
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "end_utc": {
                         "description": "End time in UTC.",
-                        "type": "string",
-                        "format": "date-time"
+                        "type": "string"
                     },
                     "timezone": {
                         "description": "Event timezone.",
@@ -3011,7 +3082,7 @@
                     "id": {
                         "description": "Unique identifier for the occurrence.",
                         "type": "integer",
-                        "readonly": true
+                        "readOnly": true
                     },
                     "event_id": {
                         "description": "Event post ID.",
@@ -3050,7 +3121,7 @@
                     "id": {
                         "description": "Unique identifier for the venue.",
                         "type": "integer",
-                        "readonly": true
+                        "readOnly": true
                     },
                     "title": {
                         "description": "Venue title.",
@@ -3091,7 +3162,7 @@
                     "id": {
                         "description": "Unique identifier for the organizer.",
                         "type": "integer",
-                        "readonly": true
+                        "readOnly": true
                     },
                     "title": {
                         "description": "Organizer title.",
@@ -3115,7 +3186,7 @@
                     "id": {
                         "description": "Unique identifier for the category.",
                         "type": "integer",
-                        "readonly": true
+                        "readOnly": true
                     },
                     "name": {
                         "description": "Category name.",
@@ -3124,7 +3195,7 @@
                     "slug": {
                         "description": "Category slug.",
                         "type": "string",
-                        "readonly": true
+                        "readOnly": true
                     },
                     "description": {
                         "description": "Category description.",
@@ -3137,13 +3208,13 @@
                     "count": {
                         "description": "Number of events in the category.",
                         "type": "integer",
-                        "readonly": true
+                        "readOnly": true
                     },
                     "link": {
                         "description": "Category archive link.",
                         "type": "string",
                         "format": "uri",
-                        "readonly": true
+                        "readOnly": true
                     }
                 }
             },
@@ -3181,7 +3252,7 @@
                     "id": {
                         "description": "Unique identifier for the ticket.",
                         "type": "integer",
-                        "readonly": true
+                        "readOnly": true
                     },
                     "event_id": {
                         "description": "Event post ID.",
@@ -3210,7 +3281,7 @@
                     "sold": {
                         "description": "Seats sold.",
                         "type": "integer",
-                        "readonly": true
+                        "readOnly": true
                     },
                     "min_per_booking": {
                         "description": "Minimum seats per booking.",
@@ -3245,12 +3316,12 @@
                     "id": {
                         "description": "Unique identifier for the booking.",
                         "type": "integer",
-                        "readonly": true
+                        "readOnly": true
                     },
                     "reference": {
                         "description": "Booking reference.",
                         "type": "string",
-                        "readonly": true
+                        "readOnly": true
                     },
                     "event_id": {
                         "description": "Event post ID.",
