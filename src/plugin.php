@@ -11,6 +11,7 @@ namespace ReEvents;
 
 use ReEvents\Admin\API_Docs;
 use ReEvents\Admin\Assets;
+use ReEvents\Admin\Attendees;
 use ReEvents\Admin\Event_List;
 use ReEvents\Admin\Menu;
 use ReEvents\Admin\Meta_Boxes;
@@ -70,6 +71,7 @@ final class Plugin {
 		Venue_Meta_Boxes::register();
 		Assets::register();
 		API_Docs::register();
+		Attendees::register();
 		Settings::register();
 		Event_List::register();
 		Widget_Registry::register_defaults();

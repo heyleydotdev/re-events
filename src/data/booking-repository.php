@@ -258,6 +258,30 @@ final class Booking_Repository {
 	}
 
 	/**
+	 * Mark attendees as checked in or out.
+	 *
+	 * @param int[] $ids     Attendee IDs.
+	 * @param bool  $checked Checked in.
+	 */
+	public function set_checked_in( array $ids, bool $checked ): int {
+		global $wpdb;
+
+		$ids = array_values( array_unique( array_map( 'absint', $ids ) ) );
+
+		if ( ! $ids ) {
+			return 0;
+		}
+
+		$table        = $this->attendees_table();
+		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+		$args         = array_merge( [ $checked ? 1 : 0 ], $ids );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Internal table and generated placeholders.
+		return (int) $wpdb->query( $wpdb->prepare( "UPDATE {$table} SET checked_in = %d WHERE id IN ({$placeholders})", ...$args ) );
+		// phpcs:enable
+	}
+
+	/**
 	 * Get pending booking IDs older than a cutoff.
 	 *
 	 * @param string $cutoff UTC cutoff.
@@ -272,6 +296,63 @@ final class Booking_Repository {
 		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} WHERE status = 'pending' AND created_utc < %s", $cutoff ) );
 
 		return is_array( $ids ) ? array_map( 'intval', $ids ) : [];
+	}
+
+	/**
+	 * Query attendees with pagination.
+	 *
+	 * @param array<string, mixed> $args Query arguments.
+	 * @return array{items:array<int, array<string, mixed>>,total:int}
+	 */
+	public function attendees_query( array $args = [] ): array {
+		global $wpdb;
+
+		$bookings  = $this->table();
+		$attendees = $this->attendees_table();
+		$tickets   = $wpdb->prefix . 'reevents_tickets';
+		$event_id  = (int) ( $args['event_id'] ?? 0 );
+		$search    = (string) ( $args['search'] ?? '' );
+		$limit     = max( 1, (int) ( $args['limit'] ?? 20 ) );
+		$offset    = max( 0, (int) ( $args['offset'] ?? 0 ) );
+		$order     = 'asc' === strtolower( (string) ( $args['order'] ?? 'desc' ) ) ? 'ASC' : 'DESC';
+		$columns   = [
+			'name'      => 'a.name',
+			'email'     => 'a.email',
+			'status'    => 'b.status',
+			'reference' => 'b.reference',
+			'created'   => 'b.created_utc',
+		];
+		$orderby   = $columns[ (string) ( $args['orderby'] ?? 'created' ) ] ?? 'b.created_utc';
+		$where     = '( %d = 0 OR b.event_id = %d )';
+		$values    = [ $event_id, $event_id ];
+
+		if ( '' !== $search ) {
+			$where   .= ' AND ( a.name LIKE %s OR a.email LIKE %s OR b.reference LIKE %s )';
+			$like     = '%' . $wpdb->esc_like( $search ) . '%';
+			$values[] = $like;
+			$values[] = $like;
+			$values[] = $like;
+		}
+
+		$from = "FROM {$attendees} a INNER JOIN {$bookings} b ON b.id = a.booking_id LEFT JOIN {$tickets} t ON t.id = a.ticket_id";
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Internal tables and whitelisted order.
+		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) {$from} WHERE {$where}", ...$values ) );
+
+		$items = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT a.id, a.booking_id, a.name, a.email, a.checked_in, b.reference, b.status AS booking_status, b.event_id, b.created_utc, t.name AS ticket_name
+				{$from} WHERE {$where} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d",
+				...array_merge( $values, [ $limit, $offset ] )
+			),
+			ARRAY_A
+		);
+		// phpcs:enable
+
+		return [
+			'items' => is_array( $items ) ? $items : [],
+			'total' => $total,
+		];
 	}
 
 	/**
@@ -290,7 +371,7 @@ final class Booking_Repository {
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal tables.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT a.booking_id, a.name, a.email, a.checked_in, b.reference, b.status AS booking_status, b.event_id, b.created_utc, t.name AS ticket_name
+				"SELECT a.id, a.booking_id, a.name, a.email, a.checked_in, b.reference, b.status AS booking_status, b.event_id, b.created_utc, t.name AS ticket_name
 				FROM {$attendees} a
 				INNER JOIN {$bookings} b ON b.id = a.booking_id
 				LEFT JOIN {$tickets} t ON t.id = a.ticket_id
