@@ -70,5 +70,8 @@
     "zip",
     "zlib",
     "wordpress"
+  ],
+  "intelephense.environment.includePaths": [
+    "vendor/rlanvin/php-rrule/src"
   ]
 }

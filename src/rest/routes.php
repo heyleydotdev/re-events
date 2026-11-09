@@ -31,9 +31,13 @@ final class Routes {
 			're-events/v1',
 			'/ping',
 			[
-				'methods'             => 'GET',
-				'callback'            => [ self::class, 'ping' ],
-				'permission_callback' => '__return_true',
+				[
+					'methods'             => 'GET',
+					'callback'            => [ self::class, 'ping' ],
+					'permission_callback' => '__return_true',
+				],
+				'schema'   => [ self::class, 'ping_schema' ],
+				'response' => 'item',
 			]
 		);
 
@@ -51,5 +55,22 @@ final class Routes {
 				'version' => RE_EVENTS_VERSION,
 			]
 		);
+	}
+
+	/**
+	 * Health check schema.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public static function ping_schema(): array {
+		return [
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'health',
+			'type'       => 'object',
+			'properties' => [
+				'status'  => [ 'type' => 'string' ],
+				'version' => [ 'type' => 'string' ],
+			],
+		];
 	}
 }

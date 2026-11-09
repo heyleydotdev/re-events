@@ -6,4 +6,6 @@ parameters:
 	paths:
 		- re-events.php
 		- src
+	scanFiles:
+		- stubs/wp-cli.php
 	tmpDir: .phpstan-cache
