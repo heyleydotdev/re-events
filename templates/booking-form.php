@@ -67,6 +67,23 @@ echo '<label for="reevents-booking-email">' . esc_html__( 'Email', 're-events' )
 echo '<input type="email" id="reevents-booking-email" name="email" required />';
 echo '</p>';
 
+foreach ( $args['fields'] as $field_key => $field ) {
+	$field_id   = 'reevents-booking-field-' . $field_key;
+	$field_name = 'reevents_fields[' . $field_key . ']';
+	$required   = ! empty( $field['required'] ) ? ' required' : '';
+
+	echo '<p class="reevents-booking-field">';
+	echo '<label for="' . esc_attr( $field_id ) . '">' . esc_html( (string) $field['label'] ) . '</label>';
+
+	if ( 'textarea' === $field['type'] ) {
+		echo '<textarea id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" data-reevents-field="' . esc_attr( (string) $field_key ) . '"' . esc_attr( $required ) . '></textarea>';
+	} else {
+		echo '<input type="' . esc_attr( (string) $field['type'] ) . '" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" data-reevents-field="' . esc_attr( (string) $field_key ) . '"' . esc_attr( $required ) . ' />';
+	}
+
+	echo '</p>';
+}
+
 echo '<p class="reevents-booking-actions"><button type="submit">' . esc_html__( 'Book', 're-events' ) . '</button></p>';
 echo '<p class="reevents-booking-message" aria-live="polite"></p>';
 echo '</form>';

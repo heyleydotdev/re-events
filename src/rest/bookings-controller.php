@@ -331,8 +331,12 @@ final class Bookings_Controller extends WP_REST_Controller {
 				'items'       => [
 					'type'       => 'object',
 					'properties' => [
-						'name'  => [ 'type' => 'string' ],
-						'email' => [ 'type' => 'string' ],
+						'name'   => [ 'type' => 'string' ],
+						'email'  => [ 'type' => 'string' ],
+						'fields' => [
+							'type'                 => 'object',
+							'additionalProperties' => [ 'type' => 'string' ],
+						],
 					],
 				],
 			],

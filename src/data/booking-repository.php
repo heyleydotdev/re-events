@@ -201,12 +201,20 @@ final class Booking_Repository {
 	public function add_attendee( int $booking_id, array $attendee ) {
 		global $wpdb;
 
+		$fields = [];
+
+		foreach ( (array) ( $attendee['fields'] ?? [] ) as $field_key => $field_value ) {
+			if ( is_scalar( $field_value ) ) {
+				$fields[ sanitize_key( (string) $field_key ) ] = sanitize_text_field( (string) $field_value );
+			}
+		}
+
 		$data = [
 			'booking_id'  => $booking_id,
 			'ticket_id'   => (int) ( $attendee['ticket_id'] ?? 0 ),
 			'name'        => sanitize_text_field( (string) ( $attendee['name'] ?? '' ) ),
 			'email'       => sanitize_email( (string) ( $attendee['email'] ?? '' ) ),
-			'fields_json' => (string) wp_json_encode( (array) ( $attendee['fields'] ?? [] ) ),
+			'fields_json' => (string) wp_json_encode( $fields ),
 			'checked_in'  => ! empty( $attendee['checked_in'] ) ? 1 : 0,
 		];
 
@@ -341,7 +349,7 @@ final class Booking_Repository {
 
 		$items = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT a.id, a.booking_id, a.name, a.email, a.checked_in, b.reference, b.status AS booking_status, b.event_id, b.created_utc, t.name AS ticket_name
+				"SELECT a.id, a.booking_id, a.name, a.email, a.fields_json, a.checked_in, b.reference, b.status AS booking_status, b.event_id, b.created_utc, t.name AS ticket_name
 				{$from} WHERE {$where} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d",
 				...array_merge( $values, [ $limit, $offset ] )
 			),
@@ -371,7 +379,7 @@ final class Booking_Repository {
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal tables.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT a.id, a.booking_id, a.name, a.email, a.checked_in, b.reference, b.status AS booking_status, b.event_id, b.created_utc, t.name AS ticket_name
+				"SELECT a.id, a.booking_id, a.name, a.email, a.fields_json, a.checked_in, b.reference, b.status AS booking_status, b.event_id, b.created_utc, t.name AS ticket_name
 				FROM {$attendees} a
 				INNER JOIN {$bookings} b ON b.id = a.booking_id
 				LEFT JOIN {$tickets} t ON t.id = a.ticket_id

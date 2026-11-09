@@ -53,6 +53,17 @@ final class Booking_Handler {
 			self::redirect( $redirect, 'error', 'reevents_booking_rate_limited' );
 		}
 
+		$fields = [];
+
+		if ( isset( $_POST['reevents_fields'] ) && is_array( $_POST['reevents_fields'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized below.
+			foreach ( wp_unslash( $_POST['reevents_fields'] ) as $field_key => $field_value ) {
+				if ( is_scalar( $field_value ) ) {
+					$fields[ sanitize_key( (string) $field_key ) ] = sanitize_text_field( (string) $field_value );
+				}
+			}
+		}
+
 		$result = Booking_Service::create(
 			[
 				'event_id'  => $event_id,
@@ -60,8 +71,9 @@ final class Booking_Handler {
 				'quantity'  => isset( $_POST['quantity'] ) ? absint( wp_unslash( $_POST['quantity'] ) ) : 1,
 				'attendees' => [
 					[
-						'name'  => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
-						'email' => isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '',
+						'name'   => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
+						'email'  => isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '',
+						'fields' => $fields,
 					],
 				],
 			]

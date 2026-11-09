@@ -30,13 +30,20 @@
 
 			const message = form.querySelector('.reevents-booking-message');
 			const data = new FormData(form);
+			const fields = {};
+
+			form.querySelectorAll('[data-reevents-field]').forEach(function (field) {
+				fields[field.dataset.reeventsField] = String(field.value || '');
+			});
+
 			const payload = {
 				ticket_id: Number(data.get('ticket_id')),
 				quantity: Number(data.get('quantity')),
 				attendees: [
 					{
 						name: String(data.get('name') || ''),
-						email: String(data.get('email') || '')
+						email: String(data.get('email') || ''),
+						fields: fields
 					}
 				],
 				website: String(data.get('website') || '')

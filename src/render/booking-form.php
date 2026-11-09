@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Render;
 
+use ReEvents\Admin\Settings;
 use ReEvents\Data\Ticket_Repository;
 
 /**
@@ -51,6 +52,7 @@ final class Booking_Form {
 			[
 				'event_id' => $event_id,
 				'tickets'  => $tickets,
+				'fields'   => Settings::attendee_fields(),
 				'state'    => self::state(),
 				'action'   => admin_url( 'admin-post.php' ),
 				'endpoint' => rest_url( 're-events/v1/events/' . $event_id . '/bookings' ),
