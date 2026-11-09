@@ -1,0 +1,44 @@
+<h1>Authentication</h1>
+<p>Public reads (<code>GET /events</code>, <code>/venues</code>, <code>/organizers</code>, <code>/categories</code>, <code>/tickets</code>) need no authentication.</p>
+<p>Writes and private reads need one of the two methods below.</p>
+<h2>Application Passwords</h2>
+<p>Use this for external clients, scripts and integrations.</p>
+<ol>
+<li>Go to <strong>Users → Profile → Application Passwords</strong>.</li>
+<li>Create a password for the client.</li>
+<li>Send it with HTTP Basic auth:</li>
+</ol>
+<pre><code class="language-bash">curl -u &quot;editor:xxxx xxxx xxxx xxxx xxxx xxxx&quot; \
+  https://example.com/wp-json/re-events/v1/events
+</code></pre>
+<p>The username is the WordPress login, not the display name. Application Passwords require HTTPS outside local environments.</p>
+<h2>Cookie and nonce</h2>
+<p>Use this for same-origin JavaScript inside WordPress.</p>
+<ul>
+<li>WordPress sets the login cookies.</li>
+<li>Send the REST nonce in the <code>X-WP-Nonce</code> header.</li>
+<li>In the admin or a logged-in page, the nonce is available as <code>wpApiSettings.nonce</code>.</li>
+<li><code>wp.apiFetch</code> adds it automatically.</li>
+</ul>
+<pre><code class="language-js">fetch(&#39;/wp-json/re-events/v1/events&#39;, {
+  method: &#39;POST&#39;,
+  headers: {
+    &#39;Content-Type&#39;: &#39;application/json&#39;,
+    &#39;X-WP-Nonce&#39;: wpApiSettings.nonce
+  },
+  body: JSON.stringify({
+    title: &#39;API event&#39;,
+    start_utc: &#39;2026-12-01 18:00:00&#39;
+  })
+});
+</code></pre>
+<h2>Capabilities</h2>
+<ul>
+<li>Read: public for published events, tickets and venues.</li>
+<li>Event writes: <code>edit_post</code>, create needs <code>publish_reevents_events</code>.</li>
+<li>Venue writes: <code>edit_post</code>, create needs <code>publish_reevents_venues</code>.</li>
+<li>Organizer writes: <code>edit_post</code>, create needs <code>publish_reevents_organizers</code>.</li>
+<li>Categories: <code>manage_categories</code>.</li>
+<li>Settings: <code>reevents_manage_settings</code>.</li>
+<li>Bookings and attendees: <code>reevents_manage_bookings</code>.</li>
+</ul>

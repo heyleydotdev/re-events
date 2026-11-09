@@ -30,6 +30,8 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run lint:js
       - run: bun run build
+      - run: bun run docs:build
+      - run: git diff --exit-code docs/api/auth.html
 
   spec:
     runs-on: ubuntu-latest
