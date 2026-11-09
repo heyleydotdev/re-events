@@ -70,6 +70,6 @@ fetch('/wp-json/re-events/v1/events', {
 - Event writes: `edit_post`, create needs `publish_reevents_events`.
 - Venue writes: `edit_post`, create needs `publish_reevents_venues`.
 - Organizer writes: `edit_post`, create needs `publish_reevents_organizers`.
-- Categories: `manage_categories`.
+- Event categories: `manage_categories`.
 - Settings: `reevents_manage_settings`.
 - Bookings and attendees: `reevents_manage_bookings`.

@@ -33,7 +33,7 @@ The `ReEvents\` namespace maps to `src/`. Class names map to kebab-case file nam
 
 ## Storage
 
-Events, venues, and organizers are custom post types. Their data lives in post fields and registered post meta. Event categories, event tags, and organizer types are taxonomies.
+Events, venues, and organizers are custom post types. Their data lives in post fields and registered post meta. Event categories, event tags, and organizer tags are taxonomies.
 
 Occurrences, tickets, bookings, and attendees use custom tables. They are queried directly through repositories because they need indexes, transactions, and capacity checks that post meta cannot provide. See [ADR 0001](../adr/0001-custom-tables-for-bookings.md).
 
