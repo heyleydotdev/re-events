@@ -92,6 +92,15 @@ final class Settings {
 				'description' => __( 'Minutes before an unpaid booking is cancelled. Minimum 5.', 're-events' ),
 			]
 		);
+		self::add_field(
+			'bookings',
+			'attendee_fields',
+			__( 'Attendee fields', 're-events' ),
+			[
+				'type'        => 'textarea',
+				'description' => __( 'One per line: key|Label|type|required. Types: text, email, tel, textarea. Required: 1 or 0.', 're-events' ),
+			]
+		);
 	}
 
 	/**
@@ -196,6 +205,7 @@ final class Settings {
 			case 'bookings':
 				$settings['require_approval'] = ! empty( $input['require_approval'] );
 				$settings['hold_minutes']     = max( 5, min( 1440, absint( $input['hold_minutes'] ?? 30 ) ) );
+				$settings['attendee_fields']  = self::sanitize_attendee_fields( (string) ( $input['attendee_fields'] ?? '' ) );
 				break;
 		}
 
@@ -215,6 +225,7 @@ final class Settings {
 			'time_format'      => get_option( 'time_format', 'g:i a' ),
 			'require_approval' => false,
 			'hold_minutes'     => 30,
+			'attendee_fields'  => [],
 		];
 	}
 
@@ -287,6 +298,22 @@ final class Settings {
 			}
 
 			echo '</select>';
+		} elseif ( 'textarea' === $type ) {
+			if ( 'attendee_fields' === $key ) {
+				$lines = [];
+
+				foreach ( (array) $value as $field_key => $field ) {
+					if ( ! is_array( $field ) ) {
+						continue;
+					}
+
+					$lines[] = $field_key . '|' . (string) ( $field['label'] ?? '' ) . '|' . (string) ( $field['type'] ?? 'text' ) . '|' . ( ! empty( $field['required'] ) ? '1' : '0' );
+				}
+
+				$value = implode( "\n", $lines );
+			}
+
+			echo '<textarea id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" rows="6" class="large-text code">' . esc_textarea( (string) $value ) . '</textarea>';
 		} elseif ( 'timezone' === $type ) {
 			echo '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '">';
 
@@ -332,5 +359,56 @@ final class Settings {
 		$value = sanitize_key( (string) $value );
 
 		return in_array( $value, [ 'site', 'event', 'visitor' ], true ) ? $value : 'event';
+	}
+
+	/**
+	 * Get custom attendee fields.
+	 *
+	 * @return array<string, array{label:string,type:string,required:bool}>
+	 */
+	public static function attendee_fields(): array {
+		$fields = self::get( 'attendee_fields', [] );
+
+		return is_array( $fields ) ? $fields : [];
+	}
+
+	/**
+	 * Sanitize attendee field definitions.
+	 *
+	 * @param string $value Raw textarea.
+	 * @return array<string, array{label:string,type:string,required:bool}>
+	 */
+	private static function sanitize_attendee_fields( string $value ): array {
+		$fields = [];
+		$lines  = preg_split( '/\r\n|\r|\n/', $value );
+		$lines  = is_array( $lines ) ? $lines : [];
+
+		foreach ( $lines as $line ) {
+			$parts = array_map( 'trim', explode( '|', $line ) );
+
+			if ( count( $parts ) < 2 ) {
+				continue;
+			}
+
+			$key   = sanitize_key( $parts[0] );
+			$label = sanitize_text_field( $parts[1] );
+			$type  = $parts[2] ?? 'text';
+
+			if ( ! in_array( $type, [ 'text', 'email', 'tel', 'textarea' ], true ) ) {
+				$type = 'text';
+			}
+
+			if ( '' === $key || '' === $label ) {
+				continue;
+			}
+
+			$fields[ $key ] = [
+				'label'    => $label,
+				'type'     => $type,
+				'required' => '1' === ( $parts[3] ?? '' ),
+			];
+		}
+
+		return $fields;
 	}
 }
