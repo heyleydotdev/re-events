@@ -11,6 +11,7 @@ namespace ReEvents\REST;
 
 use ReEvents\Data\Booking_Repository;
 use ReEvents\Services\Booking_Service;
+use ReEvents\Services\Rate_Limit;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Request;
@@ -206,7 +207,7 @@ final class Bookings_Controller extends WP_REST_Controller {
 			return new WP_Error( 'rest_booking_rejected', __( 'The booking could not be created.', 're-events' ), [ 'status' => 400 ] );
 		}
 
-		if ( $this->too_many_requests() ) {
+		if ( Rate_Limit::hit( 'booking' ) ) {
 			return new WP_Error( 'rest_booking_rate_limited', __( 'Too many booking attempts. Try again later.', 're-events' ), [ 'status' => 429 ] );
 		}
 
@@ -298,29 +299,6 @@ final class Bookings_Controller extends WP_REST_Controller {
 		}
 
 		return $data;
-	}
-
-	/**
-	 * Limit booking attempts per IP.
-	 */
-	private function too_many_requests(): bool {
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Remote address.
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : '';
-
-		if ( '' === $ip ) {
-			return false;
-		}
-
-		$key   = 'reevents_booking_rate_' . md5( $ip );
-		$count = (int) get_transient( $key );
-
-		if ( $count >= 5 ) {
-			return true;
-		}
-
-		set_transient( $key, $count + 1, 10 * MINUTE_IN_SECONDS );
-
-		return false;
 	}
 
 	/**
