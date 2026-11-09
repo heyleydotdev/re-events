@@ -39,6 +39,21 @@ final class Event_Format {
 	}
 
 	/**
+	 * Whether an event is currently running.
+	 *
+	 * @param Event $event Event.
+	 */
+	public static function is_ongoing( Event $event ): bool {
+		if ( '' === $event->start_utc || '' === $event->end_utc ) {
+			return false;
+		}
+
+		$now = current_time( 'mysql', true );
+
+		return $event->start_utc <= $now && $event->end_utc >= $now;
+	}
+
+	/**
 	 * Format a UTC datetime.
 	 *
 	 * @param string $utc          UTC datetime.

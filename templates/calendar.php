@@ -4,7 +4,7 @@
  *
  * @package ReEvents
  *
- * @var array{month_label:string,prev_url:string,next_url:string,days:array<int, array{date:string,label:int,in_month:bool,events:array<int, array{title:string,url:string,time:string,cancelled:bool}>}>,args:array<string,mixed>} $args
+ * @var array{month_label:string,prev_url:string,next_url:string,days:array<int, array{date:string,label:int,in_month:bool,events:array<int, array{title:string,url:string,time:string,ongoing:bool,cancelled:bool}>}>,args:array<string,mixed>} $args
  */
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are scoped to the template include.
@@ -69,7 +69,9 @@ foreach ( array_chunk( $args['days'], 7 ) as $week ) {
 
 				echo '<li class="' . esc_attr( $event_classes ) . '">';
 
-				if ( '' !== $event['time'] ) {
+				if ( ! empty( $event['ongoing'] ) ) {
+					echo '<span class="reevents-calendar-ongoing">' . esc_html__( 'Ongoing', 're-events' ) . '</span> ';
+				} elseif ( '' !== $event['time'] ) {
 					echo '<span class="reevents-calendar-time">' . esc_html( $event['time'] ) . '</span> ';
 				}
 

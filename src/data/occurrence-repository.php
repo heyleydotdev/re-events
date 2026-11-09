@@ -110,10 +110,10 @@ final class Occurrence_Repository {
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT o.* FROM {$table} o INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id
-				WHERE p.post_status = 'publish' AND o.start_utc >= %s AND o.start_utc <= %s
+				WHERE p.post_status = 'publish' AND o.start_utc <= %s AND o.end_utc >= %s
 				ORDER BY o.start_utc ASC LIMIT %d OFFSET %d",
-				$from_utc,
 				$to_utc,
+				$from_utc,
 				max( 1, $limit ),
 				max( 0, $offset )
 			),
@@ -138,9 +138,9 @@ final class Occurrence_Repository {
 
 		$table = $this->table();
 		$sql   = "SELECT o.event_id FROM {$table} o INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id
-			WHERE p.post_status = 'publish' AND o.start_utc >= %s AND o.start_utc <= %s
+			WHERE p.post_status = 'publish' AND o.start_utc <= %s AND o.end_utc >= %s
 			GROUP BY o.event_id ORDER BY MIN(o.start_utc) ASC";
-		$args  = [ $from_utc, $to_utc ];
+		$args  = [ $to_utc, $from_utc ];
 
 		if ( $limit > 0 ) {
 			$sql   .= ' LIMIT %d OFFSET %d';
@@ -171,9 +171,9 @@ final class Occurrence_Repository {
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
 				"SELECT COUNT(DISTINCT o.event_id) FROM {$table} o INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id
-				WHERE p.post_status = 'publish' AND o.start_utc >= %s AND o.start_utc <= %s",
-				$from_utc,
-				$to_utc
+				WHERE p.post_status = 'publish' AND o.start_utc <= %s AND o.end_utc >= %s",
+				$to_utc,
+				$from_utc
 			)
 		);
 	}

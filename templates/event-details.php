@@ -18,6 +18,8 @@ echo '<h2 class="reevents-event-title">' . esc_html( $event->title ) . '</h2>';
 
 if ( 'cancelled' === $event->status ) {
 	echo '<p class="reevents-event-status">' . esc_html__( 'Cancelled', 're-events' ) . '</p>';
+} elseif ( \ReEvents\Render\Event_Format::is_ongoing( $event ) ) {
+	echo '<p class="reevents-event-status">' . esc_html__( 'Ongoing', 're-events' ) . '</p>';
 }
 
 if ( '' !== $start ) {

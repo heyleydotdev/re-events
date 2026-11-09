@@ -25,6 +25,12 @@
 	opacity: 0.8;
 }
 
+.reevents-event-ongoing,
+.reevents-calendar-ongoing {
+	font-weight: 600;
+	color: #1e7e34;
+}
+
 .reevents-event-details {
 	margin: 0 0 1.5em;
 }

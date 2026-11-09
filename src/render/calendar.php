@@ -85,8 +85,18 @@ final class Calendar {
 				continue;
 			}
 
-			$local    = $start->setTimezone( $display_tz );
-			$event_id = (int) ( $row['event_id'] ?? 0 );
+			$end = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', (string) ( $row['end_utc'] ?? '' ), $utc );
+			$end = $end instanceof DateTimeImmutable ? $end : $start;
+
+			if ( $end < $start ) {
+				$end = $start;
+			}
+
+			$local_start = $start->setTimezone( $display_tz );
+			$local_end   = $end->setTimezone( $display_tz );
+			$first_date  = $local_start->format( 'Y-m-d' );
+			$last_date   = $local_end->format( 'Y-m-d' );
+			$event_id    = (int) ( $row['event_id'] ?? 0 );
 
 			if ( ! $event_id ) {
 				continue;
@@ -100,14 +110,25 @@ final class Calendar {
 				];
 			}
 
-			$event = $event_cache[ $event_id ];
+			$event       = $event_cache[ $event_id ];
+			$cursor      = $local_start->setTime( 0, 0 );
+			$cursor_date = $cursor->format( 'Y-m-d' );
 
-			$by_date[ $local->format( 'Y-m-d' ) ][] = [
-				'title'     => $event['title'],
-				'url'       => $event['url'],
-				'time'      => $event['all_day'] ? '' : (string) wp_date( $time_format, $local->getTimestamp(), $display_tz ),
-				'cancelled' => 'cancelled' === (string) ( $row['status'] ?? '' ),
-			];
+			for ( $day = 0; $day < 62 && $cursor_date <= $last_date; $day++ ) {
+				$day_key = $cursor_date;
+				$ongoing = $day_key !== $first_date;
+
+				$by_date[ $day_key ][] = [
+					'title'     => $event['title'],
+					'url'       => $event['url'],
+					'time'      => $ongoing || $event['all_day'] ? '' : (string) wp_date( $time_format, $local_start->getTimestamp(), $display_tz ),
+					'ongoing'   => $ongoing,
+					'cancelled' => 'cancelled' === (string) ( $row['status'] ?? '' ),
+				];
+
+				$cursor      = $cursor->modify( '+1 day' );
+				$cursor_date = $cursor->format( 'Y-m-d' );
+			}
 		}
 
 		$grid_start = $month_start->modify( '-' . ( (int) $month_start->format( 'N' ) - 1 ) . ' days' );

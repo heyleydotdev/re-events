@@ -27,6 +27,10 @@ foreach ( $args['events'] as $event ) {
 		echo '<span class="reevents-event-start">' . esc_html( (string) $start_text ) . '</span>';
 	}
 
+	if ( \ReEvents\Render\Event_Format::is_ongoing( $event ) ) {
+		echo '<span class="reevents-event-ongoing">' . esc_html__( 'Ongoing', 're-events' ) . '</span>';
+	}
+
 	if ( ! empty( $args['args']['show_venue'] ) && $venue ) {
 		echo '<span class="reevents-event-venue">' . esc_html( $venue ) . '</span>';
 	}
