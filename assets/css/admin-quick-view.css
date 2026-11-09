@@ -43,6 +43,33 @@
 	cursor: pointer;
 }
 
+.reevents-quick-view-details {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	gap: 4px 12px;
+	margin: 0 0 1.5rem;
+}
+
+.reevents-quick-view-details dt {
+	font-weight: 600;
+}
+
+.reevents-quick-view-details dd {
+	margin: 0;
+}
+
+.reevents-quick-view-badge {
+	display: inline-block;
+	margin-left: 6px;
+	padding: 0 6px;
+	border-radius: 3px;
+	background: #edfaef;
+	color: #1e7e34;
+	font-size: 11px;
+	line-height: 18px;
+	vertical-align: middle;
+}
+
 .reevents-quick-view-attendees {
 	margin: 0;
 }

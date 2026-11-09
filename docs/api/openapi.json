@@ -3328,6 +3328,11 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "ticket_name": {
+                        "description": "Ticket name.",
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "event_id": {
                         "description": "Event post ID.",
                         "type": "integer"

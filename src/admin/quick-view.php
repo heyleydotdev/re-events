@@ -42,7 +42,7 @@ final class Quick_View {
 		wp_enqueue_script(
 			'reevents-quick-view',
 			plugins_url( 'assets/js/admin-quick-view.js', RE_EVENTS_FILE ),
-			[ 'wp-api-fetch', 'wp-util', 'wp-i18n' ],
+			[ 'wp-api-fetch', 'wp-util', 'wp-i18n', 'wp-date' ],
 			RE_EVENTS_VERSION,
 			true
 		);
@@ -70,18 +70,37 @@ final class Quick_View {
 		<script type="text/html" id="tmpl-reevents-booking">
 			<button type="button" class="reevents-modal-close" aria-label="<?php echo esc_attr__( 'Close', 're-events' ); ?>">&times;</button>
 			<h2 id="reevents-quick-view-title"><?php echo esc_html__( 'Booking', 're-events' ); ?> {{ data.reference }}</h2>
-			<p><strong><?php echo esc_html__( 'Event:', 're-events' ); ?></strong> {{ data.event_title }}</p>
-			<p><strong><?php echo esc_html__( 'Status:', 're-events' ); ?></strong> {{ data.status }}</p>
-			<p><strong><?php echo esc_html__( 'Seats:', 're-events' ); ?></strong> {{ data.quantity }}</p>
-			<p><strong><?php echo esc_html__( 'Total:', 're-events' ); ?></strong>
-				<# var total = data.total_minor > 0 ? ( data.total_minor / 100 ).toFixed( 2 ) + ' ' + data.currency : '<?php echo esc_js( __( 'Free', 're-events' ) ); ?>'; #>
-				{{ total }}
-			</p>
+			<dl class="reevents-quick-view-details">
+				<dt><?php echo esc_html__( 'Event', 're-events' ); ?></dt>
+				<dd>{{ data.event_title }}</dd>
+				<dt><?php echo esc_html__( 'Status', 're-events' ); ?></dt>
+				<dd>{{ data.status }}</dd>
+				<dt><?php echo esc_html__( 'Seats', 're-events' ); ?></dt>
+				<dd>{{ data.quantity }}</dd>
+				<dt><?php echo esc_html__( 'Total', 're-events' ); ?></dt>
+				<dd>
+					<# var total = data.total_minor > 0 ? ( data.total_minor / 100 ).toFixed( 2 ) + ' ' + data.currency : '<?php echo esc_js( __( 'Free', 're-events' ) ); ?>'; #>
+					{{ total }}
+				</dd>
+				<# if ( data.ticket_name ) { #>
+					<dt><?php echo esc_html__( 'Ticket', 're-events' ); ?></dt>
+					<dd>{{ data.ticket_name }}</dd>
+				<# } #>
+				<# if ( data.created_utc ) {
+					var created = wp.date.dateI18n( wp.date.getSettings().formats.datetime, new Date( data.created_utc.replace( ' ', 'T' ) + 'Z' ) );
+				#>
+					<dt><?php echo esc_html__( 'Created', 're-events' ); ?></dt>
+					<dd>{{ created }}</dd>
+				<# } #>
+			</dl>
 			<h3><?php echo esc_html__( 'Attendees', 're-events' ); ?></h3>
 			<ul class="reevents-quick-view-attendees">
 				<# ( data.attendees || [] ).forEach( function ( attendee ) { #>
 					<li>
 						<strong>{{ attendee.name }}</strong> &lt;{{ attendee.email }}&gt;
+						<# if ( attendee.checked_in ) { #>
+							<span class="reevents-quick-view-badge"><?php echo esc_html__( 'Checked in', 're-events' ); ?></span>
+						<# } #>
 						<# if ( attendee.fields && Object.keys( attendee.fields ).length ) { #>
 							<ul>
 								<# Object.keys( attendee.fields ).forEach( function ( key ) { #>

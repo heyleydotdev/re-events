@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace ReEvents\REST;
 
 use ReEvents\Data\Booking_Repository;
+use ReEvents\Data\Ticket_Repository;
 use ReEvents\Services\Booking_Service;
 use ReEvents\Services\Rate_Limit;
 use WP_Error;
@@ -296,7 +297,10 @@ final class Bookings_Controller extends WP_REST_Controller {
 		];
 
 		if ( $with_attendees ) {
-			$data['attendees'] = ( new Booking_Repository() )->attendees( (int) $booking['id'] );
+			$ticket = ( new Ticket_Repository() )->find( (int) $booking['ticket_id'] );
+
+			$data['ticket_name'] = (string) ( $ticket['name'] ?? '' );
+			$data['attendees']   = ( new Booking_Repository() )->attendees( (int) $booking['id'] );
 		}
 
 		return $data;
@@ -389,6 +393,11 @@ final class Bookings_Controller extends WP_REST_Controller {
 				],
 				'event_title'   => [
 					'description' => __( 'Event title.', 're-events' ),
+					'type'        => 'string',
+					'readonly'    => true,
+				],
+				'ticket_name'   => [
+					'description' => __( 'Ticket name.', 're-events' ),
 					'type'        => 'string',
 					'readonly'    => true,
 				],

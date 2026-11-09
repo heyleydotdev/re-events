@@ -51,12 +51,9 @@ final class Attendees_Table extends \WP_List_Table {
 		return [
 			'cb'         => '<input type="checkbox" />',
 			'reference'  => __( 'Booking', 're-events' ),
-			'status'     => __( 'Status', 're-events' ),
 			'event'      => __( 'Event', 're-events' ),
-			'ticket'     => __( 'Ticket', 're-events' ),
 			'name'       => __( 'Name', 're-events' ),
 			'email'      => __( 'Email', 're-events' ),
-			'fields'     => __( 'Fields', 're-events' ),
 			'checked_in' => __( 'Checked in', 're-events' ),
 			'created'    => __( 'Created', 're-events' ),
 		];
@@ -70,7 +67,6 @@ final class Attendees_Table extends \WP_List_Table {
 	public function get_sortable_columns(): array {
 		return [
 			'reference' => [ 'reference', false ],
-			'status'    => [ 'status', false ],
 			'name'      => [ 'name', false ],
 			'email'     => [ 'email', false ],
 			'created'   => [ 'created', true ],
@@ -226,30 +222,10 @@ final class Attendees_Table extends \WP_List_Table {
 				return $date instanceof \DateTimeImmutable ? esc_html( wp_date( (string) get_option( 'date_format' ) . ' ' . (string) get_option( 'time_format' ), $date->getTimestamp() ) ) : '';
 			case 'reference':
 				return '<code>' . esc_html( (string) ( $item['reference'] ?? '' ) ) . '</code>';
-			case 'status':
-				return esc_html( (string) ( $item['booking_status'] ?? '' ) );
-			case 'ticket':
-				return esc_html( (string) ( $item['ticket_name'] ?? '' ) );
 			case 'name':
 				return esc_html( (string) ( $item['name'] ?? '' ) );
 			case 'email':
 				return esc_html( (string) ( $item['email'] ?? '' ) );
-			case 'fields':
-				$fields = json_decode( (string) ( $item['fields_json'] ?? '[]' ), true );
-
-				if ( ! is_array( $fields ) ) {
-					return '';
-				}
-
-				$parts = [];
-
-				foreach ( $fields as $key => $value ) {
-					if ( is_scalar( $value ) ) {
-						$parts[] = $key . '=' . $value;
-					}
-				}
-
-				return esc_html( implode( '; ', $parts ) );
 			default:
 				return '';
 		}

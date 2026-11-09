@@ -54,7 +54,6 @@ final class Bookings_Table extends \WP_List_Table {
 			'reference' => __( 'Reference', 're-events' ),
 			'event'     => __( 'Event', 're-events' ),
 			'status'    => __( 'Status', 're-events' ),
-			'quantity'  => __( 'Seats', 're-events' ),
 			'total'     => __( 'Total', 're-events' ),
 			'created'   => __( 'Created', 're-events' ),
 		];
@@ -168,8 +167,6 @@ final class Bookings_Table extends \WP_List_Table {
 				return esc_html( (string) ( $item['event_title'] ?? '' ) );
 			case 'status':
 				return esc_html( (string) ( $item['status'] ?? '' ) );
-			case 'quantity':
-				return esc_html( (string) ( $item['quantity'] ?? 1 ) );
 			case 'total':
 				$total = (int) ( $item['total_minor'] ?? 0 );
 
