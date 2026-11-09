@@ -136,12 +136,10 @@ final class Self_Test {
 	private static function check_upcoming_query( array &$failures ): void {
 		$start = gmdate( 'Y-m-d H:i:s', strtotime( '-2 years' ) );
 		$end   = gmdate( 'Y-m-d H:i:s', strtotime( '-2 years +1 hour' ) );
-		$id    = wp_insert_post(
+		$id    = Test_Factory::event(
 			[
-				'post_type'   => 'reevents_event',
-				'post_status' => 'publish',
-				'post_title'  => 'Self test recurring',
-				'meta_input'  => [
+				'title' => 'Self test recurring',
+				'meta'  => [
 					'_reevents_start_utc' => $start,
 					'_reevents_end_utc'   => $end,
 					'_reevents_timezone'  => 'UTC',
