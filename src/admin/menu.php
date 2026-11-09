@@ -29,10 +29,14 @@ final class Menu {
 	 * Add the top-level menu.
 	 */
 	public static function add(): void {
+		if ( ! current_user_can( 'edit_reevents_events' ) && ! current_user_can( 'edit_reevents_venues' ) && ! current_user_can( 'edit_reevents_organizers' ) && ! current_user_can( 'reevents_manage_bookings' ) && ! current_user_can( 'reevents_manage_settings' ) ) {
+			return;
+		}
+
 		add_menu_page(
 			__( 'ReEvents', 're-events' ),
 			__( 'ReEvents', 're-events' ),
-			'manage_options',
+			'read',
 			're-events',
 			[ self::class, 'render' ],
 			'dashicons-calendar-alt',
@@ -49,6 +53,8 @@ final class Menu {
 	 * post types nested under a custom menu need this.
 	 */
 	private static function add_taxonomy_submenus(): void {
+		$position = 3;
+
 		foreach ( [ 'reevents_event_category', 'reevents_event_tag' ] as $taxonomy_name ) {
 			$taxonomy = get_taxonomy( $taxonomy_name );
 
@@ -61,7 +67,9 @@ final class Menu {
 				$taxonomy->labels->name,
 				$taxonomy->labels->menu_name,
 				$taxonomy->cap->manage_terms,
-				'edit-tags.php?taxonomy=' . $taxonomy->name . '&post_type=reevents_event'
+				'edit-tags.php?taxonomy=' . $taxonomy->name . '&post_type=reevents_event',
+				'',
+				$position++
 			);
 		}
 	}
@@ -112,13 +120,73 @@ final class Menu {
 	}
 
 	/**
-	 * Render the admin page.
+	 * Render the admin dashboard.
 	 */
 	public static function render(): void {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'edit_reevents_events' ) && ! current_user_can( 'edit_reevents_venues' ) && ! current_user_can( 'edit_reevents_organizers' ) && ! current_user_can( 'reevents_manage_bookings' ) && ! current_user_can( 'reevents_manage_settings' ) ) {
 			return;
 		}
 
-		echo '<div class="wrap"><h1>' . esc_html__( 'ReEvents', 're-events' ) . '</h1></div>';
+		$events     = wp_count_posts( 'reevents_event' );
+		$venues     = wp_count_posts( 'reevents_venue' );
+		$organizers = wp_count_posts( 'reevents_organizer' );
+
+		$cards = [];
+
+		if ( current_user_can( 'edit_reevents_events' ) ) {
+			$cards[] = [
+				'label' => __( 'Events', 're-events' ),
+				'count' => (int) ( $events->publish ?? 0 ),
+				'url'   => admin_url( 'edit.php?post_type=reevents_event' ),
+			];
+		}
+
+		if ( current_user_can( 'edit_reevents_venues' ) ) {
+			$cards[] = [
+				'label' => __( 'Venues', 're-events' ),
+				'count' => (int) ( $venues->publish ?? 0 ),
+				'url'   => admin_url( 'edit.php?post_type=reevents_venue' ),
+			];
+		}
+
+		if ( current_user_can( 'edit_reevents_organizers' ) ) {
+			$cards[] = [
+				'label' => __( 'Organizers', 're-events' ),
+				'count' => (int) ( $organizers->publish ?? 0 ),
+				'url'   => admin_url( 'edit.php?post_type=reevents_organizer' ),
+			];
+		}
+
+		if ( current_user_can( 'reevents_manage_bookings' ) ) {
+			$cards[] = [
+				'label' => __( 'Attendees', 're-events' ),
+				'count' => null,
+				'url'   => admin_url( 'admin.php?page=reevents-attendees' ),
+			];
+		}
+
+		if ( current_user_can( 'reevents_manage_settings' ) ) {
+			$cards[] = [
+				'label' => __( 'Settings', 're-events' ),
+				'count' => null,
+				'url'   => admin_url( 'admin.php?page=reevents-settings' ),
+			];
+		}
+
+		?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'ReEvents', 're-events' ); ?></h1>
+			<div class="reevents-dashboard" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1em;margin-top:1em;">
+				<?php foreach ( $cards as $card ) : ?>
+					<a class="card" href="<?php echo esc_url( $card['url'] ); ?>" style="display:block;padding:1em;text-decoration:none;">
+						<strong style="display:block;font-size:1.4em;"><?php echo esc_html( $card['label'] ); ?></strong>
+						<?php if ( null !== $card['count'] ) : ?>
+							<span><?php echo esc_html( number_format_i18n( $card['count'] ) ); ?></span>
+						<?php endif; ?>
+					</a>
+				<?php endforeach; ?>
+			</div>
+		</div>
+		<?php
 	}
 }

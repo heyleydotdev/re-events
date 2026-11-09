@@ -18,7 +18,7 @@ final class API_Docs {
 	 * Hook into WordPress.
 	 */
 	public static function register(): void {
-		add_action( 'admin_menu', [ self::class, 'add_page' ], 11 );
+		add_action( 'admin_menu', [ self::class, 'add_page' ], 12 );
 	}
 
 	/**
@@ -31,7 +31,8 @@ final class API_Docs {
 			__( 'API Docs', 're-events' ),
 			'reevents_manage_settings',
 			'reevents-api-docs',
-			[ self::class, 'render' ]
+			[ self::class, 'render' ],
+			7
 		);
 	}
 

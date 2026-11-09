@@ -104,7 +104,8 @@ final class Settings {
 			__( 'Settings', 're-events' ),
 			'reevents_manage_settings',
 			'reevents-settings',
-			[ self::class, 'render' ]
+			[ self::class, 'render' ],
+			6
 		);
 	}
 

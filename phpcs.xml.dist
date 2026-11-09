@@ -57,6 +57,9 @@
 				<element value="publish_reevents_events"/>
 				<element value="publish_reevents_venues"/>
 				<element value="publish_reevents_organizers"/>
+				<element value="edit_reevents_events"/>
+				<element value="edit_reevents_venues"/>
+				<element value="edit_reevents_organizers"/>
 			</property>
 		</properties>
 	</rule>
