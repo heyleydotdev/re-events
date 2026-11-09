@@ -66,10 +66,8 @@ final class Attendees_Table extends \WP_List_Table {
 	 */
 	public function get_sortable_columns(): array {
 		return [
-			'reference' => [ 'reference', false ],
-			'name'      => [ 'name', false ],
-			'email'     => [ 'email', false ],
-			'created'   => [ 'created', true ],
+			'name'    => [ 'name', false ],
+			'created' => [ 'created', true ],
 		];
 	}
 

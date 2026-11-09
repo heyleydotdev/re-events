@@ -378,6 +378,13 @@ final class Booking_Repository {
 		$search   = (string) ( $args['search'] ?? '' );
 		$limit    = max( 1, (int) ( $args['limit'] ?? 20 ) );
 		$offset   = max( 0, (int) ( $args['offset'] ?? 0 ) );
+		$orderby  = (string) ( $args['orderby'] ?? 'created' );
+		$order    = 'asc' === strtolower( (string) ( $args['order'] ?? 'desc' ) ) ? 'ASC' : 'DESC';
+		$columns  = [
+			'created' => 'b.created_utc',
+			'event'   => 'p.post_title',
+		];
+		$sort     = $columns[ $orderby ] ?? $columns['created'];
 		$where    = '( %d = 0 OR b.event_id = %d )';
 		$values   = [ $event_id, $event_id ];
 
@@ -396,7 +403,7 @@ final class Booking_Repository {
 
 		$items = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT b.*, p.post_title AS event_title FROM {$table} b LEFT JOIN {$wpdb->posts} p ON p.ID = b.event_id WHERE {$where} ORDER BY b.created_utc DESC LIMIT %d OFFSET %d",
+				"SELECT b.*, p.post_title AS event_title FROM {$table} b LEFT JOIN {$wpdb->posts} p ON p.ID = b.event_id WHERE {$where} ORDER BY {$sort} {$order} LIMIT %d OFFSET %d",
 				...array_merge( $values, [ $limit, $offset ] )
 			),
 			ARRAY_A

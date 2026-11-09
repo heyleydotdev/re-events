@@ -66,6 +66,7 @@ final class Bookings_Table extends \WP_List_Table {
 	 */
 	public function get_sortable_columns(): array {
 		return [
+			'event'   => [ 'event', false ],
 			'created' => [ 'created', true ],
 		];
 	}
@@ -80,6 +81,8 @@ final class Bookings_Table extends \WP_List_Table {
 		$event_id = isset( $_GET['event'] ) ? absint( wp_unslash( $_GET['event'] ) ) : 0;
 		$status   = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : '';
 		$search   = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+		$orderby  = isset( $_GET['orderby'] ) ? sanitize_key( wp_unslash( $_GET['orderby'] ) ) : 'created';
+		$order    = isset( $_GET['order'] ) ? sanitize_key( wp_unslash( $_GET['order'] ) ) : 'desc';
 		// phpcs:enable
 
 		$per_page = $this->get_items_per_page( 'reevents_bookings_per_page', 20 );
@@ -89,6 +92,8 @@ final class Bookings_Table extends \WP_List_Table {
 				'event_id' => $event_id,
 				'status'   => $status,
 				'search'   => $search,
+				'orderby'  => $orderby,
+				'order'    => $order,
 				'limit'    => $per_page,
 				'offset'   => ( $paged - 1 ) * $per_page,
 			]
