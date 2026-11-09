@@ -116,6 +116,8 @@ final class Booking_Service {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
 		$wpdb->query( 'COMMIT' );
 
+		do_action( 'reevents_booking_created', (int) $id );
+
 		return (int) $id;
 	}
 
@@ -156,6 +158,8 @@ final class Booking_Service {
 
 			$tickets->release( (int) $booking['ticket_id'], (int) $booking['quantity'] );
 
+			do_action( 'reevents_booking_status_changed', $id, $status );
+
 			return true;
 		}
 
@@ -169,12 +173,18 @@ final class Booking_Service {
 				return new WP_Error( 'reevents_booking_update_failed', __( 'The booking could not be updated.', 're-events' ), [ 'status' => 500 ] );
 			}
 
+			do_action( 'reevents_booking_status_changed', $id, $status );
+
 			return true;
 		}
 
-		return $repo->update_status( $id, $status )
-			? true
-			: new WP_Error( 'reevents_booking_update_failed', __( 'The booking could not be updated.', 're-events' ), [ 'status' => 500 ] );
+		if ( ! $repo->update_status( $id, $status ) ) {
+			return new WP_Error( 'reevents_booking_update_failed', __( 'The booking could not be updated.', 're-events' ), [ 'status' => 500 ] );
+		}
+
+		do_action( 'reevents_booking_status_changed', $id, $status );
+
+		return true;
 	}
 
 	/**

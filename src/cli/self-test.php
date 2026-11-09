@@ -14,6 +14,7 @@ use ReEvents\Data\Occurrence_Repository;
 use ReEvents\Data\Ticket_Repository;
 use ReEvents\Domain\Event;
 use ReEvents\Query\Event_Query;
+use ReEvents\Services\Booking_Emails;
 use ReEvents\Services\Booking_Service;
 use ReEvents\Services\Occurrence_Service;
 use WP_CLI;
@@ -30,12 +31,17 @@ final class Self_Test {
 	public static function run(): void {
 		$failures = [];
 
+		add_filter( 'pre_wp_mail', '__return_false' );
+
 		self::check_expansion( $failures );
 		self::check_timeslots( $failures );
 		self::check_upcoming_query( $failures );
 		self::check_availability( $failures );
 		self::check_booking_flow( $failures );
+		self::check_emails( $failures );
 		self::check_rest( $failures );
+
+		remove_filter( 'pre_wp_mail', '__return_false' );
 
 		if ( $failures ) {
 			WP_CLI::error( implode( "\n", $failures ) );
@@ -282,6 +288,42 @@ final class Self_Test {
 
 		$tickets->delete( (int) $ticket_id );
 		wp_delete_post( (int) $event_id, true );
+	}
+
+	/**
+	 * Check email placeholders.
+	 *
+	 * @param string[] $failures Failures.
+	 */
+	private static function check_emails( array &$failures ): void {
+		$event = new Event(
+			0,
+			'Email test event',
+			gmdate( 'Y-m-d H:i:s', strtotime( '+7 days' ) ),
+			gmdate( 'Y-m-d H:i:s', strtotime( '+7 days +1 hour' ) ),
+			'UTC'
+		);
+		$mail  = Booking_Emails::compose(
+			[
+				'reference'   => 'TESTREF',
+				'quantity'    => 2,
+				'total_minor' => 2500,
+				'currency'    => 'USD',
+				'status'      => 'confirmed',
+			],
+			$event,
+			[
+				[
+					'name'  => 'Test Person',
+					'email' => 'person@example.com',
+				],
+			],
+			'attendee'
+		);
+
+		self::assert( str_contains( $mail['subject'], 'Email test event' ), 'Email subject missed the event.', $failures );
+		self::assert( str_contains( $mail['body'], 'TESTREF' ), 'Email body missed the reference.', $failures );
+		self::assert( str_contains( $mail['body'], '25.00' ), 'Email body missed the total.', $failures );
 	}
 
 	/**

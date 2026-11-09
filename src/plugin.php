@@ -17,6 +17,7 @@ use ReEvents\Admin\Meta_Boxes;
 use ReEvents\Admin\Settings;
 use ReEvents\Admin\Venue_Meta_Boxes;
 use ReEvents\CLI\OpenAPI;
+use ReEvents\CLI\Export_Attendees;
 use ReEvents\CLI\Self_Test;
 use ReEvents\Frontend\Assets as Frontend_Assets;
 use ReEvents\Frontend\Blocks;
@@ -24,6 +25,7 @@ use ReEvents\Frontend\Booking_Handler;
 use ReEvents\Frontend\Shortcodes;
 use ReEvents\Render\Widget_Registry;
 use ReEvents\REST\Routes;
+use ReEvents\Services\Booking_Emails;
 use ReEvents\Services\Occurrence_Service;
 use ReEvents\Data\Meta;
 use ReEvents\Data\Post_Types;
@@ -74,6 +76,7 @@ final class Plugin {
 		Blocks::register();
 		Routes::register();
 		Occurrence_Service::register();
+		Booking_Emails::register();
 		Booking_Handler::register();
 		Frontend_Assets::register();
 		Menu::register();
@@ -87,6 +90,10 @@ final class Plugin {
 
 				if ( class_exists( Self_Test::class ) ) {
 					\WP_CLI::add_command( 're-events self-test', [ Self_Test::class, 'run' ] );
+				}
+
+				if ( class_exists( Export_Attendees::class ) ) {
+					\WP_CLI::add_command( 're-events export-attendees', [ Export_Attendees::class, 'run' ] );
 				}
 			}
 		);
