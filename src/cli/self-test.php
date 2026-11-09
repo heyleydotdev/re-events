@@ -9,10 +9,12 @@ declare( strict_types=1 );
 
 namespace ReEvents\CLI;
 
+use ReEvents\Data\Booking_Repository;
 use ReEvents\Data\Occurrence_Repository;
 use ReEvents\Data\Ticket_Repository;
 use ReEvents\Domain\Event;
 use ReEvents\Query\Event_Query;
+use ReEvents\Services\Booking_Service;
 use ReEvents\Services\Occurrence_Service;
 use WP_CLI;
 use WP_REST_Request;
@@ -32,6 +34,7 @@ final class Self_Test {
 		self::check_timeslots( $failures );
 		self::check_upcoming_query( $failures );
 		self::check_availability( $failures );
+		self::check_booking_flow( $failures );
 		self::check_rest( $failures );
 
 		if ( $failures ) {
@@ -187,6 +190,97 @@ final class Self_Test {
 		self::assert( $repo->reserve( (int) $ticket_id, 1 ), 'Released seat was not reserved again.', $failures );
 
 		$repo->delete( (int) $ticket_id );
+		wp_delete_post( (int) $event_id, true );
+	}
+
+	/**
+	 * Check booking creation, capacity and cancellation.
+	 *
+	 * @param string[] $failures Failures.
+	 */
+	private static function check_booking_flow( array &$failures ): void {
+		$event_id = wp_insert_post(
+			[
+				'post_type'   => 'reevents_event',
+				'post_status' => 'publish',
+				'post_title'  => 'Self test booking',
+			]
+		);
+
+		if ( ! $event_id ) {
+			$failures[] = 'Could not create a booking test event.';
+			return;
+		}
+
+		$tickets   = new Ticket_Repository();
+		$ticket_id = $tickets->save(
+			[
+				'event_id' => (int) $event_id,
+				'name'     => 'Booking ticket',
+				'capacity' => 1,
+			]
+		);
+
+		if ( is_wp_error( $ticket_id ) ) {
+			wp_delete_post( (int) $event_id, true );
+			$failures[] = 'Could not create a booking test ticket.';
+			return;
+		}
+
+		$repo    = new Booking_Repository();
+		$booking = Booking_Service::create(
+			[
+				'event_id'  => (int) $event_id,
+				'ticket_id' => (int) $ticket_id,
+				'quantity'  => 1,
+				'attendees' => [
+					[
+						'name'  => 'Test Attendee',
+						'email' => 'attendee@example.com',
+					],
+				],
+			]
+		);
+
+		self::assert( ! is_wp_error( $booking ), 'Booking creation failed.', $failures );
+
+		$ticket = $tickets->find( (int) $ticket_id );
+		self::assert( $ticket && 1 === $ticket['sold'], 'Booking did not reserve a seat.', $failures );
+
+		$second = Booking_Service::create(
+			[
+				'event_id'  => (int) $event_id,
+				'ticket_id' => (int) $ticket_id,
+				'quantity'  => 1,
+			]
+		);
+
+		self::assert( is_wp_error( $second ), 'Booking exceeded capacity.', $failures );
+
+		if ( ! is_wp_error( $booking ) ) {
+			self::assert( true === Booking_Service::cancel( (int) $booking ), 'Booking cancellation failed.', $failures );
+
+			$ticket = $tickets->find( (int) $ticket_id );
+			self::assert( $ticket && 0 === $ticket['sold'], 'Cancellation did not release the seat.', $failures );
+
+			$repo->delete( (int) $booking );
+		}
+
+		$third = Booking_Service::create(
+			[
+				'event_id'  => (int) $event_id,
+				'ticket_id' => (int) $ticket_id,
+				'quantity'  => 1,
+			]
+		);
+
+		self::assert( ! is_wp_error( $third ), 'Booking after cancellation failed.', $failures );
+
+		if ( ! is_wp_error( $third ) ) {
+			$repo->delete( (int) $third );
+		}
+
+		$tickets->delete( (int) $ticket_id );
 		wp_delete_post( (int) $event_id, true );
 	}
 
