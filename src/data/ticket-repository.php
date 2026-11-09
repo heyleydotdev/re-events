@@ -103,7 +103,7 @@ final class Ticket_Repository {
 		];
 
 		if ( '' === $data['name'] || ! $data['event_id'] ) {
-			return new WP_Error( 'reevents_ticket_invalid', __( 'A ticket name and event are required.', 're-events' ) );
+			return new WP_Error( 'reevents_ticket_invalid', __( 'A ticket name and event are required.', 're-events' ), [ 'status' => 400 ] );
 		}
 
 		$formats = [ '%d', '%s', '%s', '%d', '%s', '%d', '%d', '%d', '%s', '%s', '%s' ];
@@ -112,13 +112,13 @@ final class Ticket_Repository {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Ticket storage.
 			$result = $wpdb->update( $this->table(), $data, [ 'id' => $id ], $formats, [ '%d' ] );
 
-			return false === $result ? new WP_Error( 'reevents_ticket_save_failed', __( 'The ticket could not be saved.', 're-events' ) ) : $id;
+			return false === $result ? new WP_Error( 'reevents_ticket_save_failed', __( 'The ticket could not be saved.', 're-events' ), [ 'status' => 500 ] ) : $id;
 		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Ticket storage.
 		$result = $wpdb->insert( $this->table(), $data, $formats );
 
-		return false === $result ? new WP_Error( 'reevents_ticket_save_failed', __( 'The ticket could not be saved.', 're-events' ) ) : (int) $wpdb->insert_id;
+		return false === $result ? new WP_Error( 'reevents_ticket_save_failed', __( 'The ticket could not be saved.', 're-events' ), [ 'status' => 500 ] ) : (int) $wpdb->insert_id;
 	}
 
 	/**

@@ -58,6 +58,9 @@ final class Routes {
 
 		$tickets = new Tickets_Controller();
 		$tickets->register_routes();
+
+		$bookings = new Bookings_Controller();
+		$bookings->register_routes();
 	}
 
 	/**
