@@ -145,21 +145,24 @@ final class Bookings_Table extends \WP_List_Table {
 	 * @param string               $primary     Primary column.
 	 */
 	protected function handle_row_actions( $item, $column_name, $primary ): string {
-		if ( $column_name !== $primary || 'cancelled' === ( $item['status'] ?? '' ) ) {
+		if ( $column_name !== $primary ) {
 			return '';
 		}
 
 		$booking_id = (int) ( $item['id'] ?? 0 );
-		$url        = wp_nonce_url(
-			admin_url( 'admin-post.php?action=reevents_cancel_booking&booking_id=' . $booking_id ),
-			'reevents_cancel_booking_' . $booking_id
-		);
+		$actions    = [
+			'quick_view' => '<a href="#" class="reevents-quick-view" data-booking-id="' . esc_attr( (string) $booking_id ) . '">' . esc_html__( 'Quick view', 're-events' ) . '</a>',
+		];
 
-		return $this->row_actions(
-			[
-				'cancel' => '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Cancel', 're-events' ) . '</a>',
-			]
-		) . parent::handle_row_actions( $item, $column_name, $primary );
+		if ( 'cancelled' !== ( $item['status'] ?? '' ) ) {
+			$url               = wp_nonce_url(
+				admin_url( 'admin-post.php?action=reevents_cancel_booking&booking_id=' . $booking_id ),
+				'reevents_cancel_booking_' . $booking_id
+			);
+			$actions['cancel'] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Cancel', 're-events' ) . '</a>';
+		}
+
+		return $this->row_actions( $actions ) . parent::handle_row_actions( $item, $column_name, $primary );
 	}
 
 	/**

@@ -282,6 +282,7 @@ final class Bookings_Controller extends WP_REST_Controller {
 		$data = [
 			'id'            => (int) $booking['id'],
 			'reference'     => (string) $booking['reference'],
+			'event_title'   => (string) ( $booking['event_title'] ?? get_the_title( (int) $booking['event_id'] ) ),
 			'event_id'      => (int) $booking['event_id'],
 			'occurrence_id' => (int) $booking['occurrence_id'],
 			'ticket_id'     => (int) $booking['ticket_id'],
@@ -383,6 +384,11 @@ final class Bookings_Controller extends WP_REST_Controller {
 				],
 				'reference'     => [
 					'description' => __( 'Booking reference.', 're-events' ),
+					'type'        => 'string',
+					'readonly'    => true,
+				],
+				'event_title'   => [
+					'description' => __( 'Event title.', 're-events' ),
 					'type'        => 'string',
 					'readonly'    => true,
 				],

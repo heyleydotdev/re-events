@@ -1,0 +1,56 @@
+.reevents-modal[hidden] {
+	display: none;
+}
+
+.reevents-modal {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+}
+
+.reevents-modal-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.6);
+}
+
+.reevents-modal-body {
+	position: relative;
+	max-width: 32rem;
+	max-height: 80vh;
+	margin: 8vh auto 0;
+	padding: 1.5rem 2rem 2rem;
+	overflow-y: auto;
+	background: #fff;
+	border-radius: 4px;
+	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.reevents-modal-body:focus {
+	outline: none;
+}
+
+.reevents-modal-close {
+	position: absolute;
+	top: 0.5rem;
+	right: 0.75rem;
+	padding: 0;
+	border: 0;
+	background: none;
+	font-size: 1.75rem;
+	line-height: 1;
+	color: #50575e;
+	cursor: pointer;
+}
+
+.reevents-quick-view-attendees {
+	margin: 0;
+}
+
+.reevents-quick-view-attendees > li {
+	margin-bottom: 0.75rem;
+}
+
+.reevents-quick-view-attendees ul {
+	margin: 0.25rem 0 0 1rem;
+}

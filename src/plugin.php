@@ -18,6 +18,7 @@ use ReEvents\Admin\Help;
 use ReEvents\Admin\Menu;
 use ReEvents\Admin\Meta_Boxes;
 use ReEvents\Admin\Notices;
+use ReEvents\Admin\Quick_View;
 use ReEvents\Admin\Settings;
 use ReEvents\Admin\Venue_Meta_Boxes;
 use ReEvents\CLI\OpenAPI;
@@ -79,6 +80,7 @@ final class Plugin {
 		Bookings::register();
 		Help::register();
 		Notices::register();
+		Quick_View::register();
 		Settings::register();
 		Event_List::register();
 		add_action( 'init', [ Widget_Registry::class, 'register_defaults' ], 2 );
