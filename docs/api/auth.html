@@ -1,6 +1,17 @@
 <h1>Authentication</h1>
 <p>Public reads (<code>GET /events</code>, <code>/venues</code>, <code>/organizers</code>, <code>/categories</code>, <code>/tickets</code>) need no authentication.</p>
-<p>Writes and private reads need one of the two methods below.</p>
+<p>Writes and private reads need one of the methods below.</p>
+<h2>ReEvents API keys</h2>
+<p>Create a key under <strong>ReEvents → Settings → API</strong>. Copy it when it is shown; it cannot be viewed again.</p>
+<p>Send it as a bearer token:</p>
+<pre><code class="language-bash">curl -H &quot;Authorization: Bearer re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot; \
+  https://example.com/wp-json/re-events/v1/events
+</code></pre>
+<p>Or use the dedicated header:</p>
+<pre><code class="language-bash">curl -H &quot;X-ReEvents-Key: re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&quot; \
+  https://example.com/wp-json/re-events/v1/events
+</code></pre>
+<p>A key inherits the capabilities of the user who created it. Revoke it from the same settings screen.</p>
 <h2>Application Passwords</h2>
 <p>Use this for external clients, scripts and integrations.</p>
 <ol>

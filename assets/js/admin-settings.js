@@ -56,6 +56,78 @@
 		} );
 	}
 
+	function setupApiKeyCopy() {
+		document.addEventListener( 'click', function ( event ) {
+			const button = event.target.closest( '.reevents-copy-key' );
+
+			if ( ! button ) {
+				return;
+			}
+
+			const input = document.getElementById( button.dataset.target );
+
+			if ( ! input ) {
+				return;
+			}
+
+			const done = function () {
+				const original = button.textContent;
+				button.textContent = button.dataset.copied || 'Copied';
+				window.setTimeout( function () {
+					button.textContent = original;
+				}, 2000 );
+			};
+
+			const fallback = function () {
+				if ( document.execCommand( 'copy' ) ) {
+					done();
+				}
+			};
+
+			input.focus();
+			input.select();
+
+			if ( navigator.clipboard && window.isSecureContext ) {
+				navigator.clipboard.writeText( input.value ).then( done ).catch( fallback );
+			} else {
+				fallback();
+			}
+		} );
+	}
+
+	function setupApiKeyDialog() {
+		const dialog = document.getElementById( 'reevents-api-key-dialog' );
+
+		if ( ! dialog || typeof dialog.showModal !== 'function' ) {
+			return;
+		}
+
+		dialog.showModal();
+
+		const input = document.getElementById( 'reevents-new-api-key' );
+
+		if ( input ) {
+			input.focus();
+			input.select();
+		}
+	}
+
+	function setupApiKeyRevoke() {
+		document.addEventListener( 'click', function ( event ) {
+			const link = event.target.closest( '.reevents-revoke-api-key' );
+
+			if ( ! link ) {
+				return;
+			}
+
+			const message = link.dataset.confirm || 'Are you sure?';
+
+			if ( ! window.confirm( message ) ) {
+				event.preventDefault();
+			}
+		} );
+	}
+
 	function setupPlaceholders() {
 		document.addEventListener( 'click', function ( event ) {
 			const button = event.target.closest( '.reevents-placeholder' );
@@ -76,5 +148,8 @@
 	}
 
 	setupAttendeeFields();
+	setupApiKeyCopy();
+	setupApiKeyDialog();
+	setupApiKeyRevoke();
 	setupPlaceholders();
 }() );

@@ -2,7 +2,27 @@
 
 Public reads (`GET /events`, `/venues`, `/organizers`, `/categories`, `/tickets`) need no authentication.
 
-Writes and private reads need one of the two methods below.
+Writes and private reads need one of the methods below.
+
+## ReEvents API keys
+
+Create a key under **ReEvents → Settings → API**. Copy it when it is shown; it cannot be viewed again.
+
+Send it as a bearer token:
+
+```bash
+curl -H "Authorization: Bearer re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+  https://example.com/wp-json/re-events/v1/events
+```
+
+Or use the dedicated header:
+
+```bash
+curl -H "X-ReEvents-Key: re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" \
+  https://example.com/wp-json/re-events/v1/events
+```
+
+A key inherits the capabilities of the user who created it. Revoke it from the same settings screen.
 
 ## Application Passwords
 

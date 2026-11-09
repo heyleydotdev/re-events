@@ -32,6 +32,7 @@ use ReEvents\Frontend\Booking_Handler;
 use ReEvents\Frontend\Shortcodes;
 use ReEvents\Render\Widget_Registry;
 use ReEvents\REST\Routes;
+use ReEvents\Services\API_Keys;
 use ReEvents\Services\Booking_Emails;
 use ReEvents\Services\Booking_Service;
 use ReEvents\Services\Occurrence_Service;
@@ -92,6 +93,7 @@ final class Plugin {
 		Occurrence_Service::register();
 		Booking_Service::register();
 		Booking_Emails::register();
+		API_Keys::register();
 		Booking_Handler::register();
 		Frontend_Assets::register();
 		Menu::register();

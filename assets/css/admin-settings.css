@@ -30,3 +30,39 @@
 .reevents-remove-attendee-field {
 	color: #b32d2e;
 }
+
+.reevents-api-keys {
+	margin-top: 2rem;
+}
+
+.reevents-api-key-form p,
+.reevents-api-key-copy {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+	margin: 0 0 8px;
+}
+
+.reevents-api-key-dialog {
+	position: relative;
+	width: min(32rem, 90vw);
+	padding: 1.5rem;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+}
+
+.reevents-api-key-dialog::backdrop {
+	background: rgba(0, 0, 0, 0.6);
+}
+
+.reevents-api-key-dialog h2 {
+	margin-top: 0;
+}
+
+.reevents-api-key-dialog-close {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	margin: 0;
+}

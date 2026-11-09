@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Admin;
 
+use ReEvents\Services\API_Keys;
 use ReEvents\Services\Booking_Emails;
 use ReEvents\Services\Occurrence_Service;
 
@@ -196,6 +197,7 @@ final class Settings {
 			'formats'  => __( 'Formats', 're-events' ),
 			'bookings' => __( 'Bookings', 're-events' ),
 			'emails'   => __( 'Emails', 're-events' ),
+			'api'      => __( 'API', 're-events' ),
 			'tools'    => __( 'Tools', 're-events' ),
 		];
 
@@ -235,6 +237,8 @@ final class Settings {
 				</form>
 				<?php if ( 'emails' === $tab ) : ?>
 					<?php self::render_test_email(); ?>
+				<?php elseif ( 'api' === $tab ) : ?>
+					<?php self::render_api_keys(); ?>
 				<?php endif; ?>
 			<?php endif; ?>
 		</div>
@@ -332,6 +336,101 @@ final class Settings {
 	}
 
 	/**
+	 * Render API key management.
+	 */
+	private static function render_api_keys(): void {
+		$keys = API_Keys::all();
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice.
+		$notice = isset( $_GET['reevents_notice'] ) ? sanitize_key( wp_unslash( $_GET['reevents_notice'] ) ) : '';
+		$new    = get_transient( 'reevents_new_api_key_' . get_current_user_id() );
+
+		if ( is_string( $new ) && '' !== $new ) {
+			delete_transient( 'reevents_new_api_key_' . get_current_user_id() );
+		}
+		?>
+		<div id="reevents-api-keys" class="reevents-api-keys">
+			<h2><?php esc_html_e( 'API keys', 're-events' ); ?></h2>
+			<p class="description"><?php esc_html_e( 'Send a key as an Authorization: Bearer header. Keys inherit the capabilities of the user who created them.', 're-events' ); ?></p>
+			<?php if ( 'key_revoked' === $notice ) : ?>
+				<div class="notice notice-success is-dismissible">
+					<button type="button" class="notice-dismiss"><span class="screen-reader-text"><?php esc_html_e( 'Dismiss this notice.', 're-events' ); ?></span></button>
+					<p><?php esc_html_e( 'API key revoked.', 're-events' ); ?></p>
+				</div>
+			<?php endif; ?>
+			<?php if ( is_string( $new ) && '' !== $new ) : ?>
+				<dialog id="reevents-api-key-dialog" class="reevents-api-key-dialog">
+					<form method="dialog" class="reevents-api-key-dialog-close">
+						<button type="submit" class="button-link" aria-label="<?php esc_attr_e( 'Close', 're-events' ); ?>">&times;</button>
+					</form>
+					<h2><?php esc_html_e( 'Copy this key now', 're-events' ); ?></h2>
+					<p><?php esc_html_e( 'It will not be shown again.', 're-events' ); ?></p>
+					<p class="reevents-api-key-copy">
+						<input type="text" id="reevents-new-api-key" class="regular-text code" value="<?php echo esc_attr( $new ); ?>" readonly />
+						<button type="button" class="button button-primary reevents-copy-key" data-target="reevents-new-api-key" data-copied="<?php esc_attr_e( 'Copied', 're-events' ); ?>"><?php esc_html_e( 'Copy key', 're-events' ); ?></button>
+					</p>
+				</dialog>
+			<?php endif; ?>
+			<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="reevents-api-key-form">
+				<input type="hidden" name="action" value="reevents_create_api_key" />
+				<?php wp_nonce_field( 'reevents_create_api_key' ); ?>
+				<p>
+					<label for="reevents-api-key-label" class="screen-reader-text"><?php esc_html_e( 'Label', 're-events' ); ?></label>
+					<input type="text" id="reevents-api-key-label" name="label" class="regular-text" placeholder="<?php esc_attr_e( 'Label, e.g. Zapier', 're-events' ); ?>" required />
+					<button type="submit" class="button button-primary"><?php esc_html_e( 'Generate key', 're-events' ); ?></button>
+				</p>
+			</form>
+			<?php if ( empty( $keys ) ) : ?>
+				<p><?php esc_html_e( 'No API keys yet. Generate one above.', 're-events' ); ?></p>
+			<?php else : ?>
+				<table class="widefat striped">
+					<thead>
+						<tr>
+							<th scope="col"><?php esc_html_e( 'Label', 're-events' ); ?></th>
+							<th scope="col"><?php esc_html_e( 'User', 're-events' ); ?></th>
+							<th scope="col"><?php esc_html_e( 'Created', 're-events' ); ?></th>
+							<th scope="col"><?php esc_html_e( 'Last used', 're-events' ); ?></th>
+							<th scope="col"><?php esc_html_e( 'Actions', 're-events' ); ?></th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php foreach ( $keys as $hash => $key ) : ?>
+							<?php
+							$user    = get_userdata( $key['user_id'] );
+							$created = self::format_utc( $key['created'] );
+							$last    = '' !== $key['last_used'] ? self::format_utc( $key['last_used'] ) : __( 'Never', 're-events' );
+							$url     = wp_nonce_url(
+								admin_url( 'admin-post.php?action=reevents_revoke_api_key&key=' . $hash ),
+								'reevents_revoke_api_key_' . $hash
+							);
+							?>
+							<tr>
+								<td><?php echo esc_html( $key['label'] ); ?></td>
+								<td><?php echo esc_html( $user ? $user->display_name : __( 'Unknown', 're-events' ) ); ?></td>
+								<td><?php echo esc_html( $created ); ?></td>
+								<td><?php echo esc_html( $last ); ?></td>
+								<td><a class="button-link-delete reevents-revoke-api-key" data-confirm="<?php esc_attr_e( 'Revoke this API key? This cannot be undone.', 're-events' ); ?>" href="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'Revoke', 're-events' ); ?></a></td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Format a UTC datetime with the site format.
+	 *
+	 * @param string $value UTC datetime.
+	 */
+	private static function format_utc( string $value ): string {
+		$date = \DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', $value, new \DateTimeZone( 'UTC' ) );
+
+		return $date instanceof \DateTimeImmutable ? wp_date( (string) get_option( 'date_format' ) . ' ' . (string) get_option( 'time_format' ), $date->getTimestamp() ) : $value;
+	}
+
+	/**
 	 * Rebuild occurrences for published events.
 	 */
 	public static function rebuild(): void {
@@ -419,6 +518,7 @@ final class Settings {
 				$settings['email_attendee_subject'] = sanitize_text_field( (string) ( $input['email_attendee_subject'] ?? '' ) );
 				$settings['email_attendee_body']    = sanitize_textarea_field( (string) ( $input['email_attendee_body'] ?? '' ) );
 				break;
+
 		}
 
 		return $settings;
