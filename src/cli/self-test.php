@@ -200,6 +200,50 @@ final class Self_Test {
 		if ( get_post( $id ) ) {
 			wp_delete_post( $id, true );
 		}
+
+		self::check_rest_resource( 'venues', [ 'title' => 'Self test venue' ], $failures );
+		self::check_rest_resource( 'organizers', [ 'title' => 'Self test organizer' ], $failures );
+	}
+
+	/**
+	 * Check create and delete for a simple REST resource.
+	 *
+	 * @param string               $base     REST base.
+	 * @param array<string, mixed> $payload  Create payload.
+	 * @param string[]             $failures Failures.
+	 */
+	private static function check_rest_resource( string $base, array $payload, array &$failures ): void {
+		$create = new WP_REST_Request( 'POST', '/re-events/v1/' . $base );
+		$create->set_header( 'Content-Type', 'application/json' );
+		$create->set_body( (string) wp_json_encode( $payload ) );
+		$response = rest_do_request( $create );
+
+		if ( 201 !== $response->get_status() ) {
+			$failures[] = 'REST create failed for ' . $base . '.';
+			return;
+		}
+
+		$data = (array) $response->get_data();
+		$id   = (int) ( $data['id'] ?? 0 );
+
+		if ( ! $id ) {
+			$failures[] = 'REST create returned no ID for ' . $base . '.';
+			return;
+		}
+
+		$delete   = new WP_REST_Request( 'DELETE', '/re-events/v1/' . $base . '/' . $id );
+		$response = rest_do_request( $delete );
+
+		self::assert( 200 === $response->get_status(), 'REST delete failed for ' . $base . '.', $failures );
+
+		$get      = new WP_REST_Request( 'GET', '/re-events/v1/' . $base . '/' . $id );
+		$response = rest_do_request( $get );
+
+		self::assert( 404 === $response->get_status(), 'Deleted ' . $base . ' still resolves.', $failures );
+
+		if ( get_post( $id ) ) {
+			wp_delete_post( $id, true );
+		}
 	}
 
 	/**
