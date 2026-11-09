@@ -19,13 +19,15 @@ $weekdays = [
 	__( 'Sun', 're-events' ),
 ];
 
-echo '<div class="reevents-calendar">';
+echo '<div class="reevents-calendar-wrapper ' . esc_attr( (string) ( $args['args']['wrapper_class'] ?? '' ) ) . '">';
+echo '<div class="reevents-calendar ' . esc_attr( (string) ( $args['args']['class'] ?? '' ) ) . '">';
 
 if ( ! empty( $args['args']['show_nav'] ) ) {
 	echo '<div class="reevents-calendar-nav">';
 	echo '<a class="reevents-calendar-prev" href="' . esc_url( $args['prev_url'] ) . '">&larr;</a>';
 	echo '<h2 class="reevents-calendar-title">' . esc_html( $args['month_label'] ) . '</h2>';
 	echo '<a class="reevents-calendar-next" href="' . esc_url( $args['next_url'] ) . '">&rarr;</a>';
+	echo '</div>';
 	echo '</div>';
 } else {
 	echo '<h2 class="reevents-calendar-title">' . esc_html( $args['month_label'] ) . '</h2>';
@@ -89,4 +91,5 @@ foreach ( array_chunk( $args['days'], 7 ) as $week ) {
 }
 
 echo '</tbody></table>';
+echo '</div>';
 echo '</div>';

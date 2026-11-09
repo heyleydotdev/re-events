@@ -14,7 +14,8 @@ if ( empty( $args['events'] ) ) {
 	return;
 }
 
-echo '<ul class="reevents-events-list">';
+echo '<div class="reevents-events-list-wrapper ' . esc_attr( (string) ( $args['args']['wrapper_class'] ?? '' ) ) . '">';
+echo '<ul class="reevents-events-list ' . esc_attr( (string) ( $args['args']['class'] ?? '' ) ) . '">';
 
 foreach ( $args['events'] as $event ) {
 	$start_text = \ReEvents\Render\Event_Format::start( $event );
@@ -39,3 +40,4 @@ foreach ( $args['events'] as $event ) {
 }
 
 echo '</ul>';
+echo '</div>';

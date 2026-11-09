@@ -32,23 +32,31 @@ final class Widget_Registry {
 				'shortcode' => 'reevents_list',
 				'renderer'  => [ Events_List::class, 'render' ],
 				'args'      => [
-					'limit'      => [
-						'type'    => 'number',
-						'default' => 5,
-					],
-					'category'   => [
+					'class'         => [
 						'type'    => 'text',
 						'default' => '',
 					],
-					'venue'      => [
+					'wrapper_class' => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'limit'         => [
+						'type'    => 'number',
+						'default' => 5,
+					],
+					'category'      => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'venue'         => [
 						'type'    => 'number',
 						'default' => 0,
 					],
-					'upcoming'   => [
+					'upcoming'      => [
 						'type'    => 'toggle',
 						'default' => true,
 					],
-					'show_venue' => [
+					'show_venue'    => [
 						'type'    => 'toggle',
 						'default' => true,
 					],
@@ -63,6 +71,14 @@ final class Widget_Registry {
 				'shortcode' => 'reevents_event',
 				'renderer'  => [ Event_Details::class, 'render' ],
 				'args'      => [
+					'class'             => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'wrapper_class'     => [
+						'type'    => 'text',
+						'default' => '',
+					],
 					'id'                => [
 						'type'    => 'number',
 						'default' => 0,
@@ -94,6 +110,14 @@ final class Widget_Registry {
 				'shortcode' => 'reevents_venues',
 				'renderer'  => [ Venues_List::class, 'render' ],
 				'args'      => [
+					'class'            => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'wrapper_class'    => [
+						'type'    => 'text',
+						'default' => '',
+					],
 					'limit'            => [
 						'type'    => 'number',
 						'default' => 10,
@@ -113,31 +137,75 @@ final class Widget_Registry {
 				'shortcode' => 'reevents_search',
 				'renderer'  => [ Events_Search::class, 'render' ],
 				'args'      => [
-					'limit'         => [
+					'class'              => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'wrapper_class'      => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'search_label'       => [
+						'type'    => 'text',
+						'default' => __( 'Search', 're-events' ),
+					],
+					'search_placeholder' => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'category_label'     => [
+						'type'    => 'text',
+						'default' => __( 'Category', 're-events' ),
+					],
+					'venue_label'        => [
+						'type'    => 'text',
+						'default' => __( 'Venue', 're-events' ),
+					],
+					'from_label'         => [
+						'type'    => 'text',
+						'default' => __( 'From', 're-events' ),
+					],
+					'to_label'           => [
+						'type'    => 'text',
+						'default' => __( 'To', 're-events' ),
+					],
+					'upcoming_label'     => [
+						'type'    => 'text',
+						'default' => __( 'Only upcoming', 're-events' ),
+					],
+					'submit_label'       => [
+						'type'    => 'text',
+						'default' => __( 'Search', 're-events' ),
+					],
+					'clear_label'        => [
+						'type'    => 'text',
+						'default' => __( 'Clear', 're-events' ),
+					],
+					'limit'              => [
 						'type'    => 'number',
 						'default' => 20,
 					],
-					'show_keyword'  => [
+					'show_keyword'       => [
 						'type'    => 'toggle',
 						'default' => true,
 					],
-					'show_category' => [
+					'show_category'      => [
 						'type'    => 'toggle',
 						'default' => true,
 					],
-					'show_venue'    => [
+					'show_venue'         => [
 						'type'    => 'toggle',
 						'default' => true,
 					],
-					'show_dates'    => [
+					'show_dates'         => [
 						'type'    => 'toggle',
 						'default' => true,
 					],
-					'show_upcoming' => [
+					'show_upcoming'      => [
 						'type'    => 'toggle',
 						'default' => true,
 					],
-					'show_results'  => [
+					'show_results'       => [
 						'type'    => 'toggle',
 						'default' => true,
 					],
@@ -152,11 +220,23 @@ final class Widget_Registry {
 				'shortcode' => 'reevents_calendar',
 				'renderer'  => [ Calendar::class, 'render' ],
 				'args'      => [
-					'month'    => [
+					'class'         => [
 						'type'    => 'text',
 						'default' => '',
 					],
-					'show_nav' => [
+					'wrapper_class' => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'ongoing_label' => [
+						'type'    => 'text',
+						'default' => __( 'Ongoing', 're-events' ),
+					],
+					'month'         => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'show_nav'      => [
 						'type'    => 'toggle',
 						'default' => true,
 					],
@@ -171,11 +251,19 @@ final class Widget_Registry {
 				'shortcode' => 'reevents_map',
 				'renderer'  => [ Map::class, 'render' ],
 				'args'      => [
-					'limit'  => [
+					'class'         => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'wrapper_class' => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'limit'         => [
 						'type'    => 'number',
 						'default' => 50,
 					],
-					'height' => [
+					'height'        => [
 						'type'    => 'number',
 						'default' => 400,
 					],
@@ -190,7 +278,47 @@ final class Widget_Registry {
 				'shortcode' => 'reevents_booking',
 				'renderer'  => [ Booking_Form::class, 'render' ],
 				'args'      => [
-					'event' => [
+					'class'             => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'wrapper_class'     => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'ticket_label'      => [
+						'type'    => 'text',
+						'default' => __( 'Ticket', 're-events' ),
+					],
+					'quantity_label'    => [
+						'type'    => 'text',
+						'default' => __( 'Seats', 're-events' ),
+					],
+					'name_label'        => [
+						'type'    => 'text',
+						'default' => __( 'Name', 're-events' ),
+					],
+					'name_placeholder'  => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'email_label'       => [
+						'type'    => 'text',
+						'default' => __( 'Email', 're-events' ),
+					],
+					'email_placeholder' => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'button_label'      => [
+						'type'    => 'text',
+						'default' => __( 'Book', 're-events' ),
+					],
+					'success_message'   => [
+						'type'    => 'text',
+						'default' => __( 'Booking confirmed.', 're-events' ),
+					],
+					'event'             => [
 						'type'    => 'number',
 						'default' => 0,
 					],

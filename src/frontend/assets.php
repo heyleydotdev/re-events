@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace ReEvents\Frontend;
 
+use ReEvents\Admin\Settings;
+
 /**
  * Enqueues frontend assets.
  */
@@ -37,12 +39,14 @@ final class Assets {
 			true
 		);
 
-		wp_enqueue_style(
-			'reevents-frontend',
-			plugins_url( 'assets/css/frontend.css', RE_EVENTS_FILE ),
-			[],
-			RE_EVENTS_VERSION
-		);
+		if ( 'none' !== (string) Settings::get( 'frontend_style', 'none' ) ) {
+			wp_enqueue_style(
+				'reevents-frontend',
+				plugins_url( 'assets/css/frontend.css', RE_EVENTS_FILE ),
+				[],
+				RE_EVENTS_VERSION
+			);
+		}
 	}
 
 	/**

@@ -13,7 +13,8 @@ $event = $args['event'];
 $start = \ReEvents\Render\Event_Format::start( $event );
 $end   = \ReEvents\Render\Event_Format::end( $event );
 
-echo '<div class="reevents-event-details">';
+echo '<div class="reevents-event-details-wrapper ' . esc_attr( (string) ( $args['args']['wrapper_class'] ?? '' ) ) . '">';
+echo '<div class="reevents-event-details ' . esc_attr( (string) ( $args['args']['class'] ?? '' ) ) . '">';
 echo '<h2 class="reevents-event-title">' . esc_html( $event->title ) . '</h2>';
 
 if ( 'cancelled' === $event->status ) {
@@ -61,4 +62,5 @@ if ( ! empty( $args['args']['show_content'] ) && '' !== $args['content'] ) {
 	echo '<div class="reevents-event-content">' . wp_kses_post( $args['content'] ) . '</div>';
 }
 
+echo '</div>';
 echo '</div>';

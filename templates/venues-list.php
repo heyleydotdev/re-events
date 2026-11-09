@@ -14,7 +14,8 @@ if ( empty( $args['venues'] ) ) {
 	return;
 }
 
-echo '<ul class="reevents-venues-list">';
+echo '<div class="reevents-venues-list-wrapper ' . esc_attr( (string) ( $args['args']['wrapper_class'] ?? '' ) ) . '">';
+echo '<ul class="reevents-venues-list ' . esc_attr( (string) ( $args['args']['class'] ?? '' ) ) . '">';
 
 foreach ( $args['venues'] as $venue ) {
 	echo '<li class="reevents-venue">';
@@ -28,3 +29,4 @@ foreach ( $args['venues'] as $venue ) {
 }
 
 echo '</ul>';
+echo '</div>';

@@ -25,6 +25,10 @@
 
 			element.dataset.initialized = '1';
 
+			if (element.dataset.height) {
+				element.style.height = element.dataset.height + 'px';
+			}
+
 			const map = L.map(element).setView([markers[0].lat, markers[0].lng], 12);
 
 			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
