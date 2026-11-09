@@ -43,6 +43,12 @@ final class Routes {
 
 		$events = new Events_Controller();
 		$events->register_routes();
+
+		$venues = new Venues_Controller();
+		$venues->register_routes();
+
+		$organizers = new Organizers_Controller();
+		$organizers->register_routes();
 	}
 
 	/**

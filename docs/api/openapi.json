@@ -17,6 +17,12 @@
         },
         {
             "name": "Events"
+        },
+        {
+            "name": "Venues"
+        },
+        {
+            "name": "Organizers"
         }
     ],
     "paths": {
@@ -812,6 +818,790 @@
                     }
                 ]
             }
+        },
+        "/venues": {
+            "get": {
+                "operationId": "get_venues",
+                "tags": [
+                    "Venues"
+                ],
+                "summary": "List Venues",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Venue"
+                                    }
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-WP-Total": {
+                                "description": "Total number of matching items.",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            },
+                            "X-WP-TotalPages": {
+                                "description": "Total number of result pages.",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "context",
+                        "in": "query",
+                        "required": false,
+                        "description": "Scope under which the request is made; determines fields present in response.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "Current page of the collection.",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "description": "Maximum number of items to be returned in result set.",
+                        "schema": {
+                            "type": "integer",
+                            "default": 10,
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "description": "Limit results to venues matching a search term.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "post_venues",
+                "tags": [
+                    "Venues"
+                ],
+                "summary": "Create Venue",
+                "responses": {
+                    "201": {
+                        "description": "Item created.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Venue"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Location": {
+                                "description": "URL of the created item.",
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uri"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApplicationPassword": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "description": "Venue title."
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Venue description."
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "description": "Venue address."
+                                    },
+                                    "lat": {
+                                        "type": "string",
+                                        "description": "Latitude."
+                                    },
+                                    "lng": {
+                                        "type": "string",
+                                        "description": "Longitude."
+                                    },
+                                    "website": {
+                                        "type": "string",
+                                        "description": "Venue website."
+                                    }
+                                },
+                                "required": [
+                                    "title"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/venues/{id}": {
+            "get": {
+                "operationId": "get_venues_id",
+                "tags": [
+                    "Venues"
+                ],
+                "summary": "Get Venue",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Venue"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier for the venue.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ]
+            },
+            "patch": {
+                "operationId": "patch_venues_id",
+                "tags": [
+                    "Venues"
+                ],
+                "summary": "Update Venue",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Venue"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApplicationPassword": []
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "description": "Venue title."
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Venue description."
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "description": "Venue address."
+                                    },
+                                    "lat": {
+                                        "type": "string",
+                                        "description": "Latitude."
+                                    },
+                                    "lng": {
+                                        "type": "string",
+                                        "description": "Longitude."
+                                    },
+                                    "website": {
+                                        "type": "string",
+                                        "description": "Venue website."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "delete_venues_id",
+                "tags": [
+                    "Venues"
+                ],
+                "summary": "Delete Venue",
+                "responses": {
+                    "200": {
+                        "description": "Item deleted.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "deleted": {
+                                            "type": "boolean"
+                                        },
+                                        "previous": {
+                                            "$ref": "#/components/schemas/Venue"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApplicationPassword": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier for the venue.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ]
+            }
+        },
+        "/organizers": {
+            "get": {
+                "operationId": "get_organizers",
+                "tags": [
+                    "Organizers"
+                ],
+                "summary": "List Organizers",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Organizer"
+                                    }
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-WP-Total": {
+                                "description": "Total number of matching items.",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            },
+                            "X-WP-TotalPages": {
+                                "description": "Total number of result pages.",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "context",
+                        "in": "query",
+                        "required": false,
+                        "description": "Scope under which the request is made; determines fields present in response.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "description": "Current page of the collection.",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "description": "Maximum number of items to be returned in result set.",
+                        "schema": {
+                            "type": "integer",
+                            "default": 10,
+                            "minimum": 1,
+                            "maximum": 100
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "required": false,
+                        "description": "Limit results to organizers matching a search term.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "post_organizers",
+                "tags": [
+                    "Organizers"
+                ],
+                "summary": "Create Organizer",
+                "responses": {
+                    "201": {
+                        "description": "Item created.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Organizer"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Location": {
+                                "description": "URL of the created item.",
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uri"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApplicationPassword": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "description": "Organizer title."
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Organizer description."
+                                    }
+                                },
+                                "required": [
+                                    "title"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/organizers/{id}": {
+            "get": {
+                "operationId": "get_organizers_id",
+                "tags": [
+                    "Organizers"
+                ],
+                "summary": "Get Organizer",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Organizer"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier for the organizer.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ]
+            },
+            "patch": {
+                "operationId": "patch_organizers_id",
+                "tags": [
+                    "Organizers"
+                ],
+                "summary": "Update Organizer",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Organizer"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApplicationPassword": []
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "description": "Organizer title."
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Organizer description."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "delete_organizers_id",
+                "tags": [
+                    "Organizers"
+                ],
+                "summary": "Delete Organizer",
+                "responses": {
+                    "200": {
+                        "description": "Item deleted.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "deleted": {
+                                            "type": "boolean"
+                                        },
+                                        "previous": {
+                                            "$ref": "#/components/schemas/Organizer"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApplicationPassword": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier for the organizer.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -998,6 +1788,71 @@
                     "status": {
                         "description": "Occurrence status.",
                         "type": "string"
+                    }
+                }
+            },
+            "Venue": {
+                "title": "venue",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "Unique identifier for the venue.",
+                        "type": "integer",
+                        "readonly": true
+                    },
+                    "title": {
+                        "description": "Venue title.",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Venue description.",
+                        "type": "string"
+                    },
+                    "address": {
+                        "description": "Venue address.",
+                        "type": "string"
+                    },
+                    "lat": {
+                        "description": "Latitude.",
+                        "type": "string"
+                    },
+                    "lng": {
+                        "description": "Longitude.",
+                        "type": "string"
+                    },
+                    "website": {
+                        "description": "Venue website.",
+                        "type": "string",
+                        "format": "uri"
+                    },
+                    "permalink": {
+                        "description": "Venue permalink.",
+                        "type": "string",
+                        "format": "uri"
+                    }
+                }
+            },
+            "Organizer": {
+                "title": "organizer",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "Unique identifier for the organizer.",
+                        "type": "integer",
+                        "readonly": true
+                    },
+                    "title": {
+                        "description": "Organizer title.",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Organizer description.",
+                        "type": "string"
+                    },
+                    "permalink": {
+                        "description": "Organizer permalink.",
+                        "type": "string",
+                        "format": "uri"
                     }
                 }
             }

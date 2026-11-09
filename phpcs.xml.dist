@@ -55,6 +55,8 @@
 				<element value="reevents_manage_settings"/>
 				<element value="reevents_manage_bookings"/>
 				<element value="publish_reevents_events"/>
+				<element value="publish_reevents_venues"/>
+				<element value="publish_reevents_organizers"/>
 			</property>
 		</properties>
 	</rule>
