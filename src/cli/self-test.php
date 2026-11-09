@@ -38,6 +38,7 @@ final class Self_Test {
 		self::check_upcoming_query( $failures );
 		self::check_availability( $failures );
 		self::check_booking_flow( $failures );
+		self::check_expiry( $failures );
 		self::check_emails( $failures );
 		self::check_rest( $failures );
 
@@ -286,6 +287,74 @@ final class Self_Test {
 			$repo->delete( (int) $third );
 		}
 
+		$tickets->delete( (int) $ticket_id );
+		wp_delete_post( (int) $event_id, true );
+	}
+
+	/**
+	 * Check that unpaid bookings expire.
+	 *
+	 * @param string[] $failures Failures.
+	 */
+	private static function check_expiry( array &$failures ): void {
+		$event_id = wp_insert_post(
+			[
+				'post_type'   => 'reevents_event',
+				'post_status' => 'publish',
+				'post_title'  => 'Self test expiry',
+			]
+		);
+
+		if ( ! $event_id ) {
+			$failures[] = 'Could not create an expiry test event.';
+			return;
+		}
+
+		$tickets   = new Ticket_Repository();
+		$ticket_id = $tickets->save(
+			[
+				'event_id'    => (int) $event_id,
+				'name'        => 'Expiry ticket',
+				'price_minor' => 100,
+				'capacity'    => 1,
+			]
+		);
+
+		if ( is_wp_error( $ticket_id ) ) {
+			wp_delete_post( (int) $event_id, true );
+			$failures[] = 'Could not create an expiry test ticket.';
+			return;
+		}
+
+		$tickets->reserve( (int) $ticket_id, 1 );
+
+		$repo    = new Booking_Repository();
+		$booking = $repo->create(
+			[
+				'event_id'    => (int) $event_id,
+				'ticket_id'   => (int) $ticket_id,
+				'quantity'    => 1,
+				'status'      => 'pending',
+				'created_utc' => gmdate( 'Y-m-d H:i:s', time() - 2 * HOUR_IN_SECONDS ),
+			]
+		);
+
+		if ( is_wp_error( $booking ) ) {
+			$tickets->delete( (int) $ticket_id );
+			wp_delete_post( (int) $event_id, true );
+			$failures[] = 'Could not create an expiry test booking.';
+			return;
+		}
+
+		Booking_Service::expire_pending();
+
+		$stored = $repo->find( (int) $booking );
+		self::assert( $stored && 'cancelled' === $stored['status'], 'Expired booking was not cancelled.', $failures );
+
+		$ticket = $tickets->find( (int) $ticket_id );
+		self::assert( $ticket && 0 === $ticket['sold'], 'Expired booking did not release its seat.', $failures );
+
+		$repo->delete( (int) $booking );
 		$tickets->delete( (int) $ticket_id );
 		wp_delete_post( (int) $event_id, true );
 	}
