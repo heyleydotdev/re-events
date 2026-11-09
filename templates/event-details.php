@@ -4,7 +4,7 @@
  *
  * @package ReEvents
  *
- * @var array{event: \ReEvents\Domain\Event, content: string, venue: string, organizers: string[], permalink: string, args: array<string, mixed>} $args
+ * @var array{event: \ReEvents\Domain\Event, content: string, venue: string, organizers: array<int, array{name:string,type:string}>, permalink: string, args: array<string, mixed>} $args
  */
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are scoped to the template include.
@@ -35,7 +35,13 @@ if ( ! empty( $args['args']['show_venue'] ) && '' !== $args['venue'] ) {
 }
 
 if ( ! empty( $args['args']['show_organizers'] ) && ! empty( $args['organizers'] ) ) {
-	echo '<p class="reevents-event-organizers">' . esc_html__( 'Organizers:', 're-events' ) . ' ' . esc_html( implode( ', ', $args['organizers'] ) ) . '</p>';
+	$organizers = [];
+
+	foreach ( $args['organizers'] as $organizer ) {
+		$organizers[] = esc_html( $organizer['name'] ) . ( '' !== $organizer['type'] ? ' (' . esc_html( $organizer['type'] ) . ')' : '' );
+	}
+
+	echo '<p class="reevents-event-organizers">' . esc_html__( 'Organizers:', 're-events' ) . ' ' . implode( ', ', $organizers ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
 }
 
 if ( ! empty( $args['args']['show_online_links'] ) && ! empty( $event->online_urls ) ) {

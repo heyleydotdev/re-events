@@ -47,9 +47,21 @@ final class Event_Details {
 		foreach ( $event->organizer_ids as $organizer_id ) {
 			$title = (string) get_the_title( $organizer_id );
 
-			if ( '' !== $title ) {
-				$organizers[] = $title;
+			if ( '' === $title ) {
+				continue;
 			}
+
+			$types = get_the_terms( $organizer_id, 'reevents_organizer_type' );
+			$names = [];
+
+			foreach ( is_array( $types ) ? $types : [] as $term ) {
+				$names[] = $term->name;
+			}
+
+			$organizers[] = [
+				'name' => $title,
+				'type' => implode( ', ', $names ),
+			];
 		}
 
 		return Template::render(
