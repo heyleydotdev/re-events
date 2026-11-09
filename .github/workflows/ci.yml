@@ -59,3 +59,10 @@ jobs:
         run: diff -u docs/api/openapi.json /tmp/openapi.json
       - name: Run self-test
         run: bun run wp-env run cli wp re-events self-test
+      - name: Seed benchmark fixtures
+        run: bun run wp-env run cli wp re-events bench seed --events=500 --occurrences=5000 --bookings=200 --venues=20
+      - name: Run benchmark
+        run: bun run wp-env run cli wp re-events bench run --iterations=3 --assert
+      - name: Clean benchmark fixtures
+        if: always()
+        run: bun run wp-env run cli wp re-events bench clean

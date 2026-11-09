@@ -16,7 +16,7 @@ class WP_CLI {
 	 * Register a command.
 	 *
 	 * @param string   $name     Command name.
-	 * @param callable $callable Callback.
+	 * @param callable|string $callable Callback or class name.
 	 * @param array    $args     Command arguments.
 	 */
 	public static function add_command( $name, $callable, $args = [] ): void {}

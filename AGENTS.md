@@ -27,6 +27,7 @@ ReEvents is a WordPress event manager plugin. GPL-2.0-or-later, no pro tier, no 
 - `wp re-events openapi > docs/api/openapi.json` — regenerate the API spec from registered routes
 - `wp re-events self-test` — run recurrence, query and REST checks
 - `wp re-events export-attendees --event=68 > attendees.csv` — export attendee CSV
+- `wp re-events bench seed` / `bench run --assert` / `bench clean` — seed, measure and remove performance fixtures
 
 `docs/api/openapi.json` is generated from the registered routes and their schema callbacks: paths, parameters, request bodies and response schemas all come from code. CI regenerates the spec and fails if the committed file is stale.
 

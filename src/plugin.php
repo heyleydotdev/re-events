@@ -21,6 +21,7 @@ use ReEvents\Admin\Notices;
 use ReEvents\Admin\Settings;
 use ReEvents\Admin\Venue_Meta_Boxes;
 use ReEvents\CLI\OpenAPI;
+use ReEvents\CLI\Bench;
 use ReEvents\CLI\Export_Attendees;
 use ReEvents\CLI\Self_Test;
 use ReEvents\Frontend\Assets as Frontend_Assets;
@@ -104,6 +105,10 @@ final class Plugin {
 
 				if ( class_exists( Export_Attendees::class ) ) {
 					\WP_CLI::add_command( 're-events export-attendees', [ Export_Attendees::class, 'run' ] );
+				}
+
+				if ( class_exists( Bench::class ) ) {
+					\WP_CLI::add_command( 're-events bench', Bench::class );
 				}
 			}
 		);
