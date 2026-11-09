@@ -64,7 +64,7 @@ final class Plugin {
 	 * Register hooks.
 	 */
 	public function boot(): void {
-		add_action( 'init', [ $this, 'load_textdomain' ] );
+		add_action( 'init', [ $this, 'load_textdomain' ], 1 );
 		add_action( 'init', [ Schema::class, 'maybe_install' ] );
 		add_action( 'admin_init', [ Activation::class, 'maybe_upgrade' ] );
 		Post_Types::register();
@@ -80,8 +80,8 @@ final class Plugin {
 		Notices::register();
 		Settings::register();
 		Event_List::register();
-		Widget_Registry::register_defaults();
-		Shortcodes::register();
+		add_action( 'init', [ Widget_Registry::class, 'register_defaults' ], 2 );
+		add_action( 'init', [ Shortcodes::class, 'register' ], 3 );
 		Blocks::register();
 		Routes::register();
 		Occurrence_Service::register();
