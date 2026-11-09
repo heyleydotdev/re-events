@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Admin;
 
+use ReEvents\Services\Booking_Emails;
 use ReEvents\Services\Occurrence_Service;
 
 /**
@@ -22,12 +23,38 @@ final class Settings {
 	private const OPTION = 'reevents_settings';
 
 	/**
+	 * Placeholders available in mail templates.
+	 */
+	public const PLACEHOLDERS = [ '{event}', '{date}', '{venue}', '{reference}', '{name}', '{email}', '{quantity}', '{total}', '{site}', '{status}' ];
+
+	/**
 	 * Hook into WordPress.
 	 */
 	public static function register(): void {
 		add_action( 'admin_init', [ self::class, 'register_settings' ] );
 		add_action( 'admin_menu', [ self::class, 'add_page' ], 11 );
 		add_action( 'admin_post_reevents_rebuild_occurrences', [ self::class, 'rebuild' ] );
+		add_action( 'admin_post_reevents_send_test_email', [ self::class, 'send_test_email' ] );
+		add_action( 'admin_enqueue_scripts', [ self::class, 'enqueue' ] );
+	}
+
+	/**
+	 * Enqueue the mail editor script.
+	 *
+	 * @param string $hook Current admin page.
+	 */
+	public static function enqueue( string $hook ): void {
+		if ( 'reevents_page_reevents-settings' !== $hook ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'reevents-emails',
+			plugins_url( 'assets/js/admin-emails.js', RE_EVENTS_FILE ),
+			[],
+			RE_EVENTS_VERSION,
+			true
+		);
 	}
 
 	/**
@@ -108,28 +135,29 @@ final class Settings {
 			],
 			'bookings_fields'
 		);
-		self::add_section( 'bookings', __( 'Emails', 're-events' ), 'bookings_emails' );
-		self::add_field( 'bookings', 'email_admin_subject', __( 'Admin subject', 're-events' ), [ 'description' => __( 'Placeholders: {event}, {date}, {venue}, {reference}, {name}, {email}, {quantity}, {total}, {site}, {status}.', 're-events' ) ], 'bookings_emails' );
+		self::add_section( 'emails', __( 'Admin mail', 're-events' ), 'emails_admin' );
+		self::add_field( 'emails', 'email_admin_subject', __( 'Subject', 're-events' ), [ 'description' => __( 'Placeholders: {event}, {date}, {venue}, {reference}, {name}, {email}, {quantity}, {total}, {site}, {status}.', 're-events' ) ], 'emails_admin' );
 		self::add_field(
-			'bookings',
+			'emails',
 			'email_admin_body',
-			__( 'Admin body', 're-events' ),
+			__( 'Body', 're-events' ),
 			[
-				'type'        => 'textarea',
-				'description' => __( 'Same placeholders as the subject.', 're-events' ),
+				'type'    => 'textarea',
+				'palette' => true,
 			],
-			'bookings_emails'
+			'emails_admin'
 		);
-		self::add_field( 'bookings', 'email_attendee_subject', __( 'Attendee subject', 're-events' ), [ 'description' => __( 'Same placeholders as the admin subject.', 're-events' ) ], 'bookings_emails' );
+		self::add_section( 'emails', __( 'Attendee mail', 're-events' ), 'emails_attendee' );
+		self::add_field( 'emails', 'email_attendee_subject', __( 'Subject', 're-events' ), [ 'description' => __( 'Same placeholders as the admin mail.', 're-events' ) ], 'emails_attendee' );
 		self::add_field(
-			'bookings',
+			'emails',
 			'email_attendee_body',
-			__( 'Attendee body', 're-events' ),
+			__( 'Body', 're-events' ),
 			[
-				'type'        => 'textarea',
-				'description' => __( 'Same placeholders as the admin subject.', 're-events' ),
+				'type'    => 'textarea',
+				'palette' => true,
 			],
-			'bookings_emails'
+			'emails_attendee'
 		);
 	}
 
@@ -160,6 +188,7 @@ final class Settings {
 			'general'  => __( 'General', 're-events' ),
 			'formats'  => __( 'Formats', 're-events' ),
 			'bookings' => __( 'Bookings', 're-events' ),
+			'emails'   => __( 'Emails', 're-events' ),
 			'tools'    => __( 'Tools', 're-events' ),
 		];
 
@@ -182,6 +211,9 @@ final class Settings {
 			<?php if ( 'tools' === $tab ) : ?>
 				<?php self::render_tools(); ?>
 			<?php else : ?>
+				<?php if ( 'emails' === $tab ) : ?>
+					<?php self::render_email_notice(); ?>
+				<?php endif; ?>
 				<form method="post" action="options.php">
 					<?php
 					settings_fields( 'reevents_settings' );
@@ -194,6 +226,9 @@ final class Settings {
 						<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 're-events' ); ?>" />
 					</p>
 				</form>
+				<?php if ( 'emails' === $tab ) : ?>
+					<?php self::render_test_email(); ?>
+				<?php endif; ?>
 			<?php endif; ?>
 		</div>
 		<?php
@@ -218,6 +253,75 @@ final class Settings {
 			<?php submit_button( __( 'Rebuild occurrences', 're-events' ), 'secondary', 'submit', false ); ?>
 		</form>
 		<?php
+	}
+
+	/**
+	 * Render the mail test result notice.
+	 */
+	private static function render_email_notice(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice.
+		$notice = isset( $_GET['reevents_notice'] ) ? sanitize_key( wp_unslash( $_GET['reevents_notice'] ) ) : '';
+
+		if ( 'test_sent' === $notice ) {
+			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Test email sent.', 're-events' ) . '</p></div>';
+		} elseif ( 'test_failed' === $notice ) {
+			echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'The test email could not be sent. Check your site mail configuration.', 're-events' ) . '</p></div>';
+		}
+	}
+
+	/**
+	 * Render the test email form.
+	 */
+	private static function render_test_email(): void {
+		?>
+		<h2><?php esc_html_e( 'Send a test', 're-events' ); ?></h2>
+		<p class="description"><?php esc_html_e( 'Sends the saved template with sample values to the address below.', 're-events' ); ?></p>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<input type="hidden" name="action" value="reevents_send_test_email" />
+			<?php wp_nonce_field( 'reevents_send_test_email' ); ?>
+			<p>
+				<label for="reevents-test-type"><?php esc_html_e( 'Template', 're-events' ); ?></label>
+				<select id="reevents-test-type" name="type">
+					<option value="admin"><?php esc_html_e( 'Admin mail', 're-events' ); ?></option>
+					<option value="attendee"><?php esc_html_e( 'Attendee mail', 're-events' ); ?></option>
+				</select>
+			</p>
+			<p>
+				<label for="reevents-test-email"><?php esc_html_e( 'Recipient', 're-events' ); ?></label>
+				<input type="email" id="reevents-test-email" name="email" class="regular-text" value="<?php echo esc_attr( (string) get_option( 'admin_email' ) ); ?>" required />
+			</p>
+			<?php submit_button( __( 'Send test email', 're-events' ), 'secondary', 'reevents-test-submit', false ); ?>
+		</form>
+		<?php
+	}
+
+	/**
+	 * Send a test email with sample values.
+	 */
+	public static function send_test_email(): void {
+		if ( ! current_user_can( 'reevents_manage_settings' ) ) {
+			wp_die( esc_html__( 'Forbidden', 're-events' ), 403 );
+		}
+
+		check_admin_referer( 'reevents_send_test_email' );
+
+		$type  = isset( $_POST['type'] ) ? sanitize_key( wp_unslash( $_POST['type'] ) ) : 'admin';
+		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+
+		if ( ! is_email( $email ) ) {
+			wp_die( esc_html__( 'Enter a valid email address.', 're-events' ), 400 );
+		}
+
+		$sent = Booking_Emails::send_test( $type, $email );
+
+		wp_safe_redirect(
+			add_query_arg(
+				'reevents_notice',
+				$sent ? 'test_sent' : 'test_failed',
+				admin_url( 'admin.php?page=reevents-settings&tab=emails' )
+			)
+		);
+		exit;
 	}
 
 	/**
@@ -281,7 +385,7 @@ final class Settings {
 	 */
 	public static function sanitize( $input ): array {
 		$settings = get_option( self::OPTION, self::defaults() );
-		$settings = is_array( $settings ) ? $settings : self::defaults();
+		$settings = array_merge( self::defaults(), is_array( $settings ) ? $settings : [] );
 		$input    = is_array( $input ) ? $input : [];
 		$tab      = sanitize_key( (string) ( $input['reevents_tab'] ?? '' ) );
 
@@ -297,9 +401,12 @@ final class Settings {
 				break;
 
 			case 'bookings':
-				$settings['require_approval']       = ! empty( $input['require_approval'] );
-				$settings['hold_minutes']           = max( 5, min( 1440, absint( $input['hold_minutes'] ?? 30 ) ) );
-				$settings['attendee_fields']        = self::sanitize_attendee_fields( (string) ( $input['attendee_fields'] ?? '' ) );
+				$settings['require_approval'] = ! empty( $input['require_approval'] );
+				$settings['hold_minutes']     = max( 5, min( 1440, absint( $input['hold_minutes'] ?? 30 ) ) );
+				$settings['attendee_fields']  = self::sanitize_attendee_fields( (string) ( $input['attendee_fields'] ?? '' ) );
+				break;
+
+			case 'emails':
 				$settings['email_admin_subject']    = sanitize_text_field( (string) ( $input['email_admin_subject'] ?? '' ) );
 				$settings['email_admin_body']       = sanitize_textarea_field( (string) ( $input['email_admin_body'] ?? '' ) );
 				$settings['email_attendee_subject'] = sanitize_text_field( (string) ( $input['email_attendee_subject'] ?? '' ) );
@@ -422,6 +529,16 @@ final class Settings {
 			}
 
 			echo '<textarea id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" rows="6" class="large-text code">' . esc_textarea( (string) $value ) . '</textarea>';
+
+			if ( ! empty( $args['palette'] ) ) {
+				echo '<p class="reevents-placeholder-palette">';
+
+				foreach ( self::PLACEHOLDERS as $token ) {
+					echo '<button type="button" class="button button-small reevents-placeholder" data-target="' . esc_attr( $id ) . '" data-token="' . esc_attr( $token ) . '">' . esc_html( $token ) . '</button> ';
+				}
+
+				echo '</p><p class="description">' . esc_html__( 'Click a placeholder to insert it at the cursor.', 're-events' ) . '</p>';
+			}
 		} elseif ( 'timezone' === $type ) {
 			echo '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '">';
 

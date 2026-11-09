@@ -100,12 +100,14 @@ final class Booking_Emails {
 
 		$placeholders['{status}'] = $status;
 
+		$event_id = $event ? $event->id : 0;
+
 		if ( 'admin' === $type ) {
-			$subject = self::template( 'email_admin_subject' );
-			$body    = self::template( 'email_admin_body' );
+			$subject = self::template( 'email_admin_subject', $event_id );
+			$body    = self::template( 'email_admin_body', $event_id );
 		} else {
-			$subject = self::template( 'email_attendee_subject' );
-			$body    = self::template( 'email_attendee_body' );
+			$subject = self::template( 'email_attendee_subject', $event_id );
+			$body    = self::template( 'email_attendee_body', $event_id );
 		}
 
 		return [
@@ -115,11 +117,51 @@ final class Booking_Emails {
 	}
 
 	/**
-	 * Read an email template, falling back to the default.
+	 * Send a template with sample values.
 	 *
-	 * @param string $key Setting key.
+	 * @param string $type  admin or attendee.
+	 * @param string $email Recipient.
 	 */
-	private static function template( string $key ): string {
+	public static function send_test( string $type, string $email ): bool {
+		$type         = 'attendee' === $type ? 'attendee' : 'admin';
+		$placeholders = [
+			'{event}'     => __( 'Sample Event', 're-events' ),
+			'{date}'      => __( 'January 1, 2026 at 7:00 pm', 're-events' ),
+			'{venue}'     => __( 'Sample Venue', 're-events' ),
+			'{reference}' => 'SAMPLE-123',
+			'{name}'      => __( 'Sample Attendee', 're-events' ),
+			'{email}'     => 'attendee@example.com',
+			'{quantity}'  => '2',
+			'{total}'     => '50.00 USD',
+			'{site}'      => wp_specialchars_decode( (string) get_bloginfo( 'name' ), ENT_QUOTES ),
+			'{status}'    => 'confirmed',
+		];
+
+		$subject_key = 'attendee' === $type ? 'email_attendee_subject' : 'email_admin_subject';
+		$body_key    = 'attendee' === $type ? 'email_attendee_body' : 'email_admin_body';
+
+		return wp_mail(
+			$email,
+			strtr( self::template( $subject_key ), $placeholders ),
+			strtr( self::template( $body_key ), $placeholders )
+		);
+	}
+
+	/**
+	 * Read an email template, falling back to the global setting and default.
+	 *
+	 * @param string $key      Setting key.
+	 * @param int    $event_id Event ID for per-event overrides.
+	 */
+	private static function template( string $key, int $event_id = 0 ): string {
+		if ( $event_id > 0 ) {
+			$override = (string) get_post_meta( $event_id, '_reevents_' . $key, true );
+
+			if ( '' !== $override ) {
+				return $override;
+			}
+		}
+
 		$defaults = Settings::defaults();
 		$value    = (string) Settings::get( $key, $defaults[ $key ] ?? '' );
 

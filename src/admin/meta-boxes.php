@@ -102,6 +102,15 @@ final class Meta_Boxes {
 			'normal',
 			'default'
 		);
+
+		add_meta_box(
+			'reevents-event-emails',
+			__( 'Booking emails', 're-events' ),
+			[ self::class, 'render_emails' ],
+			'reevents_event',
+			'normal',
+			'default'
+		);
 	}
 
 	/**
@@ -482,6 +491,44 @@ final class Meta_Boxes {
 	}
 
 	/**
+	 * Render the booking email overrides.
+	 *
+	 * @param WP_Post $post Post object.
+	 */
+	public static function render_emails( WP_Post $post ): void {
+		$fields = [
+			'email_admin_subject'    => [ __( 'Admin subject', 're-events' ), false ],
+			'email_admin_body'       => [ __( 'Admin body', 're-events' ), true ],
+			'email_attendee_subject' => [ __( 'Attendee subject', 're-events' ), false ],
+			'email_attendee_body'    => [ __( 'Attendee body', 're-events' ), true ],
+		];
+
+		wp_nonce_field( 'reevents_event_details', 'reevents_event_details_nonce' );
+		?>
+		<p class="description"><?php esc_html_e( 'Leave a field empty to use the global template from Settings > Emails.', 're-events' ); ?></p>
+		<table class="form-table" role="presentation">
+			<?php foreach ( $fields as $key => [ $label, $is_body ] ) : ?>
+				<tr>
+					<th scope="row"><label for="reevents-<?php echo esc_attr( str_replace( '_', '-', $key ) ); ?>"><?php echo esc_html( $label ); ?></label></th>
+					<td>
+						<?php if ( $is_body ) : ?>
+							<textarea id="reevents-<?php echo esc_attr( str_replace( '_', '-', $key ) ); ?>" name="<?php echo esc_attr( $key ); ?>" rows="4" class="large-text code"><?php echo esc_textarea( (string) get_post_meta( $post->ID, '_reevents_' . $key, true ) ); ?></textarea>
+							<p class="reevents-placeholder-palette">
+								<?php foreach ( Settings::PLACEHOLDERS as $token ) : ?>
+									<button type="button" class="button button-small reevents-placeholder" data-target="reevents-<?php echo esc_attr( str_replace( '_', '-', $key ) ); ?>" data-token="<?php echo esc_attr( $token ); ?>"><?php echo esc_html( $token ); ?></button>
+								<?php endforeach; ?>
+							</p>
+						<?php else : ?>
+							<input type="text" id="reevents-<?php echo esc_attr( str_replace( '_', '-', $key ) ); ?>" name="<?php echo esc_attr( $key ); ?>" class="large-text" value="<?php echo esc_attr( (string) get_post_meta( $post->ID, '_reevents_' . $key, true ) ); ?>" />
+						<?php endif; ?>
+					</td>
+				</tr>
+			<?php endforeach; ?>
+		</table>
+		<?php
+	}
+
+	/**
 	 * Get cached event data.
 	 *
 	 * @param WP_Post $post Post object.
@@ -657,6 +704,22 @@ final class Meta_Boxes {
 				'count'    => absint( wp_unslash( $_POST['reevents_count'] ?? 0 ) ),
 			]
 		);
+
+		foreach ( [ 'email_admin_subject', 'email_admin_body', 'email_attendee_subject', 'email_attendee_body' ] as $email_key ) {
+			if ( ! isset( $_POST[ $email_key ] ) ) {
+				continue;
+			}
+
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized below.
+			$raw   = (string) wp_unslash( $_POST[ $email_key ] );
+			$value = str_contains( $email_key, '_body' ) ? sanitize_textarea_field( $raw ) : sanitize_text_field( $raw );
+
+			if ( '' === $value ) {
+				delete_post_meta( $post_id, '_reevents_' . $email_key );
+			} else {
+				update_post_meta( $post_id, '_reevents_' . $email_key, $value );
+			}
+		}
 
 		$event = new Event(
 			$post_id,

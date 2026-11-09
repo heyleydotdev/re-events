@@ -25,7 +25,27 @@
 		});
 	}
 
+	function setupPlaceholders() {
+		document.addEventListener('click', function (event) {
+			const button = event.target.closest('.reevents-placeholder');
+
+			if (!button) {
+				return;
+			}
+
+			const field = document.getElementById(button.dataset.target);
+
+			if (!field) {
+				return;
+			}
+
+			field.setRangeText(button.dataset.token, field.selectionStart, field.selectionEnd, 'end');
+			field.focus();
+		});
+	}
+
 	function init() {
+		setupPlaceholders();
 		setupRepeater('reevents-online-urls', 'reevents-url-template', 'reevents-add-url', 'reevents-remove-url', 'reevents-url-row');
 		setupRepeater('reevents-exdates', 'reevents-exdate-template', 'reevents-add-exdate', 'reevents-remove-exdate', 'reevents-exdate-row');
 		setupRepeater('reevents-rdates', 'reevents-rdate-template', 'reevents-add-rdate', 'reevents-remove-rdate', 'reevents-rdate-row');
