@@ -203,6 +203,7 @@ final class Self_Test {
 
 		self::check_rest_resource( 'venues', [ 'title' => 'Self test venue' ], $failures );
 		self::check_rest_resource( 'organizers', [ 'title' => 'Self test organizer' ], $failures );
+		self::check_rest_resource( 'categories', [ 'name' => 'Self test category' ], $failures );
 	}
 
 	/**
