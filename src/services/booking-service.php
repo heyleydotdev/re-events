@@ -33,36 +33,36 @@ final class Booking_Service {
 		$attendees     = (array) ( $args['attendees'] ?? [] );
 
 		if ( 'reevents_event' !== get_post_type( $event_id ) || 'publish' !== get_post_status( $event_id ) ) {
-			return new WP_Error( 'reevents_booking_invalid_event', __( 'Invalid event.', 're-events' ) );
+			return new WP_Error( 'reevents_booking_invalid_event', __( 'Invalid event.', 're-events' ), [ 'status' => 400 ] );
 		}
 
 		$tickets = new Ticket_Repository();
 		$ticket  = $tickets->find( $ticket_id );
 
 		if ( ! $ticket || (int) $ticket['event_id'] !== $event_id ) {
-			return new WP_Error( 'reevents_booking_invalid_ticket', __( 'Invalid ticket.', 're-events' ) );
+			return new WP_Error( 'reevents_booking_invalid_ticket', __( 'Invalid ticket.', 're-events' ), [ 'status' => 400 ] );
 		}
 
 		if ( 'active' !== $ticket['status'] ) {
-			return new WP_Error( 'reevents_booking_ticket_inactive', __( 'This ticket is not on sale.', 're-events' ) );
+			return new WP_Error( 'reevents_booking_ticket_inactive', __( 'This ticket is not on sale.', 're-events' ), [ 'status' => 400 ] );
 		}
 
 		$now = current_time( 'mysql', true );
 
 		if ( '' !== $ticket['sale_start_utc'] && $now < $ticket['sale_start_utc'] ) {
-			return new WP_Error( 'reevents_booking_sale_not_started', __( 'Ticket sales have not started.', 're-events' ) );
+			return new WP_Error( 'reevents_booking_sale_not_started', __( 'Ticket sales have not started.', 're-events' ), [ 'status' => 400 ] );
 		}
 
 		if ( '' !== $ticket['sale_end_utc'] && $now > $ticket['sale_end_utc'] ) {
-			return new WP_Error( 'reevents_booking_sale_ended', __( 'Ticket sales have ended.', 're-events' ) );
+			return new WP_Error( 'reevents_booking_sale_ended', __( 'Ticket sales have ended.', 're-events' ), [ 'status' => 400 ] );
 		}
 
 		if ( $quantity < (int) $ticket['min_per_booking'] ) {
-			return new WP_Error( 'reevents_booking_min_quantity', __( 'Too few seats selected.', 're-events' ) );
+			return new WP_Error( 'reevents_booking_min_quantity', __( 'Too few seats selected.', 're-events' ), [ 'status' => 400 ] );
 		}
 
 		if ( (int) $ticket['max_per_booking'] > 0 && $quantity > (int) $ticket['max_per_booking'] ) {
-			return new WP_Error( 'reevents_booking_max_quantity', __( 'Too many seats selected.', 're-events' ) );
+			return new WP_Error( 'reevents_booking_max_quantity', __( 'Too many seats selected.', 're-events' ), [ 'status' => 400 ] );
 		}
 
 		global $wpdb;
@@ -73,13 +73,14 @@ final class Booking_Service {
 		if ( ! $tickets->reserve( $ticket_id, $quantity ) ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
 			$wpdb->query( 'ROLLBACK' );
-			return new WP_Error( 'reevents_booking_sold_out', __( 'Not enough seats are available.', 're-events' ) );
+			return new WP_Error( 'reevents_booking_sold_out', __( 'Not enough seats are available.', 're-events' ), [ 'status' => 409 ] );
 		}
 
 		$total = (int) $ticket['price_minor'] * $quantity;
 		$repo  = new Booking_Repository();
 		$id    = $repo->create(
 			[
+				'reference'     => self::reference(),
 				'event_id'      => $event_id,
 				'occurrence_id' => $occurrence_id,
 				'ticket_id'     => $ticket_id,
@@ -119,29 +120,77 @@ final class Booking_Service {
 	}
 
 	/**
+	 * Update a booking status and adjust reserved seats.
+	 *
+	 * @param int    $id     Booking ID.
+	 * @param string $status New status.
+	 * @return bool|WP_Error
+	 */
+	public static function update_status( int $id, string $status ) {
+		$allowed = [ 'pending', 'confirmed', 'cancelled', 'rejected' ];
+
+		if ( ! in_array( $status, $allowed, true ) ) {
+			return new WP_Error( 'reevents_booking_invalid_status', __( 'Invalid booking status.', 're-events' ), [ 'status' => 400 ] );
+		}
+
+		$repo    = new Booking_Repository();
+		$booking = $repo->find( $id );
+
+		if ( ! $booking ) {
+			return new WP_Error( 'reevents_booking_invalid_id', __( 'Invalid booking.', 're-events' ), [ 'status' => 404 ] );
+		}
+
+		if ( $booking['status'] === $status ) {
+			return true;
+		}
+
+		$released = in_array( $booking['status'], [ 'cancelled', 'rejected' ], true );
+		$release  = in_array( $status, [ 'cancelled', 'rejected' ], true );
+		$active   = in_array( $status, [ 'pending', 'confirmed' ], true );
+		$tickets  = new Ticket_Repository();
+
+		if ( $release && ! $released ) {
+			if ( ! $repo->update_status( $id, $status ) ) {
+				return new WP_Error( 'reevents_booking_update_failed', __( 'The booking could not be updated.', 're-events' ), [ 'status' => 500 ] );
+			}
+
+			$tickets->release( (int) $booking['ticket_id'], (int) $booking['quantity'] );
+
+			return true;
+		}
+
+		if ( $active && $released ) {
+			if ( ! $tickets->reserve( (int) $booking['ticket_id'], (int) $booking['quantity'] ) ) {
+				return new WP_Error( 'reevents_booking_sold_out', __( 'Not enough seats are available.', 're-events' ), [ 'status' => 409 ] );
+			}
+
+			if ( ! $repo->update_status( $id, $status ) ) {
+				$tickets->release( (int) $booking['ticket_id'], (int) $booking['quantity'] );
+				return new WP_Error( 'reevents_booking_update_failed', __( 'The booking could not be updated.', 're-events' ), [ 'status' => 500 ] );
+			}
+
+			return true;
+		}
+
+		return $repo->update_status( $id, $status )
+			? true
+			: new WP_Error( 'reevents_booking_update_failed', __( 'The booking could not be updated.', 're-events' ), [ 'status' => 500 ] );
+	}
+
+	/**
 	 * Cancel a booking and release its seats.
 	 *
 	 * @param int $id Booking ID.
 	 * @return bool|WP_Error
 	 */
 	public static function cancel( int $id ) {
-		$repo    = new Booking_Repository();
-		$booking = $repo->find( $id );
+		return self::update_status( $id, 'cancelled' );
+	}
 
-		if ( ! $booking ) {
-			return new WP_Error( 'reevents_booking_invalid_id', __( 'Invalid booking.', 're-events' ) );
-		}
-
-		if ( 'cancelled' === $booking['status'] ) {
-			return true;
-		}
-
-		if ( ! $repo->update_status( $id, 'cancelled' ) ) {
-			return new WP_Error( 'reevents_booking_cancel_failed', __( 'The booking could not be cancelled.', 're-events' ) );
-		}
-
-		( new Ticket_Repository() )->release( (int) $booking['ticket_id'], (int) $booking['quantity'] );
-
-		return true;
+	/**
+	 * Build a booking reference.
+	 */
+	private static function reference(): string {
+		return wp_generate_password( 32, false, false );
 	}
 }

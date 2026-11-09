@@ -17,7 +17,7 @@ final class Schema {
 	/**
 	 * Schema version.
 	 */
-	public const VERSION = 2;
+	public const VERSION = 3;
 
 	/**
 	 * Schema version option.
@@ -128,6 +128,7 @@ final class Schema {
 
 		$bookings = "CREATE TABLE {$prefix}reevents_bookings (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			reference varchar(64) DEFAULT NULL,
 			event_id bigint(20) unsigned NOT NULL,
 			occurrence_id bigint(20) unsigned NOT NULL DEFAULT 0,
 			ticket_id bigint(20) unsigned NOT NULL DEFAULT 0,
@@ -141,6 +142,7 @@ final class Schema {
 			created_utc datetime NOT NULL,
 			updated_utc datetime NOT NULL,
 			PRIMARY KEY  (id),
+			UNIQUE KEY reference (reference),
 			KEY event_occurrence (event_id,occurrence_id),
 			KEY ticket_id (ticket_id),
 			KEY status (status),

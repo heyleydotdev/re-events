@@ -92,6 +92,7 @@ final class Booking_Repository {
 		global $wpdb;
 
 		$data = [
+			'reference'     => '' !== (string) ( $booking['reference'] ?? '' ) ? (string) $booking['reference'] : null,
 			'event_id'      => (int) ( $booking['event_id'] ?? 0 ),
 			'occurrence_id' => (int) ( $booking['occurrence_id'] ?? 0 ),
 			'ticket_id'     => (int) ( $booking['ticket_id'] ?? 0 ),
@@ -107,9 +108,87 @@ final class Booking_Repository {
 		];
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking storage.
-		$result = $wpdb->insert( $this->table(), $data, [ '%d', '%d', '%d', '%d', '%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s' ] );
+		$result = $wpdb->insert( $this->table(), $data, [ '%s', '%d', '%d', '%d', '%d', '%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s' ] );
 
-		return false === $result ? new WP_Error( 'reevents_booking_save_failed', __( 'The booking could not be saved.', 're-events' ) ) : (int) $wpdb->insert_id;
+		return false === $result ? new WP_Error( 'reevents_booking_save_failed', __( 'The booking could not be saved.', 're-events' ), [ 'status' => 500 ] ) : (int) $wpdb->insert_id;
+	}
+
+	/**
+	 * Find a booking by its reference.
+	 *
+	 * @param string $reference Reference.
+	 * @return array<string, mixed>|null
+	 */
+	public function find_by_reference( string $reference ): ?array {
+		global $wpdb;
+
+		$table = $this->table();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE reference = %s", $reference ), ARRAY_A );
+
+		return is_array( $row ) ? $this->hydrate( $row ) : null;
+	}
+
+	/**
+	 * Get bookings for an event.
+	 *
+	 * @param int    $event_id Event ID.
+	 * @param string $status   Optional status.
+	 * @param int    $limit    Maximum rows.
+	 * @param int    $offset   Offset.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function for_event( int $event_id, string $status = '', int $limit = 100, int $offset = 0 ): array {
+		global $wpdb;
+
+		$table = $this->table();
+		$sql   = "SELECT * FROM {$table} WHERE event_id = %d";
+		$args  = [ $event_id ];
+
+		if ( '' !== $status ) {
+			$sql   .= ' AND status = %s';
+			$args[] = $status;
+		}
+
+		$sql   .= ' ORDER BY created_utc DESC LIMIT %d OFFSET %d';
+		$args[] = max( 1, $limit );
+		$args[] = max( 0, $offset );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Internal table name and dynamic filters.
+		$rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$args ), ARRAY_A );
+		// phpcs:enable
+
+		$bookings = [];
+
+		foreach ( (array) $rows as $row ) {
+			$bookings[] = $this->hydrate( $row );
+		}
+
+		return $bookings;
+	}
+
+	/**
+	 * Count bookings for an event.
+	 *
+	 * @param int    $event_id Event ID.
+	 * @param string $status   Optional status.
+	 */
+	public function count_for_event( int $event_id, string $status = '' ): int {
+		global $wpdb;
+
+		$table = $this->table();
+		$sql   = "SELECT COUNT(*) FROM {$table} WHERE event_id = %d";
+		$args  = [ $event_id ];
+
+		if ( '' !== $status ) {
+			$sql   .= ' AND status = %s';
+			$args[] = $status;
+		}
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Internal table name and dynamic filters.
+		return (int) $wpdb->get_var( $wpdb->prepare( $sql, ...$args ) );
+		// phpcs:enable
 	}
 
 	/**
@@ -134,7 +213,7 @@ final class Booking_Repository {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Attendee storage.
 		$result = $wpdb->insert( $this->attendees_table(), $data, [ '%d', '%d', '%s', '%s', '%s', '%d' ] );
 
-		return false === $result ? new WP_Error( 'reevents_attendee_save_failed', __( 'The attendee could not be saved.', 're-events' ) ) : (int) $wpdb->insert_id;
+		return false === $result ? new WP_Error( 'reevents_attendee_save_failed', __( 'The attendee could not be saved.', 're-events' ), [ 'status' => 500 ] ) : (int) $wpdb->insert_id;
 	}
 
 	/**
@@ -187,6 +266,7 @@ final class Booking_Repository {
 	private function hydrate( array $row ): array {
 		return [
 			'id'            => (int) ( $row['id'] ?? 0 ),
+			'reference'     => (string) ( $row['reference'] ?? '' ),
 			'event_id'      => (int) ( $row['event_id'] ?? 0 ),
 			'occurrence_id' => (int) ( $row['occurrence_id'] ?? 0 ),
 			'ticket_id'     => (int) ( $row['ticket_id'] ?? 0 ),
