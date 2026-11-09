@@ -1,0 +1,222 @@
+<?php
+/**
+ * Bookings list table.
+ *
+ * @package ReEvents
+ */
+
+declare( strict_types=1 );
+
+namespace ReEvents\Admin;
+
+use ReEvents\Data\Booking_Repository;
+
+if ( ! class_exists( '\WP_List_Table' ) ) {
+	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
+}
+
+/**
+ * Bookings list table.
+ */
+final class Bookings_Table extends \WP_List_Table {
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		parent::__construct(
+			[
+				'singular' => 'booking',
+				'plural'   => 'bookings',
+				'ajax'     => false,
+			]
+		);
+	}
+
+	/**
+	 * Columns.
+	 *
+	 * @return array<string, string>
+	 */
+	public function get_columns(): array {
+		return self::default_columns();
+	}
+
+	/**
+	 * Default columns.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function default_columns(): array {
+		return [
+			'reference' => __( 'Reference', 're-events' ),
+			'event'     => __( 'Event', 're-events' ),
+			'status'    => __( 'Status', 're-events' ),
+			'quantity'  => __( 'Seats', 're-events' ),
+			'total'     => __( 'Total', 're-events' ),
+			'created'   => __( 'Created', 're-events' ),
+		];
+	}
+
+	/**
+	 * Sortable columns.
+	 *
+	 * @return array<string, array<int, mixed>>
+	 */
+	public function get_sortable_columns(): array {
+		return [
+			'created' => [ 'created', true ],
+		];
+	}
+
+	/**
+	 * Prepare items.
+	 */
+	public function prepare_items(): void {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only table state.
+		$event_id = isset( $_GET['event'] ) ? absint( wp_unslash( $_GET['event'] ) ) : 0;
+		$status   = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : '';
+		$search   = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
+		// phpcs:enable
+
+		$per_page = $this->get_items_per_page( 'reevents_bookings_per_page', 20 );
+		$paged    = $this->get_pagenum();
+		$result   = ( new Booking_Repository() )->query(
+			[
+				'event_id' => $event_id,
+				'status'   => $status,
+				'search'   => $search,
+				'limit'    => $per_page,
+				'offset'   => ( $paged - 1 ) * $per_page,
+			]
+		);
+
+		$this->items           = $result['items'];
+		$this->_column_headers = [
+			$this->get_columns(),
+			get_hidden_columns( $this->screen ),
+			$this->get_sortable_columns(),
+			$this->get_primary_column_name(),
+		];
+
+		$this->set_pagination_args(
+			[
+				'total_items' => $result['total'],
+				'per_page'    => $per_page,
+				'total_pages' => (int) ceil( $result['total'] / $per_page ),
+			]
+		);
+	}
+
+	/**
+	 * Default column output.
+	 *
+	 * @param array<string, mixed> $item        Row.
+	 * @param string               $column_name Column.
+	 */
+	public function column_default( $item, $column_name ): string {
+		switch ( $column_name ) {
+			case 'reference':
+				return '<code>' . esc_html( (string) ( $item['reference'] ?? '' ) ) . '</code>';
+			case 'event':
+				return esc_html( (string) ( $item['event_title'] ?? '' ) );
+			case 'status':
+				return esc_html( (string) ( $item['status'] ?? '' ) );
+			case 'quantity':
+				return esc_html( (string) ( $item['quantity'] ?? 1 ) );
+			case 'total':
+				$total = (int) ( $item['total_minor'] ?? 0 );
+
+				return $total > 0 ? esc_html( number_format_i18n( $total / 100, 2 ) . ' ' . (string) ( $item['currency'] ?? '' ) ) : esc_html__( 'Free', 're-events' );
+			case 'created':
+				$date = \DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', (string) ( $item['created_utc'] ?? '' ), new \DateTimeZone( 'UTC' ) );
+
+				return $date instanceof \DateTimeImmutable ? esc_html( wp_date( (string) get_option( 'date_format' ) . ' ' . (string) get_option( 'time_format' ), $date->getTimestamp() ) ) : '';
+			default:
+				return '';
+		}
+	}
+
+	/**
+	 * Row actions.
+	 *
+	 * @param array<string, mixed> $item        Row.
+	 * @param string               $column_name Column.
+	 * @param string               $primary     Primary column.
+	 */
+	protected function handle_row_actions( $item, $column_name, $primary ): string {
+		if ( $column_name !== $primary || 'cancelled' === ( $item['status'] ?? '' ) ) {
+			return '';
+		}
+
+		$booking_id = (int) ( $item['id'] ?? 0 );
+		$url        = wp_nonce_url(
+			admin_url( 'admin-post.php?action=reevents_cancel_booking&booking_id=' . $booking_id ),
+			'reevents_cancel_booking_' . $booking_id
+		);
+
+		return $this->row_actions(
+			[
+				'cancel' => '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Cancel', 're-events' ) . '</a>',
+			]
+		) . parent::handle_row_actions( $item, $column_name, $primary );
+	}
+
+	/**
+	 * Event and status filters.
+	 *
+	 * @param string $which Top or bottom.
+	 */
+	protected function extra_tablenav( $which ): void {
+		if ( 'top' !== $which ) {
+			return;
+		}
+
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only filters.
+		$event_id = isset( $_GET['event'] ) ? absint( wp_unslash( $_GET['event'] ) ) : 0;
+		$status   = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : '';
+		// phpcs:enable
+
+		$events = get_posts(
+			[
+				'post_type'      => 'reevents_event',
+				'post_status'    => 'publish',
+				'posts_per_page' => 100,
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+			]
+		);
+
+		echo '<div class="alignleft actions">';
+		echo '<select name="event"><option value="0">' . esc_html__( 'All events', 're-events' ) . '</option>';
+
+		foreach ( $events as $event ) {
+			echo '<option value="' . esc_attr( (string) $event->ID ) . '" ' . selected( $event_id, $event->ID, false ) . '>' . esc_html( $event->post_title ) . '</option>';
+		}
+
+		echo '</select>';
+		echo '<select name="status"><option value="">' . esc_html__( 'All statuses', 're-events' ) . '</option>';
+
+		foreach ( [ 'pending', 'confirmed', 'cancelled', 'rejected' ] as $option ) {
+			echo '<option value="' . esc_attr( $option ) . '" ' . selected( $status, $option, false ) . '>' . esc_html( ucfirst( $option ) ) . '</option>';
+		}
+
+		echo '</select>';
+		submit_button( __( 'Filter', 're-events' ), '', 'filter_action', false );
+		echo '</div>';
+	}
+
+	/**
+	 * Primary column.
+	 */
+	protected function get_primary_column_name(): string {
+		return 'reference';
+	}
+
+	/**
+	 * Empty state.
+	 */
+	public function no_items(): void {
+		esc_html_e( 'No bookings found.', 're-events' );
+	}
+}

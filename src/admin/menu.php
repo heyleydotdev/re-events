@@ -23,6 +23,7 @@ final class Menu {
 		add_action( 'admin_menu', [ self::class, 'add' ] );
 		add_filter( 'parent_file', [ self::class, 'fix_taxonomy_parent' ] );
 		add_filter( 'submenu_file', [ self::class, 'fix_taxonomy_submenu' ] );
+		add_action( 'admin_menu', [ self::class, 'sort_submenus' ], 99 );
 	}
 
 	/**
@@ -72,6 +73,37 @@ final class Menu {
 				$position++
 			);
 		}
+	}
+
+	/**
+	 * Sort ReEvents submenus in a predictable order.
+	 */
+	public static function sort_submenus(): void {
+		global $submenu;
+
+		if ( empty( $submenu['re-events'] ) ) {
+			return;
+		}
+
+		$order = [
+			'edit.php?post_type=reevents_event'     => 0,
+			'edit.php?post_type=reevents_venue'     => 1,
+			'edit.php?post_type=reevents_organizer' => 2,
+			'edit-tags.php?taxonomy=reevents_event_category&post_type=reevents_event' => 3,
+			'edit-tags.php?taxonomy=reevents_event_tag&post_type=reevents_event' => 4,
+			'reevents-bookings'                     => 5,
+			'reevents-attendees'                    => 6,
+			'reevents-settings'                     => 8,
+			'reevents-api-docs'                     => 9,
+			'reevents-help'                         => 10,
+		];
+
+		usort(
+			$submenu['re-events'],
+			static function ( array $a, array $b ) use ( $order ): int {
+				return ( $order[ $a[2] ] ?? 99 ) <=> ( $order[ $b[2] ] ?? 99 );
+			}
+		);
 	}
 
 	/**
@@ -158,6 +190,11 @@ final class Menu {
 		}
 
 		if ( current_user_can( 'reevents_manage_bookings' ) ) {
+			$cards[] = [
+				'label' => __( 'Bookings', 're-events' ),
+				'count' => null,
+				'url'   => admin_url( 'admin.php?page=reevents-bookings' ),
+			];
 			$cards[] = [
 				'label' => __( 'Attendees', 're-events' ),
 				'count' => null,

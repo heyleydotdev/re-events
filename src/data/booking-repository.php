@@ -364,6 +364,60 @@ final class Booking_Repository {
 	}
 
 	/**
+	 * Query bookings with pagination.
+	 *
+	 * @param array<string, mixed> $args Query arguments.
+	 * @return array{items:array<int, array<string, mixed>>,total:int}
+	 */
+	public function query( array $args = [] ): array {
+		global $wpdb;
+
+		$table    = $this->table();
+		$event_id = (int) ( $args['event_id'] ?? 0 );
+		$status   = (string) ( $args['status'] ?? '' );
+		$search   = (string) ( $args['search'] ?? '' );
+		$limit    = max( 1, (int) ( $args['limit'] ?? 20 ) );
+		$offset   = max( 0, (int) ( $args['offset'] ?? 0 ) );
+		$where    = '( %d = 0 OR b.event_id = %d )';
+		$values   = [ $event_id, $event_id ];
+
+		if ( '' !== $status ) {
+			$where   .= ' AND b.status = %s';
+			$values[] = $status;
+		}
+
+		if ( '' !== $search ) {
+			$where   .= ' AND b.reference LIKE %s';
+			$values[] = '%' . $wpdb->esc_like( $search ) . '%';
+		}
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Internal table and dynamic filters.
+		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} b WHERE {$where}", ...$values ) );
+
+		$items = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT b.*, p.post_title AS event_title FROM {$table} b LEFT JOIN {$wpdb->posts} p ON p.ID = b.event_id WHERE {$where} ORDER BY b.created_utc DESC LIMIT %d OFFSET %d",
+				...array_merge( $values, [ $limit, $offset ] )
+			),
+			ARRAY_A
+		);
+		// phpcs:enable
+
+		$bookings = [];
+
+		foreach ( (array) $items as $row ) {
+			$booking                = $this->hydrate( $row );
+			$booking['event_title'] = (string) ( $row['event_title'] ?? '' );
+			$bookings[]             = $booking;
+		}
+
+		return [
+			'items' => $bookings,
+			'total' => $total,
+		];
+	}
+
+	/**
 	 * Get attendees for an event export.
 	 *
 	 * @param int $event_id Event ID, or 0 for all.

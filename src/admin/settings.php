@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace ReEvents\Admin;
 
+use ReEvents\Services\Occurrence_Service;
+
 /**
  * Registers the ReEvents settings page.
  */
@@ -25,6 +27,7 @@ final class Settings {
 	public static function register(): void {
 		add_action( 'admin_init', [ self::class, 'register_settings' ] );
 		add_action( 'admin_menu', [ self::class, 'add_page' ], 11 );
+		add_action( 'admin_post_reevents_rebuild_occurrences', [ self::class, 'rebuild' ] );
 	}
 
 	/**
@@ -141,7 +144,7 @@ final class Settings {
 			'reevents_manage_settings',
 			'reevents-settings',
 			[ self::class, 'render' ],
-			6
+			8
 		);
 	}
 
@@ -157,6 +160,7 @@ final class Settings {
 			'general'  => __( 'General', 're-events' ),
 			'formats'  => __( 'Formats', 're-events' ),
 			'bookings' => __( 'Bookings', 're-events' ),
+			'tools'    => __( 'Tools', 're-events' ),
 		];
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Tab navigation only.
@@ -175,19 +179,78 @@ final class Settings {
 					</a>
 				<?php endforeach; ?>
 			</nav>
-			<form method="post" action="options.php">
-				<?php
-				settings_fields( 'reevents_settings' );
-				submit_button( __( 'Save Changes', 're-events' ), 'primary', 'submit', true, [ 'id' => 'reevents-save-top' ] );
-				?>
-				<input type="hidden" name="<?php echo esc_attr( self::OPTION ); ?>[reevents_tab]" value="<?php echo esc_attr( $tab ); ?>" />
-				<?php
-				do_settings_sections( 'reevents-settings-' . $tab );
-				submit_button();
-				?>
-			</form>
+			<?php if ( 'tools' === $tab ) : ?>
+				<?php self::render_tools(); ?>
+			<?php else : ?>
+				<form method="post" action="options.php">
+					<?php
+					settings_fields( 'reevents_settings' );
+					submit_button( __( 'Save Changes', 're-events' ), 'primary', 'submit', true, [ 'id' => 'reevents-save-top' ] );
+					?>
+					<input type="hidden" name="<?php echo esc_attr( self::OPTION ); ?>[reevents_tab]" value="<?php echo esc_attr( $tab ); ?>" />
+					<?php
+					do_settings_sections( 'reevents-settings-' . $tab );
+					submit_button();
+					?>
+				</form>
+			<?php endif; ?>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Render the tools tab.
+	 */
+	private static function render_tools(): void {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice.
+		$notice = isset( $_GET['reevents_notice'] ) ? sanitize_key( wp_unslash( $_GET['reevents_notice'] ) ) : '';
+
+		if ( 'rebuilt' === $notice ) {
+			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Occurrences rebuilt.', 're-events' ) . '</p></div>';
+		}
+		?>
+		<h2><?php esc_html_e( 'Maintenance', 're-events' ); ?></h2>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+			<input type="hidden" name="action" value="reevents_rebuild_occurrences" />
+			<?php wp_nonce_field( 'reevents_rebuild_occurrences' ); ?>
+			<p><?php esc_html_e( 'Rebuild stored occurrences for every published event.', 're-events' ); ?></p>
+			<?php submit_button( __( 'Rebuild occurrences', 're-events' ), 'secondary', 'submit', false ); ?>
+		</form>
+		<?php
+	}
+
+	/**
+	 * Rebuild occurrences for published events.
+	 */
+	public static function rebuild(): void {
+		if ( ! current_user_can( 'reevents_manage_settings' ) ) {
+			wp_die( esc_html__( 'Forbidden', 're-events' ), 403 );
+		}
+
+		check_admin_referer( 'reevents_rebuild_occurrences' );
+
+		$events = get_posts(
+			[
+				'post_type'      => 'reevents_event',
+				'post_status'    => 'publish',
+				// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- Maintenance action.
+				'posts_per_page' => 500,
+				'fields'         => 'ids',
+			]
+		);
+
+		foreach ( $events as $event_id ) {
+			Occurrence_Service::sync( (int) $event_id );
+		}
+
+		$redirect = wp_get_referer();
+
+		if ( ! $redirect ) {
+			$redirect = admin_url( 'admin.php?page=reevents-settings&tab=tools' );
+		}
+
+		wp_safe_redirect( add_query_arg( 'reevents_notice', 'rebuilt', $redirect ) );
+		exit;
 	}
 
 	/**
