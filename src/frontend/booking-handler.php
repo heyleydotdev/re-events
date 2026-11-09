@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Frontend;
 
+use ReEvents\Admin\Settings;
 use ReEvents\Data\Booking_Repository;
 use ReEvents\Services\Booking_Service;
 use ReEvents\Services\Rate_Limit;
@@ -64,6 +65,19 @@ final class Booking_Handler {
 			}
 		}
 
+		$name  = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
+		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+
+		if ( '' === $name || ! is_email( $email ) ) {
+			self::redirect( $redirect, 'error', 'invalid_attendee' );
+		}
+
+		foreach ( Settings::attendee_fields() as $field_key => $field ) {
+			if ( ! empty( $field['required'] ) && '' === trim( (string) ( $fields[ $field_key ] ?? '' ) ) ) {
+				self::redirect( $redirect, 'error', 'required_field' );
+			}
+		}
+
 		$result = Booking_Service::create(
 			[
 				'event_id'  => $event_id,
@@ -71,8 +85,8 @@ final class Booking_Handler {
 				'quantity'  => isset( $_POST['quantity'] ) ? absint( wp_unslash( $_POST['quantity'] ) ) : 1,
 				'attendees' => [
 					[
-						'name'   => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
-						'email'  => isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '',
+						'name'   => $name,
+						'email'  => $email,
 						'fields' => $fields,
 					],
 				],
@@ -95,12 +109,15 @@ final class Booking_Handler {
 	 * @param string $value     Reference or error code.
 	 */
 	private static function redirect( string $url, string $status, string $value ): void {
-		$args = [ 'reevents_booking' => $status ];
-
 		if ( 'success' === $status ) {
-			$args['reference'] = $value;
+			$token = wp_generate_password( 32, false, false );
+			set_transient( 'reevents_booking_result_' . $token, [ 'reference' => $value ], 5 * MINUTE_IN_SECONDS );
+			$args = [ 'reevents_booking_token' => $token ];
 		} else {
-			$args['code'] = $value;
+			$args = [
+				'reevents_booking' => 'error',
+				'code'             => $value,
+			];
 		}
 
 		wp_safe_redirect( add_query_arg( $args, $url ) );

@@ -37,7 +37,9 @@ final class Event_Service {
 			return $result;
 		}
 
-		Occurrence_Service::sync( (int) $result );
+		if ( ! Occurrence_Service::sync( (int) $result ) ) {
+			return new WP_Error( 'rest_event_occurrences_failed', __( 'The event was saved, but occurrences could not be rebuilt.', 're-events' ), [ 'status' => 500 ] );
+		}
 
 		return (int) $result;
 	}

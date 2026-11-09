@@ -73,16 +73,16 @@ final class Occurrence_Service {
 	 *
 	 * @param int $event_id Event ID.
 	 */
-	public static function sync( int $event_id ): void {
+	public static function sync( int $event_id ): bool {
 		$event = ( new Event_Repository() )->find( $event_id );
 		$repo  = new Occurrence_Repository();
 
 		if ( ! $event || 'publish' !== get_post_status( $event_id ) || '' === $event->start_utc ) {
 			$repo->delete_for_event( $event_id );
-			return;
+			return true;
 		}
 
-		$repo->replace_for_event( $event_id, self::expand( $event ) );
+		return $repo->replace_for_event( $event_id, self::expand( $event ) );
 	}
 
 	/**

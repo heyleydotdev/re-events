@@ -33,6 +33,10 @@ final class Booking_Form {
 			return '';
 		}
 
+		if ( 'cancelled' === (string) get_post_meta( $event_id, '_reevents_status', true ) ) {
+			return '<p class="reevents-empty">' . esc_html__( 'This event has been cancelled.', 're-events' ) . '</p>';
+		}
+
 		$tickets = ( new Ticket_Repository() )->for_event( $event_id, 'active' );
 
 		if ( ! $tickets ) {
@@ -68,15 +72,31 @@ final class Booking_Form {
 	 */
 	private static function state(): array {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only result flags.
-		$status    = isset( $_GET['reevents_booking'] ) ? sanitize_key( wp_unslash( (string) $_GET['reevents_booking'] ) ) : '';
-		$reference = isset( $_GET['reference'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['reference'] ) ) : '';
-		$code      = isset( $_GET['code'] ) ? sanitize_key( wp_unslash( (string) $_GET['code'] ) ) : '';
+		$token = isset( $_GET['reevents_booking_token'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['reevents_booking_token'] ) ) : '';
+		$code  = isset( $_GET['code'] ) ? sanitize_key( wp_unslash( (string) $_GET['code'] ) ) : '';
 		// phpcs:enable
 
+		if ( '' !== $token ) {
+			$result = get_transient( 'reevents_booking_result_' . $token );
+
+			if ( is_array( $result ) ) {
+				delete_transient( 'reevents_booking_result_' . $token );
+
+				return [
+					'status'    => 'success',
+					'reference' => (string) ( $result['reference'] ?? '' ),
+					'message'   => '',
+				];
+			}
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only result flag.
+		$error = isset( $_GET['reevents_booking'] ) && 'error' === sanitize_key( wp_unslash( (string) $_GET['reevents_booking'] ) );
+
 		return [
-			'status'    => in_array( $status, [ 'success', 'error' ], true ) ? $status : '',
-			'reference' => 'success' === $status ? $reference : '',
-			'message'   => 'error' === $status ? self::message( $code ) : '',
+			'status'    => $error ? 'error' : '',
+			'reference' => '',
+			'message'   => $error ? self::message( $code ) : '',
 		];
 	}
 
@@ -87,13 +107,18 @@ final class Booking_Form {
 	 */
 	private static function message( string $code ): string {
 		$messages = [
-			'reevents_booking_sold_out'         => __( 'Not enough seats are available.', 're-events' ),
-			'reevents_booking_sale_not_started' => __( 'Ticket sales have not started.', 're-events' ),
-			'reevents_booking_sale_ended'       => __( 'Ticket sales have ended.', 're-events' ),
-			'reevents_booking_min_quantity'     => __( 'Too few seats selected.', 're-events' ),
-			'reevents_booking_max_quantity'     => __( 'Too many seats selected.', 're-events' ),
-			'reevents_booking_rate_limited'     => __( 'Too many attempts. Try again later.', 're-events' ),
-			'reevents_rate_limited'             => __( 'Too many attempts. Try again later.', 're-events' ),
+			'reevents_booking_sold_out'           => __( 'Not enough seats are available.', 're-events' ),
+			'reevents_booking_sale_not_started'   => __( 'Ticket sales have not started.', 're-events' ),
+			'reevents_booking_sale_ended'         => __( 'Ticket sales have ended.', 're-events' ),
+			'reevents_booking_min_quantity'       => __( 'Too few seats selected.', 're-events' ),
+			'reevents_booking_max_quantity'       => __( 'Too many seats selected.', 're-events' ),
+			'reevents_booking_rate_limited'       => __( 'Too many attempts. Try again later.', 're-events' ),
+			'reevents_rate_limited'               => __( 'Too many attempts. Try again later.', 're-events' ),
+			'reevents_booking_event_cancelled'    => __( 'This event has been cancelled.', 're-events' ),
+			'reevents_booking_invalid_occurrence' => __( 'The selected time is not available.', 're-events' ),
+			'reevents_booking_too_many_attendees' => __( 'There are more attendees than seats.', 're-events' ),
+			'invalid_attendee'                    => __( 'Enter a valid name and email address.', 're-events' ),
+			'required_field'                      => __( 'Fill in all required attendee fields.', 're-events' ),
 		];
 
 		return $messages[ $code ] ?? __( 'The booking could not be created. Please try again.', 're-events' );

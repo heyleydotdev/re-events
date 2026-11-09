@@ -48,6 +48,10 @@ final class Booking_Service {
 			return new WP_Error( 'reevents_booking_invalid_event', __( 'Invalid event.', 're-events' ), [ 'status' => 400 ] );
 		}
 
+		if ( 'cancelled' === (string) get_post_meta( $event_id, '_reevents_status', true ) ) {
+			return new WP_Error( 'reevents_booking_event_cancelled', __( 'This event has been cancelled.', 're-events' ), [ 'status' => 400 ] );
+		}
+
 		$tickets = new Ticket_Repository();
 		$ticket  = $tickets->find( $ticket_id );
 
@@ -57,6 +61,11 @@ final class Booking_Service {
 
 		if ( 'active' !== $ticket['status'] ) {
 			return new WP_Error( 'reevents_booking_ticket_inactive', __( 'This ticket is not on sale.', 're-events' ), [ 'status' => 400 ] );
+		}
+
+		// Per-slot booking is not implemented yet; reject it instead of storing an unvalidated ID.
+		if ( $occurrence_id > 0 ) {
+			return new WP_Error( 'reevents_booking_invalid_occurrence', __( 'The selected time is not available.', 're-events' ), [ 'status' => 400 ] );
 		}
 
 		$now = current_time( 'mysql', true );
@@ -71,6 +80,10 @@ final class Booking_Service {
 
 		if ( $quantity < (int) $ticket['min_per_booking'] ) {
 			return new WP_Error( 'reevents_booking_min_quantity', __( 'Too few seats selected.', 're-events' ), [ 'status' => 400 ] );
+		}
+
+		if ( $attendees && count( $attendees ) > $quantity ) {
+			return new WP_Error( 'reevents_booking_too_many_attendees', __( 'There are more attendees than seats.', 're-events' ), [ 'status' => 400 ] );
 		}
 
 		if ( (int) $ticket['max_per_booking'] > 0 && $quantity > (int) $ticket['max_per_booking'] ) {
@@ -141,9 +154,18 @@ final class Booking_Service {
 		$minutes = max( 5, (int) Settings::get( 'hold_minutes', 30 ) );
 		$cutoff  = gmdate( 'Y-m-d H:i:s', time() - ( $minutes * MINUTE_IN_SECONDS ) );
 
-		foreach ( ( new Booking_Repository() )->pending_before( $cutoff ) as $id ) {
-			self::update_status( (int) $id, 'cancelled' );
-		}
+		$repo    = new Booking_Repository();
+		$last_id = 0;
+
+		do {
+			$ids      = $repo->pending_before( $cutoff, 100, $last_id );
+			$id_count = count( $ids );
+
+			foreach ( $ids as $id ) {
+				self::update_status( (int) $id, 'cancelled' );
+				$last_id = max( $last_id, (int) $id );
+			}
+		} while ( 100 === $id_count );
 	}
 
 	/**
@@ -160,14 +182,23 @@ final class Booking_Service {
 			return new WP_Error( 'reevents_booking_invalid_status', __( 'Invalid booking status.', 're-events' ), [ 'status' => 400 ] );
 		}
 
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
+		$wpdb->query( 'START TRANSACTION' );
+
 		$repo    = new Booking_Repository();
-		$booking = $repo->find( $id );
+		$booking = $repo->find_for_update( $id );
 
 		if ( ! $booking ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
+			$wpdb->query( 'ROLLBACK' );
 			return new WP_Error( 'reevents_booking_invalid_id', __( 'Invalid booking.', 're-events' ), [ 'status' => 404 ] );
 		}
 
 		if ( $booking['status'] === $status ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
+			$wpdb->query( 'COMMIT' );
 			return true;
 		}
 
@@ -178,10 +209,15 @@ final class Booking_Service {
 
 		if ( $release && ! $released ) {
 			if ( ! $repo->update_status( $id, $status ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
+				$wpdb->query( 'ROLLBACK' );
 				return new WP_Error( 'reevents_booking_update_failed', __( 'The booking could not be updated.', 're-events' ), [ 'status' => 500 ] );
 			}
 
 			$tickets->release( (int) $booking['ticket_id'], (int) $booking['quantity'] );
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
+			$wpdb->query( 'COMMIT' );
 
 			do_action( 'reevents_booking_status_changed', $id, $status );
 
@@ -190,13 +226,20 @@ final class Booking_Service {
 
 		if ( $active && $released ) {
 			if ( ! $tickets->reserve( (int) $booking['ticket_id'], (int) $booking['quantity'] ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
+				$wpdb->query( 'ROLLBACK' );
 				return new WP_Error( 'reevents_booking_sold_out', __( 'Not enough seats are available.', 're-events' ), [ 'status' => 409 ] );
 			}
 
 			if ( ! $repo->update_status( $id, $status ) ) {
 				$tickets->release( (int) $booking['ticket_id'], (int) $booking['quantity'] );
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
+				$wpdb->query( 'ROLLBACK' );
 				return new WP_Error( 'reevents_booking_update_failed', __( 'The booking could not be updated.', 're-events' ), [ 'status' => 500 ] );
 			}
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
+			$wpdb->query( 'COMMIT' );
 
 			do_action( 'reevents_booking_status_changed', $id, $status );
 
@@ -204,8 +247,13 @@ final class Booking_Service {
 		}
 
 		if ( ! $repo->update_status( $id, $status ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
+			$wpdb->query( 'ROLLBACK' );
 			return new WP_Error( 'reevents_booking_update_failed', __( 'The booking could not be updated.', 're-events' ), [ 'status' => 500 ] );
 		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
+		$wpdb->query( 'COMMIT' );
 
 		do_action( 'reevents_booking_status_changed', $id, $status );
 

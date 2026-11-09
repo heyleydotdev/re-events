@@ -114,6 +114,23 @@ final class Booking_Repository {
 	}
 
 	/**
+	 * Find and lock a booking for a status transition.
+	 *
+	 * @param int $id Booking ID.
+	 * @return array<string, mixed>|null
+	 */
+	public function find_for_update( int $id ): ?array {
+		global $wpdb;
+
+		$table = $this->table();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Booking transaction.
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d FOR UPDATE", $id ), ARRAY_A );
+
+		return is_array( $row ) ? $this->hydrate( $row ) : null;
+	}
+
+	/**
 	 * Find a booking by its reference.
 	 *
 	 * @param string $reference Reference.
@@ -292,16 +309,26 @@ final class Booking_Repository {
 	/**
 	 * Get pending booking IDs older than a cutoff.
 	 *
-	 * @param string $cutoff UTC cutoff.
+	 * @param string $cutoff  UTC cutoff.
+	 * @param int    $limit   Maximum IDs.
+	 * @param int    $last_id Last processed ID.
 	 * @return int[]
 	 */
-	public function pending_before( string $cutoff ): array {
+	public function pending_before( string $cutoff, int $limit = 100, int $last_id = 0 ): array {
 		global $wpdb;
 
 		$table = $this->table();
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
-		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} WHERE status = 'pending' AND created_utc < %s", $cutoff ) );
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+				"SELECT id FROM {$table} WHERE status = 'pending' AND created_utc < %s AND id > %d ORDER BY id ASC LIMIT %d",
+				$cutoff,
+				max( 0, $last_id ),
+				max( 1, $limit )
+			)
+		);
 
 		return is_array( $ids ) ? array_map( 'intval', $ids ) : [];
 	}
@@ -342,14 +369,14 @@ final class Booking_Repository {
 			$values[] = $like;
 		}
 
-		$from = "FROM {$attendees} a INNER JOIN {$bookings} b ON b.id = a.booking_id LEFT JOIN {$tickets} t ON t.id = a.ticket_id";
+		$from = "FROM {$attendees} a INNER JOIN {$bookings} b ON b.id = a.booking_id LEFT JOIN {$tickets} t ON t.id = a.ticket_id LEFT JOIN {$wpdb->posts} p ON p.ID = b.event_id";
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Internal tables and whitelisted order.
 		$total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) {$from} WHERE {$where}", ...$values ) );
 
 		$items = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT a.id, a.booking_id, a.name, a.email, a.fields_json, a.checked_in, b.reference, b.status AS booking_status, b.event_id, b.created_utc, t.name AS ticket_name
+				"SELECT a.id, a.booking_id, a.name, a.email, a.fields_json, a.checked_in, b.reference, b.status AS booking_status, b.event_id, b.created_utc, t.name AS ticket_name, p.post_title AS event_title
 				{$from} WHERE {$where} ORDER BY {$orderby} {$order} LIMIT %d OFFSET %d",
 				...array_merge( $values, [ $limit, $offset ] )
 			),
@@ -440,10 +467,11 @@ final class Booking_Repository {
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal tables.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT a.id, a.booking_id, a.name, a.email, a.fields_json, a.checked_in, b.reference, b.status AS booking_status, b.event_id, b.created_utc, t.name AS ticket_name
+				"SELECT a.id, a.booking_id, a.name, a.email, a.fields_json, a.checked_in, b.reference, b.status AS booking_status, b.event_id, b.created_utc, t.name AS ticket_name, p.post_title AS event_title
 				FROM {$attendees} a
 				INNER JOIN {$bookings} b ON b.id = a.booking_id
 				LEFT JOIN {$tickets} t ON t.id = a.ticket_id
+				LEFT JOIN {$wpdb->posts} p ON p.ID = b.event_id
 				WHERE ( %d = 0 OR b.event_id = %d )
 				ORDER BY b.created_utc DESC, a.id ASC",
 				$event_id,

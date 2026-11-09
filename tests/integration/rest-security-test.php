@@ -19,6 +19,15 @@ use WP_UnitTestCase;
 final class REST_Security_Test extends WP_UnitTestCase {
 
 	/**
+	 * Simulate a plugin REST request for API key authentication.
+	 */
+	public function set_up(): void {
+		parent::set_up();
+
+		$GLOBALS['wp']->query_vars['rest_route'] = '/re-events/v1/events';
+	}
+
+	/**
 	 * Remove headers and restore settings between tests.
 	 */
 	public function tear_down(): void {
@@ -62,6 +71,25 @@ final class REST_Security_Test extends WP_UnitTestCase {
 
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
 		self::assertSame( $user_id, (int) apply_filters( 'determine_current_user', 0 ) );
+
+		$keys = API_Keys::all();
+		API_Keys::revoke( (string) array_key_first( $keys ) );
+	}
+
+	/**
+	 * API keys are ignored outside the plugin REST namespace.
+	 */
+	public function test_api_key_is_ignored_outside_plugin_rest(): void {
+		wp_set_current_user( 0 );
+
+		$user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+		$key     = API_Keys::create( 'Scope test', $user_id );
+
+		$_SERVER['HTTP_AUTHORIZATION']           = 'Bearer ' . $key;
+		$GLOBALS['wp']->query_vars['rest_route'] = '/wp/v2/posts';
+
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core hook.
+		self::assertSame( 0, (int) apply_filters( 'determine_current_user', 0 ) );
 
 		$keys = API_Keys::all();
 		API_Keys::revoke( (string) array_key_first( $keys ) );

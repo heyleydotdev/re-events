@@ -4,6 +4,9 @@
 	document.querySelectorAll('.reevents-booking-form').forEach(function (form) {
 		const ticket = form.querySelector('select[name="ticket_id"]');
 		const quantity = form.querySelector('input[name="quantity"]');
+		const bookingToken = window.crypto && window.crypto.randomUUID
+			? window.crypto.randomUUID()
+			: String(Date.now()) + Math.random();
 
 		function syncLimits() {
 			if (!ticket || !quantity || !ticket.options[ticket.selectedIndex]) {
@@ -28,8 +31,19 @@
 
 			event.preventDefault();
 
+			if ( form.dataset.reeventsSubmitting === '1' ) {
+				return;
+			}
+
+			form.dataset.reeventsSubmitting = '1';
+
+			const button = form.querySelector( 'button[type="submit"]' );
 			const message = form.querySelector('.reevents-booking-message');
 			const data = new FormData(form);
+
+			if ( button ) {
+				button.disabled = true;
+			}
 			const fields = {};
 
 			form.querySelectorAll('[data-reevents-field]').forEach(function (field) {
@@ -39,6 +53,7 @@
 			const payload = {
 				ticket_id: Number(data.get('ticket_id')),
 				quantity: Number(data.get('quantity')),
+				booking_token: bookingToken,
 				attendees: [
 					{
 						name: String(data.get('name') || ''),
@@ -70,6 +85,12 @@
 				})
 				.catch(function () {
 					message.textContent = 'Booking failed.';
+				})
+				.finally(function () {
+					form.dataset.reeventsSubmitting = '';
+					if ( button ) {
+						button.disabled = false;
+					}
 				});
 		});
 	});

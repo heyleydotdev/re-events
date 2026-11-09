@@ -86,6 +86,76 @@ final class Booking_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Cancelled events cannot be booked.
+	 */
+	public function test_cancelled_event_is_rejected(): void {
+		$event  = Test_Factory::event( [ 'title' => 'Cancelled event test' ] );
+		$ticket = Test_Factory::ticket( $event );
+
+		update_post_meta( $event, '_reevents_status', 'cancelled' );
+
+		$result = Booking_Service::create(
+			[
+				'event_id'  => $event,
+				'ticket_id' => $ticket,
+				'quantity'  => 1,
+			]
+		);
+
+		self::assertWPError( $result );
+		self::assertSame( 'reevents_booking_event_cancelled', $result->get_error_code() );
+	}
+
+	/**
+	 * Per-slot booking is rejected until it is implemented.
+	 */
+	public function test_occurrence_id_is_rejected(): void {
+		$event  = Test_Factory::event( [ 'title' => 'Occurrence test' ] );
+		$ticket = Test_Factory::ticket( $event );
+
+		$result = Booking_Service::create(
+			[
+				'event_id'      => $event,
+				'ticket_id'     => $ticket,
+				'occurrence_id' => 1,
+				'quantity'      => 1,
+			]
+		);
+
+		self::assertWPError( $result );
+		self::assertSame( 'reevents_booking_invalid_occurrence', $result->get_error_code() );
+	}
+
+	/**
+	 * Attendees cannot outnumber seats.
+	 */
+	public function test_more_attendees_than_seats_is_rejected(): void {
+		$event  = Test_Factory::event( [ 'title' => 'Attendee count test' ] );
+		$ticket = Test_Factory::ticket( $event, [ 'capacity' => 2 ] );
+
+		$result = Booking_Service::create(
+			[
+				'event_id'  => $event,
+				'ticket_id' => $ticket,
+				'quantity'  => 1,
+				'attendees' => [
+					[
+						'name'  => 'One',
+						'email' => 'one@example.com',
+					],
+					[
+						'name'  => 'Two',
+						'email' => 'two@example.com',
+					],
+				],
+			]
+		);
+
+		self::assertWPError( $result );
+		self::assertSame( 'reevents_booking_too_many_attendees', $result->get_error_code() );
+	}
+
+	/**
 	 * Changing status to cancelled releases seats.
 	 */
 	public function test_status_change_releases_seats(): void {

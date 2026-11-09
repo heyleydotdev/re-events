@@ -208,8 +208,40 @@ final class Bookings_Controller extends WP_REST_Controller {
 			return new WP_Error( 'rest_booking_rejected', __( 'The booking could not be created.', 're-events' ), [ 'status' => 400 ] );
 		}
 
+		$token     = sanitize_text_field( (string) $request['booking_token'] );
+		$cache_key = '' !== $token ? 'reevents_booking_token_' . md5( $token ) : '';
+
+		if ( '' !== $cache_key ) {
+			$existing = get_transient( $cache_key );
+
+			if ( is_numeric( $existing ) ) {
+				$booking = ( new Booking_Repository() )->find( (int) $existing );
+
+				if ( $booking ) {
+					return $this->prepare_item_for_response( $booking, $request );
+				}
+			}
+		}
+
 		if ( Rate_Limit::hit( 'booking' ) ) {
 			return new WP_Error( 'rest_booking_rate_limited', __( 'Too many booking attempts. Try again later.', 're-events' ), [ 'status' => 429 ] );
+		}
+
+		$attendees = (array) $request['attendees'];
+		$quantity  = max( 1, (int) $request['quantity'] );
+
+		if ( ! $attendees ) {
+			return new WP_Error( 'rest_booking_attendees_required', __( 'At least one attendee is required.', 're-events' ), [ 'status' => 400 ] );
+		}
+
+		if ( count( $attendees ) > $quantity ) {
+			return new WP_Error( 'rest_booking_too_many_attendees', __( 'There are more attendees than seats.', 're-events' ), [ 'status' => 400 ] );
+		}
+
+		foreach ( $attendees as $attendee ) {
+			if ( ! is_array( $attendee ) || '' === sanitize_text_field( (string) ( $attendee['name'] ?? '' ) ) || ! is_email( sanitize_email( (string) ( $attendee['email'] ?? '' ) ) ) ) {
+				return new WP_Error( 'rest_booking_invalid_attendee', __( 'Enter a valid name and email address.', 're-events' ), [ 'status' => 400 ] );
+			}
 		}
 
 		$result = Booking_Service::create(
@@ -217,13 +249,17 @@ final class Bookings_Controller extends WP_REST_Controller {
 				'event_id'      => (int) $request['event_id'],
 				'ticket_id'     => (int) $request['ticket_id'],
 				'occurrence_id' => (int) $request['occurrence_id'],
-				'quantity'      => (int) $request['quantity'],
-				'attendees'     => (array) $request['attendees'],
+				'quantity'      => $quantity,
+				'attendees'     => $attendees,
 			]
 		);
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
+		}
+
+		if ( '' !== $cache_key ) {
+			set_transient( $cache_key, (int) $result, 5 * MINUTE_IN_SECONDS );
 		}
 
 		$booking = ( new Booking_Repository() )->find( (int) $result );
@@ -348,6 +384,11 @@ final class Bookings_Controller extends WP_REST_Controller {
 			'website'       => [
 				'description' => __( 'Leave empty.', 're-events' ),
 				'type'        => 'string',
+			],
+			'booking_token' => [
+				'description'       => __( 'Idempotency token for retries.', 're-events' ),
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
 			],
 		];
 	}

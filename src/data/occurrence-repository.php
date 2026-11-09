@@ -41,7 +41,7 @@ final class Occurrence_Repository {
 	 * @param int                              $event_id    Event ID.
 	 * @param array<int, array<string, mixed>> $occurrences Occurrence rows.
 	 */
-	public function replace_for_event( int $event_id, array $occurrences ): void {
+	public function replace_for_event( int $event_id, array $occurrences ): bool {
 		global $wpdb;
 
 		$table = $this->table();
@@ -81,7 +81,7 @@ final class Occurrence_Repository {
 			if ( false === $result ) {
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
 				$wpdb->query( 'ROLLBACK' );
-				return;
+				return false;
 			}
 		}
 
@@ -89,6 +89,7 @@ final class Occurrence_Repository {
 		$wpdb->query( 'COMMIT' );
 
 		// shortcut: row IDs change on every sync; switch to upsert before bookings reference occurrence_id.
+		return true;
 	}
 
 	/**
@@ -97,9 +98,10 @@ final class Occurrence_Repository {
 	 * @param string $from_utc Start UTC.
 	 * @param string $to_utc   End UTC.
 	 * @param int    $limit    Maximum rows.
+	 * @param int    $offset   Offset.
 	 * @return array<int, array<string, mixed>>
 	 */
-	public function get_between( string $from_utc, string $to_utc, int $limit = 2000 ): array {
+	public function get_between( string $from_utc, string $to_utc, int $limit = 2000, int $offset = 0 ): array {
 		global $wpdb;
 
 		$table = $this->table();
@@ -109,10 +111,11 @@ final class Occurrence_Repository {
 			$wpdb->prepare(
 				"SELECT o.* FROM {$table} o INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id
 				WHERE p.post_status = 'publish' AND o.start_utc >= %s AND o.start_utc <= %s
-				ORDER BY o.start_utc ASC LIMIT %d",
+				ORDER BY o.start_utc ASC LIMIT %d OFFSET %d",
 				$from_utc,
 				$to_utc,
-				max( 1, $limit )
+				max( 1, $limit ),
+				max( 0, $offset )
 			),
 			ARRAY_A
 		);
@@ -126,26 +129,53 @@ final class Occurrence_Repository {
 	 *
 	 * @param string $from_utc Start UTC.
 	 * @param string $to_utc   End UTC.
+	 * @param int    $limit    Maximum event IDs.
+	 * @param int    $offset   Offset.
 	 * @return int[]
 	 */
-	public function event_ids_between( string $from_utc, string $to_utc ): array {
+	public function event_ids_between( string $from_utc, string $to_utc, int $limit = 0, int $offset = 0 ): array {
+		global $wpdb;
+
+		$table = $this->table();
+		$sql   = "SELECT o.event_id FROM {$table} o INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id
+			WHERE p.post_status = 'publish' AND o.start_utc >= %s AND o.start_utc <= %s
+			GROUP BY o.event_id ORDER BY MIN(o.start_utc) ASC";
+		$args  = [ $from_utc, $to_utc ];
+
+		if ( $limit > 0 ) {
+			$sql   .= ' LIMIT %d OFFSET %d';
+			$args[] = $limit;
+			$args[] = max( 0, $offset );
+		}
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Internal table name and optional pagination.
+		$ids = $wpdb->get_col( $wpdb->prepare( $sql, ...$args ) );
+		// phpcs:enable
+
+		return is_array( $ids ) ? array_map( 'intval', $ids ) : [];
+	}
+
+	/**
+	 * Count events with a published occurrence in a UTC date range.
+	 *
+	 * @param string $from_utc Start UTC.
+	 * @param string $to_utc   End UTC.
+	 */
+	public function count_events_between( string $from_utc, string $to_utc ): int {
 		global $wpdb;
 
 		$table = $this->table();
 
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
-		$ids = $wpdb->get_col(
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT o.event_id FROM {$table} o INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id
-				WHERE p.post_status = 'publish' AND o.start_utc >= %s AND o.start_utc <= %s
-				GROUP BY o.event_id ORDER BY MIN(o.start_utc) ASC",
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+				"SELECT COUNT(DISTINCT o.event_id) FROM {$table} o INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id
+				WHERE p.post_status = 'publish' AND o.start_utc >= %s AND o.start_utc <= %s",
 				$from_utc,
 				$to_utc
 			)
 		);
-		// phpcs:enable
-
-		return is_array( $ids ) ? array_map( 'intval', $ids ) : [];
 	}
 
 	/**

@@ -95,6 +95,12 @@ final class API_Keys {
 			return $user_id;
 		}
 
+		$route = isset( $GLOBALS['wp']->query_vars['rest_route'] ) ? (string) $GLOBALS['wp']->query_vars['rest_route'] : '';
+
+		if ( ! str_starts_with( $route, '/re-events/v1' ) ) {
+			return $user_id;
+		}
+
 		$key = self::request_key();
 
 		if ( '' === $key ) {
