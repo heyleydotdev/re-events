@@ -426,10 +426,28 @@ final class Self_Test {
 	private static function check_contract( array &$failures ): void {
 		wp_set_current_user( 1 );
 
-		$request = new WP_REST_Request( 'GET', '/re-events/v1/events' );
-		$request->set_query_params( [ 'per_page' => 1 ] );
+		$created  = 0;
+		$request  = new WP_REST_Request( 'GET', '/re-events/v1/events' );
 		$response = rest_do_request( $request );
 		$data     = (array) $response->get_data();
+
+		if ( ! $data ) {
+			$created = Test_Factory::event(
+				[
+					'title' => 'Contract test event',
+					'meta'  => [
+						'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+1 day' ) ),
+						'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 day +1 hour' ) ),
+						'_reevents_timezone'  => 'UTC',
+						'_reevents_status'    => 'scheduled',
+					],
+				]
+			);
+
+			$request  = new WP_REST_Request( 'GET', '/re-events/v1/events' );
+			$response = rest_do_request( $request );
+			$data     = (array) $response->get_data();
+		}
 
 		if ( ! $data ) {
 			$failures[] = 'No events available for the contract test.';
@@ -440,6 +458,10 @@ final class Self_Test {
 		$result     = rest_validate_value_from_schema( $data[0], $controller->get_item_schema(), 'event' );
 
 		self::assert( ! is_wp_error( $result ), 'Event response does not match its schema.', $failures );
+
+		if ( $created ) {
+			wp_delete_post( (int) $created, true );
+		}
 	}
 
 	/**
