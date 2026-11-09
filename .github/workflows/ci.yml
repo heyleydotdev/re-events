@@ -30,3 +30,28 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run lint:js
       - run: bun run build
+
+  spec:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: composer install --no-interaction --prefer-dist
+      - run: bun install --frozen-lockfile
+      - run: bun run wp-env start
+      - name: Generate spec
+        run: |
+          bun run wp-env run cli wp re-events openapi > /tmp/openapi.out
+          sed -n '/^{/,$p' /tmp/openapi.out > /tmp/openapi.json
+      - name: Validate spec
+        run: php -r 'json_decode( file_get_contents( "/tmp/openapi.json" ), true, 512, JSON_THROW_ON_ERROR );'
+      - name: Check spec is current
+        run: diff -u docs/api/openapi.json /tmp/openapi.json
+      - name: Run self-test
+        run: bun run wp-env run cli wp re-events self-test

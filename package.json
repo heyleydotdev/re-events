@@ -5,9 +5,11 @@
   "scripts": {
     "build": "wp-scripts build --webpack-src-dir=blocks/src --output-path=blocks/build",
     "start": "wp-scripts start --webpack-src-dir=blocks/src --output-path=blocks/build",
-    "lint:js": "wp-scripts lint-js blocks/src"
+    "lint:js": "wp-scripts lint-js blocks/src",
+    "wp-env": "wp-env"
   },
   "devDependencies": {
+    "@wordpress/env": "^12.1.0",
     "@wordpress/scripts": "^30.0.0",
     "typescript": "^5.9.3"
   }
