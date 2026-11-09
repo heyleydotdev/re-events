@@ -31,6 +31,7 @@ final class Event_Query {
 		$from     = self::date( (string) ( $args['from'] ?? '' ) );
 		$to       = self::date( (string) ( $args['to'] ?? '' ) );
 		$upcoming = ! empty( $args['upcoming'] );
+		$total    = null;
 
 		// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_query, WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Event queries filter by date, venue and category.
 		$query_args = [
@@ -86,28 +87,39 @@ final class Event_Query {
 				];
 			}
 
-			$ids = ( new Occurrence_Repository() )->event_ids_between( $start, $end );
+			$occurrences = new Occurrence_Repository();
+			$ids         = $occurrences->event_ids_between( $start, $end, $per_page, ( $page - 1 ) * $per_page );
+			$total       = $occurrences->count_events_between( $start, $end );
 
 			if ( ! $ids ) {
 				return [
 					'ids'   => [],
-					'total' => 0,
-					'pages' => 0,
+					'total' => $total,
+					'pages' => (int) ceil( $total / $per_page ),
 				];
 			}
 
-			$query_args['post__in'] = $ids;
-			$query_args['orderby']  = 'post__in';
+			$query_args['post__in']       = $ids;
+			$query_args['posts_per_page'] = count( $ids );
+			$query_args['paged']          = 1;
+			$query_args['orderby']        = 'post__in';
+			$query_args['no_found_rows']  = true;
 			unset( $query_args['meta_key'], $query_args['meta_type'] );
 		}
 
 		$query = new WP_Query( $query_args );
 		// phpcs:enable
 
+		if ( null === $total ) {
+			$total = (int) $query->found_posts;
+		}
+
+		$pages = (int) ceil( $total / $per_page );
+
 		return [
 			'ids'   => array_map( 'intval', (array) $query->posts ),
-			'total' => (int) $query->found_posts,
-			'pages' => (int) $query->max_num_pages,
+			'total' => $total,
+			'pages' => $pages,
 		];
 	}
 

@@ -512,19 +512,28 @@ final class Settings {
 
 		check_admin_referer( 'reevents_rebuild_occurrences' );
 
-		$events = get_posts(
-			[
-				'post_type'      => 'reevents_event',
-				'post_status'    => 'publish',
-				// phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page -- Maintenance action.
-				'posts_per_page' => 500,
-				'fields'         => 'ids',
-			]
-		);
+		$offset = 0;
 
-		foreach ( $events as $event_id ) {
-			Occurrence_Service::sync( (int) $event_id );
-		}
+		do {
+			$events = get_posts(
+				[
+					'post_type'      => 'reevents_event',
+					'post_status'    => 'publish',
+					'posts_per_page' => 100,
+					'offset'         => $offset,
+					'fields'         => 'ids',
+					'no_found_rows'  => true,
+				]
+			);
+
+			$event_count = count( $events );
+
+			foreach ( $events as $event_id ) {
+				Occurrence_Service::sync( (int) $event_id );
+			}
+
+			$offset += 100;
+		} while ( 100 === $event_count );
 
 		$redirect = wp_get_referer();
 

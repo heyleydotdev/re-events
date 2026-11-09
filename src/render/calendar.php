@@ -29,11 +29,19 @@ final class Calendar {
 		$month_start = new DateTimeImmutable( $month . '-01 00:00:00', $display_tz );
 		$month_end   = $month_start->modify( 'last day of this month' )->setTime( 23, 59, 59 );
 		$utc         = new DateTimeZone( 'UTC' );
-		$rows        = ( new Occurrence_Repository() )->get_between(
-			$month_start->setTimezone( $utc )->format( 'Y-m-d H:i:s' ),
-			$month_end->setTimezone( $utc )->format( 'Y-m-d H:i:s' )
-		);
-		$base        = is_post_type_archive( 'reevents_event' ) ? get_post_type_archive_link( 'reevents_event' ) : get_permalink();
+		$repo        = new Occurrence_Repository();
+		$from_utc    = $month_start->setTimezone( $utc )->format( 'Y-m-d H:i:s' );
+		$to_utc      = $month_end->setTimezone( $utc )->format( 'Y-m-d H:i:s' );
+		$rows        = [];
+		$offset      = 0;
+
+		do {
+			$batch       = $repo->get_between( $from_utc, $to_utc, 2000, $offset );
+			$batch_count = count( $batch );
+			$rows        = array_merge( $rows, $batch );
+			$offset     += 2000;
+		} while ( 2000 === $batch_count );
+		$base = is_post_type_archive( 'reevents_event' ) ? get_post_type_archive_link( 'reevents_event' ) : get_permalink();
 
 		if ( ! $base ) {
 			$base = get_post_type_archive_link( 'reevents_event' );
@@ -68,6 +76,7 @@ final class Calendar {
 		$time_format = is_array( $settings ) && ! empty( $settings['time_format'] ) ? (string) $settings['time_format'] : (string) get_option( 'time_format' );
 		$utc         = new DateTimeZone( 'UTC' );
 		$by_date     = [];
+		$event_cache = [];
 
 		foreach ( $rows as $row ) {
 			$start = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', (string) ( $row['start_utc'] ?? '' ), $utc );
@@ -83,10 +92,20 @@ final class Calendar {
 				continue;
 			}
 
+			if ( ! isset( $event_cache[ $event_id ] ) ) {
+				$event_cache[ $event_id ] = [
+					'title'   => (string) get_the_title( $event_id ),
+					'url'     => (string) get_permalink( $event_id ),
+					'all_day' => (bool) get_post_meta( $event_id, '_reevents_all_day', true ),
+				];
+			}
+
+			$event = $event_cache[ $event_id ];
+
 			$by_date[ $local->format( 'Y-m-d' ) ][] = [
-				'title'     => (string) get_the_title( $event_id ),
-				'url'       => (string) get_permalink( $event_id ),
-				'time'      => get_post_meta( $event_id, '_reevents_all_day', true ) ? '' : (string) wp_date( $time_format, $local->getTimestamp(), $display_tz ),
+				'title'     => $event['title'],
+				'url'       => $event['url'],
+				'time'      => $event['all_day'] ? '' : (string) wp_date( $time_format, $local->getTimestamp(), $display_tz ),
 				'cancelled' => 'cancelled' === (string) ( $row['status'] ?? '' ),
 			];
 		}
