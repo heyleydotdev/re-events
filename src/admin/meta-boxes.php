@@ -15,7 +15,7 @@ use ReEvents\Data\Event_Repository;
 use ReEvents\Data\Meta;
 use ReEvents\Domain\Event;
 use ReEvents\Domain\Recurrence_Rule;
-use ReEvents\Services\Occurrence_Service;
+use ReEvents\Services\Event_Service;
 use WP_Post;
 
 /**
@@ -38,6 +38,13 @@ final class Meta_Boxes {
 	 * }>
 	 */
 	private static array $data = [];
+
+	/**
+	 * Guard against recursive saves.
+	 *
+	 * @var bool
+	 */
+	private static bool $saving = false;
 
 	/**
 	 * Hook into WordPress.
@@ -215,7 +222,7 @@ final class Meta_Boxes {
 			<tr id="reevents-end-row">
 				<th scope="row"><label for="reevents-end"><?php esc_html_e( 'Ends', 're-events' ); ?></label></th>
 				<td>
-					<select id="reevents-end" name="reevents_end">
+					<select id="reevents-end" name="reevents_recurrence_end">
 						<option value="never" <?php selected( $rule['end'], 'never' ); ?>><?php esc_html_e( 'Never', 're-events' ); ?></option>
 						<option value="until" <?php selected( $rule['end'], 'until' ); ?>><?php esc_html_e( 'On date', 're-events' ); ?></option>
 						<option value="count" <?php selected( $rule['end'], 'count' ); ?>><?php esc_html_e( 'After occurrences', 're-events' ); ?></option>
@@ -547,6 +554,10 @@ final class Meta_Boxes {
 	 * @param int $post_id Post ID.
 	 */
 	public static function save( int $post_id ): void {
+		if ( self::$saving ) {
+			return;
+		}
+
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
@@ -641,27 +652,37 @@ final class Meta_Boxes {
 				'interval' => absint( wp_unslash( $_POST['reevents_interval'] ?? 1 ) ),
 				'weekdays' => $weekdays,
 				'monthday' => absint( wp_unslash( $_POST['reevents_monthday'] ?? 0 ) ),
-				'end'      => sanitize_key( wp_unslash( $_POST['reevents_end'] ?? 'never' ) ),
+				'end'      => sanitize_key( wp_unslash( $_POST['reevents_recurrence_end'] ?? 'never' ) ),
 				'until'    => sanitize_text_field( wp_unslash( $_POST['reevents_until'] ?? '' ) ),
 				'count'    => absint( wp_unslash( $_POST['reevents_count'] ?? 0 ) ),
 			]
 		);
 
-		update_post_meta( $post_id, '_reevents_start_utc', $start );
-		update_post_meta( $post_id, '_reevents_end_utc', $end );
-		update_post_meta( $post_id, '_reevents_timezone', $timezone );
-		update_post_meta( $post_id, '_reevents_all_day', isset( $_POST['reevents_all_day'] ) ? 1 : 0 );
-		update_post_meta( $post_id, '_reevents_rrule', $rrule );
-		update_post_meta( $post_id, '_reevents_exdates', $exdates );
-		update_post_meta( $post_id, '_reevents_rdates', $rdates );
-		update_post_meta( $post_id, '_reevents_timeslots', $timeslots );
-		update_post_meta( $post_id, '_reevents_venue_id', absint( wp_unslash( $_POST['reevents_venue_id'] ?? 0 ) ) );
-		update_post_meta( $post_id, '_reevents_organizer_ids', $organizer_ids );
-		update_post_meta( $post_id, '_reevents_capacity', absint( wp_unslash( $_POST['reevents_capacity'] ?? 0 ) ) );
-		update_post_meta( $post_id, '_reevents_online_urls', $online_urls );
-		update_post_meta( $post_id, '_reevents_status', self::sanitize_status( sanitize_key( wp_unslash( $_POST['reevents_status'] ?? 'scheduled' ) ) ) );
+		$event = new Event(
+			$post_id,
+			get_the_title( $post_id ),
+			$start,
+			$end,
+			$timezone,
+			isset( $_POST['reevents_all_day'] ),
+			$rrule,
+			$exdates,
+			$rdates,
+			$timeslots,
+			absint( wp_unslash( $_POST['reevents_venue_id'] ?? 0 ) ),
+			$organizer_ids,
+			absint( wp_unslash( $_POST['reevents_capacity'] ?? 0 ) ),
+			$online_urls,
+			self::sanitize_status( sanitize_key( wp_unslash( $_POST['reevents_status'] ?? 'scheduled' ) ) )
+		);
 
-		Occurrence_Service::sync( $post_id );
+		self::$saving = true;
+		$result       = Event_Service::save( $event );
+		self::$saving = false;
+
+		if ( is_wp_error( $result ) ) {
+			set_transient( 'reevents_event_error_' . $post_id, $result->get_error_message(), 60 );
+		}
 	}
 
 	/**

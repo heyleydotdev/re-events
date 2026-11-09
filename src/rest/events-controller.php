@@ -18,6 +18,7 @@ use ReEvents\Data\Meta;
 use ReEvents\Data\Occurrence_Repository;
 use ReEvents\Domain\Event;
 use ReEvents\Query\Event_Query;
+use ReEvents\Services\Event_Service;
 use ReEvents\Services\Occurrence_Service;
 use RRule\RRule;
 use WP_Error;
@@ -89,7 +90,16 @@ final class Events_Controller extends WP_REST_Controller {
 					'methods'             => 'PATCH',
 					'callback'            => [ $this, 'update_item' ],
 					'permission_callback' => [ $this, 'update_item_permissions_check' ],
-					'args'                => $this->get_write_args( false ),
+					'args'                => array_merge(
+						[
+							'id' => [
+								'description'       => __( 'Unique identifier for the event.', 're-events' ),
+								'type'              => 'integer',
+								'sanitize_callback' => 'absint',
+							],
+						],
+						$this->get_write_args( false )
+					),
 				],
 				[
 					'methods'             => WP_REST_Server::DELETABLE,
@@ -335,15 +345,9 @@ final class Events_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function create_item( $request ) {
-		$repo  = new Event_Repository();
-		$event = $this->event_from_request( $request );
-		$error = $this->validate_event( $event );
-
-		if ( is_wp_error( $error ) ) {
-			return $error;
-		}
-
-		$result = $repo->save( $event );
+		$repo   = new Event_Repository();
+		$event  = $this->event_from_request( $request );
+		$result = Event_Service::save( $event );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -354,8 +358,6 @@ final class Events_Controller extends WP_REST_Controller {
 		if ( ! $event ) {
 			return new WP_Error( 'rest_event_save_failed', __( 'The event could not be saved.', 're-events' ), [ 'status' => 500 ] );
 		}
-
-		Occurrence_Service::sync( $event->id );
 
 		$response = $this->prepare_item_for_response( $event, $request );
 		$response->set_status( 201 );
@@ -378,20 +380,12 @@ final class Events_Controller extends WP_REST_Controller {
 			return new WP_Error( 'rest_event_invalid_id', __( 'Invalid event ID.', 're-events' ), [ 'status' => 404 ] );
 		}
 
-		$event = $this->event_from_request( $request, $existing );
-		$error = $this->validate_event( $event );
-
-		if ( is_wp_error( $error ) ) {
-			return $error;
-		}
-
-		$result = $repo->save( $event );
+		$event  = $this->event_from_request( $request, $existing );
+		$result = Event_Service::save( $event );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
-
-		Occurrence_Service::sync( $existing->id );
 
 		$event = $repo->find( $existing->id );
 
@@ -476,38 +470,6 @@ final class Events_Controller extends WP_REST_Controller {
 			$request->has_param( 'online_urls' ) ? Meta::sanitize_urls( $request['online_urls'] ) : $event->online_urls,
 			$request->has_param( 'status' ) ? sanitize_key( (string) $request['status'] ) : $event->status
 		);
-	}
-
-	/**
-	 * Validate an event before saving.
-	 *
-	 * @param Event $event Event.
-	 * @return WP_Error|null
-	 */
-	private function validate_event( Event $event ): ?WP_Error {
-		if ( '' === $event->title ) {
-			return new WP_Error( 'rest_event_invalid_title', __( 'An event title is required.', 're-events' ), [ 'status' => 400 ] );
-		}
-
-		if ( '' === $event->start_utc ) {
-			return new WP_Error( 'rest_event_invalid_start', __( 'A valid start time is required.', 're-events' ), [ 'status' => 400 ] );
-		}
-
-		if ( '' !== $event->end_utc && $event->end_utc < $event->start_utc ) {
-			return new WP_Error( 'rest_event_invalid_range', __( 'The end time must not be before the start time.', 're-events' ), [ 'status' => 400 ] );
-		}
-
-		if ( $event->venue_id && 'reevents_venue' !== get_post_type( $event->venue_id ) ) {
-			return new WP_Error( 'rest_event_invalid_venue', __( 'The venue does not exist.', 're-events' ), [ 'status' => 400 ] );
-		}
-
-		foreach ( $event->organizer_ids as $organizer_id ) {
-			if ( 'reevents_organizer' !== get_post_type( $organizer_id ) ) {
-				return new WP_Error( 'rest_event_invalid_organizer', __( 'An organizer does not exist.', 're-events' ), [ 'status' => 400 ] );
-			}
-		}
-
-		return null;
 	}
 
 	/**
