@@ -70,7 +70,7 @@ final class OpenAPI {
 				}
 
 				foreach ( self::methods( $handler['methods'] ) as $method ) {
-					$response = (string) ( $options['response'] ?? self::response_type( $path, $method ) );
+					$response = (string) ( $handler['response'] ?? $options['response'] ?? self::response_type( $path, $method ) );
 
 					$paths[ $path ][ strtolower( $method ) ] = self::operation( $path, $route, $method, $handler, $component, $response );
 

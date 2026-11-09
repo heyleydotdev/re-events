@@ -26,6 +26,9 @@
         },
         {
             "name": "Categories"
+        },
+        {
+            "name": "Bookings"
         }
     ],
     "paths": {
@@ -2010,6 +2013,461 @@
                     }
                 }
             }
+        },
+        "/events/{event_id}/tickets": {
+            "get": {
+                "operationId": "get_events_event_id_tickets",
+                "tags": [
+                    "Events"
+                ],
+                "summary": "List Tickets",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Ticket"
+                                    }
+                                }
+                            }
+                        },
+                        "headers": {
+                            "X-WP-Total": {
+                                "description": "Total number of matching items.",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            },
+                            "X-WP-TotalPages": {
+                                "description": "Total number of result pages.",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Event post ID.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "post_events_event_id_tickets",
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Create Ticket",
+                "responses": {
+                    "201": {
+                        "description": "Item created.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Ticket"
+                                }
+                            }
+                        },
+                        "headers": {
+                            "Location": {
+                                "description": "URL of the created item.",
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uri"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApplicationPassword": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "event_id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Event post ID.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Ticket name."
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Ticket description."
+                                    },
+                                    "price_minor": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "description": "Price in the smallest currency unit."
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "description": "Three-letter currency code."
+                                    },
+                                    "capacity": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "description": "Ticket capacity; 0 means unlimited."
+                                    },
+                                    "min_per_booking": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "description": "Minimum seats per booking."
+                                    },
+                                    "max_per_booking": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "description": "Maximum seats per booking; 0 means no limit."
+                                    },
+                                    "sale_start_utc": {
+                                        "type": "string",
+                                        "description": "Sale start in UTC (Y-m-d H:i:s)."
+                                    },
+                                    "sale_end_utc": {
+                                        "type": "string",
+                                        "description": "Sale end in UTC (Y-m-d H:i:s)."
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "active",
+                                            "inactive"
+                                        ],
+                                        "description": "Ticket status."
+                                    }
+                                },
+                                "required": [
+                                    "name"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tickets/{id}": {
+            "get": {
+                "operationId": "get_tickets_id",
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Get Ticket",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Ticket"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier for the ticket.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ]
+            },
+            "patch": {
+                "operationId": "patch_tickets_id",
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Update Ticket",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Ticket"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApplicationPassword": []
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "Ticket name."
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Ticket description."
+                                    },
+                                    "price_minor": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "description": "Price in the smallest currency unit."
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "description": "Three-letter currency code."
+                                    },
+                                    "capacity": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "description": "Ticket capacity; 0 means unlimited."
+                                    },
+                                    "min_per_booking": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "description": "Minimum seats per booking."
+                                    },
+                                    "max_per_booking": {
+                                        "type": "integer",
+                                        "minimum": 0,
+                                        "description": "Maximum seats per booking; 0 means no limit."
+                                    },
+                                    "sale_start_utc": {
+                                        "type": "string",
+                                        "description": "Sale start in UTC (Y-m-d H:i:s)."
+                                    },
+                                    "sale_end_utc": {
+                                        "type": "string",
+                                        "description": "Sale end in UTC (Y-m-d H:i:s)."
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "active",
+                                            "inactive"
+                                        ],
+                                        "description": "Ticket status."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "delete_tickets_id",
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Delete Ticket",
+                "responses": {
+                    "200": {
+                        "description": "Item deleted.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "deleted": {
+                                            "type": "boolean"
+                                        },
+                                        "previous": {
+                                            "$ref": "#/components/schemas/Ticket"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication required.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Insufficient permissions.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not found.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Error"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApplicationPassword": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "Unique identifier for the ticket.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -2327,6 +2785,70 @@
                     "time_format": {
                         "description": "Time format.",
                         "type": "string"
+                    }
+                }
+            },
+            "Ticket": {
+                "title": "ticket",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "Unique identifier for the ticket.",
+                        "type": "integer",
+                        "readonly": true
+                    },
+                    "event_id": {
+                        "description": "Event post ID.",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "Ticket name.",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Ticket description.",
+                        "type": "string"
+                    },
+                    "price_minor": {
+                        "description": "Price in the smallest currency unit.",
+                        "type": "integer"
+                    },
+                    "currency": {
+                        "description": "Currency code.",
+                        "type": "string"
+                    },
+                    "capacity": {
+                        "description": "Ticket capacity; 0 means unlimited.",
+                        "type": "integer"
+                    },
+                    "sold": {
+                        "description": "Seats sold.",
+                        "type": "integer",
+                        "readonly": true
+                    },
+                    "min_per_booking": {
+                        "description": "Minimum seats per booking.",
+                        "type": "integer"
+                    },
+                    "max_per_booking": {
+                        "description": "Maximum seats per booking; 0 means no limit.",
+                        "type": "integer"
+                    },
+                    "sale_start_utc": {
+                        "description": "Sale start in UTC.",
+                        "type": "string"
+                    },
+                    "sale_end_utc": {
+                        "description": "Sale end in UTC.",
+                        "type": "string"
+                    },
+                    "status": {
+                        "description": "Ticket status.",
+                        "type": "string",
+                        "enum": [
+                            "active",
+                            "inactive"
+                        ]
                     }
                 }
             }

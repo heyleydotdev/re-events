@@ -55,6 +55,9 @@ final class Routes {
 
 		$settings = new Settings_Controller();
 		$settings->register_routes();
+
+		$tickets = new Tickets_Controller();
+		$tickets->register_routes();
 	}
 
 	/**
