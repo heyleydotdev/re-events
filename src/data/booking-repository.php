@@ -258,6 +258,38 @@ final class Booking_Repository {
 	}
 
 	/**
+	 * Get attendees for an event export.
+	 *
+	 * @param int $event_id Event ID, or 0 for all.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function attendees_for_event( int $event_id = 0 ): array {
+		global $wpdb;
+
+		$bookings  = $this->table();
+		$attendees = $this->attendees_table();
+		$tickets   = $wpdb->prefix . 'reevents_tickets';
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal tables.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT a.booking_id, a.name, a.email, a.checked_in, b.reference, b.status AS booking_status, b.event_id, b.created_utc, t.name AS ticket_name
+				FROM {$attendees} a
+				INNER JOIN {$bookings} b ON b.id = a.booking_id
+				LEFT JOIN {$tickets} t ON t.id = a.ticket_id
+				WHERE ( %d = 0 OR b.event_id = %d )
+				ORDER BY b.created_utc DESC, a.id ASC",
+				$event_id,
+				$event_id
+			),
+			ARRAY_A
+		);
+		// phpcs:enable
+
+		return is_array( $rows ) ? $rows : [];
+	}
+
+	/**
 	 * Hydrate a booking row.
 	 *
 	 * @param array<string, mixed> $row Database row.
