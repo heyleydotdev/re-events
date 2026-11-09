@@ -48,8 +48,8 @@ final class Map {
 		}
 
 		if ( ! empty( $markers ) ) {
-			wp_enqueue_style( 'leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', [], '1.9.4' );
-			wp_enqueue_script( 'leaflet', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', [], '1.9.4', true );
+			wp_enqueue_style( 'leaflet', plugins_url( 'assets/vendor/leaflet/leaflet.css', RE_EVENTS_FILE ), [], '1.9.4' );
+			wp_enqueue_script( 'leaflet', plugins_url( 'assets/vendor/leaflet/leaflet.js', RE_EVENTS_FILE ), [], '1.9.4', true );
 			wp_enqueue_script(
 				'reevents-map',
 				plugins_url( 'assets/js/frontend-map.js', RE_EVENTS_FILE ),
