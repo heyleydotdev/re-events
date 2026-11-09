@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Services;
 
+use ReEvents\Admin\Settings;
 use ReEvents\Data\Booking_Repository;
 use ReEvents\Data\Ticket_Repository;
 use WP_Error;
@@ -17,6 +18,17 @@ use WP_Error;
  * Creates and cancels bookings with capacity checks.
  */
 final class Booking_Service {
+
+	/**
+	 * Hook into WordPress.
+	 */
+	public static function register(): void {
+		add_action( 'reevents_expire_bookings', [ self::class, 'expire_pending' ] );
+
+		if ( ! wp_next_scheduled( 'reevents_expire_bookings' ) ) {
+			wp_schedule_event( time() + HOUR_IN_SECONDS, 'hourly', 'reevents_expire_bookings' );
+		}
+	}
 
 	/**
 	 * Create a booking.
@@ -76,9 +88,10 @@ final class Booking_Service {
 			return new WP_Error( 'reevents_booking_sold_out', __( 'Not enough seats are available.', 're-events' ), [ 'status' => 409 ] );
 		}
 
-		$total = (int) $ticket['price_minor'] * $quantity;
-		$repo  = new Booking_Repository();
-		$id    = $repo->create(
+		$total  = (int) $ticket['price_minor'] * $quantity;
+		$repo   = new Booking_Repository();
+		$status = 0 === $total && ! Settings::get( 'require_approval', false ) ? 'confirmed' : 'pending';
+		$id     = $repo->create(
 			[
 				'reference'     => self::reference(),
 				'event_id'      => $event_id,
@@ -86,7 +99,7 @@ final class Booking_Service {
 				'ticket_id'     => $ticket_id,
 				'user_id'       => $user_id,
 				'quantity'      => $quantity,
-				'status'        => 0 === $total ? 'confirmed' : 'pending',
+				'status'        => $status,
 				'total_minor'   => $total,
 				'currency'      => (string) $ticket['currency'],
 			]
@@ -119,6 +132,18 @@ final class Booking_Service {
 		do_action( 'reevents_booking_created', (int) $id );
 
 		return (int) $id;
+	}
+
+	/**
+	 * Cancel unpaid bookings past the hold window.
+	 */
+	public static function expire_pending(): void {
+		$minutes = max( 5, (int) Settings::get( 'hold_minutes', 30 ) );
+		$cutoff  = gmdate( 'Y-m-d H:i:s', time() - ( $minutes * MINUTE_IN_SECONDS ) );
+
+		foreach ( ( new Booking_Repository() )->pending_before( $cutoff ) as $id ) {
+			self::update_status( (int) $id, 'cancelled' );
+		}
 	}
 
 	/**

@@ -258,6 +258,23 @@ final class Booking_Repository {
 	}
 
 	/**
+	 * Get pending booking IDs older than a cutoff.
+	 *
+	 * @param string $cutoff UTC cutoff.
+	 * @return int[]
+	 */
+	public function pending_before( string $cutoff ): array {
+		global $wpdb;
+
+		$table = $this->table();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$table} WHERE status = 'pending' AND created_utc < %s", $cutoff ) );
+
+		return is_array( $ids ) ? array_map( 'intval', $ids ) : [];
+	}
+
+	/**
 	 * Get attendees for an event export.
 	 *
 	 * @param int $event_id Event ID, or 0 for all.

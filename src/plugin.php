@@ -26,6 +26,7 @@ use ReEvents\Frontend\Shortcodes;
 use ReEvents\Render\Widget_Registry;
 use ReEvents\REST\Routes;
 use ReEvents\Services\Booking_Emails;
+use ReEvents\Services\Booking_Service;
 use ReEvents\Services\Occurrence_Service;
 use ReEvents\Data\Meta;
 use ReEvents\Data\Post_Types;
@@ -76,6 +77,7 @@ final class Plugin {
 		Blocks::register();
 		Routes::register();
 		Occurrence_Service::register();
+		Booking_Service::register();
 		Booking_Emails::register();
 		Booking_Handler::register();
 		Frontend_Assets::register();

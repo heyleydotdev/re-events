@@ -27,6 +27,7 @@ final class Activation {
 	 * Deactivate the plugin.
 	 */
 	public static function deactivate(): void {
+		wp_clear_scheduled_hook( 'reevents_expire_bookings' );
 		flush_rewrite_rules();
 	}
 

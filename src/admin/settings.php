@@ -69,6 +69,29 @@ final class Settings {
 		self::add_section( 'formats', __( 'Formats', 're-events' ) );
 		self::add_field( 'formats', 'date_format', __( 'Date format', 're-events' ), [ 'placeholder' => 'F j, Y' ] );
 		self::add_field( 'formats', 'time_format', __( 'Time format', 're-events' ), [ 'placeholder' => 'g:i a' ] );
+
+		self::add_section( 'bookings', __( 'Bookings', 're-events' ) );
+		self::add_field(
+			'bookings',
+			'require_approval',
+			__( 'Approval', 're-events' ),
+			[
+				'type'        => 'checkbox',
+				'label'       => __( 'Require approval for every booking', 're-events' ),
+				'description' => __( 'Free bookings stay pending until an administrator confirms them.', 're-events' ),
+			]
+		);
+		self::add_field(
+			'bookings',
+			'hold_minutes',
+			__( 'Hold time', 're-events' ),
+			[
+				'type'        => 'number',
+				'min'         => 5,
+				'max'         => 1440,
+				'description' => __( 'Minutes before an unpaid booking is cancelled. Minimum 5.', 're-events' ),
+			]
+		);
 	}
 
 	/**
@@ -94,8 +117,9 @@ final class Settings {
 		}
 
 		$tabs = [
-			'general' => __( 'General', 're-events' ),
-			'formats' => __( 'Formats', 're-events' ),
+			'general'  => __( 'General', 're-events' ),
+			'formats'  => __( 'Formats', 're-events' ),
+			'bookings' => __( 'Bookings', 're-events' ),
 		];
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Tab navigation only.
@@ -167,6 +191,11 @@ final class Settings {
 				$settings['date_format'] = sanitize_text_field( (string) ( $input['date_format'] ?? '' ) );
 				$settings['time_format'] = sanitize_text_field( (string) ( $input['time_format'] ?? '' ) );
 				break;
+
+			case 'bookings':
+				$settings['require_approval'] = ! empty( $input['require_approval'] );
+				$settings['hold_minutes']     = max( 5, min( 1440, absint( $input['hold_minutes'] ?? 30 ) ) );
+				break;
 		}
 
 		return $settings;
@@ -179,10 +208,12 @@ final class Settings {
 	 */
 	private static function defaults(): array {
 		return [
-			'timezone'     => 'UTC',
-			'time_display' => 'event',
-			'date_format'  => get_option( 'date_format', 'F j, Y' ),
-			'time_format'  => get_option( 'time_format', 'g:i a' ),
+			'timezone'         => 'UTC',
+			'time_display'     => 'event',
+			'date_format'      => get_option( 'date_format', 'F j, Y' ),
+			'time_format'      => get_option( 'time_format', 'g:i a' ),
+			'require_approval' => false,
+			'hold_minutes'     => 30,
 		];
 	}
 
