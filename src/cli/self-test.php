@@ -14,6 +14,7 @@ use ReEvents\Data\Occurrence_Repository;
 use ReEvents\Data\Ticket_Repository;
 use ReEvents\Domain\Event;
 use ReEvents\Query\Event_Query;
+use ReEvents\REST\Events_Controller;
 use ReEvents\Services\Booking_Emails;
 use ReEvents\Services\Booking_Service;
 use ReEvents\Services\Occurrence_Service;
@@ -35,11 +36,13 @@ final class Self_Test {
 
 		self::check_expansion( $failures );
 		self::check_timeslots( $failures );
+		self::check_dates( $failures );
 		self::check_upcoming_query( $failures );
 		self::check_availability( $failures );
 		self::check_booking_flow( $failures );
 		self::check_expiry( $failures );
 		self::check_emails( $failures );
+		self::check_contract( $failures );
 		self::check_rest( $failures );
 
 		remove_filter( 'pre_wp_mail', '__return_false' );
@@ -49,6 +52,28 @@ final class Self_Test {
 		}
 
 		WP_CLI::success( 'ReEvents self-test passed.' );
+	}
+
+	/**
+	 * Check DST, all-day and multi-day dates.
+	 *
+	 * @param string[] $failures Failures.
+	 */
+	private static function check_dates( array &$failures ): void {
+		$dst  = new Event( 0, 'DST', '2026-03-29 00:30:00', '2026-03-29 01:30:00', 'Europe/London' );
+		$rows = Occurrence_Service::expand( $dst );
+
+		self::assert( isset( $rows[0] ) && '2026-03-29 00:30:00' === $rows[0]['start_utc'], 'DST start was shifted.', $failures );
+
+		$all_day = new Event( 0, 'All day', '2026-12-01 00:00:00', '2026-12-01 23:59:59', 'UTC', true );
+		$rows    = Occurrence_Service::expand( $all_day );
+
+		self::assert( isset( $rows[0] ) && '2026-12-01 23:59:59' === $rows[0]['end_utc'], 'All-day end is wrong.', $failures );
+
+		$multi = new Event( 0, 'Multi-day', '2026-12-01 18:00:00', '2026-12-03 10:00:00', 'UTC' );
+		$rows  = Occurrence_Service::expand( $multi );
+
+		self::assert( isset( $rows[0] ) && '2026-12-03 10:00:00' === $rows[0]['end_utc'], 'Multi-day end is wrong.', $failures );
 	}
 
 	/**
@@ -393,6 +418,30 @@ final class Self_Test {
 		self::assert( str_contains( $mail['subject'], 'Email test event' ), 'Email subject missed the event.', $failures );
 		self::assert( str_contains( $mail['body'], 'TESTREF' ), 'Email body missed the reference.', $failures );
 		self::assert( str_contains( $mail['body'], '25.00' ), 'Email body missed the total.', $failures );
+	}
+
+	/**
+	 * Check an event response against its schema.
+	 *
+	 * @param string[] $failures Failures.
+	 */
+	private static function check_contract( array &$failures ): void {
+		wp_set_current_user( 1 );
+
+		$request = new WP_REST_Request( 'GET', '/re-events/v1/events' );
+		$request->set_query_params( [ 'per_page' => 1 ] );
+		$response = rest_do_request( $request );
+		$data     = (array) $response->get_data();
+
+		if ( ! $data ) {
+			$failures[] = 'No events available for the contract test.';
+			return;
+		}
+
+		$controller = new Events_Controller();
+		$result     = rest_validate_value_from_schema( $data[0], $controller->get_item_schema(), 'event' );
+
+		self::assert( ! is_wp_error( $result ), 'Event response does not match its schema.', $failures );
 	}
 
 	/**
