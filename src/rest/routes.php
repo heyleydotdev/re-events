@@ -49,6 +49,9 @@ final class Routes {
 
 		$organizers = new Organizers_Controller();
 		$organizers->register_routes();
+
+		$categories = new Categories_Controller();
+		$categories->register_routes();
 	}
 
 	/**
