@@ -143,6 +143,22 @@ final class Settings {
 			],
 			'bookings_fields'
 		);
+		self::add_section( 'payments', __( 'Payment gateway', 're-events' ), 'payments_gateway' );
+		self::add_field(
+			'payments',
+			'payment_gateway',
+			__( 'Gateway', 're-events' ),
+			[
+				'type'        => 'select',
+				'options'     => [
+					'none' => __( 'None', 're-events' ),
+					'mock' => __( 'Mock (testing)', 're-events' ),
+				],
+				'description' => __( 'The mock gateway is for local checkout tests only.', 're-events' ),
+			],
+			'payments_gateway'
+		);
+
 		self::add_section( 'emails', __( 'Admin mail', 're-events' ), 'emails_admin' );
 		self::add_field( 'emails', 'email_admin_subject', __( 'Subject', 're-events' ), [ 'description' => __( 'Placeholders: {event}, {date}, {venue}, {reference}, {name}, {email}, {quantity}, {total}, {site}, {status}.', 're-events' ) ], 'emails_admin' );
 		self::add_field(
@@ -254,6 +270,7 @@ final class Settings {
 			'general'  => __( 'General', 're-events' ),
 			'formats'  => __( 'Formats', 're-events' ),
 			'bookings' => __( 'Bookings', 're-events' ),
+			'payments' => __( 'Payments', 're-events' ),
 			'emails'   => __( 'Emails', 're-events' ),
 			'api'      => __( 'API', 're-events' ),
 			'tools'    => __( 'Tools', 're-events' ),
@@ -593,6 +610,11 @@ final class Settings {
 				$settings['attendee_fields']  = self::sanitize_attendee_fields( $input['attendee_fields'] ?? [] );
 				break;
 
+			case 'payments':
+				$gateway                     = sanitize_key( (string) ( $input['payment_gateway'] ?? 'none' ) );
+				$settings['payment_gateway'] = in_array( $gateway, [ 'none', 'mock' ], true ) ? $gateway : 'none';
+				break;
+
 			case 'emails':
 				$settings['email_admin_subject']    = sanitize_text_field( (string) ( $input['email_admin_subject'] ?? '' ) );
 				$settings['email_admin_body']       = sanitize_textarea_field( (string) ( $input['email_admin_body'] ?? '' ) );
@@ -639,6 +661,7 @@ final class Settings {
 			'api_per_page'             => 10,
 			'api_rate_limit'           => 0,
 			'api_cors'                 => '',
+			'payment_gateway'          => 'none',
 			'delete_data_on_uninstall' => false,
 		];
 	}

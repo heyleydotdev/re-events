@@ -307,6 +307,30 @@ final class Booking_Repository {
 	}
 
 	/**
+	 * Set the booking gateway reference.
+	 *
+	 * @param int    $id          Booking ID.
+	 * @param string $gateway     Gateway ID.
+	 * @param string $gateway_ref Gateway reference.
+	 */
+	public function set_gateway( int $id, string $gateway, string $gateway_ref ): bool {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking storage.
+		$result = $wpdb->update(
+			$this->table(),
+			[
+				'gateway'     => sanitize_key( $gateway ),
+				'gateway_ref' => sanitize_text_field( $gateway_ref ),
+				'updated_utc' => current_time( 'mysql', true ),
+			],
+			[ 'id' => $id ]
+		);
+
+		return false !== $result;
+	}
+
+	/**
 	 * Get pending booking IDs older than a cutoff.
 	 *
 	 * @param string $cutoff  UTC cutoff.

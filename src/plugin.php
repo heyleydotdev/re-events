@@ -37,6 +37,7 @@ use ReEvents\Services\API_Keys;
 use ReEvents\Services\Booking_Emails;
 use ReEvents\Services\Booking_Service;
 use ReEvents\Services\Occurrence_Service;
+use ReEvents\Services\Payment_Service;
 use ReEvents\Data\Meta;
 use ReEvents\Data\Post_Types;
 use ReEvents\Data\Schema;
@@ -94,6 +95,7 @@ final class Plugin {
 		Occurrence_Service::register();
 		Booking_Service::register();
 		Booking_Emails::register();
+		Payment_Service::register();
 		API_Keys::register();
 		Booking_Handler::register();
 		Frontend_Assets::register();

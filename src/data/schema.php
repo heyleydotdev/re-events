@@ -17,7 +17,7 @@ final class Schema {
 	/**
 	 * Schema version.
 	 */
-	public const VERSION = 3;
+	public const VERSION = 4;
 
 	/**
 	 * Schema version option.
@@ -81,6 +81,7 @@ final class Schema {
 			$wpdb->prefix . 'reevents_tickets',
 			$wpdb->prefix . 'reevents_bookings',
 			$wpdb->prefix . 'reevents_attendees',
+			$wpdb->prefix . 'reevents_payments',
 		];
 	}
 
@@ -163,6 +164,23 @@ final class Schema {
 			KEY email (email)
 		) {$charset};";
 
-		return $occurrences . "\n" . $tickets . "\n" . $bookings . "\n" . $attendees;
+		$payments = "CREATE TABLE {$prefix}reevents_payments (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			booking_id bigint(20) unsigned NOT NULL,
+			gateway varchar(50) NOT NULL DEFAULT '',
+			gateway_ref varchar(191) NOT NULL DEFAULT '',
+			status varchar(20) NOT NULL DEFAULT 'pending',
+			amount_minor bigint(20) NOT NULL DEFAULT 0,
+			currency char(3) NOT NULL DEFAULT 'USD',
+			data_json longtext NULL,
+			created_utc datetime NOT NULL,
+			updated_utc datetime NOT NULL,
+			PRIMARY KEY  (id),
+			KEY booking_id (booking_id),
+			KEY gateway_ref (gateway_ref),
+			KEY status (status)
+		) {$charset};";
+
+		return $occurrences . "\n" . $tickets . "\n" . $bookings . "\n" . $attendees . "\n" . $payments;
 	}
 }

@@ -58,7 +58,7 @@ function reevents_uninstall_site(): void {
 		}
 	}
 
-	foreach ( [ 'reevents_occurrences', 'reevents_tickets', 'reevents_bookings', 'reevents_attendees' ] as $table ) {
+	foreach ( [ 'reevents_occurrences', 'reevents_tickets', 'reevents_bookings', 'reevents_attendees', 'reevents_payments' ] as $table ) {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Uninstall cleanup.
 		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}{$table}" );
 	}
