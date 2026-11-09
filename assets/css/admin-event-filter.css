@@ -1,0 +1,20 @@
+.tablenav .actions.reevents-event-filter {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 6px;
+}
+
+.tablenav .actions.reevents-event-filter > * {
+	margin: 0;
+}
+
+.reevents-event-filter .reevents-event-filter-search {
+	width: 12em;
+	max-width: 100%;
+}
+
+.reevents-event-filter .reevents-event-filter-select {
+	width: 18em;
+	max-width: 100%;
+}

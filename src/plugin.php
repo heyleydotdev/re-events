@@ -13,6 +13,7 @@ use ReEvents\Admin\API_Docs;
 use ReEvents\Admin\Assets;
 use ReEvents\Admin\Attendees;
 use ReEvents\Admin\Bookings;
+use ReEvents\Admin\Event_Filter;
 use ReEvents\Admin\Event_List;
 use ReEvents\Admin\Help;
 use ReEvents\Admin\Menu;
@@ -81,6 +82,7 @@ final class Plugin {
 		Help::register();
 		Notices::register();
 		Quick_View::register();
+		Event_Filter::register();
 		Settings::register();
 		Event_List::register();
 		add_action( 'init', [ Widget_Registry::class, 'register_defaults' ], 2 );

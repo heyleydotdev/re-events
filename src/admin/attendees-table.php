@@ -172,15 +172,6 @@ final class Attendees_Table extends \WP_List_Table {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only filter.
 		$event_id = isset( $_GET['event'] ) ? absint( wp_unslash( $_GET['event'] ) ) : 0;
-		$events   = get_posts(
-			[
-				'post_type'      => 'reevents_event',
-				'post_status'    => 'publish',
-				'posts_per_page' => 100,
-				'orderby'        => 'title',
-				'order'          => 'ASC',
-			]
-		);
 		$export   = wp_nonce_url(
 			add_query_arg(
 				[
@@ -192,18 +183,21 @@ final class Attendees_Table extends \WP_List_Table {
 			'reevents_export_attendees'
 		);
 
-		echo '<div class="alignleft actions">';
-		echo '<label class="screen-reader-text" for="reevents-attendee-event">' . esc_html__( 'Event', 're-events' ) . '</label>';
-		echo '<select id="reevents-attendee-event" name="event">';
+		echo '<div class="alignleft actions reevents-event-filter">';
+		echo '<label class="screen-reader-text" for="reevents-event-search-attendees">' . esc_html__( 'Search events', 're-events' ) . '</label>';
+		echo '<input type="search" id="reevents-event-search-attendees" class="reevents-event-filter-search" placeholder="' . esc_attr__( 'Search events…', 're-events' ) . '" aria-controls="reevents-event-filter-attendees" />';
+		echo '<label class="screen-reader-text" for="reevents-event-filter-attendees">' . esc_html__( 'Event', 're-events' ) . '</label>';
+		echo '<select id="reevents-event-filter-attendees" name="event" class="reevents-event-filter-select" data-selected="' . esc_attr( (string) $event_id ) . '" data-all-label="' . esc_attr__( 'All events', 're-events' ) . '">';
 		echo '<option value="0">' . esc_html__( 'All events', 're-events' ) . '</option>';
 
-		foreach ( $events as $event ) {
-			echo '<option value="' . esc_attr( (string) $event->ID ) . '" ' . selected( $event_id, $event->ID, false ) . '>' . esc_html( $event->post_title ) . '</option>';
+		if ( $event_id > 0 ) {
+			$title = get_the_title( $event_id );
+			echo '<option value="' . esc_attr( (string) $event_id ) . '" selected>' . esc_html( '' !== $title ? $title : sprintf( /* translators: %d: event ID. */ __( 'Event #%d', 're-events' ), $event_id ) ) . '</option>';
 		}
 
 		echo '</select>';
 		submit_button( __( 'Filter', 're-events' ), '', 'filter_action', false );
-		echo '<a class="button" style="margin-left:8px;" href="' . esc_url( $export ) . '">' . esc_html__( 'Export CSV', 're-events' ) . '</a>';
+		echo '<a class="button" href="' . esc_url( $export ) . '">' . esc_html__( 'Export CSV', 're-events' ) . '</a>';
 		echo '</div>';
 	}
 
