@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Services;
 
+use ReEvents\Admin\Settings;
 use ReEvents\Data\Booking_Repository;
 use ReEvents\Data\Event_Repository;
 use ReEvents\Domain\Event;
@@ -97,33 +98,31 @@ final class Booking_Emails {
 
 		$status = (string) ( $booking['status'] ?? 'pending' );
 
+		$placeholders['{status}'] = $status;
+
 		if ( 'admin' === $type ) {
-			$subject = sprintf(
-				/* translators: %s: booking reference. */
-				__( '[%1$s] New booking %2$s', 're-events' ),
-				$placeholders['{site}'],
-				$placeholders['{reference}']
-			);
-			$body = __( "A new booking was created.\n\nEvent: {event}\nWhen: {date}\nVenue: {venue}\nReference: {reference}\nAttendee: {name} <{email}>\nSeats: {quantity}\nTotal: {total}", 're-events' );
+			$subject = self::template( 'email_admin_subject' );
+			$body    = self::template( 'email_admin_body' );
 		} else {
-			$subject = 'confirmed' === $status
-				? sprintf(
-					/* translators: %s: event title. */
-					__( 'Booking confirmed: %s', 're-events' ),
-					$placeholders['{event}']
-				)
-				: sprintf(
-					/* translators: %s: event title. */
-					__( 'Booking received: %s', 're-events' ),
-					$placeholders['{event}']
-				);
-			$body = __( "Hello {name},\n\nYour booking is {status}.\n\nEvent: {event}\nWhen: {date}\nVenue: {venue}\nReference: {reference}\nSeats: {quantity}\nTotal: {total}", 're-events' );
-			$body = str_replace( '{status}', $status, $body );
+			$subject = self::template( 'email_attendee_subject' );
+			$body    = self::template( 'email_attendee_body' );
 		}
 
 		return [
 			'subject' => strtr( $subject, $placeholders ),
 			'body'    => strtr( $body, $placeholders ),
 		];
+	}
+
+	/**
+	 * Read an email template, falling back to the default.
+	 *
+	 * @param string $key Setting key.
+	 */
+	private static function template( string $key ): string {
+		$defaults = Settings::defaults();
+		$value    = (string) Settings::get( $key, $defaults[ $key ] ?? '' );
+
+		return '' !== $value ? $value : (string) ( $defaults[ $key ] ?? '' );
 	}
 }
