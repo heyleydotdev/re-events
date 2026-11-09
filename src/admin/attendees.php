@@ -37,7 +37,7 @@ final class Attendees {
 			'reevents_manage_bookings',
 			'reevents-attendees',
 			[ self::class, 'render' ],
-			5
+			6
 		);
 
 		if ( $hook ) {

@@ -32,7 +32,7 @@ final class API_Docs {
 			'reevents_manage_settings',
 			'reevents-api-docs',
 			[ self::class, 'render' ],
-			7
+			9
 		);
 	}
 
