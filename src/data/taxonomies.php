@@ -58,6 +58,26 @@ final class Taxonomies {
 				'show_admin_column' => true,
 			]
 		);
+
+		register_taxonomy(
+			'reevents_organizer_type',
+			[ 'reevents_organizer' ],
+			[
+				'labels'            => self::labels( __( 'Organizer Type', 're-events' ), __( 'Organizer Types', 're-events' ) ),
+				'hierarchical'      => false,
+				'public'            => false,
+				'show_ui'           => true,
+				'show_in_rest'      => true,
+				'rest_base'         => 'reevents-organizer-types',
+				'show_admin_column' => true,
+				'capabilities'      => [
+					'manage_terms' => 'edit_reevents_organizers',
+					'edit_terms'   => 'edit_reevents_organizers',
+					'delete_terms' => 'edit_reevents_organizers',
+					'assign_terms' => 'edit_reevents_organizers',
+				],
+			]
+		);
 	}
 
 	/**

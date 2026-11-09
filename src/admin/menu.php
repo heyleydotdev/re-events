@@ -56,19 +56,21 @@ final class Menu {
 	private static function add_taxonomy_submenus(): void {
 		$position = 3;
 
-		foreach ( [ 'reevents_event_category', 'reevents_event_tag' ] as $taxonomy_name ) {
+		foreach ( [ 'reevents_event_category', 'reevents_event_tag', 'reevents_organizer_type' ] as $taxonomy_name ) {
 			$taxonomy = get_taxonomy( $taxonomy_name );
 
 			if ( ! $taxonomy ) {
 				continue;
 			}
 
+			$post_type = (string) ( $taxonomy->object_type[0] ?? '' );
+
 			add_submenu_page(
 				're-events',
 				$taxonomy->labels->name,
 				$taxonomy->labels->menu_name,
 				$taxonomy->cap->manage_terms,
-				'edit-tags.php?taxonomy=' . $taxonomy->name . '&post_type=reevents_event',
+				'edit-tags.php?taxonomy=' . $taxonomy->name . '&post_type=' . $post_type,
 				'',
 				$position++
 			);
@@ -91,8 +93,9 @@ final class Menu {
 			'edit.php?post_type=reevents_organizer' => 2,
 			'edit-tags.php?taxonomy=reevents_event_category&post_type=reevents_event' => 3,
 			'edit-tags.php?taxonomy=reevents_event_tag&post_type=reevents_event' => 4,
-			'reevents-bookings'                     => 5,
-			'reevents-attendees'                    => 6,
+			'edit-tags.php?taxonomy=reevents_organizer_type&post_type=reevents_organizer' => 5,
+			'reevents-bookings'                     => 6,
+			'reevents-attendees'                    => 7,
 			'reevents-settings'                     => 8,
 			'reevents-api-docs'                     => 9,
 			'reevents-help'                         => 10,
@@ -112,7 +115,7 @@ final class Menu {
 	 * @param string|null $parent_file Current parent file.
 	 */
 	public static function fix_taxonomy_parent( ?string $parent_file ): ?string {
-		return self::event_taxonomy_screen() ? 're-events' : $parent_file;
+		return self::plugin_taxonomy_screen() ? 're-events' : $parent_file;
 	}
 
 	/**
@@ -121,30 +124,26 @@ final class Menu {
 	 * @param string|null $submenu_file Current submenu file.
 	 */
 	public static function fix_taxonomy_submenu( ?string $submenu_file ): ?string {
-		$screen = self::event_taxonomy_screen();
+		$screen = self::plugin_taxonomy_screen();
 
 		if ( ! $screen ) {
 			return $submenu_file;
 		}
 
-		return 'edit-tags.php?taxonomy=' . $screen->taxonomy . '&post_type=reevents_event';
+		return 'edit-tags.php?taxonomy=' . $screen->taxonomy . '&post_type=' . $screen->post_type;
 	}
 
 	/**
-	 * Get the current screen when it is an event taxonomy screen.
+	 * Get the current screen when it is a plugin taxonomy screen.
 	 */
-	private static function event_taxonomy_screen(): ?WP_Screen {
+	private static function plugin_taxonomy_screen(): ?WP_Screen {
 		$screen = get_current_screen();
 
 		if ( ! $screen ) {
 			return null;
 		}
 
-		if ( 'reevents_event' !== $screen->post_type ) {
-			return null;
-		}
-
-		if ( ! in_array( $screen->taxonomy, [ 'reevents_event_category', 'reevents_event_tag' ], true ) ) {
+		if ( ! in_array( $screen->taxonomy, [ 'reevents_event_category', 'reevents_event_tag', 'reevents_organizer_type' ], true ) ) {
 			return null;
 		}
 
