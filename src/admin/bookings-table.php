@@ -141,12 +141,29 @@ final class Bookings_Table extends \WP_List_Table {
 		check_admin_referer( 'bulk-bookings' );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce checked above.
-		$ids    = isset( $_REQUEST['booking'] ) ? array_map( 'absint', (array) wp_unslash( $_REQUEST['booking'] ) ) : [];
-		$status = 'confirm' === $action ? 'confirmed' : 'cancelled';
+		$ids     = isset( $_REQUEST['booking'] ) ? array_map( 'absint', (array) wp_unslash( $_REQUEST['booking'] ) ) : [];
+		$status  = 'confirm' === $action ? 'confirmed' : 'cancelled';
+		$updated = 0;
+		$failed  = 0;
 
 		foreach ( $ids as $id ) {
-			Booking_Service::update_status( (int) $id, $status );
+			$result = Booking_Service::update_status( (int) $id, $status );
+
+			if ( is_wp_error( $result ) || false === $result ) {
+				++$failed;
+			} else {
+				++$updated;
+			}
 		}
+
+		set_transient(
+			'reevents_bookings_bulk_' . get_current_user_id(),
+			[
+				'updated' => $updated,
+				'failed'  => $failed,
+			],
+			60
+		);
 	}
 
 	/**

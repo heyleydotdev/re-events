@@ -110,6 +110,8 @@ final class Event_List {
 			]
 		);
 
+		$limit = max( 1, (int) apply_filters( 'reevents_admin_dropdown_limit', 200 ) );
+
 		if ( ! is_wp_error( $terms ) && ! empty( $terms ) ) {
 			wp_dropdown_categories(
 				[
@@ -121,6 +123,7 @@ final class Event_List {
 					'hide_empty'      => false,
 					'hierarchical'    => true,
 					'class'           => 'postform',
+					'number'          => $limit,
 				]
 			);
 		}
@@ -143,6 +146,7 @@ final class Event_List {
 					'option_none_value' => '0',
 					'selected'          => $venue,
 					'class'             => 'postform',
+					'number'            => $limit,
 				]
 			);
 		}

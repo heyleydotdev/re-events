@@ -564,20 +564,23 @@ final class Meta_Boxes {
 			'SA' => __( 'Sat', 're-events' ),
 			'SU' => __( 'Sun', 're-events' ),
 		];
+		$limit      = max( 1, (int) apply_filters( 'reevents_admin_dropdown_limit', 200 ) );
 		$venues     = get_posts(
 			[
-				'post_type'   => 'reevents_venue',
-				'numberposts' => -1,
-				'orderby'     => 'title',
-				'order'       => 'ASC',
+				'post_type'      => 'reevents_venue',
+				'posts_per_page' => $limit,
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+				'no_found_rows'  => true,
 			]
 		);
 		$organizers = get_posts(
 			[
-				'post_type'   => 'reevents_organizer',
-				'numberposts' => -1,
-				'orderby'     => 'title',
-				'order'       => 'ASC',
+				'post_type'      => 'reevents_organizer',
+				'posts_per_page' => $limit,
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+				'no_found_rows'  => true,
 			]
 		);
 

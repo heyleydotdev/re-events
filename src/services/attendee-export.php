@@ -40,7 +40,7 @@ final class Attendee_Export {
 				(string) ( $record['booking_id'] ?? '' ),
 				(string) ( $record['reference'] ?? '' ),
 				(string) ( $record['booking_status'] ?? '' ),
-				(string) get_the_title( (int) ( $record['event_id'] ?? 0 ) ),
+				(string) ( $record['event_title'] ?? '' ),
 				(string) ( $record['ticket_name'] ?? '' ),
 				(string) ( $record['name'] ?? '' ),
 				(string) ( $record['email'] ?? '' ),

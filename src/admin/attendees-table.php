@@ -211,7 +211,7 @@ final class Attendees_Table extends \WP_List_Table {
 	public function column_default( $item, $column_name ): string {
 		switch ( $column_name ) {
 			case 'event':
-				return esc_html( (string) get_the_title( (int) ( $item['event_id'] ?? 0 ) ) );
+				return esc_html( (string) ( $item['event_title'] ?? '' ) );
 			case 'checked_in':
 				return ! empty( $item['checked_in'] ) ? esc_html__( 'Yes', 're-events' ) : esc_html__( 'No', 're-events' );
 			case 'created':

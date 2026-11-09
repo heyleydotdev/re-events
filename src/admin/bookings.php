@@ -53,6 +53,12 @@ final class Bookings {
 
 		$table = new Bookings_Table();
 		$table->prepare_items();
+
+		$bulk = get_transient( 'reevents_bookings_bulk_' . get_current_user_id() );
+
+		if ( is_array( $bulk ) ) {
+			delete_transient( 'reevents_bookings_bulk_' . get_current_user_id() );
+		}
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Bookings', 're-events' ); ?></h1>
@@ -62,6 +68,16 @@ final class Bookings {
 
 			if ( 'cancelled' === $notice ) {
 				echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Booking cancelled.', 're-events' ) . '</p></div>';
+			}
+
+			if ( is_array( $bulk ) ) {
+				$message = sprintf(
+					/* translators: 1: updated count, 2: failed count. */
+					__( 'Bookings updated: %1$d. Failed: %2$d.', 're-events' ),
+					(int) ( $bulk['updated'] ?? 0 ),
+					(int) ( $bulk['failed'] ?? 0 )
+				);
+				echo '<div class="notice ' . ( ! empty( $bulk['failed'] ) ? 'notice-warning' : 'notice-success' ) . ' is-dismissible"><p>' . esc_html( $message ) . '</p></div>';
 			}
 			?>
 			<form method="get" action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>">
