@@ -22,6 +22,7 @@ use ReEvents\Admin\Notices;
 use ReEvents\Admin\Quick_View;
 use ReEvents\Admin\Settings;
 use ReEvents\Admin\Venue_Meta_Boxes;
+use ReEvents\CLI\Concurrency_Test;
 use ReEvents\CLI\OpenAPI;
 use ReEvents\CLI\Bench;
 use ReEvents\CLI\Export_Attendees;
@@ -115,6 +116,10 @@ final class Plugin {
 
 				if ( class_exists( Bench::class ) ) {
 					\WP_CLI::add_command( 're-events bench', Bench::class );
+				}
+
+				if ( class_exists( Concurrency_Test::class ) ) {
+					\WP_CLI::add_command( 're-events concurrency-test', [ Concurrency_Test::class, 'run' ] );
 				}
 			}
 		);
