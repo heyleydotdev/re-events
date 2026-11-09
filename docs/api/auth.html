@@ -1,5 +1,6 @@
 <h1>Authentication</h1>
-<p>Public reads (<code>GET /events</code>, <code>/venues</code>, <code>/organizers</code>, <code>/categories</code>, <code>/tickets</code>) need no authentication.</p>
+<p>The plugin API can be disabled under <strong>ReEvents → Settings → API</strong>. When disabled, external requests return <code>404</code>; admin screens keep working.</p>
+<p>When enabled, public reads (<code>GET /events</code>, <code>/venues</code>, <code>/organizers</code>, <code>/categories</code>, <code>/tickets</code>) need no authentication unless public access is turned off.</p>
 <p>Writes and private reads need one of the methods below.</p>
 <h2>ReEvents API keys</h2>
 <p>Create a key under <strong>ReEvents → Settings → API</strong>. Copy it when it is shown; it cannot be viewed again.</p>

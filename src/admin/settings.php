@@ -167,6 +167,64 @@ final class Settings {
 			],
 			'emails_attendee'
 		);
+
+		self::add_section( 'api', __( 'REST API', 're-events' ), 'api_rest' );
+		self::add_field(
+			'api',
+			'api_enabled',
+			__( 'API', 're-events' ),
+			[
+				'type'        => 'checkbox',
+				'label'       => __( 'Enable the plugin REST API', 're-events' ),
+				'description' => __( 'When disabled, external API requests are blocked. Admin screens continue to work.', 're-events' ),
+			],
+			'api_rest'
+		);
+		self::add_field(
+			'api',
+			'api_public',
+			__( 'Public access', 're-events' ),
+			[
+				'type'        => 'checkbox',
+				'label'       => __( 'Allow unauthenticated read requests', 're-events' ),
+				'description' => __( 'Writes always require authentication.', 're-events' ),
+			],
+			'api_rest'
+		);
+		self::add_field(
+			'api',
+			'api_per_page',
+			__( 'Default page size', 're-events' ),
+			[
+				'type'        => 'number',
+				'min'         => 1,
+				'max'         => 100,
+				'description' => __( 'Used when a request does not set per_page. Between 1 and 100.', 're-events' ),
+			],
+			'api_rest'
+		);
+		self::add_field(
+			'api',
+			'api_rate_limit',
+			__( 'Rate limit', 're-events' ),
+			[
+				'type'        => 'number',
+				'min'         => 0,
+				'max'         => 1000,
+				'description' => __( 'Maximum unauthenticated requests per minute per IP. 0 disables the limit.', 're-events' ),
+			],
+			'api_rest'
+		);
+		self::add_field(
+			'api',
+			'api_cors',
+			__( 'Allowed origins', 're-events' ),
+			[
+				'type'        => 'textarea',
+				'description' => __( 'One origin per line, for example https://app.example.com. Leave empty to disable CORS headers.', 're-events' ),
+			],
+			'api_rest'
+		);
 	}
 
 	/**
@@ -519,6 +577,13 @@ final class Settings {
 				$settings['email_attendee_body']    = sanitize_textarea_field( (string) ( $input['email_attendee_body'] ?? '' ) );
 				break;
 
+			case 'api':
+				$settings['api_enabled']    = ! empty( $input['api_enabled'] );
+				$settings['api_public']     = ! empty( $input['api_public'] );
+				$settings['api_per_page']   = max( 1, min( 100, absint( $input['api_per_page'] ?? 10 ) ) );
+				$settings['api_rate_limit'] = max( 0, min( 1000, absint( $input['api_rate_limit'] ?? 0 ) ) );
+				$settings['api_cors']       = self::sanitize_origins( (string) ( $input['api_cors'] ?? '' ) );
+				break;
 		}
 
 		return $settings;
@@ -542,6 +607,11 @@ final class Settings {
 			'email_admin_body'       => __( "A new booking was created.\n\nEvent: {event}\nWhen: {date}\nVenue: {venue}\nReference: {reference}\nAttendee: {name} <{email}>\nSeats: {quantity}\nTotal: {total}", 're-events' ),
 			'email_attendee_subject' => __( 'Booking {status}: {event}', 're-events' ),
 			'email_attendee_body'    => __( "Hello {name},\n\nYour booking is {status}.\n\nEvent: {event}\nWhen: {date}\nVenue: {venue}\nReference: {reference}\nSeats: {quantity}\nTotal: {total}", 're-events' ),
+			'api_enabled'            => true,
+			'api_public'             => true,
+			'api_per_page'           => 10,
+			'api_rate_limit'         => 0,
+			'api_cors'               => '',
 		];
 	}
 
@@ -736,6 +806,27 @@ final class Settings {
 		$value = sanitize_key( (string) $value );
 
 		return in_array( $value, [ 'site', 'event', 'visitor' ], true ) ? $value : 'event';
+	}
+
+	/**
+	 * Sanitize allowed CORS origins.
+	 *
+	 * @param string $value Raw textarea.
+	 */
+	private static function sanitize_origins( string $value ): string {
+		$lines   = preg_split( '/\r\n|\r|\n/', $value );
+		$lines   = is_array( $lines ) ? $lines : [];
+		$origins = [];
+
+		foreach ( $lines as $line ) {
+			$origin = untrailingslashit( esc_url_raw( trim( $line ) ) );
+
+			if ( '' !== $origin ) {
+				$origins[] = $origin;
+			}
+		}
+
+		return implode( "\n", array_unique( $origins ) );
 	}
 
 	/**

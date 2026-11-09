@@ -1,6 +1,8 @@
 # Authentication
 
-Public reads (`GET /events`, `/venues`, `/organizers`, `/categories`, `/tickets`) need no authentication.
+The plugin API can be disabled under **ReEvents → Settings → API**. When disabled, external requests return `404`; admin screens keep working.
+
+When enabled, public reads (`GET /events`, `/venues`, `/organizers`, `/categories`, `/tickets`) need no authentication unless public access is turned off.
 
 Writes and private reads need one of the methods below.
 
