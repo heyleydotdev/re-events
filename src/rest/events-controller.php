@@ -772,12 +772,10 @@ final class Events_Controller extends WP_REST_Controller {
 				'start_utc'     => [
 					'description' => __( 'Start time in UTC.', 're-events' ),
 					'type'        => 'string',
-					'format'      => 'date-time',
 				],
 				'end_utc'       => [
 					'description' => __( 'End time in UTC.', 're-events' ),
 					'type'        => 'string',
-					'format'      => 'date-time',
 				],
 				'timezone'      => [
 					'description' => __( 'Event timezone.', 're-events' ),
