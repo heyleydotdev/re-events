@@ -34,6 +34,10 @@ final class Event_Details {
 			return '';
 		}
 
+		if ( 'publish' !== get_post_status( $id ) && ! current_user_can( 'read_post', $id ) ) {
+			return '';
+		}
+
 		$post = get_post( $id );
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core content filter.
 		$content    = $post ? (string) apply_filters( 'the_content', $post->post_content ) : '';

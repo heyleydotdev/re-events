@@ -37,7 +37,7 @@ final class Meta {
 				'type'              => 'string',
 				'description'       => __( 'Start time in UTC.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => [ self::class, 'sanitize_datetime' ],
 				'auth_callback'     => $auth,
 			]
@@ -50,7 +50,7 @@ final class Meta {
 				'type'              => 'string',
 				'description'       => __( 'End time in UTC.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => [ self::class, 'sanitize_datetime' ],
 				'auth_callback'     => $auth,
 			]
@@ -63,7 +63,7 @@ final class Meta {
 				'type'              => 'string',
 				'description'       => __( 'Event timezone.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => [ self::class, 'sanitize_timezone' ],
 				'auth_callback'     => $auth,
 			]
@@ -76,7 +76,7 @@ final class Meta {
 				'type'              => 'boolean',
 				'description'       => __( 'Whether the event lasts all day.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => 'rest_sanitize_boolean',
 				'auth_callback'     => $auth,
 			]
@@ -89,7 +89,7 @@ final class Meta {
 				'type'              => 'string',
 				'description'       => __( 'Recurrence rule.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => 'sanitize_text_field',
 				'auth_callback'     => $auth,
 			]
@@ -102,7 +102,7 @@ final class Meta {
 				'type'              => 'array',
 				'description'       => __( 'Excluded occurrence dates.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => [ self::class, 'sanitize_string_array' ],
 				'auth_callback'     => $auth,
 			]
@@ -115,7 +115,7 @@ final class Meta {
 				'type'              => 'array',
 				'description'       => __( 'Additional occurrence dates.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => [ self::class, 'sanitize_string_array' ],
 				'auth_callback'     => $auth,
 			]
@@ -128,7 +128,7 @@ final class Meta {
 				'type'              => 'array',
 				'description'       => __( 'Daily timeslots.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => [ self::class, 'sanitize_timeslots' ],
 				'auth_callback'     => $auth,
 			]
@@ -141,7 +141,7 @@ final class Meta {
 				'type'              => 'integer',
 				'description'       => __( 'Venue post ID.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => 'absint',
 				'auth_callback'     => $auth,
 			]
@@ -154,7 +154,7 @@ final class Meta {
 				'type'              => 'array',
 				'description'       => __( 'Organizer post IDs.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => [ self::class, 'sanitize_id_array' ],
 				'auth_callback'     => $auth,
 			]
@@ -167,7 +167,7 @@ final class Meta {
 				'type'              => 'integer',
 				'description'       => __( 'Event capacity.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => 'absint',
 				'auth_callback'     => $auth,
 			]
@@ -180,7 +180,7 @@ final class Meta {
 				'type'              => 'array',
 				'description'       => __( 'Online event links.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => [ self::class, 'sanitize_urls' ],
 				'auth_callback'     => $auth,
 			]
@@ -193,7 +193,7 @@ final class Meta {
 				'type'              => 'string',
 				'description'       => __( 'Event status.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => 'sanitize_key',
 				'auth_callback'     => $auth,
 			]
@@ -206,7 +206,7 @@ final class Meta {
 				'type'              => 'string',
 				'description'       => __( 'Venue address.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => 'sanitize_textarea_field',
 				'auth_callback'     => $auth,
 			]
@@ -219,7 +219,7 @@ final class Meta {
 				'type'              => 'string',
 				'description'       => __( 'Venue latitude.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => [ self::class, 'sanitize_latitude' ],
 				'auth_callback'     => $auth,
 			]
@@ -232,7 +232,7 @@ final class Meta {
 				'type'              => 'string',
 				'description'       => __( 'Venue longitude.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => [ self::class, 'sanitize_longitude' ],
 				'auth_callback'     => $auth,
 			]
@@ -245,7 +245,7 @@ final class Meta {
 				'type'              => 'string',
 				'description'       => __( 'Venue website.', 're-events' ),
 				'single'            => true,
-				'show_in_rest'      => true,
+				'show_in_rest'      => false,
 				'sanitize_callback' => 'esc_url_raw',
 				'auth_callback'     => $auth,
 			]
@@ -273,7 +273,17 @@ final class Meta {
 		$value = sanitize_text_field( (string) $value );
 		$date  = DateTimeImmutable::createFromFormat( 'Y-m-d H:i:s', $value, new DateTimeZone( 'UTC' ) );
 
-		return $date instanceof DateTimeImmutable ? $date->format( 'Y-m-d H:i:s' ) : '';
+		if ( ! $date instanceof DateTimeImmutable ) {
+			return '';
+		}
+
+		$errors = DateTimeImmutable::getLastErrors();
+
+		if ( is_array( $errors ) && ( $errors['warning_count'] > 0 || $errors['error_count'] > 0 ) ) {
+			return '';
+		}
+
+		return $date->format( 'Y-m-d H:i:s' );
 	}
 
 	/**
