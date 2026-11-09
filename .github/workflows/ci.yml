@@ -19,6 +19,44 @@ jobs:
       - run: composer install --no-interaction --prefer-dist
       - run: composer lint
       - run: composer analyze
+      - run: composer test
+
+  integration:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+      - run: sudo apt-get update && sudo apt-get install -y subversion
+      - run: composer install --no-interaction --prefer-dist
+      - run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 latest true
+      - run: composer test:integration
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: xdebug
+      - run: composer install --no-interaction --prefer-dist
+      - run: composer test:coverage
 
   blocks:
     runs-on: ubuntu-latest

@@ -20,6 +20,9 @@ ReEvents is a WordPress event manager plugin. GPL-2.0-or-later, no pro tier, no 
 - `composer format` — auto-fix PHPCS issues
 - `composer lint` — PHPCS
 - `composer analyze` — PHPStan
+- `composer test` — PHPUnit unit tests
+- `composer test:integration` — WordPress integration tests (requires `bin/install-wp-tests.sh`)
+- `composer test:coverage` — unit tests with coverage
 - `bun install` — install JS dev tools
 - `bun run build` — build blocks into `blocks/build/`
 - `bun run lint:js` — JS lint

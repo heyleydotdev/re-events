@@ -18,6 +18,7 @@ Run these before opening a pull request:
 composer format
 composer lint
 composer analyze
+composer test
 bun run lint:js
 bun run build
 bun run docs:build

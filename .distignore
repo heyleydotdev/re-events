@@ -15,6 +15,9 @@ package.json
 bun.lock
 phpcs.xml.dist
 phpstan.neon.dist
+phpunit.xml.dist
+phpunit-integration.xml.dist
+bin/
 phpstan-baseline.neon
 node_modules
 src/cli
