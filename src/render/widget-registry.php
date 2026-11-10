@@ -357,6 +357,69 @@ final class Widget_Registry {
 				],
 			]
 		);
+
+		self::decorate_args();
+	}
+
+	/**
+	 * Add builder control metadata to args that do not define it.
+	 */
+	private static function decorate_args(): void {
+		$meta = [
+			'class'              => [ __( 'CSS class', 're-events' ), __( 'Extra class on the widget.', 're-events' ), __( 'my-widget', 're-events' ) ],
+			'wrapper_class'      => [ __( 'Wrapper CSS class', 're-events' ), __( 'Extra class on the wrapper.', 're-events' ), __( 'my-wrapper', 're-events' ) ],
+			'limit'              => [ __( 'Limit', 're-events' ), __( 'Maximum number of items.', 're-events' ), '10' ],
+			'category'           => [ __( 'Category ID', 're-events' ), __( 'Limit to a category term ID.', 're-events' ), '12' ],
+			'venue'              => [ __( 'Venue ID', 're-events' ), __( 'Limit to a venue ID.', 're-events' ), '34' ],
+			'upcoming'           => [ __( 'Only upcoming', 're-events' ), __( 'Show upcoming events only.', 're-events' ), '' ],
+			'show_venue'         => [ __( 'Show venue', 're-events' ), __( 'Display the venue name.', 're-events' ), '' ],
+			'show_organizers'    => [ __( 'Show organizers', 're-events' ), __( 'Display the organizer names.', 're-events' ), '' ],
+			'show_online_links'  => [ __( 'Show online links', 're-events' ), __( 'Display online event links.', 're-events' ), '' ],
+			'show_content'       => [ __( 'Show content', 're-events' ), __( 'Display the event description.', 're-events' ), '' ],
+			'show_description'   => [ __( 'Show description', 're-events' ), __( 'Display the venue description.', 're-events' ), '' ],
+			'show_keyword'       => [ __( 'Show keyword', 're-events' ), __( 'Display the keyword field.', 're-events' ), '' ],
+			'show_category'      => [ __( 'Show category', 're-events' ), __( 'Display the category field.', 're-events' ), '' ],
+			'show_dates'         => [ __( 'Show dates', 're-events' ), __( 'Display the date range fields.', 're-events' ), '' ],
+			'show_upcoming'      => [ __( 'Show upcoming', 're-events' ), __( 'Display the upcoming toggle.', 're-events' ), '' ],
+			'show_results'       => [ __( 'Show results', 're-events' ), __( 'Display results below the form.', 're-events' ), '' ],
+			'show_nav'           => [ __( 'Show navigation', 're-events' ), __( 'Display previous and next month links.', 're-events' ), '' ],
+			'month'              => [ __( 'Month', 're-events' ), __( 'Month in Y-m format. Leave empty for the current month.', 're-events' ), '2026-11' ],
+			'height'             => [ __( 'Height', 're-events' ), __( 'Map height in pixels.', 're-events' ), '400' ],
+			'id'                 => [ __( 'Event ID', 're-events' ), __( 'Leave 0 to use the current event.', 're-events' ), '123' ],
+			'ongoing_label'      => [ __( 'Ongoing label', 're-events' ), __( 'Label shown for ongoing events.', 're-events' ), __( 'Ongoing', 're-events' ) ],
+			'search_label'       => [ __( 'Search label', 're-events' ), __( 'Label above the keyword field.', 're-events' ), __( 'Search', 're-events' ) ],
+			'search_placeholder' => [ __( 'Search placeholder', 're-events' ), __( 'Placeholder inside the keyword field.', 're-events' ), __( 'Search events', 're-events' ) ],
+			'category_label'     => [ __( 'Category label', 're-events' ), __( 'Label above the category field.', 're-events' ), __( 'Category', 're-events' ) ],
+			'venue_label'        => [ __( 'Venue label', 're-events' ), __( 'Label above the venue field.', 're-events' ), __( 'Venue', 're-events' ) ],
+			'from_label'         => [ __( 'From label', 're-events' ), __( 'Label above the start date.', 're-events' ), __( 'From', 're-events' ) ],
+			'to_label'           => [ __( 'To label', 're-events' ), __( 'Label above the end date.', 're-events' ), __( 'To', 're-events' ) ],
+			'upcoming_label'     => [ __( 'Upcoming label', 're-events' ), __( 'Label for the upcoming toggle.', 're-events' ), __( 'Only upcoming', 're-events' ) ],
+			'submit_label'       => [ __( 'Submit label', 're-events' ), __( 'Text on the search button.', 're-events' ), __( 'Search', 're-events' ) ],
+			'clear_label'        => [ __( 'Clear label', 're-events' ), __( 'Text on the clear link.', 're-events' ), __( 'Clear', 're-events' ) ],
+		];
+
+		foreach ( self::$widgets as &$widget ) {
+			if ( empty( $widget['args'] ) || ! is_array( $widget['args'] ) ) {
+				continue;
+			}
+
+			foreach ( $widget['args'] as $key => &$arg ) {
+				if ( ! is_array( $arg ) || isset( $arg['label'] ) || ! isset( $meta[ $key ] ) ) {
+					continue;
+				}
+
+				$arg['label']       = $meta[ $key ][0];
+				$arg['description'] = $meta[ $key ][1];
+
+				if ( 'text' === ( $arg['type'] ?? '' ) && '' !== $meta[ $key ][2] ) {
+					$arg['placeholder'] = $meta[ $key ][2];
+				}
+			}
+
+			unset( $arg );
+		}
+
+		unset( $widget );
 	}
 
 	/**
