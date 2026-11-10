@@ -37,7 +37,6 @@ use ReEvents\Frontend\Feeds;
 use ReEvents\Frontend\Payment_Return;
 use ReEvents\Frontend\Shortcodes;
 use ReEvents\Frontend\Structured_Data;
-use ReEvents\Frontend\Submission_Handler;
 use ReEvents\Render\Widget_Registry;
 use ReEvents\REST\Routes;
 use ReEvents\Services\API_Keys;
@@ -109,7 +108,6 @@ final class Plugin {
 		API_Keys::register();
 		Booking_Handler::register();
 		Payment_Return::register();
-		Submission_Handler::register();
 		Feeds::register();
 		Structured_Data::register();
 		Frontend_Assets::register();
