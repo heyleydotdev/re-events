@@ -627,8 +627,8 @@ final class Meta_Boxes {
 		}
 
 		$timezone = Meta::sanitize_timezone( sanitize_text_field( wp_unslash( $_POST['reevents_timezone'] ?? 'UTC' ) ) );
-		$start    = self::to_utc( sanitize_text_field( wp_unslash( $_POST['reevents_start'] ?? '' ) ), $timezone );
-		$end      = self::to_utc( sanitize_text_field( wp_unslash( $_POST['reevents_end'] ?? '' ) ), $timezone );
+		$start    = Meta::local_to_utc( sanitize_text_field( wp_unslash( $_POST['reevents_start'] ?? '' ) ), $timezone );
+		$end      = Meta::local_to_utc( sanitize_text_field( wp_unslash( $_POST['reevents_end'] ?? '' ) ), $timezone );
 		$exdates  = [];
 
 		if ( isset( $_POST['reevents_exdates'] ) && is_array( $_POST['reevents_exdates'] ) ) {
@@ -784,30 +784,6 @@ final class Meta_Boxes {
 	}
 
 	/**
-	 * Convert a local datetime to UTC.
-	 *
-	 * @param string $local    Local datetime.
-	 * @param string $timezone IANA timezone.
-	 */
-	private static function to_utc( string $local, string $timezone ): string {
-		$local = trim( $local );
-
-		if ( '' === $local ) {
-			return '';
-		}
-
-		foreach ( [ '!Y-m-d\TH:i', '!Y-m-d H:i', '!Y-m-d H:i:s', '!Y-m-d' ] as $format ) {
-			$date = DateTimeImmutable::createFromFormat( $format, $local, new DateTimeZone( $timezone ) );
-
-			if ( $date instanceof DateTimeImmutable ) {
-				return $date->setTimezone( new DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
-			}
-		}
-
-		return '';
-	}
-
-	/**
 	 * Parse local datetime rows into UTC datetimes.
 	 *
 	 * @param array<int, mixed> $values   Local datetimes.
@@ -818,7 +794,7 @@ final class Meta_Boxes {
 		$datetimes = [];
 
 		foreach ( $values as $value ) {
-			$utc = self::to_utc( sanitize_text_field( (string) $value ), $timezone );
+			$utc = Meta::local_to_utc( sanitize_text_field( (string) $value ), $timezone );
 
 			if ( '' !== $utc ) {
 				$datetimes[] = $utc;

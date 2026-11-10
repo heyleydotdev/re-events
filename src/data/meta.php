@@ -298,9 +298,17 @@ final class Meta {
 		foreach ( [ 'Y-m-d\TH:i', 'Y-m-d H:i:s', 'Y-m-d H:i', 'Y-m-d' ] as $format ) {
 			$date = DateTimeImmutable::createFromFormat( '!' . $format, $value, new DateTimeZone( $timezone ) );
 
-			if ( $date instanceof DateTimeImmutable ) {
-				return $date->setTimezone( new DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
+			if ( ! $date instanceof DateTimeImmutable ) {
+				continue;
 			}
+
+			$errors = DateTimeImmutable::getLastErrors();
+
+			if ( is_array( $errors ) && ( $errors['warning_count'] > 0 || $errors['error_count'] > 0 ) ) {
+				continue;
+			}
+
+			return $date->setTimezone( new DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
 		}
 
 		return '';

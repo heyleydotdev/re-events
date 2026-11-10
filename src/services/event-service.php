@@ -62,7 +62,7 @@ final class Event_Service {
 	 * @return WP_Error|null
 	 */
 	public static function validate( Event $event ): ?WP_Error {
-		if ( '' === $event->title ) {
+		if ( '' === trim( wp_strip_all_tags( $event->title ) ) ) {
 			return new WP_Error( 'rest_event_invalid_title', __( 'An event title is required.', 're-events' ), [ 'status' => 400 ] );
 		}
 

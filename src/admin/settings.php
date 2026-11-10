@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Admin;
 
+use ReEvents\Data\Meta;
 use ReEvents\Services\API_Keys;
 use ReEvents\Services\Booking_Emails;
 use ReEvents\Services\Occurrence_Service;
@@ -778,7 +779,7 @@ final class Settings {
 
 		switch ( $tab ) {
 			case 'general':
-				$settings['timezone']     = self::sanitize_timezone( $input['timezone'] ?? 'UTC' );
+				$settings['timezone']     = Meta::sanitize_timezone( $input['timezone'] ?? 'UTC' );
 				$settings['time_display'] = self::sanitize_time_display( $input['time_display'] ?? 'event' );
 				$provider                 = sanitize_key( (string) ( $input['map_provider'] ?? 'osm' ) );
 				$settings['map_provider'] = in_array( $provider, [ 'osm', 'google' ], true ) ? $provider : 'osm';
@@ -1051,17 +1052,6 @@ final class Settings {
 		if ( ! empty( $args['description'] ) ) {
 			echo '<p class="description">' . esc_html( (string) $args['description'] ) . '</p>';
 		}
-	}
-
-	/**
-	 * Sanitize an IANA timezone.
-	 *
-	 * @param mixed $value Raw value.
-	 */
-	private static function sanitize_timezone( $value ): string {
-		$value = sanitize_text_field( (string) $value );
-
-		return in_array( $value, timezone_identifiers_list(), true ) ? $value : 'UTC';
 	}
 
 	/**

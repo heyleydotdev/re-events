@@ -101,8 +101,9 @@ final class Submission_Handler {
 		}
 
 		$existing     = 0 < $event_id ? ( new Event_Repository() )->find( $event_id ) : null;
-		$new_venue_id = self::create_pending_post( 'reevents_venue', (string) $values['new_venue'], $user_id );
-		$new_org_id   = self::create_pending_post( 'reevents_organizer', (string) $values['new_organizer'], $user_id );
+		$was_pending  = $existing ? 'pending' === get_post_status( $event_id ) : false;
+		$new_venue_id = self::create_pending_post( 'reevents_venue', (string) $values['new_venue'], $user_id, user_can( $user_id, 'publish_reevents_venues' ) ? 'publish' : 'pending' );
+		$new_org_id   = self::create_pending_post( 'reevents_organizer', (string) $values['new_organizer'], $user_id, user_can( $user_id, 'publish_reevents_organizers' ) ? 'publish' : 'pending' );
 
 		if ( $new_venue_id ) {
 			$values['venue_id'] = $new_venue_id;
@@ -144,9 +145,10 @@ final class Submission_Handler {
 			$existing ? $existing->status : 'scheduled'
 		);
 
-		$is_new = 0 === $event_id;
-		$status = $is_new ? ( self::can_publish( $user_id ) ? 'publish' : 'pending' ) : '';
-		$result = Event_Service::save( $event, $status );
+		$is_new          = 0 === $event_id;
+		$has_pending_new = ( $new_venue_id && 'publish' !== get_post_status( $new_venue_id ) ) || ( $new_org_id && 'publish' !== get_post_status( $new_org_id ) );
+		$status          = $has_pending_new ? 'pending' : ( $is_new ? ( self::can_publish( $user_id ) ? 'publish' : 'pending' ) : '' );
+		$result          = Event_Service::save( $event, $status );
 
 		if ( is_wp_error( $result ) ) {
 			if ( $new_venue_id ) {
@@ -206,7 +208,7 @@ final class Submission_Handler {
 			update_post_meta( (int) $result, '_reevents_submitter_email', $values['email'] );
 		}
 
-		if ( $is_new && 'pending' === get_post_status( (int) $result ) ) {
+		if ( ! $was_pending && 'pending' === get_post_status( (int) $result ) ) {
 			self::notify_admin( (int) $result, $values['name'], $values['email'] );
 		}
 
@@ -296,16 +298,19 @@ final class Submission_Handler {
 	 * @param string $post_type Post type.
 	 * @param string $title     Title.
 	 * @param int    $user_id   Author.
+	 * @param string $status    Post status.
 	 */
-	private static function create_pending_post( string $post_type, string $title, int $user_id ): int {
+	private static function create_pending_post( string $post_type, string $title, int $user_id, string $status = 'pending' ): int {
 		if ( '' === $title ) {
 			return 0;
 		}
 
+		$status = in_array( $status, [ 'publish', 'pending' ], true ) ? $status : 'pending';
+
 		$id = wp_insert_post(
 			[
 				'post_type'   => $post_type,
-				'post_status' => 'pending',
+				'post_status' => $status,
 				'post_title'  => $title,
 				'post_author' => $user_id,
 			]
