@@ -24,6 +24,7 @@ final class Menu {
 		add_filter( 'parent_file', [ self::class, 'fix_taxonomy_parent' ] );
 		add_filter( 'submenu_file', [ self::class, 'fix_taxonomy_submenu' ] );
 		add_action( 'admin_menu', [ self::class, 'sort_submenus' ], 99 );
+		add_action( 'admin_footer-edit-tags.php', [ self::class, 'organizer_tag_search' ] );
 	}
 
 	/**
@@ -131,6 +132,62 @@ final class Menu {
 		}
 
 		return 'edit-tags.php?taxonomy=' . $screen->taxonomy . '&post_type=' . $screen->post_type;
+	}
+
+	/**
+	 * Add the search box when the organizer tag list is empty.
+	 *
+	 * Core hides the box until at least one term exists.
+	 */
+	public static function organizer_tag_search(): void {
+		$screen = self::plugin_taxonomy_screen();
+
+		if ( ! $screen || 'reevents_organizer_type' !== $screen->taxonomy ) {
+			return;
+		}
+
+		$taxonomy = get_taxonomy( 'reevents_organizer_type' );
+
+		if ( ! $taxonomy ) {
+			return;
+		}
+
+		$label = (string) $taxonomy->labels->search_items;
+		?>
+		<script>
+			( function () {
+				const form = document.querySelector( 'form.search-form' );
+
+				if ( ! form || form.querySelector( 'input[name="s"]' ) ) {
+					return;
+				}
+
+				const box = document.createElement( 'p' );
+				box.className = 'search-box';
+
+				const label = document.createElement( 'label' );
+				label.className = 'screen-reader-text';
+				label.htmlFor = 'tag-search-input';
+				label.textContent = <?php echo wp_json_encode( $label ); ?>;
+
+				const input = document.createElement( 'input' );
+				input.type = 'search';
+				input.id = 'tag-search-input';
+				input.name = 's';
+
+				const submit = document.createElement( 'input' );
+				submit.type = 'submit';
+				submit.id = 'search-submit';
+				submit.className = 'button button-compact';
+				submit.value = <?php echo wp_json_encode( $label ); ?>;
+
+				box.appendChild( label );
+				box.appendChild( input );
+				box.appendChild( submit );
+				form.appendChild( box );
+			}() );
+		</script>
+		<?php
 	}
 
 	/**
