@@ -26,6 +26,7 @@ use ReEvents\CLI\Concurrency_Test;
 use ReEvents\CLI\OpenAPI;
 use ReEvents\CLI\Bench;
 use ReEvents\CLI\Export_Attendees;
+use ReEvents\CLI\Import_Export;
 use ReEvents\CLI\Self_Test;
 use ReEvents\CLI\Shortcode_Docs;
 use ReEvents\Frontend\Assets as Frontend_Assets;
@@ -123,6 +124,12 @@ final class Plugin {
 
 				if ( class_exists( Export_Attendees::class ) ) {
 					\WP_CLI::add_command( 're-events export-attendees', [ Export_Attendees::class, 'run' ] );
+				}
+
+				if ( class_exists( Import_Export::class ) ) {
+					\WP_CLI::add_command( 're-events import', [ Import_Export::class, 'import' ] );
+					\WP_CLI::add_command( 're-events export', [ Import_Export::class, 'export' ] );
+					\WP_CLI::add_command( 're-events expand-occurrences', [ Import_Export::class, 'expand_occurrences' ] );
 				}
 
 				if ( class_exists( Bench::class ) ) {
