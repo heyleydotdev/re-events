@@ -1,19 +1,14 @@
 # Render contract
 
-ReEvents renders semantic HTML. It does not require its CSS.
+ReEvents renders semantic HTML with no frontend CSS.
 
 ## Blocks
 
 Every widget is also a block under `reevents/<widget>`.
 
-## Style mode
+## Styling
 
-Set **Settings → Formats → Frontend styles** to:
-
-- `None` — no plugin CSS. Default.
-- `Default` — the bundled stylesheet.
-
-Every widget also accepts `class` and `wrapper_class`. Those classes are added to the form, list or wrapper. They are styling hooks, not layout rules.
+ReEvents ships no frontend CSS. Every widget accepts `class` and `wrapper_class`. Those classes are styling hooks owned by the theme or site.
 
 Do not rely on inline styles. The plugin does not output them.
 
