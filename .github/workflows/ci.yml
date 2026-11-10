@@ -112,6 +112,10 @@ jobs:
           bunx redocly lint /tmp/openapi.json
       - name: Check spec is current
         run: diff -u docs/api/openapi.json /tmp/openapi.json
+      - name: Check shortcode docs are current
+        run: |
+          bun run wp-env run cli wp re-events shortcode-docs | sed -n '/^# ReEvents shortcodes/,$p' > /tmp/shortcodes.md
+          diff -u docs/shortcodes/README.md /tmp/shortcodes.md
       - name: Run self-test
         run: bun run wp-env run cli wp re-events self-test
       - name: Run booking concurrency test
