@@ -13,6 +13,7 @@ use ReEvents\Admin\Settings;
 use ReEvents\Data\Event_Repository;
 use ReEvents\Data\Meta;
 use ReEvents\Domain\Event;
+use ReEvents\Domain\Recurrence_Rule;
 use ReEvents\Services\Event_Service;
 use ReEvents\Services\Rate_Limit;
 
@@ -100,17 +101,31 @@ final class Submission_Handler {
 		}
 
 		$existing = 0 < $event_id ? ( new Event_Repository() )->find( $event_id ) : null;
-		$event    = new Event(
+		$rrule    = Recurrence_Rule::build(
+			[
+				'freq'     => (string) $values['repeat'],
+				'interval' => (int) $values['interval'],
+				'weekdays' => (array) $values['weekdays'],
+				'monthday' => (int) $values['monthday'],
+				'end'      => (string) $values['recurrence_end'],
+				'until'    => (string) $values['until'],
+				'count'    => (int) $values['count'],
+			]
+		);
+		$exdates  = self::parse_date_lines( (string) $values['exdates'], $timezone );
+		$rdates   = self::parse_date_lines( (string) $values['rdates'], $timezone );
+
+		$event = new Event(
 			$event_id,
 			$values['title'],
 			$start,
 			$end,
 			$timezone,
 			(bool) $values['all_day'],
-			$existing ? $existing->rrule : '',
-			$existing ? $existing->exdates : [],
-			$existing ? $existing->rdates : [],
-			$existing ? $existing->timeslots : [],
+			$rrule,
+			$exdates,
+			$rdates,
+			$values['timeslots'],
 			(int) $values['venue_id'],
 			$values['organizer_ids'],
 			(int) $values['capacity'],
@@ -177,29 +192,83 @@ final class Submission_Handler {
 		$tags = isset( $_POST['tags'] ) ? sanitize_text_field( wp_unslash( $_POST['tags'] ) ) : '';
 		$tags = array_values( array_filter( array_map( 'trim', explode( ',', $tags ) ) ) );
 
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Meta::sanitize_timeslots().
+		$raw_slots = isset( $_POST['timeslots'] ) && is_array( $_POST['timeslots'] ) ? (array) wp_unslash( $_POST['timeslots'] ) : [];
+		$starts    = isset( $raw_slots['start'] ) && is_array( $raw_slots['start'] ) ? (array) $raw_slots['start'] : [];
+		$ends      = isset( $raw_slots['end'] ) && is_array( $raw_slots['end'] ) ? (array) $raw_slots['end'] : [];
+		$caps      = isset( $raw_slots['capacity'] ) && is_array( $raw_slots['capacity'] ) ? (array) $raw_slots['capacity'] : [];
+		$slots     = [];
+
+		foreach ( $starts as $index => $slot_start ) {
+			$slots[] = [
+				'start'    => $slot_start,
+				'end'      => $ends[ $index ] ?? '',
+				'capacity' => $caps[ $index ] ?? 0,
+			];
+		}
+
 		$values = [
-			'title'         => isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '',
-			'excerpt'       => isset( $_POST['excerpt'] ) ? sanitize_textarea_field( wp_unslash( $_POST['excerpt'] ) ) : '',
-			'content'       => isset( $_POST['content'] ) ? wp_kses_post( wp_unslash( $_POST['content'] ) ) : '',
-			'start'         => isset( $_POST['start'] ) ? sanitize_text_field( wp_unslash( $_POST['start'] ) ) : '',
-			'end'           => isset( $_POST['end'] ) ? sanitize_text_field( wp_unslash( $_POST['end'] ) ) : '',
-			'timezone'      => isset( $_POST['timezone'] ) ? sanitize_text_field( wp_unslash( $_POST['timezone'] ) ) : (string) Settings::get( 'timezone', 'UTC' ),
-			'all_day'       => ! empty( $_POST['all_day'] ),
-			'venue_id'      => isset( $_POST['venue_id'] ) ? absint( wp_unslash( $_POST['venue_id'] ) ) : 0,
-			'capacity'      => isset( $_POST['capacity'] ) ? absint( wp_unslash( $_POST['capacity'] ) ) : 0,
+			'title'          => isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '',
+			'excerpt'        => isset( $_POST['excerpt'] ) ? sanitize_textarea_field( wp_unslash( $_POST['excerpt'] ) ) : '',
+			'content'        => isset( $_POST['content'] ) ? wp_kses_post( wp_unslash( $_POST['content'] ) ) : '',
+			'start'          => isset( $_POST['start'] ) ? sanitize_text_field( wp_unslash( $_POST['start'] ) ) : '',
+			'end'            => isset( $_POST['end'] ) ? sanitize_text_field( wp_unslash( $_POST['end'] ) ) : '',
+			'timezone'       => isset( $_POST['timezone'] ) ? sanitize_text_field( wp_unslash( $_POST['timezone'] ) ) : (string) Settings::get( 'timezone', 'UTC' ),
+			'all_day'        => ! empty( $_POST['all_day'] ),
+			'venue_id'       => isset( $_POST['venue_id'] ) ? absint( wp_unslash( $_POST['venue_id'] ) ) : 0,
+			'capacity'       => isset( $_POST['capacity'] ) ? absint( wp_unslash( $_POST['capacity'] ) ) : 0,
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Meta::sanitize_id_array().
-			'categories'    => Meta::sanitize_id_array( wp_unslash( $_POST['categories'] ?? [] ) ),
-			'tags'          => implode( ', ', $tags ),
-			'tag_names'     => $tags,
+			'categories'     => Meta::sanitize_id_array( wp_unslash( $_POST['categories'] ?? [] ) ),
+			'tags'           => implode( ', ', $tags ),
+			'tag_names'      => $tags,
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Meta::sanitize_id_array().
-			'organizer_ids' => Meta::sanitize_id_array( wp_unslash( $_POST['organizer_ids'] ?? [] ) ),
-			'online_urls'   => Meta::sanitize_urls( $links ),
-			'name'          => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
-			'email'         => isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '',
+			'organizer_ids'  => Meta::sanitize_id_array( wp_unslash( $_POST['organizer_ids'] ?? [] ) ),
+			'online_urls'    => Meta::sanitize_urls( $links ),
+			'repeat'         => isset( $_POST['repeat'] ) ? sanitize_key( wp_unslash( $_POST['repeat'] ) ) : 'none',
+			'interval'       => isset( $_POST['interval'] ) ? max( 1, absint( wp_unslash( $_POST['interval'] ) ) ) : 1,
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized below.
+			'weekdays'       => array_map( 'sanitize_text_field', (array) wp_unslash( $_POST['weekdays'] ?? [] ) ),
+			'monthday'       => isset( $_POST['monthday'] ) ? absint( wp_unslash( $_POST['monthday'] ) ) : 0,
+			'recurrence_end' => isset( $_POST['recurrence_end'] ) ? sanitize_key( wp_unslash( $_POST['recurrence_end'] ) ) : 'never',
+			'until'          => isset( $_POST['until'] ) ? sanitize_text_field( wp_unslash( $_POST['until'] ) ) : '',
+			'count'          => isset( $_POST['count'] ) ? absint( wp_unslash( $_POST['count'] ) ) : 0,
+			'exdates'        => isset( $_POST['exdates'] ) ? sanitize_textarea_field( wp_unslash( $_POST['exdates'] ) ) : '',
+			'rdates'         => isset( $_POST['rdates'] ) ? sanitize_textarea_field( wp_unslash( $_POST['rdates'] ) ) : '',
+			'timeslots'      => Meta::sanitize_timeslots( $slots ),
+			'name'           => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
+			'email'          => isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '',
 		];
 		// phpcs:enable
 
 		return $values;
+	}
+
+	/**
+	 * Parse one local date per line into UTC values.
+	 *
+	 * @param string $text     Raw lines.
+	 * @param string $timezone IANA timezone.
+	 * @return string[]
+	 */
+	private static function parse_date_lines( string $text, string $timezone ): array {
+		$dates = [];
+		$lines = preg_split( '/\r\n|\r|\n/', $text );
+
+		foreach ( is_array( $lines ) ? $lines : [] as $line ) {
+			$line = trim( $line );
+
+			if ( '' === $line ) {
+				continue;
+			}
+
+			$utc = Meta::local_to_utc( $line, $timezone );
+
+			if ( '' !== $utc ) {
+				$dates[] = $utc;
+			}
+		}
+
+		return $dates;
 	}
 
 	/**
@@ -213,6 +282,7 @@ final class Submission_Handler {
 			'rest_event_invalid_start' => 'start',
 			'rest_event_invalid_range' => 'end',
 			'rest_event_invalid_venue' => 'venue_id',
+			'rest_event_invalid_rrule' => 'recurrence',
 		];
 
 		return $map[ $code ] ?? 'form';

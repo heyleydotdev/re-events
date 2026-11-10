@@ -295,7 +295,7 @@ final class Meta {
 			return '';
 		}
 
-		foreach ( [ 'Y-m-d\TH:i', 'Y-m-d H:i:s', 'Y-m-d H:i' ] as $format ) {
+		foreach ( [ 'Y-m-d\TH:i', 'Y-m-d H:i:s', 'Y-m-d H:i', 'Y-m-d' ] as $format ) {
 			$date = DateTimeImmutable::createFromFormat( '!' . $format, $value, new DateTimeZone( $timezone ) );
 
 			if ( $date instanceof DateTimeImmutable ) {

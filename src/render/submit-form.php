@@ -13,6 +13,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use ReEvents\Admin\Settings;
 use ReEvents\Data\Meta;
+use ReEvents\Domain\Recurrence_Rule;
 
 /**
  * Renders the front-end event submission form.
@@ -45,10 +46,19 @@ final class Submit_Form {
 		$end      = (string) ( $values['end'] ?? ( $post ? self::local_input( (string) get_post_meta( $post->ID, '_reevents_end_utc', true ), $timezone ) : '' ) );
 
 		$use_editor = is_user_logged_in();
+		$rule       = Recurrence_Rule::parse( (string) ( $post ? get_post_meta( $post->ID, '_reevents_rrule', true ) : '' ) );
 
 		if ( $use_editor ) {
 			wp_enqueue_editor();
 		}
+
+		wp_enqueue_script(
+			'reevents-submit',
+			plugins_url( 'assets/js/frontend-submit.js', RE_EVENTS_FILE ),
+			[],
+			RE_EVENTS_VERSION,
+			true
+		);
 
 		return Template::render(
 			'submit-form',
@@ -69,6 +79,16 @@ final class Submit_Form {
 				'online_urls'      => is_array( $values['online_urls'] ?? null ) ? $values['online_urls'] : ( $post ? Meta::sanitize_urls( get_post_meta( $post->ID, '_reevents_online_urls', true ) ) : [] ),
 				'name'             => (string) ( $values['name'] ?? ( $post ? get_post_meta( $post->ID, '_reevents_submitter_name', true ) : '' ) ),
 				'email'            => (string) ( $values['email'] ?? ( $post ? get_post_meta( $post->ID, '_reevents_submitter_email', true ) : '' ) ),
+				'repeat'           => (string) ( $values['repeat'] ?? $rule['freq'] ),
+				'interval'         => (int) ( $values['interval'] ?? $rule['interval'] ),
+				'weekdays'         => (array) ( $values['weekdays'] ?? $rule['weekdays'] ),
+				'monthday'         => (int) ( $values['monthday'] ?? $rule['monthday'] ),
+				'recurrence_end'   => (string) ( $values['recurrence_end'] ?? $rule['end'] ),
+				'until'            => (string) ( $values['until'] ?? $rule['until'] ),
+				'count'            => max( 1, (int) ( $values['count'] ?? $rule['count'] ) ),
+				'exdates'          => (string) ( $values['exdates'] ?? ( $post ? self::local_lines( (array) get_post_meta( $post->ID, '_reevents_exdates', true ), $timezone ) : '' ) ),
+				'rdates'           => (string) ( $values['rdates'] ?? ( $post ? self::local_lines( (array) get_post_meta( $post->ID, '_reevents_rdates', true ), $timezone ) : '' ) ),
+				'timeslots'        => is_array( $values['timeslots'] ?? null ) ? $values['timeslots'] : ( $post ? Meta::sanitize_timeslots( get_post_meta( $post->ID, '_reevents_timeslots', true ) ) : [] ),
 				'categories_terms' => self::categories(),
 				'organizers'       => self::organizers(),
 				'venues'           => self::venues(),
@@ -132,6 +152,26 @@ final class Submit_Form {
 		}
 
 		return $date->setTimezone( new DateTimeZone( $timezone ) )->format( 'Y-m-d\TH:i' );
+	}
+
+	/**
+	 * Convert UTC datetimes to local lines.
+	 *
+	 * @param array<int, mixed> $dates    UTC datetimes.
+	 * @param string            $timezone IANA timezone.
+	 */
+	private static function local_lines( array $dates, string $timezone ): string {
+		$lines = [];
+
+		foreach ( $dates as $utc ) {
+			$date = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', (string) $utc, new DateTimeZone( 'UTC' ) );
+
+			if ( $date instanceof DateTimeImmutable ) {
+				$lines[] = $date->setTimezone( new DateTimeZone( $timezone ) )->format( 'Y-m-d H:i' );
+			}
+		}
+
+		return implode( "\n", $lines );
 	}
 
 	/**

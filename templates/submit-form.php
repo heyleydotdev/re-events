@@ -95,6 +95,123 @@ echo '<p class="reevents-submit-field reevents-submit-checkbox">';
 echo '<label><input type="checkbox" name="all_day" value="1" ' . checked( $args['all_day'], true, false ) . ' /> ' . esc_html( (string) ( $widget_args['all_day_label'] ?? __( 'All-day event', 're-events' ) ) ) . '</label>';
 echo '</p>';
 
+$recurrence_error = (string) ( $field_errors['recurrence'] ?? '' );
+echo '<fieldset class="reevents-submit-field reevents-submit-recurrence">';
+echo '<legend>' . esc_html( (string) ( $widget_args['recurrence_label'] ?? __( 'Repeat', 're-events' ) ) ) . '</legend>';
+echo '<p>';
+echo '<label for="reevents-submit-repeat">' . esc_html__( 'Frequency', 're-events' ) . '</label>';
+echo '<select id="reevents-submit-repeat" name="repeat">';
+
+foreach ( [
+	'none'    => __( 'Does not repeat', 're-events' ),
+	'daily'   => __( 'Daily', 're-events' ),
+	'weekly'  => __( 'Weekly', 're-events' ),
+	'monthly' => __( 'Monthly', 're-events' ),
+	'yearly'  => __( 'Yearly', 're-events' ),
+] as $value => $label ) {
+	echo '<option value="' . esc_attr( $value ) . '" ' . selected( $args['repeat'], $value, false ) . '>' . esc_html( $label ) . '</option>';
+}
+
+echo '</select>';
+echo '</p>';
+
+echo '<p>';
+echo '<label for="reevents-submit-interval">' . esc_html__( 'Every', 're-events' ) . '</label>';
+echo '<input type="number" id="reevents-submit-interval" name="interval" min="1" step="1" value="' . esc_attr( (string) $args['interval'] ) . '" />';
+echo '</p>';
+
+echo '<p class="reevents-submit-weekdays">';
+echo '<span>' . esc_html__( 'On days', 're-events' ) . '</span>';
+
+foreach ( [
+	'MO' => __( 'Mon', 're-events' ),
+	'TU' => __( 'Tue', 're-events' ),
+	'WE' => __( 'Wed', 're-events' ),
+	'TH' => __( 'Thu', 're-events' ),
+	'FR' => __( 'Fri', 're-events' ),
+	'SA' => __( 'Sat', 're-events' ),
+	'SU' => __( 'Sun', 're-events' ),
+] as $day => $label ) {
+	echo '<label><input type="checkbox" name="weekdays[]" value="' . esc_attr( $day ) . '" ' . checked( in_array( $day, (array) $args['weekdays'], true ), true, false ) . ' /> ' . esc_html( $label ) . '</label>';
+}
+
+echo '</p>';
+
+echo '<p>';
+echo '<label for="reevents-submit-monthday">' . esc_html__( 'Day of month', 're-events' ) . '</label>';
+echo '<input type="number" id="reevents-submit-monthday" name="monthday" min="1" max="31" step="1" value="' . esc_attr( (string) $args['monthday'] ) . '" />';
+echo '</p>';
+
+echo '<p>';
+echo '<label for="reevents-submit-recurrence-end">' . esc_html__( 'Ends', 're-events' ) . '</label>';
+echo '<select id="reevents-submit-recurrence-end" name="recurrence_end">';
+
+foreach ( [
+	'never' => __( 'Never', 're-events' ),
+	'until' => __( 'On a date', 're-events' ),
+	'count' => __( 'After a number of times', 're-events' ),
+] as $value => $label ) {
+	echo '<option value="' . esc_attr( $value ) . '" ' . selected( $args['recurrence_end'], $value, false ) . '>' . esc_html( $label ) . '</option>';
+}
+
+echo '</select>';
+echo '</p>';
+
+echo '<p>';
+echo '<label for="reevents-submit-until">' . esc_html__( 'Until', 're-events' ) . '</label>';
+echo '<input type="date" id="reevents-submit-until" name="until" value="' . esc_attr( $args['until'] ) . '" />';
+echo '</p>';
+
+echo '<p>';
+echo '<label for="reevents-submit-count">' . esc_html__( 'Count', 're-events' ) . '</label>';
+echo '<input type="number" id="reevents-submit-count" name="count" min="1" step="1" value="' . esc_attr( (string) $args['count'] ) . '" />';
+echo '</p>';
+echo '<span class="reevents-field-error" role="alert">' . esc_html( $recurrence_error ) . '</span>';
+echo '</fieldset>';
+
+echo '<p class="reevents-submit-field">';
+echo '<label for="reevents-submit-exdates">' . esc_html__( 'Excluded dates', 're-events' ) . '</label>';
+echo '<textarea id="reevents-submit-exdates" name="exdates" rows="3" placeholder="2026-12-24 18:00">' . esc_textarea( $args['exdates'] ) . '</textarea>';
+echo '<span class="description">' . esc_html__( 'One local date and time per line.', 're-events' ) . '</span>';
+echo '</p>';
+
+echo '<p class="reevents-submit-field">';
+echo '<label for="reevents-submit-rdates">' . esc_html__( 'Extra dates', 're-events' ) . '</label>';
+echo '<textarea id="reevents-submit-rdates" name="rdates" rows="3" placeholder="2026-12-31 18:00">' . esc_textarea( $args['rdates'] ) . '</textarea>';
+echo '<span class="description">' . esc_html__( 'One local date and time per line.', 're-events' ) . '</span>';
+echo '</p>';
+
+echo '<fieldset class="reevents-submit-field reevents-submit-timeslots" data-reevents-timeslots>';
+echo '<legend>' . esc_html__( 'Timeslots', 're-events' ) . '</legend>';
+echo '<div class="reevents-timeslot-rows">';
+$slot_rows = max( 3, count( $args['timeslots'] ) + 1 );
+$slot_rows = min( 10, $slot_rows );
+
+for ( $i = 0; $i < $slot_rows; $i++ ) {
+	$slot = $args['timeslots'][ $i ] ?? [
+		'start'    => '',
+		'end'      => '',
+		'capacity' => 0,
+	];
+
+	echo '<p class="reevents-timeslot-row">';
+	echo '<label>' . esc_html__( 'Start', 're-events' ) . '<input type="time" name="timeslots[start][]" value="' . esc_attr( (string) $slot['start'] ) . '" /></label>';
+	echo '<label>' . esc_html__( 'End', 're-events' ) . '<input type="time" name="timeslots[end][]" value="' . esc_attr( (string) $slot['end'] ) . '" /></label>';
+	echo '<label>' . esc_html__( 'Capacity', 're-events' ) . '<input type="number" name="timeslots[capacity][]" min="0" step="1" value="' . esc_attr( (string) $slot['capacity'] ) . '" /></label>';
+	echo '<button type="button" class="button-link" data-reevents-remove-timeslot>' . esc_html__( 'Remove', 're-events' ) . '</button>';
+	echo '</p>';
+}
+
+echo '</div>';
+echo '<button type="button" class="button" data-reevents-add-timeslot>' . esc_html__( 'Add timeslot', 're-events' ) . '</button>';
+echo '<template class="reevents-timeslot-template"><p class="reevents-timeslot-row">';
+echo '<label>' . esc_html__( 'Start', 're-events' ) . '<input type="time" name="timeslots[start][]" value="" /></label>';
+echo '<label>' . esc_html__( 'End', 're-events' ) . '<input type="time" name="timeslots[end][]" value="" /></label>';
+echo '<label>' . esc_html__( 'Capacity', 're-events' ) . '<input type="number" name="timeslots[capacity][]" min="0" step="1" value="" /></label>';
+echo '<button type="button" class="button-link" data-reevents-remove-timeslot>' . esc_html__( 'Remove', 're-events' ) . '</button>';
+echo '</p></template>';
+echo '</fieldset>';
+
 if ( ! empty( $args['venues'] ) ) {
 	echo '<p class="reevents-submit-field">';
 	echo '<label for="reevents-submit-venue">' . esc_html( (string) ( $widget_args['venue_label'] ?? __( 'Venue', 're-events' ) ) ) . '</label>';
