@@ -392,6 +392,16 @@ final class Settings {
 			],
 			'api_rest'
 		);
+		self::add_field(
+			'api',
+			'feed_token',
+			__( 'Feed token', 're-events' ),
+			[
+				'type'        => 'text',
+				'description' => __( 'Optional token for private iCal and RSS links. Leave empty to keep private events out of feeds.', 're-events' ),
+			],
+			'api_rest'
+		);
 	}
 
 	/**
@@ -797,6 +807,7 @@ final class Settings {
 				$settings['api_per_page']   = max( 1, min( 100, absint( $input['api_per_page'] ?? 10 ) ) );
 				$settings['api_rate_limit'] = max( 0, min( 1000, absint( $input['api_rate_limit'] ?? 0 ) ) );
 				$settings['api_cors']       = self::sanitize_origins( (string) ( $input['api_cors'] ?? '' ) );
+				$settings['feed_token']     = sanitize_text_field( (string) ( $input['feed_token'] ?? '' ) );
 				break;
 		}
 
@@ -828,6 +839,7 @@ final class Settings {
 			'api_per_page'             => 10,
 			'api_rate_limit'           => 0,
 			'api_cors'                 => '',
+			'feed_token'               => '',
 			'payment_gateway'          => 'none',
 			'stripe_secret_key'        => '',
 			'stripe_webhook_secret'    => '',

@@ -31,8 +31,10 @@ use ReEvents\CLI\Shortcode_Docs;
 use ReEvents\Frontend\Assets as Frontend_Assets;
 use ReEvents\Frontend\Blocks;
 use ReEvents\Frontend\Booking_Handler;
+use ReEvents\Frontend\Feeds;
 use ReEvents\Frontend\Payment_Return;
 use ReEvents\Frontend\Shortcodes;
+use ReEvents\Frontend\Structured_Data;
 use ReEvents\Frontend\Submission_Handler;
 use ReEvents\Render\Widget_Registry;
 use ReEvents\REST\Routes;
@@ -103,6 +105,8 @@ final class Plugin {
 		Booking_Handler::register();
 		Payment_Return::register();
 		Submission_Handler::register();
+		Feeds::register();
+		Structured_Data::register();
 		Frontend_Assets::register();
 		Menu::register();
 
