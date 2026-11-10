@@ -338,6 +338,11 @@ final class OpenAPI {
 					'type'       => 'object',
 					'properties' => [
 						'status' => [ 'type' => 'integer' ],
+						'errors' => [
+							'type'                 => 'object',
+							'description'          => 'Field-level validation messages keyed by field path.',
+							'additionalProperties' => [ 'type' => 'string' ],
+						],
 					],
 				],
 			],
