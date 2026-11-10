@@ -36,9 +36,12 @@ final class Export_Attendees {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputcsv -- CLI CSV output.
 		fputcsv( STDOUT, Attendee_Export::header() );
 
-		foreach ( Attendee_Export::rows( $event_id ) as $row ) {
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputcsv -- CLI CSV output.
-			fputcsv( STDOUT, array_map( [ Attendee_Export::class, 'cell' ], $row ) );
-		}
+		Attendee_Export::each(
+			$event_id,
+			static function ( array $row ): void {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputcsv -- CLI CSV output.
+				fputcsv( STDOUT, array_map( [ Attendee_Export::class, 'cell' ], $row ) );
+			}
+		);
 	}
 }

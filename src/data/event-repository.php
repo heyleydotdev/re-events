@@ -103,6 +103,10 @@ final class Event_Repository {
 			return false;
 		}
 
+		if ( ( new Booking_Repository() )->count_for_event( $id ) > 0 ) {
+			return false;
+		}
+
 		return wp_delete_post( $id, true ) instanceof WP_Post;
 	}
 

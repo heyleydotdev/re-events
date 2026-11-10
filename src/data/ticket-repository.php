@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Data;
 
+use ReEvents\Services\Currency;
 use WP_Error;
 
 /**
@@ -93,7 +94,7 @@ final class Ticket_Repository {
 			'name'            => sanitize_text_field( (string) ( $ticket['name'] ?? '' ) ),
 			'description'     => sanitize_textarea_field( (string) ( $ticket['description'] ?? '' ) ),
 			'price_minor'     => max( 0, (int) ( $ticket['price_minor'] ?? 0 ) ),
-			'currency'        => $this->currency( (string) ( $ticket['currency'] ?? 'USD' ) ),
+			'currency'        => Currency::sanitize_code( (string) ( $ticket['currency'] ?? 'USD' ) ),
 			'capacity'        => max( 0, (int) ( $ticket['capacity'] ?? 0 ) ),
 			'min_per_booking' => max( 1, (int) ( $ticket['min_per_booking'] ?? 1 ) ),
 			'max_per_booking' => max( 0, (int) ( $ticket['max_per_booking'] ?? 0 ) ),
@@ -104,6 +105,14 @@ final class Ticket_Repository {
 
 		if ( '' === $data['name'] || ! $data['event_id'] ) {
 			return new WP_Error( 'reevents_ticket_invalid', __( 'A ticket name and event are required.', 're-events' ), [ 'status' => 400 ] );
+		}
+
+		if ( $data['max_per_booking'] > 0 && $data['max_per_booking'] < $data['min_per_booking'] ) {
+			return new WP_Error( 'reevents_ticket_invalid_quantity', __( 'The maximum seats must not be below the minimum seats.', 're-events' ), [ 'status' => 400 ] );
+		}
+
+		if ( null !== $data['sale_start_utc'] && null !== $data['sale_end_utc'] && $data['sale_end_utc'] < $data['sale_start_utc'] ) {
+			return new WP_Error( 'reevents_ticket_invalid_sale_window', __( 'Ticket sales must end after they start.', 're-events' ), [ 'status' => 400 ] );
 		}
 
 		$formats = [ '%d', '%s', '%s', '%d', '%s', '%d', '%d', '%d', '%s', '%s', '%s' ];
@@ -128,6 +137,10 @@ final class Ticket_Repository {
 	 */
 	public function delete( int $id ): bool {
 		global $wpdb;
+
+		if ( ( new Booking_Repository() )->count_for_ticket( $id ) > 0 ) {
+			return false;
+		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Ticket storage.
 		$result = $wpdb->delete( $this->table(), [ 'id' => $id ], [ '%d' ] );
@@ -206,16 +219,5 @@ final class Ticket_Repository {
 			'sale_end_utc'    => (string) ( $row['sale_end_utc'] ?? '' ),
 			'status'          => (string) ( $row['status'] ?? 'active' ),
 		];
-	}
-
-	/**
-	 * Sanitize a currency code.
-	 *
-	 * @param string $currency Raw code.
-	 */
-	private function currency( string $currency ): string {
-		$currency = strtoupper( preg_replace( '/[^A-Za-z]/', '', $currency ) ?? '' );
-
-		return 3 === strlen( $currency ) ? $currency : 'USD';
 	}
 }

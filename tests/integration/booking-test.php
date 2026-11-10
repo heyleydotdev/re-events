@@ -10,6 +10,8 @@ declare( strict_types=1 );
 namespace ReEvents\Tests\Integration;
 
 use ReEvents\CLI\Test_Factory;
+use ReEvents\Data\Event_Repository;
+use ReEvents\Data\Ticket_Repository;
 use ReEvents\Services\Booking_Service;
 use WP_UnitTestCase;
 
@@ -182,5 +184,45 @@ final class Booking_Test extends WP_UnitTestCase {
 		);
 
 		self::assertIsInt( $again );
+	}
+
+	/**
+	 * An event with bookings cannot be deleted.
+	 */
+	public function test_event_with_booking_cannot_be_deleted(): void {
+		$event  = Test_Factory::event( [ 'title' => 'Delete event test' ] );
+		$ticket = Test_Factory::ticket( $event );
+
+		self::assertIsInt(
+			Booking_Service::create(
+				[
+					'event_id'  => $event,
+					'ticket_id' => $ticket,
+					'quantity'  => 1,
+				]
+			)
+		);
+
+		self::assertFalse( ( new Event_Repository() )->delete( $event ) );
+	}
+
+	/**
+	 * A ticket with bookings cannot be deleted.
+	 */
+	public function test_ticket_with_booking_cannot_be_deleted(): void {
+		$event  = Test_Factory::event( [ 'title' => 'Delete ticket test' ] );
+		$ticket = Test_Factory::ticket( $event );
+
+		self::assertIsInt(
+			Booking_Service::create(
+				[
+					'event_id'  => $event,
+					'ticket_id' => $ticket,
+					'quantity'  => 1,
+				]
+			)
+		);
+
+		self::assertFalse( ( new Ticket_Repository() )->delete( $ticket ) );
 	}
 }

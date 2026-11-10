@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Data;
 
+use ReEvents\Services\Currency;
 use WP_Error;
 
 /**
@@ -100,7 +101,7 @@ final class Booking_Repository {
 			'quantity'      => max( 1, (int) ( $booking['quantity'] ?? 1 ) ),
 			'status'        => (string) ( $booking['status'] ?? 'pending' ),
 			'total_minor'   => max( 0, (int) ( $booking['total_minor'] ?? 0 ) ),
-			'currency'      => (string) ( $booking['currency'] ?? 'USD' ),
+			'currency'      => Currency::sanitize_code( (string) ( $booking['currency'] ?? 'USD' ) ),
 			'gateway'       => (string) ( $booking['gateway'] ?? '' ),
 			'gateway_ref'   => (string) ( $booking['gateway_ref'] ?? '' ),
 			'created_utc'   => (string) ( $booking['created_utc'] ?? current_time( 'mysql', true ) ),
@@ -126,23 +127,6 @@ final class Booking_Repository {
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Booking transaction.
 		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d FOR UPDATE", $id ), ARRAY_A );
-
-		return is_array( $row ) ? $this->hydrate( $row ) : null;
-	}
-
-	/**
-	 * Find a booking by its reference.
-	 *
-	 * @param string $reference Reference.
-	 * @return array<string, mixed>|null
-	 */
-	public function find_by_reference( string $reference ): ?array {
-		global $wpdb;
-
-		$table = $this->table();
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
-		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE reference = %s", $reference ), ARRAY_A );
 
 		return is_array( $row ) ? $this->hydrate( $row ) : null;
 	}
@@ -206,6 +190,20 @@ final class Booking_Repository {
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Internal table name and dynamic filters.
 		return (int) $wpdb->get_var( $wpdb->prepare( $sql, ...$args ) );
 		// phpcs:enable
+	}
+
+	/**
+	 * Count bookings for a ticket.
+	 *
+	 * @param int $ticket_id Ticket ID.
+	 */
+	public function count_for_ticket( int $ticket_id ): int {
+		global $wpdb;
+
+		$table = $this->table();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE ticket_id = %d", $ticket_id ) );
 	}
 
 	/**
@@ -347,7 +345,7 @@ final class Booking_Repository {
 		$ids = $wpdb->get_col(
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
-				"SELECT id FROM {$table} WHERE status = 'pending' AND created_utc < %s AND id > %d ORDER BY id ASC LIMIT %d",
+				"SELECT b.id FROM {$table} b WHERE b.status = 'pending' AND b.total_minor > 0 AND b.created_utc < %s AND b.id > %d AND NOT EXISTS ( SELECT 1 FROM {$wpdb->prefix}reevents_payments p WHERE p.booking_id = b.id AND p.status = 'succeeded' ) ORDER BY b.id ASC LIMIT %d",
 				$cutoff,
 				max( 0, $last_id ),
 				max( 1, $limit )
@@ -479,30 +477,33 @@ final class Booking_Repository {
 	 * Get attendees for an event export.
 	 *
 	 * @param int $event_id Event ID, or 0 for all.
+	 * @param int $limit    Maximum rows, or 0 for all.
+	 * @param int $offset   Offset.
 	 * @return array<int, array<string, mixed>>
 	 */
-	public function attendees_for_event( int $event_id = 0 ): array {
+	public function attendees_for_event( int $event_id = 0, int $limit = 0, int $offset = 0 ): array {
 		global $wpdb;
 
 		$bookings  = $this->table();
 		$attendees = $this->attendees_table();
 		$tickets   = $wpdb->prefix . 'reevents_tickets';
-
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal tables.
-		$rows = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT a.id, a.booking_id, a.name, a.email, a.fields_json, a.checked_in, b.reference, b.status AS booking_status, b.event_id, b.created_utc, t.name AS ticket_name, p.post_title AS event_title
+		$sql       = "SELECT a.id, a.booking_id, a.name, a.email, a.fields_json, a.checked_in, b.reference, b.status AS booking_status, b.event_id, b.created_utc, t.name AS ticket_name, p.post_title AS event_title
 				FROM {$attendees} a
 				INNER JOIN {$bookings} b ON b.id = a.booking_id
 				LEFT JOIN {$tickets} t ON t.id = a.ticket_id
 				LEFT JOIN {$wpdb->posts} p ON p.ID = b.event_id
 				WHERE ( %d = 0 OR b.event_id = %d )
-				ORDER BY b.created_utc DESC, a.id ASC",
-				$event_id,
-				$event_id
-			),
-			ARRAY_A
-		);
+				ORDER BY b.created_utc DESC, a.id ASC";
+		$args      = [ $event_id, $event_id ];
+
+		if ( $limit > 0 ) {
+			$sql   .= ' LIMIT %d OFFSET %d';
+			$args[] = $limit;
+			$args[] = max( 0, $offset );
+		}
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Internal tables.
+		$rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$args ), ARRAY_A );
 		// phpcs:enable
 
 		return is_array( $rows ) ? $rows : [];

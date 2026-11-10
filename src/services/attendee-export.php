@@ -26,31 +26,47 @@ final class Attendee_Export {
 	}
 
 	/**
-	 * Build rows for an event.
+	 * Stream export rows in batches.
 	 *
-	 * @param int $event_id Event ID, or 0 for all.
-	 * @return array<int, string[]>
+	 * @param int      $event_id Event ID, or 0 for all.
+	 * @param callable $callback Receives one row.
 	 */
-	public static function rows( int $event_id ): array {
-		$records = ( new Booking_Repository() )->attendees_for_event( $event_id );
-		$rows    = [];
+	public static function each( int $event_id, callable $callback ): void {
+		$repo   = new Booking_Repository();
+		$offset = 0;
+		$batch  = 500;
 
-		foreach ( $records as $record ) {
-			$rows[] = [
-				(string) ( $record['booking_id'] ?? '' ),
-				(string) ( $record['reference'] ?? '' ),
-				(string) ( $record['booking_status'] ?? '' ),
-				(string) ( $record['event_title'] ?? '' ),
-				(string) ( $record['ticket_name'] ?? '' ),
-				(string) ( $record['name'] ?? '' ),
-				(string) ( $record['email'] ?? '' ),
-				self::fields( $record['fields_json'] ?? '' ),
-				! empty( $record['checked_in'] ) ? 'yes' : 'no',
-				(string) ( $record['created_utc'] ?? '' ),
-			];
-		}
+		do {
+			$records = $repo->attendees_for_event( $event_id, $batch, $offset );
 
-		return $rows;
+			foreach ( $records as $record ) {
+				$callback( self::row( $record ) );
+			}
+
+			$offset += $batch;
+			$count   = count( $records );
+		} while ( $count === $batch );
+	}
+
+	/**
+	 * Build one export row.
+	 *
+	 * @param array<string, mixed> $record Attendee record.
+	 * @return string[]
+	 */
+	private static function row( array $record ): array {
+		return [
+			(string) ( $record['booking_id'] ?? '' ),
+			(string) ( $record['reference'] ?? '' ),
+			(string) ( $record['booking_status'] ?? '' ),
+			(string) ( $record['event_title'] ?? '' ),
+			(string) ( $record['ticket_name'] ?? '' ),
+			(string) ( $record['name'] ?? '' ),
+			(string) ( $record['email'] ?? '' ),
+			self::fields( $record['fields_json'] ?? '' ),
+			! empty( $record['checked_in'] ) ? 'yes' : 'no',
+			(string) ( $record['created_utc'] ?? '' ),
+		];
 	}
 
 	/**

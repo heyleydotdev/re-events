@@ -101,10 +101,13 @@ final class Attendees {
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputcsv -- CSV download.
 			fputcsv( $output, Attendee_Export::header() );
 
-			foreach ( Attendee_Export::rows( $event_id ) as $row ) {
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputcsv -- CSV download.
-				fputcsv( $output, array_map( [ Attendee_Export::class, 'cell' ], $row ) );
-			}
+			Attendee_Export::each(
+				$event_id,
+				static function ( array $row ) use ( $output ): void {
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fputcsv -- CSV download.
+					fputcsv( $output, array_map( [ Attendee_Export::class, 'cell' ], $row ) );
+				}
+			);
 
 			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- CSV download.
 			fclose( $output );
