@@ -3031,6 +3031,17 @@
                     {
                         "ApplicationPassword": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "name": "gateway",
+                        "in": "path",
+                        "required": true,
+                        "description": "Payment gateway ID.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
                 ]
             }
         }

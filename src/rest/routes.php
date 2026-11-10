@@ -174,6 +174,13 @@ final class Routes {
 				'methods'             => 'POST',
 				'callback'            => [ self::class, 'webhook' ],
 				'permission_callback' => '__return_true',
+				'args'                => [
+					'gateway' => [
+						'description' => __( 'Payment gateway ID.', 're-events' ),
+						'type'        => 'string',
+						'required'    => true,
+					],
+				],
 			]
 		);
 	}
