@@ -111,11 +111,11 @@ final class PayPal_Gateway implements Gateway {
 			'POST',
 			'v1/notifications/verify-webhook-signature',
 			[
-				'auth_algo'         => $this->header( $headers, 'paypal_auth_algo' ),
-				'cert_url'          => $this->header( $headers, 'paypal_cert_url' ),
-				'transmission_id'   => $this->header( $headers, 'paypal_transmission_id' ),
-				'transmission_sig'  => $this->header( $headers, 'paypal_transmission_sig' ),
-				'transmission_time' => $this->header( $headers, 'paypal_transmission_time' ),
+				'auth_algo'         => Gateway_Utils::header( $headers, 'paypal_auth_algo' ),
+				'cert_url'          => Gateway_Utils::header( $headers, 'paypal_cert_url' ),
+				'transmission_id'   => Gateway_Utils::header( $headers, 'paypal_transmission_id' ),
+				'transmission_sig'  => Gateway_Utils::header( $headers, 'paypal_transmission_sig' ),
+				'transmission_time' => Gateway_Utils::header( $headers, 'paypal_transmission_time' ),
 				'webhook_id'        => $webhook_id,
 				'webhook_event'     => $event,
 			]
@@ -229,24 +229,6 @@ final class PayPal_Gateway implements Gateway {
 		}
 
 		return [ 'status' => 'pending' ];
-	}
-
-	/**
-	 * Read a header by normalized name.
-	 *
-	 * @param array<string, mixed> $headers Headers.
-	 * @param string               $name    Normalized name.
-	 */
-	private function header( array $headers, string $name ): string {
-		foreach ( $headers as $key => $value ) {
-			if ( strtolower( str_replace( '-', '_', (string) $key ) ) !== $name ) {
-				continue;
-			}
-
-			return is_array( $value ) ? (string) reset( $value ) : (string) $value;
-		}
-
-		return '';
 	}
 
 	/**
