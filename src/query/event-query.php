@@ -9,8 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Query;
 
-use DateTimeImmutable;
-use DateTimeZone;
+use ReEvents\Data\Meta;
 use ReEvents\Data\Occurrence_Repository;
 use WP_Query;
 
@@ -28,8 +27,8 @@ final class Event_Query {
 	public static function query( array $args = [] ): array {
 		$per_page = min( 100, max( 1, (int) ( $args['per_page'] ?? $args['limit'] ?? 10 ) ) );
 		$page     = max( 1, (int) ( $args['page'] ?? 1 ) );
-		$from     = self::date( (string) ( $args['from'] ?? '' ) );
-		$to       = self::date( (string) ( $args['to'] ?? '' ) );
+		$from     = Meta::sanitize_date( (string) ( $args['from'] ?? '' ) );
+		$to       = Meta::sanitize_date( (string) ( $args['to'] ?? '' ) );
 		$upcoming = ! empty( $args['upcoming'] );
 		$total    = null;
 
@@ -121,22 +120,5 @@ final class Event_Query {
 			'total' => $total,
 			'pages' => $pages,
 		];
-	}
-
-	/**
-	 * Validate a Y-m-d date.
-	 *
-	 * @param string $value Raw date.
-	 */
-	private static function date( string $value ): string {
-		$value = trim( $value );
-
-		if ( '' === $value ) {
-			return '';
-		}
-
-		$date = DateTimeImmutable::createFromFormat( '!Y-m-d', $value, new DateTimeZone( 'UTC' ) );
-
-		return $date instanceof DateTimeImmutable ? $date->format( 'Y-m-d' ) : '';
 	}
 }

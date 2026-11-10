@@ -4,7 +4,7 @@
  *
  * @package ReEvents
  *
- * @var array{event: \ReEvents\Domain\Event, content: string, venue: string, organizers: array<int, array{name:string,type:string}>, permalink: string, args: array<string, mixed>} $args
+ * @var array{event: \ReEvents\Domain\Event, content: string, venue: string, organizers: array<int, array{name:string,type:string}>, args: array<string, mixed>} $args
  */
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are scoped to the template include.

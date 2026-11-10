@@ -28,6 +28,22 @@ use WP_Post;
 final class Occurrence_Service {
 
 	/**
+	 * Whether status-change syncs are deferred.
+	 *
+	 * @var bool
+	 */
+	private static bool $deferred = false;
+
+	/**
+	 * Defer or resume status-change syncs.
+	 *
+	 * @param bool $defer Defer flag.
+	 */
+	public static function defer( bool $defer ): void {
+		self::$deferred = $defer;
+	}
+
+	/**
 	 * Hook into WordPress.
 	 */
 	public static function register(): void {
@@ -57,6 +73,10 @@ final class Occurrence_Service {
 	 * @param WP_Post $post       Post object.
 	 */
 	public static function on_status_change( string $new_status, string $old_status, WP_Post $post ): void {
+		if ( self::$deferred ) {
+			return;
+		}
+
 		if ( 'reevents_event' !== $post->post_type || $new_status === $old_status ) {
 			return;
 		}

@@ -52,36 +52,38 @@ final class Occurrence_Repository {
 		$this->delete_for_event( $event_id );
 
 		if ( $occurrences ) {
-			$values       = [];
-			$placeholders = [];
+			foreach ( array_chunk( $occurrences, 200 ) as $chunk ) {
+				$values       = [];
+				$placeholders = [];
 
-			foreach ( $occurrences as $occurrence ) {
-				$placeholders[] = '(%d,%s,%s,%s,%s,%d,%s)';
-				array_push(
-					$values,
-					$event_id,
-					(string) ( $occurrence['start_utc'] ?? '' ),
-					(string) ( $occurrence['end_utc'] ?? '' ),
-					(string) ( $occurrence['timezone'] ?? 'UTC' ),
-					(string) ( $occurrence['timeslot_key'] ?? '' ),
-					(int) ( $occurrence['capacity'] ?? 0 ),
-					(string) ( $occurrence['status'] ?? 'scheduled' )
+				foreach ( $chunk as $occurrence ) {
+					$placeholders[] = '(%d,%s,%s,%s,%s,%d,%s)';
+					array_push(
+						$values,
+						$event_id,
+						(string) ( $occurrence['start_utc'] ?? '' ),
+						(string) ( $occurrence['end_utc'] ?? '' ),
+						(string) ( $occurrence['timezone'] ?? 'UTC' ),
+						(string) ( $occurrence['timeslot_key'] ?? '' ),
+						(int) ( $occurrence['capacity'] ?? 0 ),
+						(string) ( $occurrence['status'] ?? 'scheduled' )
+					);
+				}
+
+				// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Internal table name and generated placeholders.
+				$result = $wpdb->query(
+					$wpdb->prepare(
+						"INSERT INTO {$table} (event_id,start_utc,end_utc,timezone,timeslot_key,capacity,status) VALUES " . implode( ',', $placeholders ),
+						...$values
+					)
 				);
-			}
+				// phpcs:enable
 
-			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Internal table name and generated placeholders.
-			$result = $wpdb->query(
-				$wpdb->prepare(
-					"INSERT INTO {$table} (event_id,start_utc,end_utc,timezone,timeslot_key,capacity,status) VALUES " . implode( ',', $placeholders ),
-					...$values
-				)
-			);
-			// phpcs:enable
-
-			if ( false === $result ) {
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
-				$wpdb->query( 'ROLLBACK' );
-				return false;
+				if ( false === $result ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
+					$wpdb->query( 'ROLLBACK' );
+					return false;
+				}
 			}
 		}
 

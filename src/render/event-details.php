@@ -71,7 +71,6 @@ final class Event_Details {
 				'content'    => $content,
 				'venue'      => $venue,
 				'organizers' => $organizers,
-				'permalink'  => get_permalink( $id ),
 				'args'       => $args,
 			]
 		);

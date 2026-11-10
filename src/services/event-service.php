@@ -11,6 +11,8 @@ namespace ReEvents\Services;
 
 use ReEvents\Data\Event_Repository;
 use ReEvents\Domain\Event;
+use InvalidArgumentException;
+use RRule\RRule;
 use WP_Error;
 
 /**
@@ -31,13 +33,21 @@ final class Event_Service {
 			return $error;
 		}
 
+		$is_new = 0 === $event->id;
+
+		Occurrence_Service::defer( true );
 		$result = ( new Event_Repository() )->save( $event );
+		Occurrence_Service::defer( false );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
 
 		if ( ! Occurrence_Service::sync( (int) $result ) ) {
+			if ( $is_new ) {
+				( new Event_Repository() )->delete( (int) $result );
+			}
+
 			return new WP_Error( 'rest_event_occurrences_failed', __( 'The event was saved, but occurrences could not be rebuilt.', 're-events' ), [ 'status' => 500 ] );
 		}
 
@@ -61,6 +71,14 @@ final class Event_Service {
 
 		if ( '' !== $event->end_utc && $event->end_utc < $event->start_utc ) {
 			return new WP_Error( 'rest_event_invalid_range', __( 'The end time must not be before the start time.', 're-events' ), [ 'status' => 400 ] );
+		}
+
+		if ( '' !== $event->rrule ) {
+			try {
+				new RRule( $event->rrule, new \DateTime( 'now', new \DateTimeZone( 'UTC' ) ) );
+			} catch ( InvalidArgumentException ) {
+				return new WP_Error( 'rest_event_invalid_rrule', __( 'The recurrence rule is invalid.', 're-events' ), [ 'status' => 400 ] );
+			}
 		}
 
 		if ( $event->venue_id && 'reevents_venue' !== get_post_type( $event->venue_id ) ) {

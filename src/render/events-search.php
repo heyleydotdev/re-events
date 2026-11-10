@@ -9,8 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Render;
 
-use DateTimeImmutable;
-use DateTimeZone;
+use ReEvents\Data\Meta;
 
 /**
  * Renders the events search form and results.
@@ -76,8 +75,8 @@ final class Events_Search {
 		$search   = isset( $_GET['reevents_search'] ) ? sanitize_text_field( wp_unslash( $_GET['reevents_search'] ) ) : '';
 		$category = isset( $_GET['reevents_category'] ) ? absint( wp_unslash( $_GET['reevents_category'] ) ) : 0;
 		$venue    = isset( $_GET['reevents_venue_filter'] ) ? absint( wp_unslash( $_GET['reevents_venue_filter'] ) ) : 0;
-		$from     = self::date( isset( $_GET['reevents_from'] ) ? sanitize_text_field( wp_unslash( $_GET['reevents_from'] ) ) : '' );
-		$to       = self::date( isset( $_GET['reevents_to'] ) ? sanitize_text_field( wp_unslash( $_GET['reevents_to'] ) ) : '' );
+		$from     = Meta::sanitize_date( isset( $_GET['reevents_from'] ) ? sanitize_text_field( wp_unslash( $_GET['reevents_from'] ) ) : '' );
+		$to       = Meta::sanitize_date( isset( $_GET['reevents_to'] ) ? sanitize_text_field( wp_unslash( $_GET['reevents_to'] ) ) : '' );
 		$upcoming = ! empty( $_GET['reevents_upcoming'] );
 		// phpcs:enable
 
@@ -140,11 +139,12 @@ final class Events_Search {
 	 * @return array<int, array{id:int,title:string}>
 	 */
 	private static function venues(): array {
+		$limit  = max( 1, (int) apply_filters( 'reevents_venue_dropdown_limit', 500 ) );
 		$posts  = get_posts(
 			[
 				'post_type'      => 'reevents_venue',
 				'post_status'    => 'publish',
-				'posts_per_page' => 100,
+				'posts_per_page' => $limit,
 				'orderby'        => 'title',
 				'order'          => 'ASC',
 			]
@@ -159,22 +159,5 @@ final class Events_Search {
 		}
 
 		return $venues;
-	}
-
-	/**
-	 * Validate a Y-m-d date.
-	 *
-	 * @param string $value Raw date.
-	 */
-	private static function date( string $value ): string {
-		$value = trim( $value );
-
-		if ( '' === $value ) {
-			return '';
-		}
-
-		$date = DateTimeImmutable::createFromFormat( '!Y-m-d', $value, new DateTimeZone( 'UTC' ) );
-
-		return $date instanceof DateTimeImmutable ? $date->format( 'Y-m-d' ) : '';
 	}
 }

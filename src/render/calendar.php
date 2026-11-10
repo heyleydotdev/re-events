@@ -77,6 +77,8 @@ final class Calendar {
 		$utc         = new DateTimeZone( 'UTC' );
 		$by_date     = [];
 		$event_cache = [];
+		$grid_start  = $month_start->modify( '-' . ( (int) $month_start->format( 'N' ) - 1 ) . ' days' );
+		$grid_end    = $grid_start->modify( '+41 days' );
 
 		foreach ( $rows as $row ) {
 			$start = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', (string) ( $row['start_utc'] ?? '' ), $utc );
@@ -95,7 +97,6 @@ final class Calendar {
 			$local_start = $start->setTimezone( $display_tz );
 			$local_end   = $end->setTimezone( $display_tz );
 			$first_date  = $local_start->format( 'Y-m-d' );
-			$last_date   = $local_end->format( 'Y-m-d' );
 			$event_id    = (int) ( $row['event_id'] ?? 0 );
 
 			if ( ! $event_id ) {
@@ -110,11 +111,21 @@ final class Calendar {
 				];
 			}
 
-			$event       = $event_cache[ $event_id ];
-			$cursor      = $local_start->setTime( 0, 0 );
+			$event    = $event_cache[ $event_id ];
+			$cursor   = $local_start->setTime( 0, 0 );
+			$last_day = $local_end->setTime( 0, 0 );
+
+			if ( $cursor < $grid_start ) {
+				$cursor = $grid_start;
+			}
+
+			if ( $last_day > $grid_end ) {
+				$last_day = $grid_end;
+			}
+
 			$cursor_date = $cursor->format( 'Y-m-d' );
 
-			for ( $day = 0; $day < 62 && $cursor_date <= $last_date; $day++ ) {
+			for ( $day = 0; $day < 42 && $cursor <= $last_day; $day++ ) {
 				$day_key = $cursor_date;
 				$ongoing = $day_key !== $first_date;
 
@@ -131,8 +142,7 @@ final class Calendar {
 			}
 		}
 
-		$grid_start = $month_start->modify( '-' . ( (int) $month_start->format( 'N' ) - 1 ) . ' days' );
-		$days       = [];
+		$days = [];
 
 		for ( $i = 0; $i < 42; $i++ ) {
 			$date = $grid_start->modify( '+' . $i . ' days' );

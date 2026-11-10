@@ -265,6 +265,23 @@ final class Meta {
 	}
 
 	/**
+	 * Sanitize a Y-m-d date.
+	 *
+	 * @param mixed $value Raw value.
+	 */
+	public static function sanitize_date( $value ): string {
+		$value = trim( sanitize_text_field( (string) $value ) );
+
+		if ( '' === $value ) {
+			return '';
+		}
+
+		$date = DateTimeImmutable::createFromFormat( '!Y-m-d', $value, new DateTimeZone( 'UTC' ) );
+
+		return $date instanceof DateTimeImmutable ? $date->format( 'Y-m-d' ) : '';
+	}
+
+	/**
 	 * Sanitize a UTC datetime.
 	 *
 	 * @param mixed $value Raw value.
