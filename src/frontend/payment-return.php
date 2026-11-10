@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Frontend;
 
+use ReEvents\Admin\Settings;
 use ReEvents\Data\Booking_Repository;
 use ReEvents\Services\Booking_Service;
 use ReEvents\Services\Payment_Service;
@@ -54,6 +55,7 @@ final class Payment_Return {
 
 		if ( 'cancel' === $result ) {
 			if ( 'pending' === (string) $booking['status'] ) {
+				Payment_Service::cancel_pending( $booking_id );
 				Booking_Service::cancel( $booking_id );
 			}
 
@@ -66,6 +68,10 @@ final class Payment_Return {
 
 		if ( $booking && 'confirmed' === (string) $booking['status'] ) {
 			Booking_Handler::redirect( $url, 'success', (string) $booking['reference'] );
+		}
+
+		if ( $booking && 'pending' === (string) $booking['status'] && Settings::get( 'require_approval', false ) ) {
+			Booking_Handler::redirect( $url, 'error', 'reevents_booking_awaiting_approval' );
 		}
 
 		Booking_Handler::redirect( $url, 'error', 'reevents_payment_pending' );

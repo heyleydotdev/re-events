@@ -82,7 +82,7 @@ final class Payment_Service {
 			return $result;
 		}
 
-		$repo->update(
+		$updated = $repo->update(
 			$payment_id,
 			[
 				'gateway_ref' => $result['gateway_ref'],
@@ -90,7 +90,16 @@ final class Payment_Service {
 				'data'        => $result['data'],
 			]
 		);
+
+		if ( ! $updated ) {
+			return new WP_Error( 'reevents_payment_update_failed', __( 'The payment could not be updated.', 're-events' ), [ 'status' => 500 ] );
+		}
+
 		$bookings->set_gateway( $booking_id, $gateway_id, $result['gateway_ref'] );
+
+		if ( 'succeeded' === $result['status'] ) {
+			self::confirm_booking( $booking_id );
+		}
 
 		return [
 			'payment_id'   => $payment_id,
@@ -188,19 +197,7 @@ final class Payment_Service {
 			return new WP_Error( 'reevents_payment_not_found', __( 'Payment not found.', 're-events' ), [ 'status' => 404 ] );
 		}
 
-		if ( ! in_array( $verified['status'], [ 'pending', 'succeeded', 'failed', 'refunded' ], true ) ) {
-			return true;
-		}
-
-		$repo->update( (int) $payment['id'], [ 'status' => $verified['status'] ] );
-
-		if ( 'succeeded' === $verified['status'] ) {
-			Booking_Service::update_status( (int) $payment['booking_id'], 'confirmed' );
-		} elseif ( 'refunded' === $verified['status'] ) {
-			Booking_Service::cancel( (int) $payment['booking_id'] );
-		}
-
-		return true;
+		return self::apply_status( $payment, (string) $verified['status'] );
 	}
 
 	/**
@@ -216,6 +213,10 @@ final class Payment_Service {
 
 		if ( ! $payment ) {
 			return new WP_Error( 'reevents_payment_not_found', __( 'Payment not found.', 're-events' ), [ 'status' => 404 ] );
+		}
+
+		if ( 'refunded' === (string) $payment['status'] ) {
+			return true;
 		}
 
 		$gateway = Gateway_Registry::get( (string) $payment['gateway'] );
@@ -234,9 +235,25 @@ final class Payment_Service {
 			return new WP_Error( 'reevents_payment_refund_failed', __( 'The refund could not be created.', 're-events' ), [ 'status' => 500 ] );
 		}
 
-		$repo->update( $payment_id, [ 'status' => 'refunded' ] );
+		$data     = is_array( $payment['data'] ?? null ) ? $payment['data'] : [];
+		$refunded = (int) ( $data['refunded_minor'] ?? 0 ) + ( $amount_minor > 0 ? $amount_minor : (int) $payment['amount_minor'] );
+		$full     = $refunded >= (int) $payment['amount_minor'];
 
-		if ( $amount_minor <= 0 || $amount_minor >= (int) $payment['amount_minor'] ) {
+		$data['refunded_minor'] = $refunded;
+
+		$updated = $repo->update(
+			$payment_id,
+			[
+				'status' => $full ? 'refunded' : 'succeeded',
+				'data'   => $data,
+			]
+		);
+
+		if ( ! $updated ) {
+			return new WP_Error( 'reevents_payment_update_failed', __( 'The payment could not be updated.', 're-events' ), [ 'status' => 500 ] );
+		}
+
+		if ( $full ) {
 			Booking_Service::cancel( (int) $payment['booking_id'] );
 		}
 
@@ -269,12 +286,82 @@ final class Payment_Service {
 			return $result;
 		}
 
-		$repo->update( $payment_id, [ 'status' => $result['status'] ] );
+		return self::apply_status( $payment, (string) $result['status'] );
+	}
 
-		if ( 'succeeded' === $result['status'] ) {
-			Booking_Service::update_status( (int) $payment['booking_id'], 'confirmed' );
+	/**
+	 * Apply a provider status to a payment.
+	 *
+	 * @param array<string, mixed> $payment Payment row.
+	 * @param string               $status  New status.
+	 * @return bool|WP_Error
+	 */
+	private static function apply_status( array $payment, string $status ) {
+		if ( ! in_array( $status, [ 'pending', 'succeeded', 'failed', 'refunded' ], true ) ) {
+			return true;
+		}
+
+		$current = (string) $payment['status'];
+
+		if ( 'refunded' === $current && 'refunded' !== $status ) {
+			return true;
+		}
+
+		if ( 'succeeded' === $current && 'refunded' !== $status ) {
+			return true;
+		}
+
+		if ( $current === $status ) {
+			return true;
+		}
+
+		$repo    = new Payment_Repository();
+		$updated = $repo->update( (int) $payment['id'], [ 'status' => $status ] );
+
+		if ( ! $updated ) {
+			return new WP_Error( 'reevents_payment_update_failed', __( 'The payment could not be updated.', 're-events' ), [ 'status' => 500 ] );
+		}
+
+		if ( 'succeeded' === $status ) {
+			self::confirm_booking( (int) $payment['booking_id'] );
+		} elseif ( 'refunded' === $status ) {
+			Booking_Service::cancel( (int) $payment['booking_id'] );
 		}
 
 		return true;
+	}
+
+	/**
+	 * Confirm a booking after payment, unless approval is required.
+	 *
+	 * @param int $booking_id Booking ID.
+	 */
+	private static function confirm_booking( int $booking_id ): void {
+		$booking = ( new Booking_Repository() )->find( $booking_id );
+
+		if ( ! $booking || 'pending' !== (string) $booking['status'] ) {
+			return;
+		}
+
+		if ( Settings::get( 'require_approval', false ) ) {
+			return;
+		}
+
+		Booking_Service::update_status( $booking_id, 'confirmed' );
+	}
+
+	/**
+	 * Mark pending payments of a booking as failed.
+	 *
+	 * @param int $booking_id Booking ID.
+	 */
+	public static function cancel_pending( int $booking_id ): void {
+		$repo = new Payment_Repository();
+
+		foreach ( $repo->for_booking( $booking_id ) as $payment ) {
+			if ( 'pending' === (string) $payment['status'] ) {
+				$repo->update( (int) $payment['id'], [ 'status' => 'failed' ] );
+			}
+		}
 	}
 }

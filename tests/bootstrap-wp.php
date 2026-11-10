@@ -7,6 +7,8 @@
 
 declare( strict_types=1 );
 
+define( 'RE_EVENTS_TESTING', true );
+
 $reevents_tests_dir = getenv( 'WP_TESTS_DIR' );
 
 if ( ! $reevents_tests_dir ) {

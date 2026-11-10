@@ -47,6 +47,10 @@ final class Mock_Gateway implements Gateway {
 	 * @return array{gateway_ref:string,status:string}|WP_Error
 	 */
 	public function verify_webhook( string $payload, array $headers ) {
+		if ( ! defined( 'RE_EVENTS_TESTING' ) || ! RE_EVENTS_TESTING ) {
+			return new WP_Error( 'reevents_payment_invalid_gateway', __( 'The mock gateway is only available for tests.', 're-events' ), [ 'status' => 403 ] );
+		}
+
 		$data = json_decode( $payload, true );
 
 		if ( ! is_array( $data ) || empty( $data['gateway_ref'] ) ) {

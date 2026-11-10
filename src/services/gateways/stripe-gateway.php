@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace ReEvents\Services\Gateways;
 
 use ReEvents\Admin\Settings;
+use ReEvents\Services\Currency;
 use WP_Error;
 
 /**
@@ -69,7 +70,7 @@ final class Stripe_Gateway implements Gateway {
 				'metadata[payment_id]'                   => (string) $payment_id,
 				'line_items[0][quantity]'                => '1',
 				'line_items[0][price_data][currency]'    => strtolower( (string) ( $payment['currency'] ?? 'usd' ) ),
-				'line_items[0][price_data][unit_amount]' => (string) (int) ( $payment['amount_minor'] ?? 0 ),
+				'line_items[0][price_data][unit_amount]' => (string) Currency::stripe_amount( (int) ( $payment['amount_minor'] ?? 0 ), (string) ( $payment['currency'] ?? 'USD' ) ),
 				'line_items[0][price_data][product_data][name]' => $name,
 			],
 			[ 'Idempotency-Key' => 'reevents_payment_' . $payment_id ]
@@ -101,7 +102,7 @@ final class Stripe_Gateway implements Gateway {
 			return new WP_Error( 'reevents_payment_missing_secret', __( 'Stripe webhooks are not configured.', 're-events' ), [ 'status' => 400 ] );
 		}
 
-		$signature = $this->header( $headers, 'stripe_signature' );
+		$signature = Gateway_Utils::header( $headers, 'stripe_signature' );
 
 		if ( '' === $signature || ! self::verify_signature( $payload, $signature, $secret ) ) {
 			return new WP_Error( 'reevents_payment_invalid_signature', __( 'Invalid webhook signature.', 're-events' ), [ 'status' => 400 ] );
@@ -124,6 +125,9 @@ final class Stripe_Gateway implements Gateway {
 		switch ( $type ) {
 			case 'checkout.session.completed':
 				$status = 'paid' === (string) ( $object['payment_status'] ?? '' ) ? 'succeeded' : 'pending';
+				break;
+			case 'checkout.session.async_payment_succeeded':
+				$status = 'succeeded';
 				break;
 			case 'checkout.session.expired':
 			case 'checkout.session.async_payment_failed':
@@ -238,24 +242,6 @@ final class Stripe_Gateway implements Gateway {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Read a header by normalized name.
-	 *
-	 * @param array<string, mixed> $headers Headers.
-	 * @param string               $name    Normalized name.
-	 */
-	private function header( array $headers, string $name ): string {
-		foreach ( $headers as $key => $value ) {
-			if ( strtolower( str_replace( '-', '_', (string) $key ) ) !== $name ) {
-				continue;
-			}
-
-			return is_array( $value ) ? (string) reset( $value ) : (string) $value;
-		}
-
-		return '';
 	}
 
 	/**

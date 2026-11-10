@@ -72,7 +72,8 @@ requests. Webhook requests bypass the public API switch and rate limiter.
 ## Mock gateway
 
 `Mock` is for local checkout tests. It returns a `mock_...` reference and
-accepts JSON webhooks with `gateway_ref` and `status`.
+accepts JSON webhooks with `gateway_ref` and `status` only when the
+`RE_EVENTS_TESTING` constant is defined. Keep it off in production.
 
 ## PayPal
 
@@ -99,12 +100,14 @@ Subscribe to `PAYMENT.CAPTURE.COMPLETED`, `PAYMENT.CAPTURE.DENIED`,
 verified with PayPal's `verify-webhook-signature` endpoint before it is
 applied.
 
-## Zero-decimal currencies
+## Currency decimals
 
 Amounts are always stored in the smallest currency unit. `Currency::amount()`
 and `Currency::format()` apply the correct number of decimals, so JPY, KRW,
-VND and the other zero-decimal currencies are not divided by 100. Stripe and
-PayPal both receive the same value that is stored on the booking.
+VND and the other zero-decimal currencies are not divided by 100. Three-decimal
+currencies such as KWD, BHD and JOD keep three decimals for display and are
+rounded to Stripe's required two-decimal minor unit at checkout. PayPal receives
+the three-decimal value.
 
 ## Sandbox checklist
 
