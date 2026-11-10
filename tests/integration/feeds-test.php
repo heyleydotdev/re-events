@@ -84,6 +84,27 @@ final class Feeds_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * JSON-LD strips markup that could close the script tag.
+	 */
+	public function test_structured_data_escapes_markup(): void {
+		$id   = Test_Factory::event(
+			[
+				'title' => 'Hello </script><script>alert(1)</script> World',
+				'meta'  => [
+					'_reevents_start_utc' => '2027-01-01 10:00:00',
+					'_reevents_end_utc'   => '2027-01-01 11:00:00',
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_status'    => 'scheduled',
+				],
+			]
+		);
+		$data = Structured_Data::data( $id );
+
+		self::assertStringNotContainsString( '</script>', $data['name'] );
+		self::assertStringNotContainsString( '<script>', $data['name'] );
+	}
+
+	/**
 	 * JSON-LD contains the Event fields and offers.
 	 */
 	public function test_structured_data(): void {

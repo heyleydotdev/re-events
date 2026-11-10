@@ -42,7 +42,7 @@ final class Structured_Data {
 			return;
 		}
 
-		$json = wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
+		$json = wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 
 		if ( is_string( $json ) ) {
 			echo '<script type="application/ld+json">' . $json . '</script>' . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON-LD.
@@ -65,7 +65,7 @@ final class Structured_Data {
 		$data = [
 			'@context'            => 'https://schema.org',
 			'@type'               => 'Event',
-			'name'                => $event->title,
+			'name'                => wp_strip_all_tags( $event->title ),
 			'startDate'           => self::iso( $event->start_utc, $event->timezone ),
 			'eventStatus'         => 'cancelled' === $event->status ? 'https://schema.org/EventCancelled' : 'https://schema.org/EventScheduled',
 			'eventAttendanceMode' => self::attendance_mode( $event ),
@@ -82,7 +82,7 @@ final class Structured_Data {
 		if ( $event->venue_id ) {
 			$locations[] = [
 				'@type'   => 'Place',
-				'name'    => (string) get_the_title( $event->venue_id ),
+				'name'    => wp_strip_all_tags( (string) get_the_title( $event->venue_id ) ),
 				'address' => (string) get_post_meta( $event->venue_id, '_reevents_address', true ),
 			];
 		}
@@ -153,7 +153,7 @@ final class Structured_Data {
 	 */
 	private static function organizer( Event $event ): array {
 		foreach ( $event->organizer_ids as $organizer_id ) {
-			$name = (string) get_the_title( $organizer_id );
+			$name = wp_strip_all_tags( (string) get_the_title( $organizer_id ) );
 
 			if ( '' !== $name ) {
 				return [
