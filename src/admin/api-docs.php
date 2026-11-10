@@ -48,7 +48,6 @@ final class API_Docs {
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'ReEvents API', 're-events' ); ?></h1>
-			<p><?php esc_html_e( 'Interactive reference for the ReEvents REST API.', 're-events' ); ?></p>
 			<iframe
 				class="reevents-api-docs-frame"
 				src="<?php echo esc_url( $frame_url ); ?>"
