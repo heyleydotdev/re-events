@@ -38,10 +38,16 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `show_venue` | 1 | Display the venue name. |
 | `show_organizers` | 1 | Display the organizer names. |
 | `show_online_links` | 1 | Display online event links. |
+| `show_calendar_links` | 1 |  |
+| `calendar_label` | Add to calendar |  |
+| `google_label` | Google |  |
+| `outlook_label` | Outlook |  |
+| `office365_label` | Office 365 |  |
+| `ical_label` | Apple / iCal |  |
 | `show_content` | 1 | Display the event description. |
 
 ```text
-[reevents_event cancelled_label="Cancelled" ongoing_label="Ongoing" venue_label="Venue:" organizers_label="Organizers:" show_venue="1" show_organizers="1" show_online_links="1" show_content="1"]
+[reevents_event cancelled_label="Cancelled" ongoing_label="Ongoing" venue_label="Venue:" organizers_label="Organizers:" show_venue="1" show_organizers="1" show_online_links="1" show_calendar_links="1" calendar_label="Add to calendar" google_label="Google" outlook_label="Outlook" office365_label="Office 365" ical_label="Apple / iCal" show_content="1"]
 ```
 
 ## Venues List
