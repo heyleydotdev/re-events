@@ -24,3 +24,5 @@ node_modules
 src/cli
 stubs
 tests
+docs/adr
+docs/developer
