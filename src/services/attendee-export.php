@@ -98,6 +98,6 @@ final class Attendee_Export {
 	 * @param string $value Cell value.
 	 */
 	public static function cell( string $value ): string {
-		return '' !== $value && in_array( $value[0], [ '=', '+', '-', '@', "\t", "\r" ], true ) ? "'" . $value : $value;
+		return Csv::cell( $value );
 	}
 }

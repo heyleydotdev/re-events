@@ -39,6 +39,24 @@ final class Csv {
 	}
 
 	/**
+	 * Prevent spreadsheet formula injection.
+	 *
+	 * @param string $value Cell value.
+	 */
+	public static function cell( string $value ): string {
+		return '' !== $value && in_array( $value[0], [ '=', '+', '-', '@', "\t", "\r" ], true ) ? "'" . $value : $value;
+	}
+
+	/**
+	 * Reverse the formula-injection prefix on import.
+	 *
+	 * @param string $value Cell value.
+	 */
+	public static function unescape_cell( string $value ): string {
+		return strlen( $value ) > 1 && "'" === $value[0] && in_array( $value[1], [ '=', '+', '-', '@', "\t", "\r" ], true ) ? substr( $value, 1 ) : $value;
+	}
+
+	/**
 	 * Stream export rows.
 	 *
 	 * @param string $type events, venues or bookings.
@@ -104,7 +122,7 @@ final class Csv {
 				$row = self::event_row( (int) $id );
 
 				if ( $row ) {
-					yield $row;
+					yield array_map( [ self::class, 'cell' ], $row );
 				}
 			}
 
@@ -180,7 +198,7 @@ final class Csv {
 				$row = self::venue_row( (int) $id );
 
 				if ( $row ) {
-					yield $row;
+					yield array_map( [ self::class, 'cell' ], $row );
 				}
 			}
 
@@ -232,18 +250,21 @@ final class Csv {
 			);
 
 			foreach ( $result['items'] as $booking ) {
-				yield [
-					(string) (int) $booking['id'],
-					(string) $booking['reference'],
-					(string) (int) $booking['event_id'],
-					(string) ( $booking['event_title'] ?? '' ),
-					(string) (int) $booking['ticket_id'],
-					(string) (int) $booking['quantity'],
-					(string) $booking['status'],
-					(string) (int) $booking['total_minor'],
-					(string) $booking['currency'],
-					(string) $booking['created_utc'],
-				];
+				yield array_map(
+					[ self::class, 'cell' ],
+					[
+						(string) (int) $booking['id'],
+						(string) $booking['reference'],
+						(string) (int) $booking['event_id'],
+						(string) ( $booking['event_title'] ?? '' ),
+						(string) (int) $booking['ticket_id'],
+						(string) (int) $booking['quantity'],
+						(string) $booking['status'],
+						(string) (int) $booking['total_minor'],
+						(string) $booking['currency'],
+						(string) $booking['created_utc'],
+					]
+				);
 			}
 
 			$found   = count( $result['items'] );
@@ -258,80 +279,96 @@ final class Csv {
 	 * @return array{created:int,updated:int,errors:string[]}
 	 */
 	private static function import_events( string $file ): array {
-		$rows   = self::read( $file );
+		$handle = self::open( $file );
 		$result = [
 			'created' => 0,
 			'updated' => 0,
 			'errors'  => [],
 		];
 
-		if ( is_wp_error( $rows ) ) {
-			$result['errors'][] = $rows->get_error_message();
+		if ( is_wp_error( $handle ) ) {
+			$result['errors'][] = $handle->get_error_message();
 
 			return $result;
 		}
 
-		foreach ( $rows as $line => $row ) {
-			$id = absint( $row['id'] ?? 0 );
+		try {
+			foreach ( self::read_rows( $handle ) as $line => $row ) {
+				$id = absint( $row['id'] ?? 0 );
 
-			if ( $id && 'reevents_event' !== get_post_type( $id ) ) {
-				$result['errors'][] = sprintf(
+				if ( $id && 'reevents_event' !== get_post_type( $id ) ) {
+					$result['errors'][] = sprintf(
 					/* translators: %d: row number. */
-					__( 'Row %d: the event ID does not exist.', 're-events' ),
-					$line
+						__( 'Row %d: the event ID does not exist.', 're-events' ),
+						$line
+					);
+					continue;
+				}
+
+				$timezone = Meta::sanitize_timezone( (string) ( $row['timezone'] ?? 'UTC' ) );
+				$event    = new Event(
+					$id,
+					sanitize_text_field( (string) ( $row['title'] ?? '' ) ),
+					Meta::sanitize_datetime( (string) ( $row['start_utc'] ?? '' ) ),
+					Meta::sanitize_datetime( (string) ( $row['end_utc'] ?? '' ) ),
+					$timezone,
+					! empty( $row['all_day'] ),
+					sanitize_text_field( (string) ( $row['rrule'] ?? '' ) ),
+					self::json_array( $row['exdates'] ?? '' ),
+					self::json_array( $row['rdates'] ?? '' ),
+					Meta::sanitize_timeslots( self::json_array( $row['timeslots'] ?? '' ) ),
+					absint( $row['venue_id'] ?? 0 ),
+					Meta::sanitize_id_array( self::json_array( $row['organizer_ids'] ?? '' ) ),
+					absint( $row['capacity'] ?? 0 ),
+					Meta::sanitize_urls( self::json_array( $row['online_urls'] ?? '' ) ),
+					sanitize_key( (string) ( $row['status'] ?? 'scheduled' ) )
 				);
-				continue;
-			}
 
-			$timezone = Meta::sanitize_timezone( (string) ( $row['timezone'] ?? 'UTC' ) );
-			$event    = new Event(
-				$id,
-				sanitize_text_field( (string) ( $row['title'] ?? '' ) ),
-				Meta::sanitize_datetime( (string) ( $row['start_utc'] ?? '' ) ),
-				Meta::sanitize_datetime( (string) ( $row['end_utc'] ?? '' ) ),
-				$timezone,
-				! empty( $row['all_day'] ),
-				sanitize_text_field( (string) ( $row['rrule'] ?? '' ) ),
-				self::json_array( $row['exdates'] ?? '' ),
-				self::json_array( $row['rdates'] ?? '' ),
-				Meta::sanitize_timeslots( self::json_array( $row['timeslots'] ?? '' ) ),
-				absint( $row['venue_id'] ?? 0 ),
-				Meta::sanitize_id_array( self::json_array( $row['organizer_ids'] ?? '' ) ),
-				absint( $row['capacity'] ?? 0 ),
-				Meta::sanitize_urls( self::json_array( $row['online_urls'] ?? '' ) ),
-				sanitize_key( (string) ( $row['status'] ?? 'scheduled' ) )
-			);
+				$status = isset( $row['post_status'] ) ? sanitize_key( (string) $row['post_status'] ) : '';
+				$status = in_array( $status, [ 'publish', 'pending', 'draft' ], true ) ? $status : '';
+				$saved  = Event_Service::save( $event, $status );
 
-			$status = sanitize_key( (string) ( $row['post_status'] ?? 'publish' ) );
-			$status = in_array( $status, [ 'publish', 'pending', 'draft' ], true ) ? $status : 'publish';
-			$saved  = Event_Service::save( $event, $status );
-
-			if ( is_wp_error( $saved ) ) {
-				$result['errors'][] = sprintf(
+				if ( is_wp_error( $saved ) ) {
+					$result['errors'][] = sprintf(
 					/* translators: 1: row number, 2: error message. */
-					__( 'Row %1$d: %2$s', 're-events' ),
-					$line,
-					$saved->get_error_message()
-				);
-				continue;
+						__( 'Row %1$d: %2$s', 're-events' ),
+						$line,
+						$saved->get_error_message()
+					);
+					continue;
+				}
+
+				$postarr = [ 'ID' => (int) $saved ];
+
+				if ( array_key_exists( 'content', $row ) ) {
+					$postarr['post_content'] = wp_kses_post( (string) $row['content'] );
+				}
+
+				if ( array_key_exists( 'excerpt', $row ) ) {
+					$postarr['post_excerpt'] = sanitize_textarea_field( (string) $row['excerpt'] );
+				}
+
+				if ( count( $postarr ) > 1 ) {
+					wp_update_post( $postarr );
+				}
+
+				if ( array_key_exists( 'categories', $row ) ) {
+					self::set_terms( (int) $saved, 'reevents_event_category', (string) $row['categories'] );
+				}
+
+				if ( array_key_exists( 'tags', $row ) ) {
+					self::set_terms( (int) $saved, 'reevents_event_tag', (string) $row['tags'] );
+				}
+
+				if ( $id ) {
+					++$result['updated'];
+				} else {
+					++$result['created'];
+				}
 			}
-
-			wp_update_post(
-				[
-					'ID'           => (int) $saved,
-					'post_content' => wp_kses_post( (string) ( $row['content'] ?? '' ) ),
-					'post_excerpt' => sanitize_textarea_field( (string) ( $row['excerpt'] ?? '' ) ),
-				]
-			);
-
-			self::set_terms( (int) $saved, 'reevents_event_category', (string) ( $row['categories'] ?? '' ) );
-			self::set_terms( (int) $saved, 'reevents_event_tag', (string) ( $row['tags'] ?? '' ) );
-
-			if ( $id ) {
-				++$result['updated'];
-			} else {
-				++$result['created'];
-			}
+		} finally {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Local import file.
+			fclose( $handle );
 		}
 
 		return $result;
@@ -344,72 +381,78 @@ final class Csv {
 	 * @return array{created:int,updated:int,errors:string[]}
 	 */
 	private static function import_venues( string $file ): array {
-		$rows   = self::read( $file );
+		$handle = self::open( $file );
 		$result = [
 			'created' => 0,
 			'updated' => 0,
 			'errors'  => [],
 		];
 
-		if ( is_wp_error( $rows ) ) {
-			$result['errors'][] = $rows->get_error_message();
+		if ( is_wp_error( $handle ) ) {
+			$result['errors'][] = $handle->get_error_message();
 
 			return $result;
 		}
 
 		$repo = new Venue_Repository();
 
-		foreach ( $rows as $line => $row ) {
-			$id = absint( $row['id'] ?? 0 );
+		try {
+			foreach ( self::read_rows( $handle ) as $line => $row ) {
+				$id = absint( $row['id'] ?? 0 );
 
-			if ( $id && 'reevents_venue' !== get_post_type( $id ) ) {
-				$result['errors'][] = sprintf(
+				if ( $id && 'reevents_venue' !== get_post_type( $id ) ) {
+					$result['errors'][] = sprintf(
 					/* translators: %d: row number. */
-					__( 'Row %d: the venue ID does not exist.', 're-events' ),
-					$line
+						__( 'Row %d: the venue ID does not exist.', 're-events' ),
+						$line
+					);
+					continue;
+				}
+
+				$saved = $repo->save(
+					[
+						'id'          => $id,
+						'title'       => sanitize_text_field( (string) ( $row['title'] ?? '' ) ),
+						'description' => sanitize_textarea_field( (string) ( $row['description'] ?? '' ) ),
+						'address'     => sanitize_textarea_field( (string) ( $row['address'] ?? '' ) ),
+						'lat'         => (string) ( $row['lat'] ?? '' ),
+						'lng'         => (string) ( $row['lng'] ?? '' ),
+						'website'     => esc_url_raw( (string) ( $row['website'] ?? '' ) ),
+						'post_status' => sanitize_key( (string) ( $row['post_status'] ?? '' ) ),
+					]
 				);
-				continue;
-			}
 
-			$saved = $repo->save(
-				[
-					'id'          => $id,
-					'title'       => sanitize_text_field( (string) ( $row['title'] ?? '' ) ),
-					'description' => sanitize_textarea_field( (string) ( $row['description'] ?? '' ) ),
-					'address'     => sanitize_textarea_field( (string) ( $row['address'] ?? '' ) ),
-					'lat'         => (string) ( $row['lat'] ?? '' ),
-					'lng'         => (string) ( $row['lng'] ?? '' ),
-					'website'     => esc_url_raw( (string) ( $row['website'] ?? '' ) ),
-				]
-			);
-
-			if ( is_wp_error( $saved ) ) {
-				$result['errors'][] = sprintf(
+				if ( is_wp_error( $saved ) ) {
+					$result['errors'][] = sprintf(
 					/* translators: 1: row number, 2: error message. */
-					__( 'Row %1$d: %2$s', 're-events' ),
-					$line,
-					$saved->get_error_message()
-				);
-				continue;
-			}
+						__( 'Row %1$d: %2$s', 're-events' ),
+						$line,
+						$saved->get_error_message()
+					);
+					continue;
+				}
 
-			if ( $id ) {
-				++$result['updated'];
-			} else {
-				++$result['created'];
+				if ( $id ) {
+					++$result['updated'];
+				} else {
+					++$result['created'];
+				}
 			}
+		} finally {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Local import file.
+			fclose( $handle );
 		}
 
 		return $result;
 	}
 
 	/**
-	 * Read a CSV file.
+	 * Open a CSV file.
 	 *
 	 * @param string $file File path.
-	 * @return array<int, array<string, string>>|WP_Error
+	 * @return resource|WP_Error
 	 */
-	private static function read( string $file ) {
+	private static function open( string $file ) {
 		if ( ! is_readable( $file ) ) {
 			return new WP_Error( 'reevents_csv_unreadable', __( 'The CSV file is not readable.', 're-events' ) );
 		}
@@ -421,9 +464,18 @@ final class Csv {
 			return new WP_Error( 'reevents_csv_unreadable', __( 'The CSV file could not be opened.', 're-events' ) );
 		}
 
+		return $handle;
+	}
+
+	/**
+	 * Yield CSV rows one at a time.
+	 *
+	 * @param resource $handle Open file handle.
+	 * @return Generator<int, array<string, string>>
+	 */
+	private static function read_rows( $handle ): Generator {
 		$header = fgetcsv( $handle );
 		$header = is_array( $header ) ? array_map( 'trim', $header ) : [];
-		$rows   = [];
 		$line   = 1;
 
 		$data = fgetcsv( $handle );
@@ -434,17 +486,12 @@ final class Csv {
 			$row = [];
 
 			foreach ( $header as $index => $key ) {
-				$row[ strtolower( $key ) ] = (string) ( $data[ $index ] ?? '' );
+				$row[ strtolower( $key ) ] = self::unescape_cell( (string) ( $data[ $index ] ?? '' ) );
 			}
 
-			$rows[ $line ] = $row;
-			$data          = fgetcsv( $handle );
+			yield $line => $row;
+			$data = fgetcsv( $handle );
 		}
-
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Local import file.
-		fclose( $handle );
-
-		return $rows;
 	}
 
 	/**
@@ -469,8 +516,6 @@ final class Csv {
 	private static function set_terms( int $post_id, string $taxonomy, string $value ): void {
 		$names = array_values( array_filter( array_map( 'trim', explode( ',', $value ) ) ) );
 
-		if ( $names ) {
-			wp_set_object_terms( $post_id, $names, $taxonomy );
-		}
+		wp_set_object_terms( $post_id, $names, $taxonomy );
 	}
 }

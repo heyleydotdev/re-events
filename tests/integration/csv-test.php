@@ -69,6 +69,96 @@ final class Csv_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Importing an empty tag cell clears the old tags.
+	 */
+	public function test_import_events_clears_tags(): void {
+		$event = Test_Factory::event(
+			[
+				'title' => 'Tagged event',
+				'meta'  => [
+					'_reevents_start_utc' => '2027-04-01 10:00:00',
+					'_reevents_end_utc'   => '2027-04-01 11:00:00',
+					'_reevents_timezone'  => 'UTC',
+				],
+			]
+		);
+		wp_set_object_terms( $event, [ 'Old tag' ], 'reevents_event_tag' );
+		wp_update_post(
+			[
+				'ID'           => $event,
+				'post_content' => 'Keep this content',
+			]
+		);
+
+		$file = $this->file(
+			[
+				'id,title,start_utc,end_utc,timezone,tags',
+				$event . ',"Tagged event",2027-04-01 10:00:00,2027-04-01 11:00:00,UTC,',
+			]
+		);
+
+		$result = Csv::import( 'events', $file );
+
+		self::assertSame( 1, $result['updated'] );
+		self::assertSame( [], wp_get_object_terms( $event, 'reevents_event_tag', [ 'fields' => 'ids' ] ) );
+		self::assertSame( 'Keep this content', get_post_field( 'post_content', $event ) );
+	}
+
+	/**
+	 * A CSV without tag columns keeps existing tags.
+	 */
+	public function test_import_events_keeps_tags_when_column_is_absent(): void {
+		$event = Test_Factory::event(
+			[
+				'title' => 'Keep tags event',
+				'meta'  => [
+					'_reevents_start_utc' => '2027-04-02 10:00:00',
+					'_reevents_end_utc'   => '2027-04-02 11:00:00',
+					'_reevents_timezone'  => 'UTC',
+				],
+			]
+		);
+		wp_set_object_terms( $event, [ 'Keep tag' ], 'reevents_event_tag' );
+
+		$file = $this->file(
+			[
+				'id,title,start_utc,end_utc,timezone',
+				$event . ',"Keep tags event",2027-04-02 10:00:00,2027-04-02 11:00:00,UTC',
+			]
+		);
+
+		Csv::import( 'events', $file );
+
+		self::assertSame( [ 'Keep tag' ], wp_get_object_terms( $event, 'reevents_event_tag', [ 'fields' => 'names' ] ) );
+	}
+
+	/**
+	 * Imported venues keep the requested post status.
+	 */
+	public function test_import_venues_status(): void {
+		$file = $this->file(
+			[
+				'title,address,post_status',
+				'"Pending venue","1 Main Street",pending',
+			]
+		);
+
+		$result = Csv::import( 'venues', $file );
+
+		self::assertSame( 1, $result['created'] );
+
+		$posts = get_posts(
+			[
+				'post_type'   => 'reevents_venue',
+				'title'       => 'Pending venue',
+				'post_status' => 'pending',
+			]
+		);
+
+		self::assertCount( 1, $posts );
+	}
+
+	/**
 	 * An imported event is created with its dates and status.
 	 */
 	public function test_import_events(): void {
