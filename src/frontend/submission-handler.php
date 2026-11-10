@@ -68,42 +68,53 @@ final class Submission_Handler {
 			self::redirect( $redirect, 'forbidden' );
 		}
 
-		$name  = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
-		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+		$values = self::posted_values();
+		$errors = [];
 
-		if ( 0 === $user_id && ( '' === $name || ! is_email( $email ) ) ) {
-			self::redirect( $redirect, 'invalid_submitter' );
+		if ( '' === $values['title'] ) {
+			$errors['title'] = __( 'An event title is required.', 're-events' );
 		}
 
-		$timezone = Meta::sanitize_timezone( sanitize_text_field( wp_unslash( $_POST['timezone'] ?? Settings::get( 'timezone', 'UTC' ) ) ) );
-		$start    = Meta::local_to_utc( sanitize_text_field( wp_unslash( $_POST['start'] ?? '' ) ), $timezone );
-		$end      = Meta::local_to_utc( sanitize_text_field( wp_unslash( $_POST['end'] ?? '' ) ), $timezone );
+		if ( 0 === $user_id && '' === $values['name'] ) {
+			$errors['name'] = __( 'Enter your name.', 're-events' );
+		}
+
+		if ( 0 === $user_id && ! is_email( $values['email'] ) ) {
+			$errors['email'] = __( 'Enter a valid email address.', 're-events' );
+		}
+
+		$timezone = Meta::sanitize_timezone( (string) $values['timezone'] );
+		$start    = Meta::local_to_utc( (string) $values['start'], $timezone );
+		$end      = Meta::local_to_utc( (string) $values['end'], $timezone );
 
 		if ( '' === $start ) {
-			self::redirect( $redirect, 'invalid_start' );
+			$errors['start'] = __( 'Enter a valid start time.', 're-events' );
 		}
 
-		if ( '' !== $end && $end < $start ) {
-			self::redirect( $redirect, 'invalid_end' );
+		if ( '' !== $end && '' !== $start && $end < $start ) {
+			$errors['end'] = __( 'The end time must not be before the start time.', 're-events' );
+		}
+
+		if ( $errors ) {
+			self::redirect_errors( $redirect, $errors, $values );
 		}
 
 		$existing = 0 < $event_id ? ( new Event_Repository() )->find( $event_id ) : null;
-
-		$event = new Event(
+		$event    = new Event(
 			$event_id,
-			sanitize_text_field( wp_unslash( $_POST['title'] ?? '' ) ),
+			$values['title'],
 			$start,
 			$end,
 			$timezone,
-			$existing ? $existing->all_day : false,
+			(bool) $values['all_day'],
 			$existing ? $existing->rrule : '',
 			$existing ? $existing->exdates : [],
 			$existing ? $existing->rdates : [],
 			$existing ? $existing->timeslots : [],
-			absint( wp_unslash( $_POST['venue_id'] ?? 0 ) ),
-			$existing ? $existing->organizer_ids : [],
-			absint( wp_unslash( $_POST['capacity'] ?? 0 ) ),
-			$existing ? $existing->online_urls : [],
+			(int) $values['venue_id'],
+			$values['organizer_ids'],
+			(int) $values['capacity'],
+			$values['online_urls'],
 			$existing ? $existing->status : 'scheduled'
 		);
 
@@ -112,33 +123,99 @@ final class Submission_Handler {
 		$result = Event_Service::save( $event, $status );
 
 		if ( is_wp_error( $result ) ) {
-			self::redirect( $redirect, $result->get_error_code() );
+			$field = self::error_field( $result->get_error_code() );
+
+			self::redirect_errors( $redirect, [ $field => $result->get_error_message() ], $values );
 		}
 
-		$content = isset( $_POST['content'] ) ? wp_kses_post( wp_unslash( $_POST['content'] ) ) : '';
+		wp_update_post(
+			[
+				'ID'           => (int) $result,
+				'post_content' => $values['content'],
+				'post_excerpt' => $values['excerpt'],
+			]
+		);
 
-		if ( '' !== $content ) {
-			wp_update_post(
-				[
-					'ID'           => (int) $result,
-					'post_content' => $content,
-				]
-			);
+		wp_set_object_terms( (int) $result, $values['categories'], 'reevents_event_category' );
+		wp_set_object_terms( (int) $result, $values['tag_names'], 'reevents_event_tag' );
+
+		if ( '' !== $values['name'] ) {
+			update_post_meta( (int) $result, '_reevents_submitter_name', $values['name'] );
 		}
 
-		if ( '' !== $name ) {
-			update_post_meta( (int) $result, '_reevents_submitter_name', $name );
-		}
-
-		if ( '' !== $email ) {
-			update_post_meta( (int) $result, '_reevents_submitter_email', $email );
+		if ( '' !== $values['email'] ) {
+			update_post_meta( (int) $result, '_reevents_submitter_email', $values['email'] );
 		}
 
 		if ( $is_new && 'pending' === get_post_status( (int) $result ) ) {
-			self::notify_admin( (int) $result, $name, $email );
+			self::notify_admin( (int) $result, $values['name'], $values['email'] );
 		}
 
 		self::redirect( $redirect, $is_new && 'publish' === $status ? 'published' : 'submitted' );
+	}
+
+	/**
+	 * Read and sanitize posted values.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function posted_values(): array {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce checked in handle().
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Meta::sanitize_urls().
+		$labels = isset( $_POST['online_label'] ) && is_array( $_POST['online_label'] ) ? (array) wp_unslash( $_POST['online_label'] ) : [];
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Meta::sanitize_urls().
+		$urls  = isset( $_POST['online_url'] ) && is_array( $_POST['online_url'] ) ? (array) wp_unslash( $_POST['online_url'] ) : [];
+		$links = [];
+
+		foreach ( $urls as $index => $url ) {
+			$links[] = [
+				'label' => $labels[ $index ] ?? '',
+				'url'   => $url,
+			];
+		}
+
+		$tags = isset( $_POST['tags'] ) ? sanitize_text_field( wp_unslash( $_POST['tags'] ) ) : '';
+		$tags = array_values( array_filter( array_map( 'trim', explode( ',', $tags ) ) ) );
+
+		$values = [
+			'title'         => isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '',
+			'excerpt'       => isset( $_POST['excerpt'] ) ? sanitize_textarea_field( wp_unslash( $_POST['excerpt'] ) ) : '',
+			'content'       => isset( $_POST['content'] ) ? wp_kses_post( wp_unslash( $_POST['content'] ) ) : '',
+			'start'         => isset( $_POST['start'] ) ? sanitize_text_field( wp_unslash( $_POST['start'] ) ) : '',
+			'end'           => isset( $_POST['end'] ) ? sanitize_text_field( wp_unslash( $_POST['end'] ) ) : '',
+			'timezone'      => isset( $_POST['timezone'] ) ? sanitize_text_field( wp_unslash( $_POST['timezone'] ) ) : (string) Settings::get( 'timezone', 'UTC' ),
+			'all_day'       => ! empty( $_POST['all_day'] ),
+			'venue_id'      => isset( $_POST['venue_id'] ) ? absint( wp_unslash( $_POST['venue_id'] ) ) : 0,
+			'capacity'      => isset( $_POST['capacity'] ) ? absint( wp_unslash( $_POST['capacity'] ) ) : 0,
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Meta::sanitize_id_array().
+			'categories'    => Meta::sanitize_id_array( wp_unslash( $_POST['categories'] ?? [] ) ),
+			'tags'          => implode( ', ', $tags ),
+			'tag_names'     => $tags,
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized by Meta::sanitize_id_array().
+			'organizer_ids' => Meta::sanitize_id_array( wp_unslash( $_POST['organizer_ids'] ?? [] ) ),
+			'online_urls'   => Meta::sanitize_urls( $links ),
+			'name'          => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
+			'email'         => isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '',
+		];
+		// phpcs:enable
+
+		return $values;
+	}
+
+	/**
+	 * Map an event error code to a form field.
+	 *
+	 * @param string $code Error code.
+	 */
+	private static function error_field( string $code ): string {
+		$map = [
+			'rest_event_invalid_title' => 'title',
+			'rest_event_invalid_start' => 'start',
+			'rest_event_invalid_range' => 'end',
+			'rest_event_invalid_venue' => 'venue_id',
+		];
+
+		return $map[ $code ] ?? 'form';
 	}
 
 	/**
@@ -201,6 +278,29 @@ final class Submission_Handler {
 		}
 
 		return (int) get_post_field( 'post_author', $event_id ) === $user_id || user_can( $user_id, 'edit_post', $event_id );
+	}
+
+	/**
+	 * Redirect back with field errors.
+	 *
+	 * @param string                $url    Redirect URL.
+	 * @param array<string, string> $errors Field errors.
+	 * @param array<string, mixed>  $values Posted values.
+	 */
+	private static function redirect_errors( string $url, array $errors, array $values ): void {
+		$token = wp_generate_password( 32, false, false );
+
+		set_transient(
+			'reevents_submission_error_' . $token,
+			[
+				'errors' => $errors,
+				'values' => $values,
+			],
+			5 * MINUTE_IN_SECONDS
+		);
+
+		wp_safe_redirect( add_query_arg( 'reevents_submission_error', $token, $url ) );
+		exit;
 	}
 
 	/**

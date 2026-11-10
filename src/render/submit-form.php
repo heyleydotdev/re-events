@@ -12,6 +12,7 @@ namespace ReEvents\Render;
 use DateTimeImmutable;
 use DateTimeZone;
 use ReEvents\Admin\Settings;
+use ReEvents\Data\Meta;
 
 /**
  * Renders the front-end event submission form.
@@ -34,36 +35,70 @@ final class Submit_Form {
 			return '<p class="reevents-empty">' . esc_html( (string) ( $args['login_message'] ?? __( 'Log in to submit an event.', 're-events' ) ) ) . ' <a href="' . esc_url( wp_login_url( self::current_url() ) ) . '">' . esc_html__( 'Log in', 're-events' ) . '</a></p>';
 		}
 
-		$post_id = self::edit_id();
-		$post    = 0 < $post_id ? get_post( $post_id ) : null;
+		$state  = self::state( $args );
+		$post   = self::edit_post();
+		$values = $state['values'];
 
-		if ( $post && ( 'reevents_event' !== $post->post_type || get_current_user_id() !== (int) $post->post_author ) ) {
-			$post = null;
-		}
-
-		$timezone = $post ? (string) get_post_meta( $post->ID, '_reevents_timezone', true ) : (string) Settings::get( 'timezone', 'UTC' );
+		$timezone = (string) ( $values['timezone'] ?? ( $post ? get_post_meta( $post->ID, '_reevents_timezone', true ) : Settings::get( 'timezone', 'UTC' ) ) );
 		$timezone = '' !== $timezone ? $timezone : 'UTC';
+		$start    = (string) ( $values['start'] ?? ( $post ? self::local_input( (string) get_post_meta( $post->ID, '_reevents_start_utc', true ), $timezone ) : '' ) );
+		$end      = (string) ( $values['end'] ?? ( $post ? self::local_input( (string) get_post_meta( $post->ID, '_reevents_end_utc', true ), $timezone ) : '' ) );
+
+		$use_editor = is_user_logged_in();
+
+		if ( $use_editor ) {
+			wp_enqueue_editor();
+		}
 
 		return Template::render(
 			'submit-form',
 			[
-				'post_id'  => $post ? (int) $post->ID : 0,
-				'title'    => $post ? (string) $post->post_title : '',
-				'start'    => $post ? self::local_input( (string) get_post_meta( $post->ID, '_reevents_start_utc', true ), $timezone ) : '',
-				'end'      => $post ? self::local_input( (string) get_post_meta( $post->ID, '_reevents_end_utc', true ), $timezone ) : '',
-				'timezone' => $timezone,
-				'venue_id' => $post ? (int) get_post_meta( $post->ID, '_reevents_venue_id', true ) : 0,
-				'capacity' => $post ? (int) get_post_meta( $post->ID, '_reevents_capacity', true ) : 0,
-				'content'  => $post ? (string) $post->post_content : '',
-				'name'     => $post ? (string) get_post_meta( $post->ID, '_reevents_submitter_name', true ) : '',
-				'email'    => $post ? (string) get_post_meta( $post->ID, '_reevents_submitter_email', true ) : '',
-				'venues'   => self::venues(),
-				'action'   => admin_url( 'admin-post.php' ),
-				'nonce'    => wp_create_nonce( 'reevents_submit' ),
-				'state'    => self::state( $args ),
-				'args'     => $args,
+				'post_id'          => $post ? (int) $post->ID : 0,
+				'title'            => (string) ( $values['title'] ?? ( $post ? $post->post_title : '' ) ),
+				'excerpt'          => (string) ( $values['excerpt'] ?? ( $post ? $post->post_excerpt : '' ) ),
+				'content'          => (string) ( $values['content'] ?? ( $post ? $post->post_content : '' ) ),
+				'start'            => $start,
+				'end'              => $end,
+				'timezone'         => $timezone,
+				'all_day'          => array_key_exists( 'all_day', $values ) ? (bool) $values['all_day'] : ( $post ? (bool) get_post_meta( $post->ID, '_reevents_all_day', true ) : false ),
+				'venue_id'         => (int) ( $values['venue_id'] ?? ( $post ? get_post_meta( $post->ID, '_reevents_venue_id', true ) : 0 ) ),
+				'capacity'         => (int) ( $values['capacity'] ?? ( $post ? get_post_meta( $post->ID, '_reevents_capacity', true ) : 0 ) ),
+				'categories'       => array_map( 'intval', (array) ( $values['categories'] ?? ( $post ? wp_get_object_terms( $post->ID, 'reevents_event_category', [ 'fields' => 'ids' ] ) : [] ) ) ),
+				'tags'             => (string) ( $values['tags'] ?? ( $post ? implode( ', ', wp_get_object_terms( $post->ID, 'reevents_event_tag', [ 'fields' => 'names' ] ) ) : '' ) ),
+				'organizer_ids'    => array_map( 'intval', (array) ( $values['organizer_ids'] ?? ( $post ? get_post_meta( $post->ID, '_reevents_organizer_ids', true ) : [] ) ) ),
+				'online_urls'      => is_array( $values['online_urls'] ?? null ) ? $values['online_urls'] : ( $post ? Meta::sanitize_urls( get_post_meta( $post->ID, '_reevents_online_urls', true ) ) : [] ),
+				'name'             => (string) ( $values['name'] ?? ( $post ? get_post_meta( $post->ID, '_reevents_submitter_name', true ) : '' ) ),
+				'email'            => (string) ( $values['email'] ?? ( $post ? get_post_meta( $post->ID, '_reevents_submitter_email', true ) : '' ) ),
+				'categories_terms' => self::categories(),
+				'organizers'       => self::organizers(),
+				'venues'           => self::venues(),
+				'use_editor'       => $use_editor,
+				'errors'           => $state['errors'],
+				'state'            => $state,
+				'action'           => admin_url( 'admin-post.php' ),
+				'nonce'            => wp_create_nonce( 'reevents_submit' ),
+				'args'             => $args,
 			]
 		);
+	}
+
+	/**
+	 * Read the edit post, if the current user owns it.
+	 */
+	private static function edit_post(): ?\WP_Post {
+		$post_id = self::edit_id();
+
+		if ( 0 >= $post_id ) {
+			return null;
+		}
+
+		$post = get_post( $post_id );
+
+		if ( ! $post || 'reevents_event' !== $post->post_type || get_current_user_id() !== (int) $post->post_author ) {
+			return null;
+		}
+
+		return $post;
 	}
 
 	/**
@@ -100,6 +135,62 @@ final class Submit_Form {
 	}
 
 	/**
+	 * Event categories.
+	 *
+	 * @return array<int, array{id:int,name:string}>
+	 */
+	private static function categories(): array {
+		$terms = get_terms(
+			[
+				'taxonomy'   => 'reevents_event_category',
+				'hide_empty' => false,
+			]
+		);
+
+		if ( is_wp_error( $terms ) ) {
+			return [];
+		}
+
+		return array_map(
+			static function ( \WP_Term $term ): array {
+				return [
+					'id'   => (int) $term->term_id,
+					'name' => (string) $term->name,
+				];
+			},
+			$terms
+		);
+	}
+
+	/**
+	 * Published organizers.
+	 *
+	 * @return array<int, array{id:int,title:string}>
+	 */
+	private static function organizers(): array {
+		$limit = max( 1, (int) apply_filters( 'reevents_admin_dropdown_limit', 200 ) );
+		$posts = get_posts(
+			[
+				'post_type'      => 'reevents_organizer',
+				'post_status'    => 'publish',
+				'posts_per_page' => $limit,
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+			]
+		);
+		$items = [];
+
+		foreach ( $posts as $post ) {
+			$items[] = [
+				'id'    => (int) $post->ID,
+				'title' => (string) $post->post_title,
+			];
+		}
+
+		return $items;
+	}
+
+	/**
 	 * Published venues.
 	 *
 	 * @return array<int, array{id:int,title:string}>
@@ -131,23 +222,37 @@ final class Submit_Form {
 	 * Read the result state.
 	 *
 	 * @param array<string, mixed> $args Widget arguments.
-	 * @return array{status:string,message:string}
+	 * @return array{status:string,message:string,errors:array<string,string>,values:array<string,mixed>}
 	 */
 	private static function state( array $args ): array {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only result flag.
-		$code = isset( $_GET['reevents_submission'] ) ? sanitize_key( wp_unslash( (string) $_GET['reevents_submission'] ) ) : '';
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only result flags.
+		$token = isset( $_GET['reevents_submission_error'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['reevents_submission_error'] ) ) : '';
+		$code  = isset( $_GET['reevents_submission'] ) ? sanitize_key( wp_unslash( (string) $_GET['reevents_submission'] ) ) : '';
+		// phpcs:enable
 
-		if ( '' === $code ) {
-			return [
-				'status'  => '',
-				'message' => '',
-			];
+		if ( '' !== $token ) {
+			$data = get_transient( 'reevents_submission_error_' . $token );
+
+			if ( is_array( $data ) ) {
+				delete_transient( 'reevents_submission_error_' . $token );
+
+				$errors = (array) ( $data['errors'] ?? [] );
+
+				return [
+					'status'  => 'error',
+					'message' => (string) reset( $errors ),
+					'errors'  => $errors,
+					'values'  => (array) ( $data['values'] ?? [] ),
+				];
+			}
 		}
 
 		if ( 'submitted' === $code ) {
 			return [
 				'status'  => 'success',
 				'message' => (string) ( $args['success_message'] ?? __( 'Thank you. Your event is awaiting review.', 're-events' ) ),
+				'errors'  => [],
+				'values'  => [],
 			];
 		}
 
@@ -155,12 +260,25 @@ final class Submit_Form {
 			return [
 				'status'  => 'success',
 				'message' => (string) ( $args['published_message'] ?? __( 'Thank you. Your event is published.', 're-events' ) ),
+				'errors'  => [],
+				'values'  => [],
+			];
+		}
+
+		if ( '' !== $code ) {
+			return [
+				'status'  => 'error',
+				'message' => self::message( $code ),
+				'errors'  => [],
+				'values'  => [],
 			];
 		}
 
 		return [
-			'status'  => 'error',
-			'message' => self::message( $code ),
+			'status'  => '',
+			'message' => '',
+			'errors'  => [],
+			'values'  => [],
 		];
 	}
 
@@ -176,9 +294,6 @@ final class Submit_Form {
 			'login_required'           => __( 'Log in to submit an event.', 're-events' ),
 			'rate_limited'             => __( 'Too many attempts. Try again later.', 're-events' ),
 			'forbidden'                => __( 'You cannot edit this event.', 're-events' ),
-			'invalid_submitter'        => __( 'Enter your name and a valid email address.', 're-events' ),
-			'invalid_start'            => __( 'Enter a valid start time.', 're-events' ),
-			'invalid_end'              => __( 'The end time must not be before the start time.', 're-events' ),
 			'rest_event_invalid_title' => __( 'An event title is required.', 're-events' ),
 			'rest_event_invalid_range' => __( 'The end time must not be before the start time.', 're-events' ),
 			'rest_event_invalid_venue' => __( 'The venue does not exist.', 're-events' ),

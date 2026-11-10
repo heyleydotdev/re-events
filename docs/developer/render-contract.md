@@ -140,10 +140,17 @@ Requires **Settings → Bookings → Event submissions** to be enabled.
 | `venue_label`    | `Venue`                      | Venue label             |
 | `capacity_label` | `Capacity`                   | Capacity label          |
 | `content_label`  | `Description`                | Description label       |
+| `excerpt_label`  | `Short summary`              | Excerpt label           |
+| `categories_label` | `Categories`               | Categories label        |
+| `tags_label`     | `Tags`                       | Tags label              |
+| `tags_placeholder` | `Comma-separated`          | Tags placeholder        |
+| `organizers_label` | `Organizers`               | Organizers label        |
+| `online_links_label` | `Online links`           | Online links label      |
+| `all_day_label`  | `All-day event`              | All-day label           |
 | `name_label`     | `Your name`                  | Guest name label        |
 | `email_label`    | `Your email`                 | Guest email label       |
 
-New submissions are saved as `pending`. Guests can submit when the setting allows it, but only members can edit their own events. The edit link is `?reevents_edit={id}` on the same page.
+New submissions are saved as `pending`. Users with `publish_reevents_events` publish immediately. Guests can submit when the setting allows it, but only members can edit their own events. The edit link is `?reevents_edit={id}` on the same page.
 
 ### My events — `[reevents_my_events]`
 
