@@ -160,17 +160,25 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `save_label` | Save changes |  |
 | `login_message` | Log in to submit an event. |  |
 | `success_message` | Thank you. Your event is awaiting review. |  |
+| `published_message` | Thank you. Your event is published. |  |
 | `title_label` | Event title |  |
 | `start_label` | Starts |  |
 | `end_label` | Ends |  |
 | `venue_label` | Venue | Label above the venue field. |
 | `capacity_label` | Capacity |  |
 | `content_label` | Description |  |
+| `excerpt_label` | Short summary |  |
+| `categories_label` | Categories |  |
+| `tags_label` | Tags |  |
+| `tags_placeholder` | Comma-separated |  |
+| `organizers_label` | Organizers | Label shown before the organizer names. |
+| `online_links_label` | Online links |  |
+| `all_day_label` | All-day event |  |
 | `name_label` | Your name |  |
 | `email_label` | Your email |  |
 
 ```text
-[reevents_submit submit_label="Submit event" save_label="Save changes" login_message="Log in to submit an event." success_message="Thank you. Your event is awaiting review." title_label="Event title" start_label="Starts" end_label="Ends" venue_label="Venue" capacity_label="Capacity" content_label="Description" name_label="Your name" email_label="Your email"]
+[reevents_submit submit_label="Submit event" save_label="Save changes" login_message="Log in to submit an event." success_message="Thank you. Your event is awaiting review." published_message="Thank you. Your event is published." title_label="Event title" start_label="Starts" end_label="Ends" venue_label="Venue" capacity_label="Capacity" content_label="Description" excerpt_label="Short summary" categories_label="Categories" tags_label="Tags" tags_placeholder="Comma-separated" organizers_label="Organizers" online_links_label="Online links" all_day_label="All-day event" name_label="Your name" email_label="Your email"]
 ```
 
 ## My Events
