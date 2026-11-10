@@ -425,59 +425,63 @@ final class Widget_Registry {
 				'shortcode' => 'reevents_submit',
 				'renderer'  => [ Submit_Form::class, 'render' ],
 				'args'      => [
-					'class'           => [
+					'class'             => [
 						'type'    => 'text',
 						'default' => '',
 					],
-					'wrapper_class'   => [
+					'wrapper_class'     => [
 						'type'    => 'text',
 						'default' => '',
 					],
-					'submit_label'    => [
+					'submit_label'      => [
 						'type'    => 'text',
 						'default' => __( 'Submit event', 're-events' ),
 					],
-					'save_label'      => [
+					'save_label'        => [
 						'type'    => 'text',
 						'default' => __( 'Save changes', 're-events' ),
 					],
-					'login_message'   => [
+					'login_message'     => [
 						'type'    => 'text',
 						'default' => __( 'Log in to submit an event.', 're-events' ),
 					],
-					'success_message' => [
+					'success_message'   => [
 						'type'    => 'text',
 						'default' => __( 'Thank you. Your event is awaiting review.', 're-events' ),
 					],
-					'title_label'     => [
+					'published_message' => [
+						'type'    => 'text',
+						'default' => __( 'Thank you. Your event is published.', 're-events' ),
+					],
+					'title_label'       => [
 						'type'    => 'text',
 						'default' => __( 'Event title', 're-events' ),
 					],
-					'start_label'     => [
+					'start_label'       => [
 						'type'    => 'text',
 						'default' => __( 'Starts', 're-events' ),
 					],
-					'end_label'       => [
+					'end_label'         => [
 						'type'    => 'text',
 						'default' => __( 'Ends', 're-events' ),
 					],
-					'venue_label'     => [
+					'venue_label'       => [
 						'type'    => 'text',
 						'default' => __( 'Venue', 're-events' ),
 					],
-					'capacity_label'  => [
+					'capacity_label'    => [
 						'type'    => 'text',
 						'default' => __( 'Capacity', 're-events' ),
 					],
-					'content_label'   => [
+					'content_label'     => [
 						'type'    => 'text',
 						'default' => __( 'Description', 're-events' ),
 					],
-					'name_label'      => [
+					'name_label'        => [
 						'type'    => 'text',
 						'default' => __( 'Your name', 're-events' ),
 					],
-					'email_label'     => [
+					'email_label'       => [
 						'type'    => 'text',
 						'default' => __( 'Your email', 're-events' ),
 					],

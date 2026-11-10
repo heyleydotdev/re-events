@@ -151,6 +151,13 @@ final class Submit_Form {
 			];
 		}
 
+		if ( 'published' === $code ) {
+			return [
+				'status'  => 'success',
+				'message' => (string) ( $args['published_message'] ?? __( 'Thank you. Your event is published.', 're-events' ) ),
+			];
+		}
+
 		return [
 			'status'  => 'error',
 			'message' => self::message( $code ),

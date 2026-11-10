@@ -86,4 +86,19 @@ final class Submission_Test extends WP_UnitTestCase {
 		self::assertFalse( Submission_Handler::can_edit( $event, $other ) );
 		self::assertFalse( Submission_Handler::can_edit( $event, 0 ) );
 	}
+
+	/**
+	 * Trusted users may publish without review.
+	 */
+	public function test_trusted_user_can_publish(): void {
+		$trusted = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+		$other   = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+		$user    = new \WP_User( $trusted );
+
+		$user->add_cap( 'publish_reevents_events' );
+
+		self::assertTrue( Submission_Handler::can_publish( $trusted ) );
+		self::assertFalse( Submission_Handler::can_publish( $other ) );
+		self::assertFalse( Submission_Handler::can_publish( 0 ) );
+	}
 }

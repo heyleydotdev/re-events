@@ -108,7 +108,8 @@ final class Submission_Handler {
 		);
 
 		$is_new = 0 === $event_id;
-		$result = Event_Service::save( $event, $is_new ? 'pending' : '' );
+		$status = $is_new ? ( self::can_publish( $user_id ) ? 'publish' : 'pending' ) : '';
+		$result = Event_Service::save( $event, $status );
 
 		if ( is_wp_error( $result ) ) {
 			self::redirect( $redirect, $result->get_error_code() );
@@ -133,11 +134,11 @@ final class Submission_Handler {
 			update_post_meta( (int) $result, '_reevents_submitter_email', $email );
 		}
 
-		if ( $is_new ) {
+		if ( $is_new && 'pending' === get_post_status( (int) $result ) ) {
 			self::notify_admin( (int) $result, $name, $email );
 		}
 
-		self::redirect( $redirect, 'submitted' );
+		self::redirect( $redirect, $is_new && 'publish' === $status ? 'published' : 'submitted' );
 	}
 
 	/**
@@ -173,6 +174,15 @@ final class Submission_Handler {
 		);
 
 		wp_mail( (string) get_option( 'admin_email' ), $subject, $body );
+	}
+
+	/**
+	 * Whether a user may publish an event without review.
+	 *
+	 * @param int $user_id User ID.
+	 */
+	public static function can_publish( int $user_id ): bool {
+		return $user_id > 0 && user_can( $user_id, 'publish_reevents_events' );
 	}
 
 	/**

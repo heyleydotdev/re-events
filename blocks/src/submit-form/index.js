@@ -11,6 +11,7 @@ function Edit( { attributes, setAttributes } ) {
 		saveLabel,
 		loginMessage,
 		successMessage,
+		publishedMessage,
 		wrapperClass,
 	} = attributes;
 
@@ -44,6 +45,13 @@ function Edit( { attributes, setAttributes } ) {
 						value={ successMessage }
 						onChange={ ( value ) =>
 							setAttributes( { successMessage: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Published message', 're-events' ) }
+						value={ publishedMessage }
+						onChange={ ( value ) =>
+							setAttributes( { publishedMessage: value } )
 						}
 					/>
 					<TextControl

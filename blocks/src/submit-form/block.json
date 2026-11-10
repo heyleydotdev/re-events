@@ -32,6 +32,10 @@
 		"successMessage": {
 			"type": "string",
 			"default": "Thank you. Your event is awaiting review."
+		},
+		"publishedMessage": {
+			"type": "string",
+			"default": "Thank you. Your event is published."
 		}
 	},
 	"supports": {
