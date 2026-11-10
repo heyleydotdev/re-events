@@ -1,8 +1,8 @@
 # ReEvents API docs
 
-- [Authentication](auth.md)
-- [Custom booking forms](booking-form.md)
-- [Postman collection](postman.json)
+- [Authentication](api/auth.md)
+- [Custom booking forms](api/booking-form.md)
+- [Postman collection](api/postman.json)
 - OpenAPI spec: `openapi.json`
 - Interactive reference: `scalar.html`
 

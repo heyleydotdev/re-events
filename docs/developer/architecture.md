@@ -35,7 +35,7 @@ The `ReEvents\` namespace maps to `src/`. Class names map to kebab-case file nam
 
 Events, venues, and organizers are custom post types. Their data lives in post fields and registered post meta. Event categories, event tags, and organizer tags are taxonomies.
 
-Occurrences, tickets, bookings, and attendees use custom tables. They are queried directly through repositories because they need indexes, transactions, and capacity checks that post meta cannot provide. See [ADR 0001](../adr/0001-custom-tables-for-bookings.md).
+Occurrences, tickets, bookings, and attendees use custom tables. They are queried directly through repositories because they need indexes, transactions, and capacity checks that post meta cannot provide. See [ADR 0001](adr/0001-custom-tables-for-bookings.md).
 
 The schema is installed and upgraded with `dbDelta` in `src/data/schema.php`.
 
@@ -67,7 +67,7 @@ API keys are stored as HMAC-SHA256 hashes. A key authenticates as its owning use
 
 Templates live in `templates/`. A theme can override a template by placing a file with the same name in a `re-events/` directory in the theme. Renderers call `Template::render()` and never build markup outside the template.
 
-The frontend render contract — widget args, classes, data attributes and style modes — is documented in [render-contract.md](render-contract.md).
+The frontend render contract — widget args, classes, data attributes and style modes — is documented in [render-contract.md](developer/render-contract.md).
 
 ## Assets
 
