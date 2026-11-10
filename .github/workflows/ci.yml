@@ -82,7 +82,7 @@ jobs:
       - run: bun run wp-env start
       - name: Seed custom form event
         run: |
-          bun run wp-env run cli wp eval '$e=ReEvents\CLI\Test_Factory::event(["title"=>"E2E custom form","meta"=>["_reevents_start_utc"=>gmdate("Y-m-d H:i:s"),"_reevents_end_utc"=>gmdate("Y-m-d H:i:s",time()+3600),"_reevents_timezone"=>"UTC"]]); $t=ReEvents\CLI\Test_Factory::ticket($e,["capacity"=>5,"price_minor"=>0]); echo json_encode(["event"=>$e,"ticket"=>$t]);' > /tmp/e2e.json
+          bun run wp-env run cli wp eval '$e=ReEvents\CLI\Test_Factory::event(["title"=>"E2E custom form","meta"=>["_reevents_start_utc"=>gmdate("Y-m-d H:i:s"),"_reevents_end_utc"=>gmdate("Y-m-d H:i:s",time()+3600),"_reevents_timezone"=>"UTC"]]); $t=ReEvents\CLI\Test_Factory::ticket($e,["capacity"=>5,"price_minor"=>0]); echo json_encode(["event"=>$e,"ticket"=>$t]);' | sed -n '/^{/p' > /tmp/e2e.json
           echo "REEVENTS_EVENT_ID=$(jq -r .event /tmp/e2e.json)" >> "$GITHUB_ENV"
           echo "REEVENTS_TICKET_ID=$(jq -r .ticket /tmp/e2e.json)" >> "$GITHUB_ENV"
       - run: bunx playwright install --with-deps chromium
