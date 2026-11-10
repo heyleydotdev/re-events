@@ -413,7 +413,7 @@ final class Events_Controller extends WP_REST_Controller {
 		$previous = $this->prepare_item_for_response( $event, $request )->get_data();
 
 		if ( ! $repo->delete( $event->id ) ) {
-			return new WP_Error( 'rest_event_delete_failed', __( 'The event could not be deleted.', 're-events' ), [ 'status' => 500 ] );
+			return new WP_Error( 'rest_event_delete_blocked', __( 'This event has bookings and cannot be deleted.', 're-events' ), [ 'status' => 409 ] );
 		}
 
 		( new Occurrence_Repository() )->delete_for_event( $event->id );
