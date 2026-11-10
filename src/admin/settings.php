@@ -37,6 +37,14 @@ final class Settings {
 		add_action( 'admin_post_reevents_rebuild_occurrences', [ self::class, 'rebuild' ] );
 		add_action( 'admin_post_reevents_send_test_email', [ self::class, 'send_test_email' ] );
 		add_action( 'admin_enqueue_scripts', [ self::class, 'enqueue' ] );
+		add_filter( 'option_page_capability_reevents_settings', [ self::class, 'option_page_capability' ] );
+	}
+
+	/**
+	 * Use the plugin capability when saving the settings form.
+	 */
+	public static function option_page_capability(): string {
+		return 'reevents_manage_settings';
 	}
 
 	/**

@@ -25,6 +25,7 @@ final class Rate_Limit {
 	public static function hit( string $bucket, int $max = 5, int $window = 600 ): bool {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Remote address.
 		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$ip = (string) apply_filters( 'reevents_client_ip', $ip );
 
 		if ( '' === $ip ) {
 			return false;

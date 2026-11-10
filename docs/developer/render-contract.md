@@ -154,4 +154,6 @@ See [custom booking forms](../api/booking-form.md) for the payload and error for
 ## Filters
 
 - `reevents_admin_dropdown_limit` — maximum venues, organizers and categories in admin selects. Default `200`.
+- `reevents_venue_dropdown_limit` — maximum venues in the frontend search filter. Default `500`.
+- `reevents_client_ip` — override the address used by the rate limiter, for trusted proxies.
 - `reevents_register_gateways` — register payment gateways after the built-in mock gateway.

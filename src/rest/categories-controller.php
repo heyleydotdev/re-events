@@ -98,7 +98,7 @@ final class Categories_Controller extends WP_REST_Controller {
 	 * @return bool|WP_Error
 	 */
 	public function write_permissions_check( $request ) {
-		if ( current_user_can( 'manage_categories' ) ) {
+		if ( current_user_can( 'edit_reevents_events' ) ) {
 			return true;
 		}
 

@@ -39,6 +39,12 @@ final class Taxonomies {
 					'with_front' => false,
 				],
 				'show_admin_column' => true,
+				'capabilities'      => [
+					'manage_terms' => 'edit_reevents_events',
+					'edit_terms'   => 'edit_reevents_events',
+					'delete_terms' => 'edit_reevents_events',
+					'assign_terms' => 'edit_reevents_events',
+				],
 			]
 		);
 
@@ -56,6 +62,12 @@ final class Taxonomies {
 					'with_front' => false,
 				],
 				'show_admin_column' => true,
+				'capabilities'      => [
+					'manage_terms' => 'edit_reevents_events',
+					'edit_terms'   => 'edit_reevents_events',
+					'delete_terms' => 'edit_reevents_events',
+					'assign_terms' => 'edit_reevents_events',
+				],
 			]
 		);
 

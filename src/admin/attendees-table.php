@@ -133,7 +133,7 @@ final class Attendees_Table extends \WP_List_Table {
 	private function process_bulk_action(): void {
 		$action = $this->current_action();
 
-		if ( ! in_array( $action, [ 'check_in', 'check_out' ], true ) ) {
+		if ( ! in_array( $action, [ 'check_in', 'check_out' ], true ) || ! current_user_can( 'reevents_manage_bookings' ) ) {
 			return;
 		}
 
