@@ -1,0 +1,8 @@
+- [Overview](README.md)
+- [Shortcodes](shortcodes/README.md)
+- [Authentication](api/auth.md)
+- [Custom booking forms](api/booking-form.md)
+- [Architecture](developer/architecture.md)
+- [Render contract](developer/render-contract.md)
+- [Payments](developer/payments.md)
+- <a href="../../../../wp-admin/admin.php?page=reevents-api-docs" target="_top">API reference</a>
