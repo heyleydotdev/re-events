@@ -73,3 +73,56 @@ requests. Webhook requests bypass the public API switch and rate limiter.
 
 `Mock` is for local checkout tests. It returns a `mock_...` reference and
 accepts JSON webhooks with `gateway_ref` and `status`.
+
+## PayPal
+
+Set **Settings → Payments → Gateway** to `PayPal` and fill in:
+
+- **Mode** — `Sandbox` or `Live`.
+- **Client ID** and **Client secret** — REST app credentials.
+- **Webhook ID** — ID of the webhook endpoint below.
+- **Success URL** and **Cancel URL** — optional; both default to the home page.
+
+PayPal uses Orders v2. An approved order is captured when the visitor returns
+or when the webhook arrives. Amounts are converted from `amount_minor` to the
+currency's decimal form, so zero-decimal currencies such as JPY are sent as
+whole units.
+
+Webhook endpoint:
+
+```http
+POST /wp-json/re-events/v1/webhooks/paypal
+```
+
+Subscribe to `PAYMENT.CAPTURE.COMPLETED`, `PAYMENT.CAPTURE.DENIED`,
+`PAYMENT.CAPTURE.REFUNDED` and `CHECKOUT.ORDER.APPROVED`. Every webhook is
+verified with PayPal's `verify-webhook-signature` endpoint before it is
+applied.
+
+## Zero-decimal currencies
+
+Amounts are always stored in the smallest currency unit. `Currency::amount()`
+and `Currency::format()` apply the correct number of decimals, so JPY, KRW,
+VND and the other zero-decimal currencies are not divided by 100. Stripe and
+PayPal both receive the same value that is stored on the booking.
+
+## Sandbox checklist
+
+**Stripe**
+
+1. Set the gateway to `Stripe` and add a test secret key.
+2. Create a webhook endpoint for `/wp-json/re-events/v1/webhooks/stripe` and copy its signing secret.
+3. Buy a paid ticket and confirm the redirect to Checkout.
+4. Pay with `4242 4242 4242 4242` and confirm the booking becomes `confirmed`.
+5. Replay the webhook and confirm the status does not change twice.
+6. Refund the payment from the dashboard and confirm the booking is cancelled.
+7. Wait past the hold window and confirm an abandoned checkout releases its seats.
+
+**PayPal**
+
+1. Set the mode to `Sandbox` and add sandbox REST credentials.
+2. Create a webhook endpoint for `/wp-json/re-events/v1/webhooks/paypal` and copy its webhook ID.
+3. Buy a paid ticket and approve the order with a sandbox buyer account.
+4. Confirm the return captures the order and confirms the booking.
+5. Refund the capture and confirm the booking is cancelled.
+6. Replay a webhook and confirm the status does not change twice.
