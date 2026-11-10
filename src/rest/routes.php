@@ -11,6 +11,7 @@ namespace ReEvents\REST;
 
 use ReEvents\Admin\Settings;
 use ReEvents\Services\API_Keys;
+use ReEvents\Services\Payment_Service;
 use ReEvents\Services\Rate_Limit;
 use WP_Error;
 use WP_REST_Request;
@@ -40,6 +41,10 @@ final class Routes {
 	 */
 	public static function guard( $result, $server, $request ) {
 		if ( is_wp_error( $result ) || ! str_starts_with( $request->get_route(), '/re-events/v1' ) ) {
+			return $result;
+		}
+
+		if ( str_starts_with( $request->get_route(), '/re-events/v1/webhooks/' ) ) {
 			return $result;
 		}
 
@@ -161,6 +166,36 @@ final class Routes {
 
 		$booking_form = new Booking_Form_Controller();
 		$booking_form->register_routes();
+
+		register_rest_route(
+			're-events/v1',
+			'/webhooks/(?P<gateway>[a-z0-9_-]+)',
+			[
+				'methods'             => 'POST',
+				'callback'            => [ self::class, 'webhook' ],
+				'permission_callback' => '__return_true',
+			]
+		);
+	}
+
+	/**
+	 * Handle a gateway webhook.
+	 *
+	 * @param WP_REST_Request $request Request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function webhook( WP_REST_Request $request ) {
+		$result = Payment_Service::handle_webhook(
+			sanitize_key( (string) $request->get_param( 'gateway' ) ),
+			(string) $request->get_body(),
+			$request->get_headers()
+		);
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return new WP_REST_Response( [ 'received' => true ], 200 );
 	}
 
 	/**

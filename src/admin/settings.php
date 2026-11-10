@@ -164,10 +164,51 @@ final class Settings {
 			[
 				'type'        => 'select',
 				'options'     => [
-					'none' => __( 'None', 're-events' ),
-					'mock' => __( 'Mock (testing)', 're-events' ),
+					'none'   => __( 'None', 're-events' ),
+					'mock'   => __( 'Mock (testing)', 're-events' ),
+					'stripe' => __( 'Stripe', 're-events' ),
 				],
 				'description' => __( 'The mock gateway is for local checkout tests only.', 're-events' ),
+			],
+			'payments_gateway'
+		);
+		self::add_field(
+			'payments',
+			'stripe_secret_key',
+			__( 'Stripe secret key', 're-events' ),
+			[
+				'type'        => 'password',
+				'description' => __( 'Secret API key from the Stripe dashboard.', 're-events' ),
+			],
+			'payments_gateway'
+		);
+		self::add_field(
+			'payments',
+			'stripe_webhook_secret',
+			__( 'Stripe webhook secret', 're-events' ),
+			[
+				'type'        => 'password',
+				'description' => __( 'Signing secret of the webhook endpoint.', 're-events' ),
+			],
+			'payments_gateway'
+		);
+		self::add_field(
+			'payments',
+			'stripe_success_url',
+			__( 'Success URL', 're-events' ),
+			[
+				'type'        => 'url',
+				'description' => __( 'Page shown after a completed payment. Defaults to the home page.', 're-events' ),
+			],
+			'payments_gateway'
+		);
+		self::add_field(
+			'payments',
+			'stripe_cancel_url',
+			__( 'Cancel URL', 're-events' ),
+			[
+				'type'        => 'url',
+				'description' => __( 'Page shown after a cancelled payment. Defaults to the home page.', 're-events' ),
 			],
 			'payments_gateway'
 		);
@@ -626,8 +667,12 @@ final class Settings {
 				break;
 
 			case 'payments':
-				$gateway                     = sanitize_key( (string) ( $input['payment_gateway'] ?? 'none' ) );
-				$settings['payment_gateway'] = in_array( $gateway, [ 'none', 'mock' ], true ) ? $gateway : 'none';
+				$gateway                           = sanitize_key( (string) ( $input['payment_gateway'] ?? 'none' ) );
+				$settings['payment_gateway']       = in_array( $gateway, [ 'none', 'mock', 'stripe' ], true ) ? $gateway : 'none';
+				$settings['stripe_secret_key']     = sanitize_text_field( (string) ( $input['stripe_secret_key'] ?? '' ) );
+				$settings['stripe_webhook_secret'] = sanitize_text_field( (string) ( $input['stripe_webhook_secret'] ?? '' ) );
+				$settings['stripe_success_url']    = esc_url_raw( (string) ( $input['stripe_success_url'] ?? '' ) );
+				$settings['stripe_cancel_url']     = esc_url_raw( (string) ( $input['stripe_cancel_url'] ?? '' ) );
 				break;
 
 			case 'emails':
@@ -678,6 +723,10 @@ final class Settings {
 			'api_rate_limit'           => 0,
 			'api_cors'                 => '',
 			'payment_gateway'          => 'none',
+			'stripe_secret_key'        => '',
+			'stripe_webhook_secret'    => '',
+			'stripe_success_url'       => '',
+			'stripe_cancel_url'        => '',
 			'delete_data_on_uninstall' => false,
 		];
 	}

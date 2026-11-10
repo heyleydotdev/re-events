@@ -127,6 +127,10 @@ final class Payment_Service {
 			return new WP_Error( 'reevents_payment_not_found', __( 'Payment not found.', 're-events' ), [ 'status' => 404 ] );
 		}
 
+		if ( ! in_array( $verified['status'], [ 'pending', 'succeeded', 'failed', 'refunded' ], true ) ) {
+			return true;
+		}
+
 		$repo->update( (int) $payment['id'], [ 'status' => $verified['status'] ] );
 
 		if ( 'succeeded' === $verified['status'] ) {
