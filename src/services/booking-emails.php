@@ -26,6 +26,7 @@ final class Booking_Emails {
 	public static function register(): void {
 		add_action( 'reevents_booking_created', [ self::class, 'send' ], 10, 1 );
 		add_action( 'reevents_booking_status_changed', [ self::class, 'on_status_change' ], 10, 2 );
+		add_action( 'reevents_send_booking_emails', [ self::class, 'send_attendees' ], 10, 1 );
 	}
 
 	/**
@@ -49,6 +50,27 @@ final class Booking_Emails {
 			$admin = self::compose( $booking, $event, $attendees, 'admin' );
 			wp_mail( (string) get_option( 'admin_email' ), $admin['subject'], $admin['body'] );
 		}
+
+		if ( ! wp_next_scheduled( 'reevents_send_booking_emails', [ $booking_id ] ) ) {
+			wp_schedule_single_event( time() + 5, 'reevents_send_booking_emails', [ $booking_id ] );
+		}
+	}
+
+	/**
+	 * Send the attendee copies outside the request.
+	 *
+	 * @param int $booking_id Booking ID.
+	 */
+	public static function send_attendees( int $booking_id ): void {
+		$repo    = new Booking_Repository();
+		$booking = $repo->find( $booking_id );
+
+		if ( ! $booking ) {
+			return;
+		}
+
+		$event     = ( new Event_Repository() )->find( (int) $booking['event_id'] );
+		$attendees = $repo->attendees( $booking_id );
 
 		foreach ( $attendees as $attendee ) {
 			if ( ! is_email( (string) $attendee['email'] ) ) {
