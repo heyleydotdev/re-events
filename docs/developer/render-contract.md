@@ -43,6 +43,12 @@ Do not rely on inline styles. The plugin does not output them.
 | `show_venue`        | `true`        | Show the venue                       |
 | `show_organizers`   | `true`        | Show organizers                      |
 | `show_online_links` | `true`        | Show online links                    |
+| `show_calendar_links` | `true`      | Show add-to-calendar links           |
+| `calendar_label`    | `Add to calendar` | Calendar heading                  |
+| `google_label`      | `Google`      | Google link                          |
+| `outlook_label`     | `Outlook`     | Outlook link                         |
+| `office365_label`   | `Office 365`  | Office 365 link                      |
+| `ical_label`        | `Apple / iCal` | iCal link                           |
 | `show_content`      | `true`        | Show the description                 |
 | `cancelled_label`   | `Cancelled`   | Cancelled badge                      |
 | `ongoing_label`     | `Ongoing`     | Ongoing badge                        |

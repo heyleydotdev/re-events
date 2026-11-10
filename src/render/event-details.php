@@ -64,14 +64,29 @@ final class Event_Details {
 			];
 		}
 
+		$calendar_links = [];
+
+		if ( 'cancelled' !== $event->status && ( ! isset( $args['show_calendar_links'] ) || ! empty( $args['show_calendar_links'] ) ) ) {
+			$calendar_links = Calendar_Links::links(
+				$event,
+				[
+					'google'    => (string) ( $args['google_label'] ?? __( 'Google', 're-events' ) ),
+					'outlook'   => (string) ( $args['outlook_label'] ?? __( 'Outlook', 're-events' ) ),
+					'office365' => (string) ( $args['office365_label'] ?? __( 'Office 365', 're-events' ) ),
+					'ical'      => (string) ( $args['ical_label'] ?? __( 'Apple / iCal', 're-events' ) ),
+				]
+			);
+		}
+
 		return Template::render(
 			'event-details',
 			[
-				'event'      => $event,
-				'content'    => $content,
-				'venue'      => $venue,
-				'organizers' => $organizers,
-				'args'       => $args,
+				'event'          => $event,
+				'content'        => $content,
+				'venue'          => $venue,
+				'organizers'     => $organizers,
+				'calendar_links' => $calendar_links,
+				'args'           => $args,
 			]
 		);
 	}

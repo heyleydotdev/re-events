@@ -10,8 +10,10 @@ declare( strict_types=1 );
 namespace ReEvents\Tests\Integration;
 
 use ReEvents\CLI\Test_Factory;
+use ReEvents\Data\Event_Repository;
 use ReEvents\Frontend\Feeds;
 use ReEvents\Frontend\Structured_Data;
+use ReEvents\Render\Calendar_Links;
 use ReEvents\Services\Occurrence_Service;
 use WP_UnitTestCase;
 
@@ -64,6 +66,21 @@ final class Feeds_Test extends WP_UnitTestCase {
 
 		self::assertIsString( $ical );
 		self::assertStringContainsString( 'UID:event-' . $event, $ical );
+	}
+
+	/**
+	 * Calendar links cover the four providers.
+	 */
+	public function test_calendar_links(): void {
+		$id     = $this->event();
+		$event  = ( new Event_Repository() )->find( $id );
+		$links  = Calendar_Links::links( $event, [] );
+		$labels = array_column( $links, 'label' );
+
+		self::assertCount( 4, $links );
+		self::assertContains( 'Google', $labels );
+		self::assertStringContainsString( 'calendar.google.com', $links[0]['url'] );
+		self::assertStringContainsString( 'reevents_ical', $links[3]['url'] );
 	}
 
 	/**

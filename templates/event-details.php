@@ -58,6 +58,19 @@ if ( ! empty( $args['args']['show_online_links'] ) && ! empty( $event->online_ur
 	echo '</ul>';
 }
 
+if ( ! empty( $args['calendar_links'] ) ) {
+	echo '<div class="reevents-event-calendar-links">';
+	echo '<strong>' . esc_html( (string) ( $args['args']['calendar_label'] ?? __( 'Add to calendar', 're-events' ) ) ) . '</strong>';
+	echo '<ul>';
+
+	foreach ( $args['calendar_links'] as $calendar_link ) {
+		echo '<li><a href="' . esc_url( $calendar_link['url'] ) . '">' . esc_html( $calendar_link['label'] ) . '</a></li>';
+	}
+
+	echo '</ul>';
+	echo '</div>';
+}
+
 if ( ! empty( $args['args']['show_content'] ) && '' !== $args['content'] ) {
 	echo '<div class="reevents-event-content">' . wp_kses_post( $args['content'] ) . '</div>';
 }

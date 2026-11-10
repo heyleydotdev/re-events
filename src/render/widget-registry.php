@@ -79,47 +79,71 @@ final class Widget_Registry {
 				'shortcode' => 'reevents_event',
 				'renderer'  => [ Event_Details::class, 'render' ],
 				'args'      => [
-					'class'             => [
+					'class'               => [
 						'type'    => 'text',
 						'default' => '',
 					],
-					'wrapper_class'     => [
+					'wrapper_class'       => [
 						'type'    => 'text',
 						'default' => '',
 					],
-					'cancelled_label'   => [
+					'cancelled_label'     => [
 						'type'    => 'text',
 						'default' => __( 'Cancelled', 're-events' ),
 					],
-					'ongoing_label'     => [
+					'ongoing_label'       => [
 						'type'    => 'text',
 						'default' => __( 'Ongoing', 're-events' ),
 					],
-					'venue_label'       => [
+					'venue_label'         => [
 						'type'    => 'text',
 						'default' => __( 'Venue:', 're-events' ),
 					],
-					'organizers_label'  => [
+					'organizers_label'    => [
 						'type'    => 'text',
 						'default' => __( 'Organizers:', 're-events' ),
 					],
-					'id'                => [
+					'id'                  => [
 						'type'    => 'number',
 						'default' => 0,
 					],
-					'show_venue'        => [
+					'show_venue'          => [
 						'type'    => 'toggle',
 						'default' => true,
 					],
-					'show_organizers'   => [
+					'show_organizers'     => [
 						'type'    => 'toggle',
 						'default' => true,
 					],
-					'show_online_links' => [
+					'show_online_links'   => [
 						'type'    => 'toggle',
 						'default' => true,
 					],
-					'show_content'      => [
+					'show_calendar_links' => [
+						'type'    => 'toggle',
+						'default' => true,
+					],
+					'calendar_label'      => [
+						'type'    => 'text',
+						'default' => __( 'Add to calendar', 're-events' ),
+					],
+					'google_label'        => [
+						'type'    => 'text',
+						'default' => __( 'Google', 're-events' ),
+					],
+					'outlook_label'       => [
+						'type'    => 'text',
+						'default' => __( 'Outlook', 're-events' ),
+					],
+					'office365_label'     => [
+						'type'    => 'text',
+						'default' => __( 'Office 365', 're-events' ),
+					],
+					'ical_label'          => [
+						'type'    => 'text',
+						'default' => __( 'Apple / iCal', 're-events' ),
+					],
+					'show_content'        => [
 						'type'    => 'toggle',
 						'default' => true,
 					],
