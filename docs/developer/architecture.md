@@ -67,6 +67,8 @@ API keys are stored as HMAC-SHA256 hashes. A key authenticates as its owning use
 
 Templates live in `templates/`. A theme can override a template by placing a file with the same name in a `re-events/` directory in the theme. Renderers call `Template::render()` and never build markup outside the template.
 
+The frontend render contract — widget args, classes, data attributes and style modes — is documented in [render-contract.md](render-contract.md).
+
 ## Assets
 
 Admin and front-end assets are registered through `src/admin/assets.php`, `src/frontend/assets.php`, and the screens that need them. Scripts and styles are loaded conditionally, not on every page.
