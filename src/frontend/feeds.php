@@ -184,6 +184,10 @@ final class Feeds {
 
 			if ( $rows ) {
 				foreach ( $rows as $row ) {
+					if ( 'scheduled' !== (string) $row['status'] ) {
+						continue;
+					}
+
 					$items[] = [
 						'event' => $event,
 						'start' => (string) $row['start_utc'],

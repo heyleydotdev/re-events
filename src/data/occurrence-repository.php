@@ -106,9 +106,14 @@ final class Occurrence_Repository {
 		$referenced = ( new Booking_Repository() )->occurrence_ids_for_event( $event_id );
 
 		foreach ( $existing as $key => $id ) {
-			if ( ! isset( $seen[ $key ] ) && ! in_array( $id, $referenced, true ) ) {
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
-				$wpdb->delete( $table, [ 'id' => $id ], [ '%d' ] );
+			if ( ! isset( $seen[ $key ] ) ) {
+				if ( in_array( $id, $referenced, true ) ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
+					$wpdb->update( $table, [ 'status' => 'cancelled' ], [ 'id' => $id ] );
+				} else {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
+					$wpdb->delete( $table, [ 'id' => $id ], [ '%d' ] );
+				}
 			}
 		}
 
@@ -200,7 +205,7 @@ final class Occurrence_Repository {
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT o.* FROM {$table} o INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id
-				WHERE p.post_status = 'publish' AND o.start_utc <= %s AND o.end_utc >= %s
+				WHERE p.post_status = 'publish' AND o.status = 'scheduled' AND o.start_utc <= %s AND o.end_utc >= %s
 				ORDER BY o.start_utc ASC LIMIT %d OFFSET %d",
 				$to_utc,
 				$from_utc,
@@ -228,7 +233,7 @@ final class Occurrence_Repository {
 
 		$table = $this->table();
 		$sql   = "SELECT o.event_id FROM {$table} o INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id
-			WHERE p.post_status = 'publish' AND o.start_utc <= %s AND o.end_utc >= %s
+			WHERE p.post_status = 'publish' AND o.status = 'scheduled' AND o.start_utc <= %s AND o.end_utc >= %s
 			GROUP BY o.event_id ORDER BY MIN(o.start_utc) ASC";
 		$args  = [ $to_utc, $from_utc ];
 
@@ -261,7 +266,7 @@ final class Occurrence_Repository {
 			$wpdb->prepare(
 				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
 				"SELECT COUNT(DISTINCT o.event_id) FROM {$table} o INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id
-				WHERE p.post_status = 'publish' AND o.start_utc <= %s AND o.end_utc >= %s",
+				WHERE p.post_status = 'publish' AND o.status = 'scheduled' AND o.start_utc <= %s AND o.end_utc >= %s",
 				$to_utc,
 				$from_utc
 			)
