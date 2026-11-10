@@ -167,6 +167,7 @@ final class Settings {
 					'none'   => __( 'None', 're-events' ),
 					'mock'   => __( 'Mock (testing)', 're-events' ),
 					'stripe' => __( 'Stripe', 're-events' ),
+					'paypal' => __( 'PayPal', 're-events' ),
 				],
 				'description' => __( 'The mock gateway is for local checkout tests only.', 're-events' ),
 			],
@@ -206,6 +207,69 @@ final class Settings {
 			'payments',
 			'stripe_cancel_url',
 			__( 'Cancel URL', 're-events' ),
+			[
+				'type'        => 'url',
+				'description' => __( 'Page shown after a cancelled payment. Defaults to the home page.', 're-events' ),
+			],
+			'payments_gateway'
+		);
+		self::add_field(
+			'payments',
+			'paypal_mode',
+			__( 'PayPal mode', 're-events' ),
+			[
+				'type'    => 'select',
+				'options' => [
+					'sandbox' => __( 'Sandbox', 're-events' ),
+					'live'    => __( 'Live', 're-events' ),
+				],
+			],
+			'payments_gateway'
+		);
+		self::add_field(
+			'payments',
+			'paypal_client_id',
+			__( 'PayPal client ID', 're-events' ),
+			[
+				'type'        => 'text',
+				'description' => __( 'REST app client ID from the PayPal developer dashboard.', 're-events' ),
+			],
+			'payments_gateway'
+		);
+		self::add_field(
+			'payments',
+			'paypal_client_secret',
+			__( 'PayPal client secret', 're-events' ),
+			[
+				'type'        => 'password',
+				'description' => __( 'REST app secret from the PayPal developer dashboard.', 're-events' ),
+			],
+			'payments_gateway'
+		);
+		self::add_field(
+			'payments',
+			'paypal_webhook_id',
+			__( 'PayPal webhook ID', 're-events' ),
+			[
+				'type'        => 'text',
+				'description' => __( 'Webhook ID shown after creating the endpoint in PayPal.', 're-events' ),
+			],
+			'payments_gateway'
+		);
+		self::add_field(
+			'payments',
+			'paypal_success_url',
+			__( 'PayPal success URL', 're-events' ),
+			[
+				'type'        => 'url',
+				'description' => __( 'Page shown after a completed payment. Defaults to the home page.', 're-events' ),
+			],
+			'payments_gateway'
+		);
+		self::add_field(
+			'payments',
+			'paypal_cancel_url',
+			__( 'PayPal cancel URL', 're-events' ),
 			[
 				'type'        => 'url',
 				'description' => __( 'Page shown after a cancelled payment. Defaults to the home page.', 're-events' ),
@@ -668,11 +732,17 @@ final class Settings {
 
 			case 'payments':
 				$gateway                           = sanitize_key( (string) ( $input['payment_gateway'] ?? 'none' ) );
-				$settings['payment_gateway']       = in_array( $gateway, [ 'none', 'mock', 'stripe' ], true ) ? $gateway : 'none';
+				$settings['payment_gateway']       = in_array( $gateway, [ 'none', 'mock', 'stripe', 'paypal' ], true ) ? $gateway : 'none';
 				$settings['stripe_secret_key']     = sanitize_text_field( (string) ( $input['stripe_secret_key'] ?? '' ) );
 				$settings['stripe_webhook_secret'] = sanitize_text_field( (string) ( $input['stripe_webhook_secret'] ?? '' ) );
 				$settings['stripe_success_url']    = esc_url_raw( (string) ( $input['stripe_success_url'] ?? '' ) );
 				$settings['stripe_cancel_url']     = esc_url_raw( (string) ( $input['stripe_cancel_url'] ?? '' ) );
+				$settings['paypal_mode']           = 'live' === (string) ( $input['paypal_mode'] ?? '' ) ? 'live' : 'sandbox';
+				$settings['paypal_client_id']      = sanitize_text_field( (string) ( $input['paypal_client_id'] ?? '' ) );
+				$settings['paypal_client_secret']  = sanitize_text_field( (string) ( $input['paypal_client_secret'] ?? '' ) );
+				$settings['paypal_webhook_id']     = sanitize_text_field( (string) ( $input['paypal_webhook_id'] ?? '' ) );
+				$settings['paypal_success_url']    = esc_url_raw( (string) ( $input['paypal_success_url'] ?? '' ) );
+				$settings['paypal_cancel_url']     = esc_url_raw( (string) ( $input['paypal_cancel_url'] ?? '' ) );
 				break;
 
 			case 'emails':
@@ -727,6 +797,12 @@ final class Settings {
 			'stripe_webhook_secret'    => '',
 			'stripe_success_url'       => '',
 			'stripe_cancel_url'        => '',
+			'paypal_mode'              => 'sandbox',
+			'paypal_client_id'         => '',
+			'paypal_client_secret'     => '',
+			'paypal_webhook_id'        => '',
+			'paypal_success_url'       => '',
+			'paypal_cancel_url'        => '',
 			'delete_data_on_uninstall' => false,
 		];
 	}

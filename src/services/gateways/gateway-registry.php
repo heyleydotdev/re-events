@@ -58,6 +58,7 @@ final class Gateway_Registry {
 
 		self::register( new Mock_Gateway() );
 		self::register( new Stripe_Gateway() );
+		self::register( new PayPal_Gateway() );
 
 		do_action( 'reevents_register_gateways', self::class );
 	}
