@@ -27,6 +27,7 @@ use ReEvents\CLI\OpenAPI;
 use ReEvents\CLI\Bench;
 use ReEvents\CLI\Export_Attendees;
 use ReEvents\CLI\Self_Test;
+use ReEvents\CLI\Shortcode_Docs;
 use ReEvents\Frontend\Assets as Frontend_Assets;
 use ReEvents\Frontend\Blocks;
 use ReEvents\Frontend\Booking_Handler;
@@ -126,6 +127,10 @@ final class Plugin {
 
 				if ( class_exists( Concurrency_Test::class ) ) {
 					\WP_CLI::add_command( 're-events concurrency-test', [ Concurrency_Test::class, 'run' ] );
+				}
+
+				if ( class_exists( Shortcode_Docs::class ) ) {
+					\WP_CLI::add_command( 're-events shortcode-docs', [ Shortcode_Docs::class, 'run' ] );
 				}
 			}
 		);

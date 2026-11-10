@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace ReEvents\Admin;
 
+use ReEvents\Render\Widget_Registry;
+
 /**
  * Help and documentation tabs.
  */
@@ -99,17 +101,34 @@ final class Help {
 	 * Render the shortcode list.
 	 */
 	private static function render_shortcodes(): void {
+		$url = plugins_url( 'docs/shortcodes/index.html', RE_EVENTS_FILE );
 		?>
 		<h2><?php esc_html_e( 'Shortcodes', 're-events' ); ?></h2>
-		<ul>
-			<li><code>[reevents_list]</code></li>
-			<li><code>[reevents_event]</code></li>
-			<li><code>[reevents_venues]</code></li>
-			<li><code>[reevents_search]</code></li>
-			<li><code>[reevents_calendar]</code></li>
-			<li><code>[reevents_map]</code></li>
-			<li><code>[reevents_booking]</code></li>
-		</ul>
+		<p><?php esc_html_e( 'Every widget is available as a shortcode. The full reference lists arguments, defaults and examples.', 're-events' ); ?></p>
+		<p>
+			<a class="button button-primary" href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener">
+				<?php esc_html_e( 'Open shortcode reference', 're-events' ); ?>
+			</a>
+		</p>
+		<table class="widefat striped">
+			<thead>
+				<tr>
+					<th scope="col"><?php esc_html_e( 'Shortcode', 're-events' ); ?></th>
+					<th scope="col"><?php esc_html_e( 'Widget', 're-events' ); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ( Widget_Registry::all() as $widget ) : ?>
+					<?php if ( empty( $widget['shortcode'] ) ) : ?>
+						<?php continue; ?>
+					<?php endif; ?>
+					<tr>
+						<td><code>[<?php echo esc_html( (string) $widget['shortcode'] ); ?>]</code></td>
+						<td><?php echo esc_html( (string) ( $widget['label'] ?? '' ) ); ?></td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
 		<?php
 	}
 }
