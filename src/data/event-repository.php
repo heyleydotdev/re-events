@@ -81,14 +81,16 @@ final class Event_Repository {
 			if ( $existing_status ) {
 				$status = $existing_status;
 			}
-		} elseif ( in_array( $post_status, [ 'pending', 'draft', 'publish' ], true ) ) {
+		}
+
+		if ( in_array( $post_status, [ 'pending', 'draft', 'publish' ], true ) ) {
 			$status = $post_status;
 		}
 
 		$postarr = [
 			'ID'          => $event->id,
 			'post_type'   => 'reevents_event',
-			'post_title'  => $event->title,
+			'post_title'  => wp_strip_all_tags( $event->title ),
 			'post_status' => $status,
 			'meta_input'  => $this->meta( $event ),
 		];
@@ -106,7 +108,7 @@ final class Event_Repository {
 			return false;
 		}
 
-		if ( ( new Booking_Repository() )->count_for_event( $id ) > 0 ) {
+		if ( ( new Booking_Repository() )->count_active_for_event( $id ) > 0 ) {
 			return false;
 		}
 

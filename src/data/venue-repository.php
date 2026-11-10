@@ -84,6 +84,12 @@ final class Venue_Repository {
 			}
 		}
 
+		$requested_status = (string) ( $venue['post_status'] ?? '' );
+
+		if ( in_array( $requested_status, [ 'publish', 'pending', 'draft' ], true ) ) {
+			$status = $requested_status;
+		}
+
 		$postarr = [
 			'ID'           => $id,
 			'post_type'    => 'reevents_venue',

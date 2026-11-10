@@ -193,6 +193,29 @@ final class Booking_Repository {
 	}
 
 	/**
+	 * Count bookings that still hold seats.
+	 *
+	 * Cancelled and rejected bookings do not block deleting the event.
+	 *
+	 * @param int $event_id Event ID.
+	 */
+	public function count_active_for_event( int $event_id ): int {
+		global $wpdb;
+
+		$table = $this->table();
+
+		// shortcut: cancelled bookings stay as history rows after their event is deleted.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+				"SELECT COUNT(*) FROM {$table} WHERE event_id = %d AND status IN ('pending','confirmed')",
+				$event_id
+			)
+		);
+	}
+
+	/**
 	 * Occurrence IDs referenced by bookings for an event.
 	 *
 	 * @param int $event_id Event ID.
