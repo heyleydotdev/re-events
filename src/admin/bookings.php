@@ -62,6 +62,7 @@ final class Bookings {
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'Bookings', 're-events' ); ?></h1>
+			<?php Export::button( 'bookings' ); ?>
 			<?php
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice.
 			$notice = isset( $_GET['reevents_notice'] ) ? sanitize_key( wp_unslash( $_GET['reevents_notice'] ) ) : '';
