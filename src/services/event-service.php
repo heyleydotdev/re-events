@@ -23,10 +23,11 @@ final class Event_Service {
 	/**
 	 * Save an event and rebuild its occurrences.
 	 *
-	 * @param Event $event Event.
+	 * @param Event  $event       Event.
+	 * @param string $post_status Status for a new event.
 	 * @return int|WP_Error
 	 */
-	public static function save( Event $event ) {
+	public static function save( Event $event, string $post_status = '' ) {
 		$error = self::validate( $event );
 
 		if ( is_wp_error( $error ) ) {
@@ -36,7 +37,7 @@ final class Event_Service {
 		$is_new = 0 === $event->id;
 
 		Occurrence_Service::defer( true );
-		$result = ( new Event_Repository() )->save( $event );
+		$result = ( new Event_Repository() )->save( $event, $post_status );
 		Occurrence_Service::defer( false );
 
 		if ( is_wp_error( $result ) ) {

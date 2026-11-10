@@ -68,25 +68,28 @@ final class Event_Repository {
 	/**
 	 * Save an event.
 	 *
-	 * @param Event $event Event data.
+	 * @param Event  $event       Event data.
+	 * @param string $post_status Status for a new event.
 	 * @return int|WP_Error Post ID or error.
 	 */
-	public function save( Event $event ) {
-		$post_status = 'publish';
+	public function save( Event $event, string $post_status = '' ) {
+		$status = 'publish';
 
 		if ( $event->id ) {
 			$existing_status = get_post_status( $event->id );
 
 			if ( $existing_status ) {
-				$post_status = $existing_status;
+				$status = $existing_status;
 			}
+		} elseif ( in_array( $post_status, [ 'pending', 'draft', 'publish' ], true ) ) {
+			$status = $post_status;
 		}
 
 		$postarr = [
 			'ID'          => $event->id,
 			'post_type'   => 'reevents_event',
 			'post_title'  => $event->title,
-			'post_status' => $post_status,
+			'post_status' => $status,
 			'meta_input'  => $this->meta( $event ),
 		];
 

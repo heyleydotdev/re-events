@@ -282,6 +282,31 @@ final class Meta {
 	}
 
 	/**
+	 * Convert a local datetime to UTC.
+	 *
+	 * @param mixed  $value    Raw local datetime (Y-m-d\TH:i or Y-m-d H:i:s).
+	 * @param string $timezone IANA timezone.
+	 */
+	public static function local_to_utc( $value, string $timezone ): string {
+		$value    = trim( sanitize_text_field( (string) $value ) );
+		$timezone = self::sanitize_timezone( $timezone );
+
+		if ( '' === $value ) {
+			return '';
+		}
+
+		foreach ( [ 'Y-m-d\TH:i', 'Y-m-d H:i:s', 'Y-m-d H:i' ] as $format ) {
+			$date = DateTimeImmutable::createFromFormat( '!' . $format, $value, new DateTimeZone( $timezone ) );
+
+			if ( $date instanceof DateTimeImmutable ) {
+				return $date->setTimezone( new DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
+			}
+		}
+
+		return '';
+	}
+
+	/**
 	 * Sanitize a UTC datetime.
 	 *
 	 * @param mixed $value Raw value.
