@@ -176,21 +176,6 @@ final class Settings {
 			],
 			'bookings_rules'
 		);
-		self::add_field(
-			'bookings',
-			'submission_mode',
-			__( 'Event submissions', 're-events' ),
-			[
-				'type'        => 'select',
-				'options'     => [
-					'off'     => __( 'Off', 're-events' ),
-					'guest'   => __( 'Guests and members', 're-events' ),
-					'members' => __( 'Members only', 're-events' ),
-				],
-				'description' => __( 'New submissions are saved as pending until an administrator publishes them.', 're-events' ),
-			],
-			'bookings_rules'
-		);
 		self::add_section( 'bookings', __( 'Attendee fields', 're-events' ), 'bookings_fields' );
 		self::add_field(
 			'bookings',
@@ -796,8 +781,6 @@ final class Settings {
 			case 'bookings':
 				$settings['require_approval'] = ! empty( $input['require_approval'] );
 				$settings['hold_minutes']     = max( 5, min( 1440, absint( $input['hold_minutes'] ?? 30 ) ) );
-				$mode                         = sanitize_key( (string) ( $input['submission_mode'] ?? 'off' ) );
-				$settings['submission_mode']  = in_array( $mode, [ 'off', 'guest', 'members' ], true ) ? $mode : 'off';
 				$settings['attendee_fields']  = self::sanitize_attendee_fields( $input['attendee_fields'] ?? [] );
 				break;
 
@@ -856,7 +839,6 @@ final class Settings {
 			'frontend_style'           => 'none',
 			'require_approval'         => false,
 			'hold_minutes'             => 30,
-			'submission_mode'          => 'off',
 			'attendee_fields'          => [],
 			'email_admin_subject'      => __( '[{site}] New booking {reference}', 're-events' ),
 			'email_admin_body'         => __( "A new booking was created.\n\nEvent: {event}\nWhen: {date}\nVenue: {venue}\nReference: {reference}\nAttendee: {name} <{email}>\nSeats: {quantity}\nTotal: {total}", 're-events' ),
