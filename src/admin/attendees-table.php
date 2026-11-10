@@ -166,16 +166,6 @@ final class Attendees_Table extends \WP_List_Table {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only filter.
 		$event_id = isset( $_GET['event'] ) ? absint( wp_unslash( $_GET['event'] ) ) : 0;
-		$export   = wp_nonce_url(
-			add_query_arg(
-				[
-					'action' => 'reevents_export_attendees',
-					'event'  => $event_id,
-				],
-				admin_url( 'admin-post.php' )
-			),
-			'reevents_export_attendees'
-		);
 
 		echo '<div class="alignleft actions reevents-event-filter">';
 		echo '<label class="screen-reader-text" for="reevents-event-search-attendees">' . esc_html__( 'Search events', 're-events' ) . '</label>';
@@ -191,7 +181,6 @@ final class Attendees_Table extends \WP_List_Table {
 
 		echo '</select>';
 		submit_button( __( 'Filter', 're-events' ), '', 'filter_action', false );
-		echo '<a class="button" href="' . esc_url( $export ) . '">' . esc_html__( 'Export CSV', 're-events' ) . '</a>';
 		echo '</div>';
 	}
 

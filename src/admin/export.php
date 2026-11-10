@@ -32,14 +32,17 @@ final class Export {
 	 */
 	private static function capabilities(): array {
 		return [
-			'events'   => 'edit_reevents_events',
-			'venues'   => 'edit_reevents_venues',
-			'bookings' => 'reevents_manage_bookings',
+			'events'    => 'edit_reevents_events',
+			'venues'    => 'edit_reevents_venues',
+			'bookings'  => 'reevents_manage_bookings',
+			'attendees' => 'reevents_manage_bookings',
 		];
 	}
 
 	/**
-	 * Add the button to the event and venue list tables.
+	 * Add the hidden button to the event and venue list tables.
+	 *
+	 * The footer script moves it next to the page title action.
 	 *
 	 * @param string $post_type Current post type.
 	 */
@@ -52,16 +55,65 @@ final class Export {
 	}
 
 	/**
-	 * Output an export button.
+	 * Output a hidden export button for a list table.
 	 *
 	 * @param string $type Export type.
 	 */
 	public static function button( string $type ): void {
-		if ( ! isset( self::capabilities()[ $type ] ) || ! current_user_can( self::capabilities()[ $type ] ) ) {
+		if ( ! self::allowed( $type ) ) {
 			return;
 		}
 
-		$url = wp_nonce_url(
+		echo '<a class="button reevents-export-button" style="display:none" href="' . esc_url( self::url( $type ) ) . '">' . esc_html__( 'Export CSV', 're-events' ) . '</a>';
+	}
+
+	/**
+	 * Output an export button beside a page title.
+	 *
+	 * @param string $type Export type.
+	 */
+	public static function title_button( string $type ): void {
+		if ( ! self::allowed( $type ) ) {
+			return;
+		}
+
+		echo '<a class="page-title-action" style="margin-left:6px" href="' . esc_url( self::url( $type ) ) . '">' . esc_html__( 'Export CSV', 're-events' ) . '</a>';
+	}
+
+	/**
+	 * Whether the current user can export this type.
+	 *
+	 * @param string $type Export type.
+	 */
+	private static function allowed( string $type ): bool {
+		$caps = self::capabilities();
+
+		return isset( $caps[ $type ] ) && current_user_can( $caps[ $type ] );
+	}
+
+	/**
+	 * Build the export URL.
+	 *
+	 * @param string $type Export type.
+	 */
+	private static function url( string $type ): string {
+		if ( 'attendees' === $type ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only filter.
+			$event_id = isset( $_GET['event'] ) ? absint( wp_unslash( $_GET['event'] ) ) : 0;
+
+			return wp_nonce_url(
+				add_query_arg(
+					[
+						'action' => 'reevents_export_attendees',
+						'event'  => $event_id,
+					],
+					admin_url( 'admin-post.php' )
+				),
+				'reevents_export_attendees'
+			);
+		}
+
+		return wp_nonce_url(
 			add_query_arg(
 				[
 					'action' => 'reevents_export_csv',
@@ -71,12 +123,10 @@ final class Export {
 			),
 			'reevents_export_csv'
 		);
-
-		echo '<a class="button reevents-export-button" href="' . esc_url( $url ) . '">' . esc_html__( 'Export CSV', 're-events' ) . '</a>';
 	}
 
 	/**
-	 * Move the export button next to the page title action.
+	 * Move the hidden button next to the page title action.
 	 */
 	public static function relocate_button(): void {
 		$screen = get_current_screen();
@@ -104,6 +154,8 @@ final class Export {
 				} else {
 					heading.insertAdjacentElement( 'afterend', button );
 				}
+
+				button.style.display = '';
 			} );
 		</script>
 		<?php
