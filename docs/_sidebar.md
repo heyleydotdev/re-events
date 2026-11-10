@@ -2,5 +2,7 @@
 - [Shortcodes](shortcodes/README.md)
 - [Authentication](api/auth.md)
 - [Custom booking forms](api/booking-form.md)
+- [Bookings](bookings.md)
+- [Maps](maps.md)
 - [Payments](payments.md)
 - <a href="../../../../wp-admin/admin.php?page=reevents-api-docs" target="_top">API reference</a>

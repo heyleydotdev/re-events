@@ -111,6 +111,28 @@ final class Settings {
 				'description' => __( 'How event times are shown on the front end. The calendar always uses the site or visitor timezone.', 're-events' ),
 			]
 		);
+		self::add_field(
+			'general',
+			'map_provider',
+			__( 'Map provider', 're-events' ),
+			[
+				'type'        => 'select',
+				'options'     => [
+					'osm'    => __( 'OpenStreetMap', 're-events' ),
+					'google' => __( 'Google Maps', 're-events' ),
+				],
+				'description' => __( 'OpenStreetMap needs no key. Google Maps needs a browser API key.', 're-events' ),
+			]
+		);
+		self::add_field(
+			'general',
+			'map_api_key',
+			__( 'Google Maps API key', 're-events' ),
+			[
+				'type'        => 'text',
+				'description' => __( 'Used for maps and venue geocoding. Leave empty to keep OpenStreetMap.', 're-events' ),
+			]
+		);
 
 		self::add_section( 'formats', __( 'Formats', 're-events' ) );
 		self::add_field( 'formats', 'date_format', __( 'Date format', 're-events' ), [ 'placeholder' => 'F j, Y' ] );
@@ -758,6 +780,9 @@ final class Settings {
 			case 'general':
 				$settings['timezone']     = self::sanitize_timezone( $input['timezone'] ?? 'UTC' );
 				$settings['time_display'] = self::sanitize_time_display( $input['time_display'] ?? 'event' );
+				$provider                 = sanitize_key( (string) ( $input['map_provider'] ?? 'osm' ) );
+				$settings['map_provider'] = in_array( $provider, [ 'osm', 'google' ], true ) ? $provider : 'osm';
+				$settings['map_api_key']  = sanitize_text_field( (string) ( $input['map_api_key'] ?? '' ) );
 				break;
 
 			case 'formats':
@@ -823,6 +848,8 @@ final class Settings {
 		return [
 			'timezone'                 => 'UTC',
 			'time_display'             => 'event',
+			'map_provider'             => 'osm',
+			'map_api_key'              => '',
 			'date_format'              => get_option( 'date_format', 'F j, Y' ),
 			'time_format'              => get_option( 'time_format', 'g:i a' ),
 			'frontend_style'           => 'none',

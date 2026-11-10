@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace ReEvents\Render;
 
+use ReEvents\Admin\Settings;
+
 /**
  * Renders a venue map with OpenStreetMap.
  */
@@ -20,7 +22,7 @@ final class Map {
 	 * @param array<string, mixed> $args Widget arguments.
 	 */
 	public static function render( array $args ): string {
-		$venues  = get_posts(
+		$venues   = get_posts(
 			[
 				'post_type'      => 'reevents_venue',
 				'post_status'    => 'publish',
@@ -29,7 +31,8 @@ final class Map {
 				'order'          => 'ASC',
 			]
 		);
-		$markers = [];
+		$markers  = [];
+		$provider = 'osm';
 
 		foreach ( $venues as $venue ) {
 			$lat = (string) get_post_meta( $venue->ID, '_reevents_lat', true );
@@ -48,23 +51,51 @@ final class Map {
 		}
 
 		if ( ! empty( $markers ) ) {
-			wp_enqueue_style( 'leaflet', plugins_url( 'assets/vendor/leaflet/leaflet.css', RE_EVENTS_FILE ), [], '1.9.4' );
-			wp_enqueue_script( 'leaflet', plugins_url( 'assets/vendor/leaflet/leaflet.js', RE_EVENTS_FILE ), [], '1.9.4', true );
-			wp_enqueue_script(
-				'reevents-map',
-				plugins_url( 'assets/js/frontend-map.js', RE_EVENTS_FILE ),
-				[ 'leaflet' ],
-				RE_EVENTS_VERSION,
-				true
-			);
+			$provider = (string) Settings::get( 'map_provider', 'osm' );
+			$key      = (string) Settings::get( 'map_api_key', '' );
+
+			if ( 'google' === $provider && '' !== $key ) {
+				wp_enqueue_script(
+					'reevents-google-maps',
+					add_query_arg(
+						[
+							'key'     => $key,
+							'loading' => 'async',
+						],
+						'https://maps.googleapis.com/maps/api/js'
+					),
+					[],
+					null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Third-party script.
+					true
+				);
+				wp_enqueue_script(
+					'reevents-map',
+					plugins_url( 'assets/js/frontend-map-google.js', RE_EVENTS_FILE ),
+					[ 'reevents-google-maps' ],
+					RE_EVENTS_VERSION,
+					true
+				);
+			} else {
+				$provider = 'osm';
+				wp_enqueue_style( 'leaflet', plugins_url( 'assets/vendor/leaflet/leaflet.css', RE_EVENTS_FILE ), [], '1.9.4' );
+				wp_enqueue_script( 'leaflet', plugins_url( 'assets/vendor/leaflet/leaflet.js', RE_EVENTS_FILE ), [], '1.9.4', true );
+				wp_enqueue_script(
+					'reevents-map',
+					plugins_url( 'assets/js/frontend-map.js', RE_EVENTS_FILE ),
+					[ 'leaflet' ],
+					RE_EVENTS_VERSION,
+					true
+				);
+			}
 		}
 
 		return Template::render(
 			'map',
 			[
-				'markers' => $markers,
-				'height'  => max( 200, (int) ( $args['height'] ?? 400 ) ),
-				'args'    => $args,
+				'markers'  => $markers,
+				'provider' => $provider,
+				'height'   => max( 200, (int) ( $args['height'] ?? 400 ) ),
+				'args'     => $args,
 			]
 		);
 	}
