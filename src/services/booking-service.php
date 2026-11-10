@@ -24,10 +24,28 @@ final class Booking_Service {
 	 */
 	public static function register(): void {
 		add_action( 'reevents_expire_bookings', [ self::class, 'expire_pending' ] );
+		add_filter( 'pre_delete_post', [ self::class, 'guard_delete' ], 10, 3 );
 
 		if ( ! wp_next_scheduled( 'reevents_expire_bookings' ) ) {
 			wp_schedule_event( time() + HOUR_IN_SECONDS, 'hourly', 'reevents_expire_bookings' );
 		}
+	}
+
+	/**
+	 * Block deleting an event that still has bookings.
+	 *
+	 * @param mixed $delete      Short-circuit value.
+	 * @param mixed $post        Post object.
+	 * @param mixed $force_delete Force delete flag.
+	 * @return mixed
+	 */
+	public static function guard_delete( $delete, $post, $force_delete ) {
+		unset( $force_delete );
+		if ( $post instanceof \WP_Post && 'reevents_event' === $post->post_type && ( new Booking_Repository() )->count_for_event( (int) $post->ID ) > 0 ) {
+			return false;
+		}
+
+		return $delete;
 	}
 
 	/**
@@ -43,6 +61,30 @@ final class Booking_Service {
 		$quantity      = max( 1, (int) ( $args['quantity'] ?? 1 ) );
 		$user_id       = (int) ( $args['user_id'] ?? get_current_user_id() );
 		$attendees     = (array) ( $args['attendees'] ?? [] );
+
+		if ( $quantity > Booking_Validator::MAX_SEATS ) {
+			return new WP_Error(
+				'reevents_booking_too_many_seats',
+				__( 'Too many seats selected.', 're-events' ),
+				[
+					'status' => 400,
+					'errors' => [ 'quantity' => __( 'Too many seats selected.', 're-events' ) ],
+				]
+			);
+		}
+
+		if ( count( $attendees ) > Booking_Validator::MAX_ATTENDEES ) {
+			return new WP_Error(
+				'reevents_booking_too_many_attendees',
+				__( 'There are too many attendees.', 're-events' ),
+				[
+					'status' => 400,
+					'errors' => [ 'attendees' => __( 'There are too many attendees.', 're-events' ) ],
+				]
+			);
+		}
+
+		$attendees = self::filter_attendee_fields( $attendees );
 
 		$domain = Booking_Validator::validate_domain( $event_id, $ticket_id, $quantity, $occurrence_id, $attendees );
 
@@ -242,6 +284,37 @@ final class Booking_Service {
 	 */
 	public static function cancel( int $id ) {
 		return self::update_status( $id, 'cancelled' );
+	}
+
+	/**
+	 * Keep only configured attendee fields and cap their length.
+	 *
+	 * @param array<int, mixed> $attendees Attendees.
+	 * @return array<int, mixed>
+	 */
+	private static function filter_attendee_fields( array $attendees ): array {
+		$allowed = array_keys( Settings::attendee_fields() );
+
+		foreach ( $attendees as &$attendee ) {
+			if ( ! is_array( $attendee ) ) {
+				continue;
+			}
+
+			$fields = is_array( $attendee['fields'] ?? null ) ? $attendee['fields'] : [];
+			$clean  = [];
+
+			foreach ( $allowed as $key ) {
+				if ( isset( $fields[ $key ] ) && is_scalar( $fields[ $key ] ) ) {
+					$clean[ $key ] = mb_substr( (string) $fields[ $key ], 0, 5000 );
+				}
+			}
+
+			$attendee['fields'] = $clean;
+		}
+
+		unset( $attendee );
+
+		return $attendees;
 	}
 
 	/**

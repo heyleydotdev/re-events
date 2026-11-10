@@ -111,7 +111,7 @@ final class Bookings_Controller extends WP_REST_Controller {
 		$booking = ( new Booking_Repository() )->find( (int) $request['id'] );
 
 		if ( ! $booking ) {
-			return new WP_Error( 'rest_booking_invalid_id', __( 'Invalid booking ID.', 're-events' ), [ 'status' => 404 ] );
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to read this booking.', 're-events' ), [ 'status' => rest_authorization_required_code() ] );
 		}
 
 		if ( $this->can_manage_event( (int) $booking['event_id'] ) ) {
@@ -212,7 +212,8 @@ final class Bookings_Controller extends WP_REST_Controller {
 		}
 
 		$token     = sanitize_text_field( (string) $request['booking_token'] );
-		$cache_key = '' !== $token ? 'reevents_booking_token_' . md5( $token ) : '';
+		$event_id  = (int) $request['event_id'];
+		$cache_key = '' !== $token ? 'reevents_booking_token_' . md5( $token . '|' . $event_id ) : '';
 
 		if ( '' !== $cache_key ) {
 			$existing = get_transient( $cache_key );
@@ -262,17 +263,6 @@ final class Bookings_Controller extends WP_REST_Controller {
 			);
 		}
 
-		if ( count( $attendees ) > $quantity ) {
-			return new WP_Error(
-				'rest_booking_too_many_attendees',
-				__( 'There are more attendees than seats.', 're-events' ),
-				[
-					'status' => 400,
-					'errors' => [ 'attendees' => __( 'There are more attendees than seats.', 're-events' ) ],
-				]
-			);
-		}
-
 		$result = Booking_Service::create(
 			[
 				'event_id'      => (int) $request['event_id'],
@@ -285,10 +275,6 @@ final class Bookings_Controller extends WP_REST_Controller {
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
-		}
-
-		if ( '' !== $cache_key ) {
-			set_transient( $cache_key, (int) $result, 5 * MINUTE_IN_SECONDS );
 		}
 
 		$booking = ( new Booking_Repository() )->find( (int) $result );
@@ -306,6 +292,10 @@ final class Bookings_Controller extends WP_REST_Controller {
 		if ( is_wp_error( $checkout ) ) {
 			Booking_Service::cancel( (int) $booking['id'] );
 			return $checkout;
+		}
+
+		if ( '' !== $cache_key ) {
+			set_transient( $cache_key, (int) $result, 5 * MINUTE_IN_SECONDS );
 		}
 
 		if ( '' !== $checkout ) {
@@ -407,11 +397,13 @@ final class Bookings_Controller extends WP_REST_Controller {
 				'description'       => __( 'Number of seats.', 're-events' ),
 				'type'              => 'integer',
 				'minimum'           => 1,
+				'maximum'           => Booking_Validator::MAX_SEATS,
 				'sanitize_callback' => 'absint',
 			],
 			'attendees'     => [
 				'description' => __( 'Attendees.', 're-events' ),
 				'type'        => 'array',
+				'maxItems'    => Booking_Validator::MAX_ATTENDEES,
 				'items'       => [
 					'type'       => 'object',
 					'properties' => [

@@ -79,6 +79,32 @@ final class Booking_Handler {
 			}
 		}
 
+		$token     = isset( $_POST['booking_token'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['booking_token'] ) ) : '';
+		$cache_key = '' !== $token ? 'reevents_booking_token_' . md5( $token . '|' . $event_id ) : '';
+
+		if ( '' !== $cache_key ) {
+			$existing = get_transient( $cache_key );
+
+			if ( is_numeric( $existing ) ) {
+				$booking = ( new Booking_Repository() )->find( (int) $existing );
+
+				if ( $booking ) {
+					$checkout = Payment_Service::checkout( (int) $booking['id'] );
+
+					if ( is_wp_error( $checkout ) ) {
+						self::redirect( $redirect, 'error', $checkout->get_error_code() );
+					}
+
+					if ( '' !== $checkout ) {
+						wp_redirect( esc_url_raw( $checkout ) ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Provider checkout URL.
+						exit;
+					}
+
+					self::redirect( $redirect, 'success', (string) ( $booking['reference'] ?? '' ) );
+				}
+			}
+		}
+
 		$result = Booking_Service::create(
 			[
 				'event_id'  => $event_id,
@@ -105,8 +131,12 @@ final class Booking_Handler {
 			self::redirect( $redirect, 'error', $checkout->get_error_code() );
 		}
 
+		if ( '' !== $cache_key ) {
+			set_transient( $cache_key, (int) $result, 5 * MINUTE_IN_SECONDS );
+		}
+
 		if ( '' !== $checkout ) {
-			wp_safe_redirect( $checkout );
+			wp_redirect( esc_url_raw( $checkout ) ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Provider checkout URL.
 			exit;
 		}
 

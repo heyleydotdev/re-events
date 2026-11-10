@@ -27,9 +27,15 @@ if ( 'error' === $state['status'] && '' !== $state['message'] ) {
 }
 
 echo '<div class="reevents-booking-wrapper ' . esc_attr( (string) ( $widget_args['wrapper_class'] ?? '' ) ) . '">';
-echo '<form class="reevents-booking-form ' . esc_attr( (string) ( $widget_args['class'] ?? '' ) ) . '" method="post" action="' . esc_url( $args['action'] ) . '" data-endpoint="' . esc_url( $args['endpoint'] ) . '">';
+echo '<form class="reevents-booking-form ' . esc_attr( (string) ( $widget_args['class'] ?? '' ) ) . '" method="post" action="' . esc_url( $args['action'] ) . '" data-endpoint="' . esc_url( $args['endpoint'] ) . '" data-success-message="' . esc_attr( (string) ( $widget_args['success_message'] ?? __( 'Booking confirmed.', 're-events' ) ) ) . '" data-reference-label="' . esc_attr( (string) ( $widget_args['reference_label'] ?? __( 'Reference:', 're-events' ) ) ) . '">';
 echo '<input type="hidden" name="action" value="reevents_book" />';
 echo '<input type="hidden" name="event_id" value="' . esc_attr( (string) $args['event_id'] ) . '" />';
+echo '<input type="hidden" name="booking_token" value="' . esc_attr( (string) $args['token'] ) . '" />';
+
+if ( '' !== (string) $args['nonce'] ) {
+	echo '<input type="hidden" name="reevents_rest_nonce" value="' . esc_attr( (string) $args['nonce'] ) . '" />';
+}
+
 wp_nonce_field( 'reevents_book', 'reevents_book_nonce' );
 
 echo '<p class="reevents-honeypot" hidden aria-hidden="true"><label>' . esc_html__( 'Website', 're-events' ) . '<input type="text" name="website" value="" tabindex="-1" autocomplete="off" /></label></p>';

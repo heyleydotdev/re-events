@@ -1,12 +1,25 @@
 (function () {
 	'use strict';
 
+	function newToken() {
+		return window.crypto && window.crypto.randomUUID
+			? window.crypto.randomUUID()
+			: String(Date.now()) + Math.random();
+	}
+
 	document.querySelectorAll('.reevents-booking-form').forEach(function (form) {
 		const ticket = form.querySelector('select[name="ticket_id"]');
 		const quantity = form.querySelector('input[name="quantity"]');
-		const bookingToken = window.crypto && window.crypto.randomUUID
-			? window.crypto.randomUUID()
-			: String(Date.now()) + Math.random();
+		const tokenField = form.querySelector('input[name="booking_token"]');
+		let bookingToken = tokenField ? tokenField.value : newToken();
+
+		function resetToken() {
+			bookingToken = newToken();
+
+			if (tokenField) {
+				tokenField.value = bookingToken;
+			}
+		}
 
 		function syncLimits() {
 			if (!ticket || !quantity || !ticket.options[ticket.selectedIndex]) {
@@ -40,6 +53,12 @@
 			const button = form.querySelector( 'button[type="submit"]' );
 			const message = form.querySelector('.reevents-booking-message');
 			const data = new FormData(form);
+			const headers = { 'Content-Type': 'application/json' };
+			const nonce = String(data.get('reevents_rest_nonce') || '');
+
+			if (nonce) {
+				headers['X-WP-Nonce'] = nonce;
+			}
 
 			if ( button ) {
 				button.disabled = true;
@@ -66,7 +85,7 @@
 
 			fetch(form.dataset.endpoint, {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
+				headers: headers,
 				body: JSON.stringify(payload)
 			})
 				.then(function (response) {
@@ -76,8 +95,18 @@
 				})
 				.then(function (result) {
 					if (result.ok) {
-						message.textContent = 'Booking confirmed. Reference: ' + result.body.reference;
+						if (result.body.checkout_url) {
+							window.location.assign(result.body.checkout_url);
+							return;
+						}
+
+						const success = form.dataset.successMessage || 'Booking confirmed.';
+						const referenceLabel = form.dataset.referenceLabel || 'Reference:';
+						const reference = result.body.reference ? ' ' + referenceLabel + ' ' + result.body.reference : '';
+
+						message.textContent = success + reference;
 						form.reset();
+						resetToken();
 						syncLimits();
 					} else {
 						message.textContent = result.body && result.body.message ? result.body.message : 'Booking failed.';

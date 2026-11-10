@@ -20,6 +20,16 @@ use ReEvents\Data\Ticket_Repository;
 final class Booking_Validator {
 
 	/**
+	 * Maximum seats per booking.
+	 */
+	public const MAX_SEATS = 100;
+
+	/**
+	 * Maximum attendees per booking.
+	 */
+	public const MAX_ATTENDEES = 100;
+
+	/**
 	 * Validate a booking payload.
 	 *
 	 * @param array<string, mixed> $data Booking payload.
@@ -29,8 +39,8 @@ final class Booking_Validator {
 		$rules  = [
 			'event_id'          => 'required|integer|min:1',
 			'ticket_id'         => 'required|integer|min:1',
-			'quantity'          => 'required|integer|min:1',
-			'attendees'         => 'required|array|min:1',
+			'quantity'          => 'required|integer|min:1|max:' . self::MAX_SEATS,
+			'attendees'         => 'required|array|min:1|max:' . self::MAX_ATTENDEES,
 			'attendees.*.name'  => 'required|max:191',
 			'attendees.*.email' => 'required|email|max:191',
 			'booking_token'     => 'nullable|max:191',

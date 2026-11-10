@@ -60,6 +60,8 @@ final class Booking_Form {
 				'state'    => self::state(),
 				'action'   => admin_url( 'admin-post.php' ),
 				'endpoint' => rest_url( 're-events/v1/events/' . $event_id . '/bookings' ),
+				'token'    => wp_generate_password( 32, false, false ),
+				'nonce'    => is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '',
 				'args'     => $args,
 			]
 		);
@@ -112,6 +114,7 @@ final class Booking_Form {
 			'reevents_booking_sale_ended'         => __( 'Ticket sales have ended.', 're-events' ),
 			'reevents_booking_min_quantity'       => __( 'Too few seats selected.', 're-events' ),
 			'reevents_booking_max_quantity'       => __( 'Too many seats selected.', 're-events' ),
+			'reevents_booking_too_many_seats'     => __( 'Too many seats selected.', 're-events' ),
 			'reevents_booking_rate_limited'       => __( 'Too many attempts. Try again later.', 're-events' ),
 			'reevents_rate_limited'               => __( 'Too many attempts. Try again later.', 're-events' ),
 			'reevents_booking_event_cancelled'    => __( 'This event has been cancelled.', 're-events' ),
@@ -121,6 +124,7 @@ final class Booking_Form {
 			'required_field'                      => __( 'Fill in all required attendee fields.', 're-events' ),
 			'reevents_payment_cancelled'          => __( 'The payment was cancelled.', 're-events' ),
 			'reevents_payment_pending'            => __( 'The payment is not complete yet.', 're-events' ),
+			'reevents_booking_awaiting_approval'  => __( 'The payment is complete. The booking is awaiting approval.', 're-events' ),
 			'reevents_payment_missing_key'        => __( 'The payment gateway is not configured.', 're-events' ),
 		];
 

@@ -358,6 +358,7 @@ final class Self_Test {
 				'ticket_id'   => (int) $ticket_id,
 				'quantity'    => 1,
 				'status'      => 'pending',
+				'total_minor' => 100,
 				'created_utc' => gmdate( 'Y-m-d H:i:s', time() - 2 * HOUR_IN_SECONDS ),
 			]
 		);
