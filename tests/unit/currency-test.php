@@ -32,4 +32,13 @@ final class CurrencyTest extends TestCase {
 		self::assertSame( 0, Currency::decimals( 'JPY' ) );
 		self::assertSame( '500', Currency::amount( 500, 'JPY' ) );
 	}
+
+	/**
+	 * Three-decimal currencies keep three decimals and round for Stripe.
+	 */
+	public function test_three_decimal_amount(): void {
+		self::assertSame( 3, Currency::decimals( 'KWD' ) );
+		self::assertSame( '1.234', Currency::amount( 1234, 'KWD' ) );
+		self::assertSame( 1230, Currency::stripe_amount( 1234, 'KWD' ) );
+	}
 }

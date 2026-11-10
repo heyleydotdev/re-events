@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Data;
 
+use ReEvents\Services\Currency;
 use WP_Error;
 
 /**
@@ -34,7 +35,7 @@ final class Payment_Repository {
 	public function create( array $payment ) {
 		global $wpdb;
 
-		$currency = strtoupper( substr( preg_replace( '/[^A-Za-z]/', '', (string) ( $payment['currency'] ?? 'USD' ) ) ?? '', 0, 3 ) );
+		$currency = Currency::sanitize_code( (string) ( $payment['currency'] ?? 'USD' ) );
 
 		$data = [
 			'booking_id'   => (int) ( $payment['booking_id'] ?? 0 ),
@@ -42,7 +43,7 @@ final class Payment_Repository {
 			'gateway_ref'  => sanitize_text_field( (string) ( $payment['gateway_ref'] ?? '' ) ),
 			'status'       => sanitize_key( (string) ( $payment['status'] ?? 'pending' ) ),
 			'amount_minor' => max( 0, (int) ( $payment['amount_minor'] ?? 0 ) ),
-			'currency'     => 3 === strlen( $currency ) ? $currency : 'USD',
+			'currency'     => $currency,
 			'data_json'    => wp_json_encode( (array) ( $payment['data'] ?? [] ) ),
 			'created_utc'  => (string) ( $payment['created_utc'] ?? current_time( 'mysql', true ) ),
 			'updated_utc'  => (string) ( $payment['updated_utc'] ?? current_time( 'mysql', true ) ),

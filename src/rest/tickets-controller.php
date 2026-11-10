@@ -11,6 +11,7 @@ namespace ReEvents\REST;
 
 use ReEvents\Data\Meta;
 use ReEvents\Data\Ticket_Repository;
+use ReEvents\Services\Currency;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Request;
@@ -281,7 +282,7 @@ final class Tickets_Controller extends WP_REST_Controller {
 		$previous = $this->prepare_item_for_response( $ticket, $request )->get_data();
 
 		if ( ! $repo->delete( (int) $request['id'] ) ) {
-			return new WP_Error( 'rest_ticket_delete_failed', __( 'The ticket could not be deleted.', 're-events' ), [ 'status' => 500 ] );
+			return new WP_Error( 'rest_ticket_delete_blocked', __( 'This ticket has bookings and cannot be deleted.', 're-events' ), [ 'status' => 409 ] );
 		}
 
 		return rest_ensure_response(
@@ -324,7 +325,7 @@ final class Tickets_Controller extends WP_REST_Controller {
 			'name'            => $request->has_param( 'name' ) ? sanitize_text_field( (string) $request['name'] ) : (string) $ticket['name'],
 			'description'     => $request->has_param( 'description' ) ? sanitize_textarea_field( (string) $request['description'] ) : (string) $ticket['description'],
 			'price_minor'     => $request->has_param( 'price_minor' ) ? max( 0, (int) $request['price_minor'] ) : (int) $ticket['price_minor'],
-			'currency'        => $request->has_param( 'currency' ) ? $this->currency( (string) $request['currency'] ) : (string) $ticket['currency'],
+			'currency'        => $request->has_param( 'currency' ) ? Currency::sanitize_code( (string) $request['currency'] ) : (string) $ticket['currency'],
 			'capacity'        => $request->has_param( 'capacity' ) ? max( 0, (int) $request['capacity'] ) : (int) $ticket['capacity'],
 			'min_per_booking' => $request->has_param( 'min_per_booking' ) ? max( 1, (int) $request['min_per_booking'] ) : (int) $ticket['min_per_booking'],
 			'max_per_booking' => $request->has_param( 'max_per_booking' ) ? max( 0, (int) $request['max_per_booking'] ) : (int) $ticket['max_per_booking'],
@@ -332,17 +333,6 @@ final class Tickets_Controller extends WP_REST_Controller {
 			'sale_end_utc'    => $request->has_param( 'sale_end_utc' ) ? Meta::sanitize_datetime( $request['sale_end_utc'] ) : (string) $ticket['sale_end_utc'],
 			'status'          => $request->has_param( 'status' ) ? sanitize_key( (string) $request['status'] ) : (string) $ticket['status'],
 		];
-	}
-
-	/**
-	 * Sanitize a currency code.
-	 *
-	 * @param string $currency Raw code.
-	 */
-	private function currency( string $currency ): string {
-		$currency = strtoupper( preg_replace( '/[^A-Za-z]/', '', $currency ) ?? '' );
-
-		return 3 === strlen( $currency ) ? $currency : 'USD';
 	}
 
 	/**
