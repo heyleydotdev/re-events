@@ -2,6 +2,10 @@
 
 ReEvents renders semantic HTML. It does not require its CSS.
 
+## Blocks
+
+Every widget is also a block under `reevents/<widget>`. The user-area blocks are `reevents/submit-form`, `reevents/my-events` and `reevents/my-bookings`.
+
 ## Style mode
 
 Set **Settings → Formats → Frontend styles** to:

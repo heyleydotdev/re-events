@@ -34,6 +34,9 @@ final class Blocks {
 			'events-search' => 'events-search',
 			'calendar'      => 'calendar',
 			'map'           => 'map',
+			'submit-form'   => 'submit-form',
+			'my-events'     => 'my-events',
+			'my-bookings'   => 'my-bookings',
 		];
 
 		$attribute_map = [
@@ -48,6 +51,14 @@ final class Blocks {
 			'showResults'     => 'show_results',
 			'showDescription' => 'show_description',
 			'showNav'         => 'show_nav',
+			'className'       => 'class',
+			'wrapperClass'    => 'wrapper_class',
+			'submitLabel'     => 'submit_label',
+			'saveLabel'       => 'save_label',
+			'loginMessage'    => 'login_message',
+			'successMessage'  => 'success_message',
+			'emptyLabel'      => 'empty_label',
+			'editLabel'       => 'edit_label',
 		];
 
 		foreach ( $blocks as $block => $widget ) {
