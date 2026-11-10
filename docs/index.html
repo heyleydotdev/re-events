@@ -1,28 +1,29 @@
 <!doctype html>
 <html lang="en">
-<head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="robots" content="noindex">
-	<title>ReEvents Docs</title>
-	<link rel="stylesheet" href="../assets/vendor/docsify/vue.css">
-</head>
-<body>
-	<div id="app">Loading…</div>
-	<script>
-		window.$docsify = {
-			name: 'ReEvents Docs',
-			homepage: 'README.md',
-			loadSidebar: true,
-			subMaxLevel: 2,
-			auto2top: true,
-			relativePath: true,
-			noCompileLinks: [ /wp-admin/ ],
-			alias: {
-				'/.*/_sidebar.md': '/_sidebar.md'
-			}
-		};
-	</script>
-	<script src="../assets/vendor/docsify/docsify.min.js"></script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>ReEvents Docs</title>
+    <link rel="stylesheet" href="../assets/vendor/docsify/core.min.css" />
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@5/dist/themes/addons/vue.min.css" />
+  </head>
+  <body>
+    <div id="app">Loading…</div>
+    <script>
+      window.$docsify = {
+        name: false,
+        homepage: "README.md",
+        loadSidebar: true,
+        subMaxLevel: 2,
+        auto2top: true,
+        relativePath: true,
+        noCompileLinks: [/wp-admin/],
+        alias: {
+          "/.*/_sidebar.md": "/_sidebar.md",
+        },
+      }
+    </script>
+    <script src="../assets/vendor/docsify/docsify.min.js"></script>
+  </body>
 </html>
