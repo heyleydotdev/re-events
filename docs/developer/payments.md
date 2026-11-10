@@ -48,7 +48,17 @@ Stripe uses hosted Checkout Sessions, so card data and SCA never touch the
 site. Amounts are sent in the smallest currency unit exactly as stored in
 `amount_minor`.
 
-Webhook endpoint:
+### Checkout flow
+
+1. A booking with a total above zero is created as `pending`.
+2. `Payment_Service::checkout()` starts the configured gateway, or reuses a pending payment that already has a redirect URL.
+3. The REST `201` response and the no-JS form both send the visitor to the provider.
+4. The success and cancel URLs carry `reevents_payment`, `booking` and `token`; the token is the booking reference and must match.
+5. On return the plugin syncs the payment, confirms or cancels the booking and redirects to the event with a booking result flag.
+
+A pending booking is cancelled after the hold window set in **Settings → Bookings**.
+
+### Webhook endpoint
 
 ```http
 POST /wp-json/re-events/v1/webhooks/stripe

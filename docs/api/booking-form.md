@@ -110,6 +110,25 @@ Common status codes:
 
 Generate `booking_token` once per form load, not once per click. Reuse it when retrying the same submission. Reusing a token returns the existing booking instead of creating a duplicate.
 
+## Payment
+
+When a payment gateway is configured and the booking total is above zero, the `201` response also contains `checkout_url`:
+
+```json
+{
+  "id": 42,
+  "reference": "...",
+  "status": "pending",
+  "total_minor": 5000,
+  "currency": "USD",
+  "checkout_url": "https://checkout.stripe.com/c/pay/..."
+}
+```
+
+Redirect the browser to `checkout_url`. The booking stays `pending` until the gateway confirms the payment. If the payment cannot be started, the booking is cancelled and the gateway error is returned instead of a `201`.
+
+Returning from the gateway lands on the configured success or cancel URL with `reevents_payment`, `booking` and `token` query args. The plugin verifies the token, syncs the payment and redirects to the event with a booking result flag.
+
 ## Styling
 
 The schema endpoint returns data only. Your form owns all markup and CSS.
