@@ -65,36 +65,41 @@ final class Occurrence_Repository {
 		$existing = [];
 		$seen     = [];
 
-		foreach ( $this->get_for_event( $event_id, 1000 ) as $row ) {
+		foreach ( $this->get_all_for_event( $event_id ) as $row ) {
 			$existing[ (string) $row['start_utc'] . '|' . (string) $row['timeslot_key'] ] = (int) $row['id'];
 		}
 
 		foreach ( $occurrences as $occurrence ) {
-			$start_utc    = (string) ( $occurrence['start_utc'] ?? '' );
-			$timeslot     = (string) ( $occurrence['timeslot_key'] ?? '' );
-			$key          = $start_utc . '|' . $timeslot;
-			$seen[ $key ] = true;
-			$data         = [
-				'end_utc'  => (string) ( $occurrence['end_utc'] ?? '' ),
-				'timezone' => (string) ( $occurrence['timezone'] ?? 'UTC' ),
-				'capacity' => (int) ( $occurrence['capacity'] ?? 0 ),
-				'status'   => (string) ( $occurrence['status'] ?? 'scheduled' ),
-			];
+			$seen[ (string) ( $occurrence['start_utc'] ?? '' ) . '|' . (string) ( $occurrence['timeslot_key'] ?? '' ) ] = true;
+		}
 
-			if ( isset( $existing[ $key ] ) ) {
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
-				$result = $wpdb->update( $table, $data, [ 'id' => $existing[ $key ] ] );
-			} else {
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
-				$result = $wpdb->insert(
-					$table,
-					$data + [
-						'event_id'     => $event_id,
-						'start_utc'    => $start_utc,
-						'timeslot_key' => $timeslot,
-					]
+		foreach ( array_chunk( $occurrences, 200 ) as $chunk ) {
+			$placeholders = [];
+			$values       = [];
+
+			foreach ( $chunk as $occurrence ) {
+				$placeholders[] = '(%d,%s,%s,%s,%s,%d,%s)';
+				array_push(
+					$values,
+					$event_id,
+					(string) ( $occurrence['start_utc'] ?? '' ),
+					(string) ( $occurrence['end_utc'] ?? '' ),
+					(string) ( $occurrence['timezone'] ?? 'UTC' ),
+					(string) ( $occurrence['timeslot_key'] ?? '' ),
+					(int) ( $occurrence['capacity'] ?? 0 ),
+					(string) ( $occurrence['status'] ?? 'scheduled' )
 				);
 			}
+
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Internal table and generated placeholders.
+			// shortcut: VALUES() is deprecated on MySQL 8.0.20+ but still needed for MySQL 5.7/MariaDB; switch to a row alias when the database floor allows it.
+			$result = $wpdb->query(
+				$wpdb->prepare(
+					"INSERT INTO {$table} (event_id,start_utc,end_utc,timezone,timeslot_key,capacity,status) VALUES " . implode( ',', $placeholders ) . ' ON DUPLICATE KEY UPDATE end_utc=VALUES(end_utc), timezone=VALUES(timezone), capacity=VALUES(capacity), status=VALUES(status)',
+					...$values
+				)
+			);
+			// phpcs:enable
 
 			if ( false === $result ) {
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
@@ -271,6 +276,30 @@ final class Occurrence_Repository {
 				$from_utc
 			)
 		);
+	}
+
+	/**
+	 * Get every occurrence for an event.
+	 *
+	 * @param int $event_id Event ID.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function get_all_for_event( int $event_id ): array {
+		global $wpdb;
+
+		$table = $this->table();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+				"SELECT * FROM {$table} WHERE event_id = %d ORDER BY start_utc ASC",
+				$event_id
+			),
+			ARRAY_A
+		);
+
+		return is_array( $results ) ? $results : [];
 	}
 
 	/**
