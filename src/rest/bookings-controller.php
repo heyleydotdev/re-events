@@ -213,7 +213,7 @@ final class Bookings_Controller extends WP_REST_Controller {
 
 		$token     = sanitize_text_field( (string) $request['booking_token'] );
 		$event_id  = (int) $request['event_id'];
-		$cache_key = '' !== $token ? 'reevents_booking_token_' . md5( $token . '|' . $event_id ) : '';
+		$cache_key = Booking_Service::token_cache_key( $token, $event_id );
 
 		if ( '' !== $cache_key ) {
 			$existing = get_transient( $cache_key );
@@ -263,48 +263,56 @@ final class Bookings_Controller extends WP_REST_Controller {
 			);
 		}
 
-		$result = Booking_Service::create(
-			[
-				'event_id'      => (int) $request['event_id'],
-				'ticket_id'     => (int) $request['ticket_id'],
-				'occurrence_id' => (int) $request['occurrence_id'],
-				'quantity'      => $quantity,
-				'attendees'     => $attendees,
-			]
-		);
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
+		if ( '' !== $cache_key && ! Booking_Service::claim_token( $token, $event_id ) ) {
+			return new WP_Error( 'rest_booking_in_progress', __( 'This booking is already being processed. Please wait a moment.', 're-events' ), [ 'status' => 409 ] );
 		}
 
-		$booking = ( new Booking_Repository() )->find( (int) $result );
+		try {
+			$result = Booking_Service::create(
+				[
+					'event_id'      => (int) $request['event_id'],
+					'ticket_id'     => (int) $request['ticket_id'],
+					'occurrence_id' => (int) $request['occurrence_id'],
+					'quantity'      => $quantity,
+					'attendees'     => $attendees,
+				]
+			);
 
-		if ( ! $booking ) {
-			return new WP_Error( 'rest_booking_save_failed', __( 'The booking could not be saved.', 're-events' ), [ 'status' => 500 ] );
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			$booking = ( new Booking_Repository() )->find( (int) $result );
+
+			if ( ! $booking ) {
+				return new WP_Error( 'rest_booking_save_failed', __( 'The booking could not be saved.', 're-events' ), [ 'status' => 500 ] );
+			}
+
+			$response = $this->prepare_item_for_response( $booking, $request );
+			$response->set_status( 201 );
+			$response->header( 'Location', rest_url( $this->namespace . '/' . $this->rest_base . '/' . $booking['id'] ) );
+
+			$checkout = Payment_Service::checkout( (int) $booking['id'] );
+
+			if ( is_wp_error( $checkout ) ) {
+				Booking_Service::cancel( (int) $booking['id'] );
+				return $checkout;
+			}
+
+			if ( '' !== $cache_key ) {
+				set_transient( $cache_key, (int) $result, 5 * MINUTE_IN_SECONDS );
+			}
+
+			if ( '' !== $checkout ) {
+				$data                 = $response->get_data();
+				$data['checkout_url'] = $checkout;
+				$response->set_data( $data );
+			}
+
+			return $response;
+		} finally {
+			Booking_Service::release_token( $token, $event_id );
 		}
-
-		$response = $this->prepare_item_for_response( $booking, $request );
-		$response->set_status( 201 );
-		$response->header( 'Location', rest_url( $this->namespace . '/' . $this->rest_base . '/' . $booking['id'] ) );
-
-		$checkout = Payment_Service::checkout( (int) $booking['id'] );
-
-		if ( is_wp_error( $checkout ) ) {
-			Booking_Service::cancel( (int) $booking['id'] );
-			return $checkout;
-		}
-
-		if ( '' !== $cache_key ) {
-			set_transient( $cache_key, (int) $result, 5 * MINUTE_IN_SECONDS );
-		}
-
-		if ( '' !== $checkout ) {
-			$data                 = $response->get_data();
-			$data['checkout_url'] = $checkout;
-			$response->set_data( $data );
-		}
-
-		return $response;
 	}
 
 	/**

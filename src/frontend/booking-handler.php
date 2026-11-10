@@ -80,7 +80,7 @@ final class Booking_Handler {
 		}
 
 		$token     = isset( $_POST['booking_token'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['booking_token'] ) ) : '';
-		$cache_key = '' !== $token ? 'reevents_booking_token_' . md5( $token . '|' . $event_id ) : '';
+		$cache_key = Booking_Service::token_cache_key( $token, $event_id );
 
 		if ( '' !== $cache_key ) {
 			$existing = get_transient( $cache_key );
@@ -105,44 +105,56 @@ final class Booking_Handler {
 			}
 		}
 
-		$result = Booking_Service::create(
-			[
-				'event_id'      => $event_id,
-				'ticket_id'     => isset( $_POST['ticket_id'] ) ? absint( wp_unslash( $_POST['ticket_id'] ) ) : 0,
-				'occurrence_id' => isset( $_POST['occurrence_id'] ) ? absint( wp_unslash( $_POST['occurrence_id'] ) ) : 0,
-				'quantity'      => isset( $_POST['quantity'] ) ? absint( wp_unslash( $_POST['quantity'] ) ) : 1,
-				'attendees'     => [
-					[
-						'name'   => $name,
-						'email'  => $email,
-						'fields' => $fields,
+		if ( '' !== $cache_key && ! Booking_Service::claim_token( $token, $event_id ) ) {
+			self::redirect( $redirect, 'error', 'reevents_booking_in_progress' );
+		}
+
+		try {
+			$result = Booking_Service::create(
+				[
+					'event_id'      => $event_id,
+					'ticket_id'     => isset( $_POST['ticket_id'] ) ? absint( wp_unslash( $_POST['ticket_id'] ) ) : 0,
+					'occurrence_id' => isset( $_POST['occurrence_id'] ) ? absint( wp_unslash( $_POST['occurrence_id'] ) ) : 0,
+					'quantity'      => isset( $_POST['quantity'] ) ? absint( wp_unslash( $_POST['quantity'] ) ) : 1,
+					'attendees'     => [
+						[
+							'name'   => $name,
+							'email'  => $email,
+							'fields' => $fields,
+						],
 					],
-				],
-			]
-		);
+				]
+			);
 
-		if ( is_wp_error( $result ) ) {
-			self::redirect( $redirect, 'error', $result->get_error_code() );
+			if ( is_wp_error( $result ) ) {
+				Booking_Service::release_token( $token, $event_id );
+				self::redirect( $redirect, 'error', $result->get_error_code() );
+			}
+
+			$checkout = Payment_Service::checkout( (int) $result );
+
+			if ( is_wp_error( $checkout ) ) {
+				Booking_Service::cancel( (int) $result );
+				Booking_Service::release_token( $token, $event_id );
+				self::redirect( $redirect, 'error', $checkout->get_error_code() );
+			}
+
+			if ( '' !== $cache_key ) {
+				set_transient( $cache_key, (int) $result, 5 * MINUTE_IN_SECONDS );
+			}
+
+			if ( '' !== $checkout ) {
+				Booking_Service::release_token( $token, $event_id );
+				wp_redirect( esc_url_raw( $checkout ) ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Provider checkout URL.
+				exit;
+			}
+
+			$booking = ( new Booking_Repository() )->find( (int) $result );
+			Booking_Service::release_token( $token, $event_id );
+			self::redirect( $redirect, 'success', (string) ( $booking['reference'] ?? '' ) );
+		} finally {
+			Booking_Service::release_token( $token, $event_id );
 		}
-
-		$checkout = Payment_Service::checkout( (int) $result );
-
-		if ( is_wp_error( $checkout ) ) {
-			Booking_Service::cancel( (int) $result );
-			self::redirect( $redirect, 'error', $checkout->get_error_code() );
-		}
-
-		if ( '' !== $cache_key ) {
-			set_transient( $cache_key, (int) $result, 5 * MINUTE_IN_SECONDS );
-		}
-
-		if ( '' !== $checkout ) {
-			wp_redirect( esc_url_raw( $checkout ) ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- Provider checkout URL.
-			exit;
-		}
-
-		$booking = ( new Booking_Repository() )->find( (int) $result );
-		self::redirect( $redirect, 'success', (string) ( $booking['reference'] ?? '' ) );
 	}
 
 	/**

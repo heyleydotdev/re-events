@@ -130,7 +130,7 @@ final class Attendees {
 		check_admin_referer( 'reevents_resend_email_' . $booking_id );
 
 		if ( $booking_id ) {
-			Booking_Emails::send( $booking_id, false );
+			Booking_Emails::send_attendees( $booking_id );
 		}
 
 		$redirect = wp_get_referer();

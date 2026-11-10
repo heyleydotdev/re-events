@@ -42,7 +42,7 @@ final class Booking_Service {
 	 */
 	public static function guard_delete( $delete, $post, $force_delete ) {
 		unset( $force_delete );
-		if ( $post instanceof \WP_Post && 'reevents_event' === $post->post_type && ( new Booking_Repository() )->count_for_event( (int) $post->ID ) > 0 ) {
+		if ( $post instanceof \WP_Post && 'reevents_event' === $post->post_type && ( new Booking_Repository() )->count_active_for_event( (int) $post->ID ) > 0 ) {
 			return false;
 		}
 
@@ -168,6 +168,38 @@ final class Booking_Service {
 		do_action( 'reevents_booking_created', (int) $id );
 
 		return (int) $id;
+	}
+
+	/**
+	 * Build the result cache key for a booking token.
+	 *
+	 * @param string $token    Client token.
+	 * @param int    $event_id Event ID.
+	 */
+	public static function token_cache_key( string $token, int $event_id ): string {
+		return '' !== $token ? 'reevents_booking_token_' . md5( $token . '|' . $event_id ) : '';
+	}
+
+	/**
+	 * Take the token lock for a booking attempt.
+	 *
+	 * @param string $token    Client token.
+	 * @param int    $event_id Event ID.
+	 */
+	public static function claim_token( string $token, int $event_id ): bool {
+		return '' !== $token && Lock::acquire( 'reevents_booking_lock_' . md5( $token . '|' . $event_id ) );
+	}
+
+	/**
+	 * Release the token lock for a booking attempt.
+	 *
+	 * @param string $token    Client token.
+	 * @param int    $event_id Event ID.
+	 */
+	public static function release_token( string $token, int $event_id ): void {
+		if ( '' !== $token ) {
+			Lock::release( 'reevents_booking_lock_' . md5( $token . '|' . $event_id ) );
+		}
 	}
 
 	/**

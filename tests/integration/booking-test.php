@@ -24,12 +24,29 @@ use WP_UnitTestCase;
 final class Booking_Test extends WP_UnitTestCase {
 
 	/**
+	 * Captured mail calls.
+	 *
+	 * @var array<int, array<string, mixed>>
+	 */
+	private array $mails = [];
+
+	/**
 	 * Prevent booking mail from leaving the test process.
 	 */
 	public function set_up(): void {
 		parent::set_up();
 
-		add_filter( 'pre_wp_mail', '__return_true' );
+		$this->mails = [];
+		add_filter(
+			'pre_wp_mail',
+			function ( $preempt, array $atts ) {
+				$this->mails[] = $atts;
+
+				return true;
+			},
+			10,
+			2
+		);
 	}
 
 	/**
@@ -242,6 +259,68 @@ final class Booking_Test extends WP_UnitTestCase {
 		);
 
 		self::assertIsInt( $again );
+	}
+
+	/**
+	 * Admin mail is sent once and attendee mail waits for confirmation.
+	 */
+	public function test_email_flow(): void {
+		$event  = Test_Factory::event( [ 'title' => 'Mail test' ] );
+		$ticket = Test_Factory::ticket( $event, [ 'price_minor' => 1000 ] );
+		$id     = Test_Factory::booking( $event, $ticket );
+
+		self::assertIsInt( $id );
+		self::assertCount( 1, $this->mails );
+		self::assertFalse( wp_next_scheduled( 'reevents_send_booking_emails', [ $id ] ) );
+
+		Booking_Service::update_status( $id, 'confirmed' );
+
+		self::assertCount( 1, $this->mails );
+		self::assertNotFalse( wp_next_scheduled( 'reevents_send_booking_emails', [ $id ] ) );
+
+		wp_clear_scheduled_hook( 'reevents_send_booking_emails', [ $id ] );
+	}
+
+	/**
+	 * A booking token can only be claimed once at a time.
+	 */
+	public function test_booking_token_lock(): void {
+		$token = 'lock-test-token';
+
+		self::assertTrue( Booking_Service::claim_token( $token, 1 ) );
+		self::assertFalse( Booking_Service::claim_token( $token, 1 ) );
+
+		Booking_Service::release_token( $token, 1 );
+
+		self::assertTrue( Booking_Service::claim_token( $token, 1 ) );
+		Booking_Service::release_token( $token, 1 );
+	}
+
+	/**
+	 * A stale token lock expires after its TTL.
+	 */
+	public function test_stale_booking_token_lock(): void {
+		$token = 'stale-lock-token';
+		$key   = 'reevents_booking_lock_' . md5( $token . '|1' );
+
+		self::assertTrue( Booking_Service::claim_token( $token, 1 ) );
+		update_option( $key, time() - 300, false );
+
+		self::assertTrue( Booking_Service::claim_token( $token, 1 ) );
+		Booking_Service::release_token( $token, 1 );
+	}
+
+	/**
+	 * A cancelled booking no longer blocks event deletion.
+	 */
+	public function test_cancelled_booking_allows_event_delete(): void {
+		$event  = Test_Factory::event( [ 'title' => 'Delete test' ] );
+		$ticket = Test_Factory::ticket( $event );
+		$id     = Test_Factory::booking( $event, $ticket );
+
+		Booking_Service::cancel( $id );
+
+		self::assertTrue( ( new Event_Repository() )->delete( $event ) );
 	}
 
 	/**

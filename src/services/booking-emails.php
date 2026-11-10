@@ -51,7 +51,7 @@ final class Booking_Emails {
 			wp_mail( (string) get_option( 'admin_email' ), $admin['subject'], $admin['body'] );
 		}
 
-		if ( ! wp_next_scheduled( 'reevents_send_booking_emails', [ $booking_id ] ) ) {
+		if ( 'confirmed' === (string) $booking['status'] && ! wp_next_scheduled( 'reevents_send_booking_emails', [ $booking_id ] ) ) {
 			wp_schedule_single_event( time() + 5, 'reevents_send_booking_emails', [ $booking_id ] );
 		}
 	}
@@ -90,7 +90,7 @@ final class Booking_Emails {
 	 */
 	public static function on_status_change( int $booking_id, string $status ): void {
 		if ( 'confirmed' === $status ) {
-			self::send( $booking_id );
+			self::send( $booking_id, false );
 		}
 	}
 

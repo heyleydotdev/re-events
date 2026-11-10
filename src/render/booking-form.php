@@ -185,6 +185,7 @@ final class Booking_Form {
 			'reevents_rate_limited'               => __( 'Too many attempts. Try again later.', 're-events' ),
 			'reevents_booking_event_cancelled'    => __( 'This event has been cancelled.', 're-events' ),
 			'reevents_booking_invalid_occurrence' => __( 'The selected time is not available.', 're-events' ),
+			'reevents_booking_in_progress'        => __( 'This booking is already being processed. Please wait a moment.', 're-events' ),
 			'reevents_booking_too_many_attendees' => __( 'There are more attendees than seats.', 're-events' ),
 			'invalid_attendee'                    => __( 'Enter a valid name and email address.', 're-events' ),
 			'required_field'                      => __( 'Fill in all required attendee fields.', 're-events' ),
