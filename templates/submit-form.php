@@ -32,7 +32,7 @@ if ( ! empty( $field_errors ) ) {
 }
 
 echo '<div class="reevents-submit-wrapper ' . esc_attr( (string) ( $widget_args['wrapper_class'] ?? '' ) ) . '">';
-echo '<form class="reevents-submit-form ' . esc_attr( (string) ( $widget_args['class'] ?? '' ) ) . '" method="post" action="' . esc_url( $args['action'] ) . '">';
+echo '<form class="reevents-submit-form ' . esc_attr( (string) ( $widget_args['class'] ?? '' ) ) . '" method="post" action="' . esc_url( $args['action'] ) . '" enctype="multipart/form-data">';
 echo '<input type="hidden" name="action" value="reevents_submit" />';
 echo '<input type="hidden" name="event_id" value="' . esc_attr( (string) $args['post_id'] ) . '" />';
 echo '<input type="hidden" name="timezone" value="' . esc_attr( $args['timezone'] ) . '" />';
@@ -77,6 +77,21 @@ if ( $args['use_editor'] ) {
 echo '<span id="reevents-submit-content-error" class="reevents-field-error" role="alert">' . esc_html( $content_error ) . '</span>';
 echo '</div>';
 
+if ( $args['can_upload'] ) {
+	$image_error = (string) ( $field_errors['featured_image'] ?? '' );
+	echo '<div class="reevents-submit-field reevents-submit-image">';
+	echo '<label for="reevents-submit-image">' . esc_html( (string) ( $widget_args['featured_image_label'] ?? __( 'Featured image', 're-events' ) ) ) . '</label>';
+
+	if ( '' !== $args['thumbnail'] ) {
+		echo '<div class="reevents-submit-current-image">' . $args['thumbnail']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Core thumbnail HTML.
+		echo '<label><input type="checkbox" name="remove_featured_image" value="1" /> ' . esc_html__( 'Remove image', 're-events' ) . '</label></div>';
+	}
+
+	echo '<input type="file" id="reevents-submit-image" name="featured_image" accept="image/*" ' . ( '' !== $image_error ? 'aria-invalid="true" aria-describedby="reevents-submit-image-error"' : '' ) . ' />';
+	echo '<span id="reevents-submit-image-error" class="reevents-field-error" role="alert">' . esc_html( $image_error ) . '</span>';
+	echo '</div>';
+}
+
 $start_error = (string) ( $field_errors['start'] ?? '' );
 echo '<p class="reevents-submit-field">';
 echo '<label for="reevents-submit-start">' . esc_html( (string) ( $widget_args['start_label'] ?? __( 'Starts', 're-events' ) ) ) . '</label>';
@@ -96,6 +111,9 @@ echo '<label><input type="checkbox" name="all_day" value="1" ' . checked( $args[
 echo '</p>';
 
 $recurrence_error = (string) ( $field_errors['recurrence'] ?? '' );
+$advanced_open    = '' !== $recurrence_error ? ' open' : '';
+echo '<details class="reevents-submit-advanced"' . $advanced_open . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static attribute.
+echo '<summary>' . esc_html__( 'Advanced scheduling', 're-events' ) . '</summary>';
 echo '<fieldset class="reevents-submit-field reevents-submit-recurrence">';
 echo '<legend>' . esc_html( (string) ( $widget_args['recurrence_label'] ?? __( 'Repeat', 're-events' ) ) ) . '</legend>';
 echo '<p>';
@@ -211,10 +229,12 @@ echo '<label>' . esc_html__( 'Capacity', 're-events' ) . '<input type="number" n
 echo '<button type="button" class="button-link" data-reevents-remove-timeslot>' . esc_html__( 'Remove', 're-events' ) . '</button>';
 echo '</p></template>';
 echo '</fieldset>';
+echo '</details>';
+
+echo '<p class="reevents-submit-field">';
+echo '<label for="reevents-submit-venue">' . esc_html( (string) ( $widget_args['venue_label'] ?? __( 'Venue', 're-events' ) ) ) . '</label>';
 
 if ( ! empty( $args['venues'] ) ) {
-	echo '<p class="reevents-submit-field">';
-	echo '<label for="reevents-submit-venue">' . esc_html( (string) ( $widget_args['venue_label'] ?? __( 'Venue', 're-events' ) ) ) . '</label>';
 	echo '<select id="reevents-submit-venue" name="venue_id">';
 	echo '<option value="0">' . esc_html__( 'No venue', 're-events' ) . '</option>';
 
@@ -223,8 +243,11 @@ if ( ! empty( $args['venues'] ) ) {
 	}
 
 	echo '</select>';
-	echo '</p>';
 }
+
+echo '<label for="reevents-submit-new-venue">' . esc_html__( 'Or add a new venue', 're-events' ) . '</label>';
+echo '<input type="text" id="reevents-submit-new-venue" name="new_venue" value="' . esc_attr( $args['new_venue'] ) . '" />';
+echo '</p>';
 
 echo '<p class="reevents-submit-field">';
 echo '<label for="reevents-submit-capacity">' . esc_html( (string) ( $widget_args['capacity_label'] ?? __( 'Capacity', 're-events' ) ) ) . '</label>';
@@ -249,9 +272,10 @@ echo '<label for="reevents-submit-tags">' . esc_html( (string) ( $widget_args['t
 echo '<input type="text" id="reevents-submit-tags" name="tags" value="' . esc_attr( $args['tags'] ) . '" placeholder="' . esc_attr( (string) ( $widget_args['tags_placeholder'] ?? __( 'Comma-separated', 're-events' ) ) ) . '" />';
 echo '</p>';
 
+echo '<p class="reevents-submit-field">';
+echo '<label for="reevents-submit-organizers">' . esc_html( (string) ( $widget_args['organizers_label'] ?? __( 'Organizers', 're-events' ) ) ) . '</label>';
+
 if ( ! empty( $args['organizers'] ) ) {
-	echo '<p class="reevents-submit-field">';
-	echo '<label for="reevents-submit-organizers">' . esc_html( (string) ( $widget_args['organizers_label'] ?? __( 'Organizers', 're-events' ) ) ) . '</label>';
 	echo '<select id="reevents-submit-organizers" name="organizer_ids[]" multiple size="5">';
 
 	foreach ( $args['organizers'] as $organizer ) {
@@ -259,8 +283,11 @@ if ( ! empty( $args['organizers'] ) ) {
 	}
 
 	echo '</select>';
-	echo '</p>';
 }
+
+echo '<label for="reevents-submit-new-organizer">' . esc_html__( 'Or add a new organizer', 're-events' ) . '</label>';
+echo '<input type="text" id="reevents-submit-new-organizer" name="new_organizer" value="' . esc_attr( $args['new_organizer'] ) . '" />';
+echo '</p>';
 
 echo '<fieldset class="reevents-submit-field reevents-submit-links">';
 echo '<legend>' . esc_html( (string) ( $widget_args['online_links_label'] ?? __( 'Online links', 're-events' ) ) ) . '</legend>';

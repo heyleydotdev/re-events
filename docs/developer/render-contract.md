@@ -127,30 +127,34 @@ Do not rely on inline styles. The plugin does not output them.
 
 Requires **Settings → Bookings → Event submissions** to be enabled.
 
-| Argument         | Default                      | Purpose                 |
-| ---------------- | ---------------------------- | ----------------------- |
-| `class`          | empty                        | Extra class on the form |
-| `wrapper_class`  | empty                        | Extra wrapper class     |
-| `submit_label`   | `Submit event`               | Submit button           |
-| `save_label`     | `Save changes`               | Button when editing     |
-| `login_message`  | `Log in to submit an event.` | Members-only prompt     |
-| `title_label`    | `Event title`                | Title label             |
-| `start_label`    | `Starts`                     | Start label             |
-| `end_label`      | `Ends`                       | End label               |
-| `venue_label`    | `Venue`                      | Venue label             |
-| `capacity_label` | `Capacity`                   | Capacity label          |
-| `content_label`  | `Description`                | Description label       |
-| `excerpt_label`  | `Short summary`              | Excerpt label           |
-| `categories_label` | `Categories`               | Categories label        |
-| `tags_label`     | `Tags`                       | Tags label              |
-| `tags_placeholder` | `Comma-separated`          | Tags placeholder        |
-| `organizers_label` | `Organizers`               | Organizers label        |
-| `online_links_label` | `Online links`           | Online links label      |
-| `all_day_label`  | `All-day event`              | All-day label           |
-| `name_label`     | `Your name`                  | Guest name label        |
-| `email_label`    | `Your email`                 | Guest email label       |
+| Argument             | Default                      | Purpose                 |
+| -------------------- | ---------------------------- | ----------------------- |
+| `class`              | empty                        | Extra class on the form |
+| `wrapper_class`      | empty                        | Extra wrapper class     |
+| `submit_label`       | `Submit event`               | Submit button           |
+| `save_label`         | `Save changes`               | Button when editing     |
+| `login_message`      | `Log in to submit an event.` | Members-only prompt     |
+| `title_label`        | `Event title`                | Title label             |
+| `start_label`        | `Starts`                     | Start label             |
+| `end_label`          | `Ends`                       | End label               |
+| `venue_label`        | `Venue`                      | Venue label             |
+| `capacity_label`     | `Capacity`                   | Capacity label          |
+| `content_label`      | `Description`                | Description label       |
+| `excerpt_label`      | `Short summary`              | Excerpt label           |
+| `categories_label`   | `Categories`                 | Categories label        |
+| `tags_label`         | `Tags`                       | Tags label              |
+| `tags_placeholder`   | `Comma-separated`            | Tags placeholder        |
+| `organizers_label`   | `Organizers`                 | Organizers label        |
+| `online_links_label` | `Online links`               | Online links label      |
+| `all_day_label`      | `All-day event`              | All-day label           |
+| `recurrence_label`   | `Repeat`                     | Recurrence legend       |
+| `featured_image_label` | `Featured image`           | Image label             |
+| `name_label`         | `Your name`                  | Guest name label        |
+| `email_label`        | `Your email`                 | Guest email label       |
 
 New submissions are saved as `pending`. Users with `publish_reevents_events` publish immediately. Guests can submit when the setting allows it, but only members can edit their own events. The edit link is `?reevents_edit={id}` on the same page.
+
+The form covers the full event shape: rich content, excerpt, categories, tags, all-day, venue, organizers, online links, recurrence, excluded/extra dates and timeslots. Featured images require `upload_files`. A new venue or organizer entered in the form is created as a separate `pending` post.
 
 ### My events — `[reevents_my_events]`
 

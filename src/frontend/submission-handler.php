@@ -100,8 +100,19 @@ final class Submission_Handler {
 			self::redirect_errors( $redirect, $errors, $values );
 		}
 
-		$existing = 0 < $event_id ? ( new Event_Repository() )->find( $event_id ) : null;
-		$rrule    = Recurrence_Rule::build(
+		$existing     = 0 < $event_id ? ( new Event_Repository() )->find( $event_id ) : null;
+		$new_venue_id = self::create_pending_post( 'reevents_venue', (string) $values['new_venue'], $user_id );
+		$new_org_id   = self::create_pending_post( 'reevents_organizer', (string) $values['new_organizer'], $user_id );
+
+		if ( $new_venue_id ) {
+			$values['venue_id'] = $new_venue_id;
+		}
+
+		if ( $new_org_id ) {
+			$values['organizer_ids'][] = $new_org_id;
+		}
+
+		$rrule   = Recurrence_Rule::build(
 			[
 				'freq'     => (string) $values['repeat'],
 				'interval' => (int) $values['interval'],
@@ -112,8 +123,8 @@ final class Submission_Handler {
 				'count'    => (int) $values['count'],
 			]
 		);
-		$exdates  = self::parse_date_lines( (string) $values['exdates'], $timezone );
-		$rdates   = self::parse_date_lines( (string) $values['rdates'], $timezone );
+		$exdates = self::parse_date_lines( (string) $values['exdates'], $timezone );
+		$rdates  = self::parse_date_lines( (string) $values['rdates'], $timezone );
 
 		$event = new Event(
 			$event_id,
@@ -138,6 +149,14 @@ final class Submission_Handler {
 		$result = Event_Service::save( $event, $status );
 
 		if ( is_wp_error( $result ) ) {
+			if ( $new_venue_id ) {
+				wp_delete_post( $new_venue_id, true );
+			}
+
+			if ( $new_org_id ) {
+				wp_delete_post( $new_org_id, true );
+			}
+
 			$field = self::error_field( $result->get_error_code() );
 
 			self::redirect_errors( $redirect, [ $field => $result->get_error_message() ], $values );
@@ -153,6 +172,31 @@ final class Submission_Handler {
 
 		wp_set_object_terms( (int) $result, $values['categories'], 'reevents_event_category' );
 		wp_set_object_terms( (int) $result, $values['tag_names'], 'reevents_event_tag' );
+
+		if ( current_user_can( 'upload_files' ) ) {
+			if ( $values['remove_image'] ) {
+				delete_post_thumbnail( (int) $result );
+			}
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked in handle().
+			$file_name = isset( $_FILES['featured_image']['name'] ) ? sanitize_file_name( wp_unslash( (string) $_FILES['featured_image']['name'] ) ) : '';
+
+			if ( '' !== $file_name ) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+				require_once ABSPATH . 'wp-admin/includes/media.php';
+				require_once ABSPATH . 'wp-admin/includes/image.php';
+
+				$attachment = media_handle_upload( 'featured_image', (int) $result );
+
+				if ( is_wp_error( $attachment ) ) {
+					$redirect = add_query_arg( 'reevents_edit', (int) $result, $redirect );
+
+					self::redirect_errors( $redirect, [ 'featured_image' => $attachment->get_error_message() ], $values );
+				}
+
+				set_post_thumbnail( (int) $result, (int) $attachment );
+			}
+		}
 
 		if ( '' !== $values['name'] ) {
 			update_post_meta( (int) $result, '_reevents_submitter_name', $values['name'] );
@@ -237,10 +281,37 @@ final class Submission_Handler {
 			'timeslots'      => Meta::sanitize_timeslots( $slots ),
 			'name'           => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '',
 			'email'          => isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '',
+			'new_venue'      => isset( $_POST['new_venue'] ) ? sanitize_text_field( wp_unslash( $_POST['new_venue'] ) ) : '',
+			'new_organizer'  => isset( $_POST['new_organizer'] ) ? sanitize_text_field( wp_unslash( $_POST['new_organizer'] ) ) : '',
+			'remove_image'   => ! empty( $_POST['remove_featured_image'] ),
 		];
 		// phpcs:enable
 
 		return $values;
+	}
+
+	/**
+	 * Create a pending venue or organizer.
+	 *
+	 * @param string $post_type Post type.
+	 * @param string $title     Title.
+	 * @param int    $user_id   Author.
+	 */
+	private static function create_pending_post( string $post_type, string $title, int $user_id ): int {
+		if ( '' === $title ) {
+			return 0;
+		}
+
+		$id = wp_insert_post(
+			[
+				'post_type'   => $post_type,
+				'post_status' => 'pending',
+				'post_title'  => $title,
+				'post_author' => $user_id,
+			]
+		);
+
+		return (int) $id;
 	}
 
 	/**
