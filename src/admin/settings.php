@@ -192,10 +192,11 @@ final class Settings {
 					'stripe' => __( 'Stripe', 're-events' ),
 					'paypal' => __( 'PayPal', 're-events' ),
 				],
-				'description' => __( 'The mock gateway is for local checkout tests only.', 're-events' ),
+				'description' => __( 'Choose the provider, then fill in its settings below. The mock gateway is for local checkout tests only.', 're-events' ),
 			],
 			'payments_gateway'
 		);
+		self::add_section( 'payments', __( 'Stripe', 're-events' ), 'payments_stripe' );
 		self::add_field(
 			'payments',
 			'stripe_secret_key',
@@ -204,7 +205,7 @@ final class Settings {
 				'type'        => 'password',
 				'description' => __( 'Secret API key from the Stripe dashboard.', 're-events' ),
 			],
-			'payments_gateway'
+			'payments_stripe'
 		);
 		self::add_field(
 			'payments',
@@ -212,9 +213,13 @@ final class Settings {
 			__( 'Stripe webhook secret', 're-events' ),
 			[
 				'type'        => 'password',
-				'description' => __( 'Signing secret of the webhook endpoint.', 're-events' ),
+				'description' => sprintf(
+					/* translators: %s: webhook endpoint URL. */
+					__( 'Signing secret of the webhook endpoint: %s', 're-events' ),
+					rest_url( 're-events/v1/webhooks/stripe' )
+				),
 			],
-			'payments_gateway'
+			'payments_stripe'
 		);
 		self::add_field(
 			'payments',
@@ -224,7 +229,7 @@ final class Settings {
 				'type'        => 'url',
 				'description' => __( 'Page shown after a completed payment. Defaults to the home page.', 're-events' ),
 			],
-			'payments_gateway'
+			'payments_stripe'
 		);
 		self::add_field(
 			'payments',
@@ -234,8 +239,9 @@ final class Settings {
 				'type'        => 'url',
 				'description' => __( 'Page shown after a cancelled payment. Defaults to the home page.', 're-events' ),
 			],
-			'payments_gateway'
+			'payments_stripe'
 		);
+		self::add_section( 'payments', __( 'PayPal', 're-events' ), 'payments_paypal' );
 		self::add_field(
 			'payments',
 			'paypal_mode',
@@ -247,7 +253,7 @@ final class Settings {
 					'live'    => __( 'Live', 're-events' ),
 				],
 			],
-			'payments_gateway'
+			'payments_paypal'
 		);
 		self::add_field(
 			'payments',
@@ -257,7 +263,7 @@ final class Settings {
 				'type'        => 'text',
 				'description' => __( 'REST app client ID from the PayPal developer dashboard.', 're-events' ),
 			],
-			'payments_gateway'
+			'payments_paypal'
 		);
 		self::add_field(
 			'payments',
@@ -267,7 +273,7 @@ final class Settings {
 				'type'        => 'password',
 				'description' => __( 'REST app secret from the PayPal developer dashboard.', 're-events' ),
 			],
-			'payments_gateway'
+			'payments_paypal'
 		);
 		self::add_field(
 			'payments',
@@ -275,9 +281,13 @@ final class Settings {
 			__( 'PayPal webhook ID', 're-events' ),
 			[
 				'type'        => 'text',
-				'description' => __( 'Webhook ID shown after creating the endpoint in PayPal.', 're-events' ),
+				'description' => sprintf(
+					/* translators: %s: webhook endpoint URL. */
+					__( 'Webhook ID shown after creating the endpoint: %s', 're-events' ),
+					rest_url( 're-events/v1/webhooks/paypal' )
+				),
 			],
-			'payments_gateway'
+			'payments_paypal'
 		);
 		self::add_field(
 			'payments',
@@ -287,7 +297,7 @@ final class Settings {
 				'type'        => 'url',
 				'description' => __( 'Page shown after a completed payment. Defaults to the home page.', 're-events' ),
 			],
-			'payments_gateway'
+			'payments_paypal'
 		);
 		self::add_field(
 			'payments',
@@ -297,7 +307,7 @@ final class Settings {
 				'type'        => 'url',
 				'description' => __( 'Page shown after a cancelled payment. Defaults to the home page.', 're-events' ),
 			],
-			'payments_gateway'
+			'payments_paypal'
 		);
 
 		self::add_section( 'emails', __( 'Admin mail', 're-events' ), 'emails_admin' );
