@@ -216,16 +216,27 @@ final class Bookings_Table extends \WP_List_Table {
 		}
 
 		$booking_id = (int) ( $item['id'] ?? 0 );
+		$total      = (int) ( $item['total_minor'] ?? 0 );
 		$actions    = [
 			'quick_view' => '<a href="#" class="reevents-quick-view" data-booking-id="' . esc_attr( (string) $booking_id ) . '">' . esc_html__( 'Quick view', 're-events' ) . '</a>',
 		];
 
 		if ( 'cancelled' !== ( $item['status'] ?? '' ) ) {
-			$url               = wp_nonce_url(
-				admin_url( 'admin-post.php?action=reevents_cancel_booking&booking_id=' . $booking_id ),
-				'reevents_cancel_booking_' . $booking_id
-			);
-			$actions['cancel'] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Cancel', 're-events' ) . '</a>';
+			if ( $total > 0 ) {
+				$url               = wp_nonce_url(
+					admin_url( 'admin-post.php?action=reevents_refund_booking&booking_id=' . $booking_id ),
+					'reevents_refund_booking_' . $booking_id
+				);
+				$actions['refund'] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Refund', 're-events' ) . '</a>';
+			}
+
+			if ( 'pending' === ( $item['status'] ?? '' ) || 0 === $total ) {
+				$url               = wp_nonce_url(
+					admin_url( 'admin-post.php?action=reevents_cancel_booking&booking_id=' . $booking_id ),
+					'reevents_cancel_booking_' . $booking_id
+				);
+				$actions['cancel'] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Cancel', 're-events' ) . '</a>';
+			}
 		}
 
 		return $this->row_actions( $actions ) . parent::handle_row_actions( $item, $column_name, $primary );

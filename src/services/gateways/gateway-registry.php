@@ -40,15 +40,6 @@ final class Gateway_Registry {
 	}
 
 	/**
-	 * Get all gateways.
-	 *
-	 * @return array<string, Gateway>
-	 */
-	public static function all(): array {
-		return self::$gateways;
-	}
-
-	/**
 	 * Register built-in gateways.
 	 */
 	public static function register_defaults(): void {

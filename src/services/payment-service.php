@@ -154,10 +154,11 @@ final class Payment_Service {
 	/**
 	 * Sync the latest payment of a booking.
 	 *
-	 * @param int $booking_id Booking ID.
+	 * @param int  $booking_id Booking ID.
+	 * @param bool $read_only   Read only; do not capture or complete the payment.
 	 * @return bool|WP_Error
 	 */
-	public static function sync_booking( int $booking_id ) {
+	public static function sync_booking( int $booking_id, bool $read_only = false ) {
 		$payments = ( new Payment_Repository() )->for_booking( $booking_id );
 
 		if ( ! $payments ) {
@@ -166,7 +167,7 @@ final class Payment_Service {
 
 		$payment = end( $payments );
 
-		return self::sync( (int) $payment['id'] );
+		return self::sync( (int) $payment['id'], $read_only );
 	}
 
 	/**
@@ -191,13 +192,53 @@ final class Payment_Service {
 		}
 
 		$repo    = new Payment_Repository();
-		$payment = $repo->find_by_ref( $gateway_id, $verified['gateway_ref'] );
+		$payment = null;
+
+		if ( ! empty( $verified['payment_id'] ) ) {
+			$payment = $repo->find( (int) $verified['payment_id'] );
+		}
+
+		if ( ! $payment && ! empty( $verified['payment_intent'] ) ) {
+			$payment = $repo->find_by_intent( (string) $verified['payment_intent'] );
+		}
+
+		if ( ! $payment ) {
+			$payment = $repo->find_by_ref( $gateway_id, (string) $verified['gateway_ref'] );
+		}
 
 		if ( ! $payment ) {
 			return new WP_Error( 'reevents_payment_not_found', __( 'Payment not found.', 're-events' ), [ 'status' => 404 ] );
 		}
 
-		return self::apply_status( $payment, (string) $verified['status'] );
+		$original = is_array( $payment['data'] ?? null ) ? $payment['data'] : [];
+		$data     = $original;
+
+		if ( ! empty( $verified['payment_intent'] ) ) {
+			$data['payment_intent'] = (string) $verified['payment_intent'];
+		}
+
+		if ( ! empty( $verified['refunded_minor'] ) ) {
+			$already = (int) ( $data['refunded_minor'] ?? 0 );
+			$amount  = (int) $verified['refunded_minor'];
+
+			$data['refunded_minor'] = ! empty( $verified['refund_cumulative'] )
+				? max( $already, $amount )
+				: $already + $amount;
+			$data['refunded_minor'] = min( (int) $payment['amount_minor'], (int) $data['refunded_minor'] );
+		}
+
+		$status = (string) $verified['status'];
+
+		if ( 'refunded' === $status && (int) ( $data['refunded_minor'] ?? 0 ) < (int) $payment['amount_minor'] ) {
+			$status = 'succeeded';
+		}
+
+		if ( $data !== $original ) {
+			$repo->update( (int) $payment['id'], [ 'data' => $data ] );
+			$payment['data'] = $data;
+		}
+
+		return self::apply_status( $payment, $status );
 	}
 
 	/**
@@ -208,65 +249,131 @@ final class Payment_Service {
 	 * @return bool|WP_Error
 	 */
 	public static function refund( int $payment_id, int $amount_minor = 0 ) {
-		$repo    = new Payment_Repository();
-		$payment = $repo->find( $payment_id );
+		$repo = new Payment_Repository();
 
-		if ( ! $payment ) {
-			return new WP_Error( 'reevents_payment_not_found', __( 'Payment not found.', 're-events' ), [ 'status' => 404 ] );
+		if ( ! Lock::acquire( 'reevents_refund_lock_' . $payment_id ) ) {
+			return new WP_Error( 'reevents_payment_refund_in_progress', __( 'A refund is already being processed.', 're-events' ), [ 'status' => 409 ] );
 		}
 
-		if ( 'refunded' === (string) $payment['status'] ) {
+		try {
+			$payment = $repo->find( $payment_id );
+
+			if ( ! $payment ) {
+				return new WP_Error( 'reevents_payment_not_found', __( 'Payment not found.', 're-events' ), [ 'status' => 404 ] );
+			}
+
+			if ( 'refunded' === (string) $payment['status'] ) {
+				return true;
+			}
+
+			$gateway = Gateway_Registry::get( (string) $payment['gateway'] );
+
+			if ( ! $gateway ) {
+				return new WP_Error( 'reevents_payment_invalid_gateway', __( 'Invalid payment gateway.', 're-events' ), [ 'status' => 400 ] );
+			}
+
+			$data      = is_array( $payment['data'] ?? null ) ? $payment['data'] : [];
+			$already   = max( 0, (int) ( $data['refunded_minor'] ?? 0 ) );
+			$total     = max( 0, (int) $payment['amount_minor'] );
+			$remaining = max( 0, $total - $already );
+
+			if ( 0 === $remaining ) {
+				return true;
+			}
+
+			$amount_minor = max( 0, $amount_minor );
+			$request      = $amount_minor > 0 ? min( $amount_minor, $remaining ) : $remaining;
+			$result       = $gateway->refund( (string) $payment['gateway_ref'], $request );
+
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			if ( ! $result ) {
+				return new WP_Error( 'reevents_payment_refund_failed', __( 'The refund could not be created.', 're-events' ), [ 'status' => 500 ] );
+			}
+
+			$refunded = $already + $request;
+			$full     = $refunded >= $total;
+
+			$data['refunded_minor'] = $refunded;
+
+			$updated = $repo->update(
+				$payment_id,
+				[
+					'status' => $full ? 'refunded' : 'succeeded',
+					'data'   => $data,
+				]
+			);
+
+			if ( ! $updated ) {
+				return new WP_Error( 'reevents_payment_update_failed', __( 'The payment could not be updated.', 're-events' ), [ 'status' => 500 ] );
+			}
+
+			if ( $full ) {
+				Booking_Service::cancel( (int) $payment['booking_id'] );
+			}
+
+			return true;
+		} finally {
+			Lock::release( 'reevents_refund_lock_' . $payment_id );
+		}
+	}
+
+	/**
+	 * Refund the latest successful payment for a booking.
+	 *
+	 * @param int $booking_id Booking ID.
+	 * @return bool|WP_Error
+	 */
+	public static function refund_booking( int $booking_id ) {
+		$payments = ( new Payment_Repository() )->for_booking( $booking_id );
+		$refunded = false;
+
+		foreach ( $payments as $payment ) {
+			if ( 'succeeded' !== (string) $payment['status'] ) {
+				continue;
+			}
+
+			$result = self::refund( (int) $payment['id'] );
+
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			$refunded = true;
+		}
+
+		if ( $refunded ) {
 			return true;
 		}
 
-		$gateway = Gateway_Registry::get( (string) $payment['gateway'] );
+		return new WP_Error( 'reevents_payment_not_refundable', __( 'No successful payment was found.', 're-events' ), [ 'status' => 400 ] );
+	}
 
-		if ( ! $gateway ) {
-			return new WP_Error( 'reevents_payment_invalid_gateway', __( 'Invalid payment gateway.', 're-events' ), [ 'status' => 400 ] );
+	/**
+	 * Whether a booking has a successful payment.
+	 *
+	 * @param int $booking_id Booking ID.
+	 */
+	public static function has_successful_payment( int $booking_id ): bool {
+		foreach ( ( new Payment_Repository() )->for_booking( $booking_id ) as $payment ) {
+			if ( 'succeeded' === (string) $payment['status'] ) {
+				return true;
+			}
 		}
 
-		$result = $gateway->refund( (string) $payment['gateway_ref'], $amount_minor );
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		if ( ! $result ) {
-			return new WP_Error( 'reevents_payment_refund_failed', __( 'The refund could not be created.', 're-events' ), [ 'status' => 500 ] );
-		}
-
-		$data     = is_array( $payment['data'] ?? null ) ? $payment['data'] : [];
-		$refunded = (int) ( $data['refunded_minor'] ?? 0 ) + ( $amount_minor > 0 ? $amount_minor : (int) $payment['amount_minor'] );
-		$full     = $refunded >= (int) $payment['amount_minor'];
-
-		$data['refunded_minor'] = $refunded;
-
-		$updated = $repo->update(
-			$payment_id,
-			[
-				'status' => $full ? 'refunded' : 'succeeded',
-				'data'   => $data,
-			]
-		);
-
-		if ( ! $updated ) {
-			return new WP_Error( 'reevents_payment_update_failed', __( 'The payment could not be updated.', 're-events' ), [ 'status' => 500 ] );
-		}
-
-		if ( $full ) {
-			Booking_Service::cancel( (int) $payment['booking_id'] );
-		}
-
-		return true;
+		return false;
 	}
 
 	/**
 	 * Sync a payment status.
 	 *
-	 * @param int $payment_id Payment ID.
+	 * @param int  $payment_id Payment ID.
+	 * @param bool $read_only   Read only; do not capture or complete the payment.
 	 * @return bool|WP_Error
 	 */
-	public static function sync( int $payment_id ) {
+	public static function sync( int $payment_id, bool $read_only = false ) {
 		$repo    = new Payment_Repository();
 		$payment = $repo->find( $payment_id );
 
@@ -280,7 +387,7 @@ final class Payment_Service {
 			return new WP_Error( 'reevents_payment_invalid_gateway', __( 'Invalid payment gateway.', 're-events' ), [ 'status' => 400 ] );
 		}
 
-		$result = $gateway->sync( (string) $payment['gateway_ref'] );
+		$result = $gateway->sync( (string) $payment['gateway_ref'], $read_only );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;

@@ -84,9 +84,12 @@ final class Mock_Gateway implements Gateway {
 	 * Read the current gateway status.
 	 *
 	 * @param string $gateway_ref Gateway reference.
+	 * @param bool   $read_only   Read only; do not capture or complete the payment.
 	 * @return array{status:string}
 	 */
-	public function sync( string $gateway_ref ) {
+	public function sync( string $gateway_ref, bool $read_only = false ) {
+		unset( $read_only );
+
 		return [ 'status' => 'pending' ];
 	}
 }

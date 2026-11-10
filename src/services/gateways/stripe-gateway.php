@@ -68,6 +68,8 @@ final class Stripe_Gateway implements Gateway {
 				'client_reference_id'                    => (string) $booking_id,
 				'metadata[booking_id]'                   => (string) $booking_id,
 				'metadata[payment_id]'                   => (string) $payment_id,
+				'payment_intent_data[metadata][booking_id]' => (string) $booking_id,
+				'payment_intent_data[metadata][payment_id]' => (string) $payment_id,
 				'line_items[0][quantity]'                => '1',
 				'line_items[0][price_data][currency]'    => strtolower( (string) ( $payment['currency'] ?? 'usd' ) ),
 				'line_items[0][price_data][unit_amount]' => (string) Currency::stripe_amount( (int) ( $payment['amount_minor'] ?? 0 ), (string) ( $payment['currency'] ?? 'USD' ) ),
@@ -93,7 +95,7 @@ final class Stripe_Gateway implements Gateway {
 	 *
 	 * @param string               $payload Raw request body.
 	 * @param array<string, mixed> $headers Request headers.
-	 * @return array{gateway_ref:string,status:string}|WP_Error
+	 * @return array{gateway_ref:string,status:string,payment_id:int,payment_intent:string,refunded_minor:int,refund_cumulative:bool}|WP_Error
 	 */
 	public function verify_webhook( string $payload, array $headers ) {
 		$secret = (string) Settings::get( 'stripe_webhook_secret', '' );
@@ -114,9 +116,12 @@ final class Stripe_Gateway implements Gateway {
 			return new WP_Error( 'reevents_payment_invalid_webhook', __( 'Invalid payment webhook.', 're-events' ), [ 'status' => 400 ] );
 		}
 
-		$type   = (string) ( $event['type'] ?? '' );
-		$object = (array) ( $event['data']['object'] ?? [] );
-		$ref    = (string) ( $object['id'] ?? '' );
+		$type           = (string) ( $event['type'] ?? '' );
+		$object         = (array) ( $event['data']['object'] ?? [] );
+		$ref            = (string) ( $object['id'] ?? '' );
+		$payment_id     = (int) ( $object['metadata']['payment_id'] ?? 0 );
+		$payment_intent = (string) ( $object['payment_intent'] ?? '' );
+		$refunded_minor = 0;
 
 		if ( '' === $ref ) {
 			return new WP_Error( 'reevents_payment_invalid_webhook', __( 'Invalid payment webhook.', 're-events' ), [ 'status' => 400 ] );
@@ -133,13 +138,22 @@ final class Stripe_Gateway implements Gateway {
 			case 'checkout.session.async_payment_failed':
 				$status = 'failed';
 				break;
+			case 'charge.refunded':
+				$amount         = (int) ( $object['amount'] ?? 0 );
+				$refunded_minor = (int) ( $object['amount_refunded'] ?? 0 );
+				$status         = $amount > 0 && $refunded_minor >= $amount ? 'refunded' : 'succeeded';
+				break;
 			default:
 				$status = 'ignored';
 		}
 
 		return [
-			'gateway_ref' => $ref,
-			'status'      => $status,
+			'gateway_ref'       => $ref,
+			'status'            => $status,
+			'payment_id'        => $payment_id,
+			'payment_intent'    => $payment_intent,
+			'refunded_minor'    => $refunded_minor,
+			'refund_cumulative' => true,
 		];
 	}
 
@@ -169,7 +183,7 @@ final class Stripe_Gateway implements Gateway {
 			$params['amount'] = (string) $amount_minor;
 		}
 
-		$result = $this->request( 'POST', 'refunds', $params );
+		$result = $this->request( 'POST', 'refunds', $params, [ 'Idempotency-Key' => 'reevents_refund_' . md5( $gateway_ref . '|' . $amount_minor ) ] );
 
 		return ! is_wp_error( $result );
 	}
@@ -178,9 +192,12 @@ final class Stripe_Gateway implements Gateway {
 	 * Read the Checkout Session status.
 	 *
 	 * @param string $gateway_ref Session ID.
+	 * @param bool   $read_only   Read only; do not capture or complete the payment.
 	 * @return array{status:string}|WP_Error
 	 */
-	public function sync( string $gateway_ref ) {
+	public function sync( string $gateway_ref, bool $read_only = false ) {
+		unset( $read_only );
+
 		$session = $this->request( 'GET', 'checkout/sessions/' . rawurlencode( $gateway_ref ) );
 
 		if ( is_wp_error( $session ) ) {

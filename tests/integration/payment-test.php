@@ -211,7 +211,19 @@ final class Payment_Test extends WP_UnitTestCase {
 		$start = Payment_Service::start( $id, 'mock' );
 
 		self::assertIsArray( $start );
-		self::assertTrue( Payment_Service::refund( $start['payment_id'] ) );
+
+		Payment_Service::handle_webhook(
+			'mock',
+			(string) wp_json_encode(
+				[
+					'gateway_ref' => $start['gateway_ref'],
+					'status'      => 'succeeded',
+				]
+			),
+			[]
+		);
+
+		self::assertTrue( Payment_Service::refund_booking( $id ) );
 
 		$booking = ( new Booking_Repository() )->find( $id );
 		self::assertSame( 'cancelled', $booking['status'] );

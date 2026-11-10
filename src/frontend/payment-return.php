@@ -54,7 +54,22 @@ final class Payment_Return {
 		}
 
 		if ( 'cancel' === $result ) {
-			if ( 'pending' === (string) $booking['status'] ) {
+			$sync    = Payment_Service::sync_booking( $booking_id, true );
+			$booking = $repo->find( $booking_id );
+
+			if ( is_wp_error( $sync ) && ! Payment_Service::has_successful_payment( $booking_id ) ) {
+				Booking_Handler::redirect( $url, 'error', 'reevents_payment_pending' );
+			}
+
+			if ( $booking && 'confirmed' === (string) $booking['status'] ) {
+				Booking_Handler::redirect( $url, 'success', (string) $booking['reference'] );
+			}
+
+			if ( $booking && 'pending' === (string) $booking['status'] && Payment_Service::has_successful_payment( $booking_id ) ) {
+				Booking_Handler::redirect( $url, 'error', 'reevents_booking_awaiting_approval' );
+			}
+
+			if ( $booking && 'pending' === (string) $booking['status'] ) {
 				Payment_Service::cancel_pending( $booking_id );
 				Booking_Service::cancel( $booking_id );
 			}

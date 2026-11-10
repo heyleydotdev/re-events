@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace ReEvents\Admin;
 
 use ReEvents\Services\Booking_Service;
+use ReEvents\Services\Payment_Service;
 
 /**
  * Lists bookings and handles cancellation.
@@ -22,6 +23,7 @@ final class Bookings {
 	public static function register(): void {
 		add_action( 'admin_menu', [ self::class, 'add_page' ], 13 );
 		add_action( 'admin_post_reevents_cancel_booking', [ self::class, 'cancel' ] );
+		add_action( 'admin_post_reevents_refund_booking', [ self::class, 'refund' ] );
 	}
 
 	/**
@@ -71,6 +73,14 @@ final class Bookings {
 				echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Booking cancelled.', 're-events' ) . '</p></div>';
 			}
 
+			if ( 'refunded' === $notice ) {
+				echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Booking refunded and cancelled.', 're-events' ) . '</p></div>';
+			}
+
+			if ( 'refund_failed' === $notice ) {
+				echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'The refund could not be created.', 're-events' ) . '</p></div>';
+			}
+
 			if ( is_array( $bulk ) ) {
 				$message = sprintf(
 					/* translators: 1: updated count, 2: failed count. */
@@ -115,6 +125,30 @@ final class Bookings {
 		}
 
 		wp_safe_redirect( add_query_arg( 'reevents_notice', 'cancelled', $redirect ) );
+		exit;
+	}
+
+	/**
+	 * Refund a paid booking and cancel it.
+	 */
+	public static function refund(): void {
+		if ( ! current_user_can( 'reevents_manage_bookings' ) ) {
+			wp_die( esc_html__( 'Forbidden', 're-events' ), 403 );
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce checked below.
+		$booking_id = isset( $_GET['booking_id'] ) ? absint( wp_unslash( $_GET['booking_id'] ) ) : 0;
+		check_admin_referer( 'reevents_refund_booking_' . $booking_id );
+
+		$result = $booking_id ? Payment_Service::refund_booking( $booking_id ) : false;
+
+		$redirect = wp_get_referer();
+
+		if ( ! $redirect ) {
+			$redirect = admin_url( 'admin.php?page=reevents-bookings' );
+		}
+
+		wp_safe_redirect( add_query_arg( 'reevents_notice', ! is_wp_error( $result ) && false !== $result ? 'refunded' : 'refund_failed', $redirect ) );
 		exit;
 	}
 }

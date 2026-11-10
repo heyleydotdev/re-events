@@ -35,7 +35,7 @@ interface Gateway {
 	 *
 	 * @param string               $payload Raw request body.
 	 * @param array<string, mixed> $headers Request headers.
-	 * @return array{gateway_ref:string,status:string}|WP_Error
+	 * @return array{gateway_ref:string,status:string,payment_id?:int,payment_intent?:string,refunded_minor?:int,refund_cumulative?:bool}|WP_Error
 	 */
 	public function verify_webhook( string $payload, array $headers );
 
@@ -52,7 +52,8 @@ interface Gateway {
 	 * Read the current gateway status.
 	 *
 	 * @param string $gateway_ref Gateway reference.
+	 * @param bool   $read_only    Read only; do not capture or complete the payment.
 	 * @return array{status:string}|WP_Error
 	 */
-	public function sync( string $gateway_ref );
+	public function sync( string $gateway_ref, bool $read_only = false );
 }

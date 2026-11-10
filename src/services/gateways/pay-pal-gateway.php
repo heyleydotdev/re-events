@@ -92,7 +92,7 @@ final class PayPal_Gateway implements Gateway {
 	 *
 	 * @param string               $payload Raw request body.
 	 * @param array<string, mixed> $headers Request headers.
-	 * @return array{gateway_ref:string,status:string}|WP_Error
+	 * @return array{gateway_ref:string,status:string,payment_intent:string,refunded_minor:int,refund_cumulative:bool}|WP_Error
 	 */
 	public function verify_webhook( string $payload, array $headers ) {
 		$webhook_id = (string) Settings::get( 'paypal_webhook_id', '' );
@@ -129,9 +129,10 @@ final class PayPal_Gateway implements Gateway {
 			return new WP_Error( 'reevents_payment_invalid_signature', __( 'Invalid webhook signature.', 're-events' ), [ 'status' => 400 ] );
 		}
 
-		$type     = (string) ( $event['event_type'] ?? '' );
-		$resource = (array) ( $event['resource'] ?? [] );
-		$ref      = (string) ( $resource['supplementary_data']['related_ids']['order_id'] ?? '' );
+		$type           = (string) ( $event['event_type'] ?? '' );
+		$resource       = (array) ( $event['resource'] ?? [] );
+		$ref            = (string) ( $resource['supplementary_data']['related_ids']['order_id'] ?? '' );
+		$refunded_minor = 0;
 
 		if ( '' === $ref && 'CHECKOUT.ORDER.APPROVED' === $type ) {
 			$ref = (string) ( $resource['id'] ?? '' );
@@ -149,7 +150,9 @@ final class PayPal_Gateway implements Gateway {
 				$status = 'failed';
 				break;
 			case 'PAYMENT.CAPTURE.REFUNDED':
-				$status = 'refunded';
+				$status         = 'refunded';
+				$amount         = (array) ( $resource['amount'] ?? [] );
+				$refunded_minor = Currency::minor_units( (string) ( $amount['value'] ?? '' ), (string) ( $amount['currency_code'] ?? 'USD' ) );
 				break;
 			case 'CHECKOUT.ORDER.APPROVED':
 				$status = 'pending';
@@ -159,8 +162,11 @@ final class PayPal_Gateway implements Gateway {
 		}
 
 		return [
-			'gateway_ref' => $ref,
-			'status'      => $status,
+			'gateway_ref'       => $ref,
+			'status'            => $status,
+			'payment_intent'    => '',
+			'refunded_minor'    => $refunded_minor,
+			'refund_cumulative' => false,
 		];
 	}
 
@@ -195,7 +201,7 @@ final class PayPal_Gateway implements Gateway {
 			];
 		}
 
-		$result = $this->request( 'POST', 'v2/payments/captures/' . rawurlencode( (string) $capture['id'] ) . '/refund', $params );
+		$result = $this->request( 'POST', 'v2/payments/captures/' . rawurlencode( (string) $capture['id'] ) . '/refund', $params, [ 'PayPal-Request-Id' => 'reevents_refund_' . md5( $gateway_ref . '|' . $amount_minor ) ] );
 
 		return ! is_wp_error( $result );
 	}
@@ -204,9 +210,10 @@ final class PayPal_Gateway implements Gateway {
 	 * Read the order status and capture an approved order.
 	 *
 	 * @param string $gateway_ref Order ID.
+	 * @param bool   $read_only   Read only; do not capture or complete the payment.
 	 * @return array{status:string}|WP_Error
 	 */
-	public function sync( string $gateway_ref ) {
+	public function sync( string $gateway_ref, bool $read_only = false ) {
 		$order = $this->request( 'GET', 'v2/checkout/orders/' . rawurlencode( $gateway_ref ) );
 
 		if ( is_wp_error( $order ) ) {
@@ -215,7 +222,7 @@ final class PayPal_Gateway implements Gateway {
 
 		$status = (string) ( $order['status'] ?? '' );
 
-		if ( 'APPROVED' === $status ) {
+		if ( ! $read_only && 'APPROVED' === $status ) {
 			$captured = $this->request( 'POST', 'v2/checkout/orders/' . rawurlencode( $gateway_ref ) . '/capture' );
 			$status   = is_wp_error( $captured ) ? 'pending' : (string) ( $captured['status'] ?? '' );
 		}

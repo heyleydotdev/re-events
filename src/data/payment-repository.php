@@ -91,6 +91,28 @@ final class Payment_Repository {
 	}
 
 	/**
+	 * Find a payment by a stored gateway intent.
+	 *
+	 * @param string $intent Payment intent or order reference stored in data.
+	 * @return array<string, mixed>|null
+	 */
+	public function find_by_intent( string $intent ): ?array {
+		global $wpdb;
+
+		if ( '' === $intent ) {
+			return null;
+		}
+
+		$table = $this->table();
+		$like  = '%"payment_intent":"' . $wpdb->esc_like( $intent ) . '"%';
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Payment lookup.
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE data_json LIKE %s ORDER BY id DESC LIMIT 1", $like ), ARRAY_A );
+
+		return is_array( $row ) ? $this->hydrate( $row ) : null;
+	}
+
+	/**
 	 * Get payments for a booking.
 	 *
 	 * @param int $booking_id Booking ID.

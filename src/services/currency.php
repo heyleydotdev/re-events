@@ -81,6 +81,20 @@ final class Currency {
 	}
 
 	/**
+	 * Convert a plain decimal string to the smallest unit.
+	 *
+	 * @param string $amount   Decimal amount.
+	 * @param string $currency Currency code.
+	 */
+	public static function minor_units( string $amount, string $currency ): int {
+		if ( ! is_numeric( $amount ) ) {
+			return 0;
+		}
+
+		return (int) round( (float) $amount * ( 10 ** self::decimals( $currency ) ) );
+	}
+
+	/**
 	 * Convert a smallest-unit amount to a plain decimal string.
 	 *
 	 * @param int    $amount_minor Amount in the smallest unit.

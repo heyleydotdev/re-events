@@ -241,6 +241,135 @@ final class Gateway_HTTP_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A read-only PayPal sync does not capture an approved order.
+	 */
+	public function test_paypal_read_only_sync_does_not_capture(): void {
+		$this->settings(
+			[
+				'paypal_mode'          => 'sandbox',
+				'paypal_client_id'     => 'test-client',
+				'paypal_client_secret' => 'test-secret',
+			]
+		);
+
+		$captured = false;
+
+		$this->mock(
+			function ( string $url, array $args ) use ( &$captured ) {
+				if ( str_contains( $url, 'oauth2/token' ) ) {
+					return $this->respond(
+						[
+							'access_token' => 'token',
+							'expires_in'   => 3600,
+						]
+					);
+				}
+
+				if ( 'POST' === ( $args['method'] ?? '' ) && str_ends_with( $url, '/capture' ) ) {
+					$captured = true;
+
+					return $this->respond( [ 'status' => 'COMPLETED' ] );
+				}
+
+				return $this->respond( [ 'status' => 'APPROVED' ] );
+			}
+		);
+
+		$result = ( new PayPal_Gateway() )->sync( 'order_1', true );
+
+		self::assertFalse( $captured );
+		self::assertSame( [ 'status' => 'pending' ], $result );
+	}
+
+	/**
+	 * A Stripe charge refund maps through the payment intent.
+	 */
+	public function test_stripe_refund_webhook(): void {
+		$this->settings(
+			[
+				'stripe_webhook_secret' => 'whsec_test',
+			]
+		);
+
+		$payload   = (string) wp_json_encode(
+			[
+				'type' => 'charge.refunded',
+				'data' => [
+					'object' => [
+						'id'              => 'ch_1',
+						'amount'          => 1000,
+						'amount_refunded' => 1000,
+						'payment_intent'  => 'pi_1',
+						'metadata'        => [],
+					],
+				],
+			]
+		);
+		$time      = time();
+		$signature = 't=' . $time . ',v1=' . hash_hmac( 'sha256', $time . '.' . $payload, 'whsec_test' );
+		$result    = ( new Stripe_Gateway() )->verify_webhook( $payload, [ 'Stripe-Signature' => $signature ] );
+
+		self::assertIsArray( $result );
+		self::assertSame( 'refunded', $result['status'] );
+		self::assertSame( 'pi_1', $result['payment_intent'] );
+		self::assertSame( 1000, $result['refunded_minor'] );
+	}
+
+	/**
+	 * PayPal refunds carry the refunded amount.
+	 */
+	public function test_paypal_refund_webhook_amount(): void {
+		$this->settings(
+			[
+				'paypal_mode'          => 'sandbox',
+				'paypal_client_id'     => 'test-client',
+				'paypal_client_secret' => 'test-secret',
+				'paypal_webhook_id'    => 'wh_1',
+			]
+		);
+
+		$this->mock(
+			function ( string $url ) {
+				if ( str_contains( $url, 'oauth2/token' ) ) {
+					return $this->respond(
+						[
+							'access_token' => 'token',
+							'expires_in'   => 3600,
+						]
+					);
+				}
+
+				return $this->respond( [ 'verification_status' => 'SUCCESS' ] );
+			}
+		);
+
+		$payload = (string) wp_json_encode(
+			[
+				'event_type' => 'PAYMENT.CAPTURE.REFUNDED',
+				'resource'   => [
+					'id'                 => 'refund_1',
+					'amount'             => [
+						'currency_code' => 'USD',
+						'value'         => '4.00',
+					],
+					'supplementary_data' => [
+						'related_ids' => [
+							'order_id' => 'order_1',
+						],
+					],
+				],
+			]
+		);
+
+		$result = ( new PayPal_Gateway() )->verify_webhook( $payload, [] );
+
+		self::assertIsArray( $result );
+		self::assertSame( 'refunded', $result['status'] );
+		self::assertSame( 400, $result['refunded_minor'] );
+		self::assertFalse( $result['refund_cumulative'] );
+	}
+
+	/**
 	 * PayPal refunds the captured amount.
 	 */
 	public function test_paypal_refund(): void {
