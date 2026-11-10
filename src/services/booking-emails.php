@@ -92,7 +92,7 @@ final class Booking_Emails {
 			'{name}'      => (string) ( $attendee['name'] ?? '' ),
 			'{email}'     => (string) ( $attendee['email'] ?? '' ),
 			'{quantity}'  => (string) ( $booking['quantity'] ?? 1 ),
-			'{total}'     => $total > 0 ? number_format_i18n( $total / 100, 2 ) . ' ' . (string) ( $booking['currency'] ?? '' ) : __( 'Free', 're-events' ),
+			'{total}'     => $total > 0 ? Currency::format( $total, (string) ( $booking['currency'] ?? '' ) ) : __( 'Free', 're-events' ),
 			'{site}'      => wp_specialchars_decode( (string) get_bloginfo( 'name' ), ENT_QUOTES ),
 		];
 

@@ -88,7 +88,7 @@ final class Booking_Form_Controller extends WP_REST_Controller {
 				'id'              => (int) $ticket['id'],
 				'name'            => (string) $ticket['name'],
 				'price_minor'     => (int) $ticket['price_minor'],
-				'price'           => number_format( (int) $ticket['price_minor'] / 100, 2, '.', '' ),
+				'price'           => \ReEvents\Services\Currency::amount( (int) $ticket['price_minor'], (string) $ticket['currency'] ),
 				'currency'        => (string) $ticket['currency'],
 				'capacity'        => $capacity,
 				'sold'            => $sold,

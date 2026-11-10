@@ -79,8 +79,7 @@ final class Quick_View {
 				<dd>{{ data.quantity }}</dd>
 				<dt><?php echo esc_html__( 'Total', 're-events' ); ?></dt>
 				<dd>
-					<# var total = data.total_minor > 0 ? ( data.total_minor / 100 ).toFixed( 2 ) + ' ' + data.currency : '<?php echo esc_js( __( 'Free', 're-events' ) ); ?>'; #>
-					{{ total }}
+					{{ data.total_formatted }}
 				</dd>
 				<# if ( data.ticket_name ) { #>
 					<dt><?php echo esc_html__( 'Ticket', 're-events' ); ?></dt>

@@ -13,6 +13,7 @@ use ReEvents\Data\Booking_Repository;
 use ReEvents\Data\Ticket_Repository;
 use ReEvents\Services\Booking_Service;
 use ReEvents\Services\Booking_Validator;
+use ReEvents\Services\Currency;
 use ReEvents\Services\Payment_Service;
 use ReEvents\Services\Rate_Limit;
 use WP_Error;
@@ -358,19 +359,20 @@ final class Bookings_Controller extends WP_REST_Controller {
 	 */
 	private function prepare_booking( array $booking, bool $with_attendees ): array {
 		$data = [
-			'id'            => (int) $booking['id'],
-			'reference'     => (string) $booking['reference'],
-			'event_title'   => (string) ( $booking['event_title'] ?? get_the_title( (int) $booking['event_id'] ) ),
-			'event_id'      => (int) $booking['event_id'],
-			'occurrence_id' => (int) $booking['occurrence_id'],
-			'ticket_id'     => (int) $booking['ticket_id'],
-			'user_id'       => (int) $booking['user_id'],
-			'quantity'      => (int) $booking['quantity'],
-			'status'        => (string) $booking['status'],
-			'total_minor'   => (int) $booking['total_minor'],
-			'currency'      => (string) $booking['currency'],
-			'created_utc'   => (string) $booking['created_utc'],
-			'updated_utc'   => (string) $booking['updated_utc'],
+			'id'              => (int) $booking['id'],
+			'reference'       => (string) $booking['reference'],
+			'event_title'     => (string) ( $booking['event_title'] ?? get_the_title( (int) $booking['event_id'] ) ),
+			'event_id'        => (int) $booking['event_id'],
+			'occurrence_id'   => (int) $booking['occurrence_id'],
+			'ticket_id'       => (int) $booking['ticket_id'],
+			'user_id'         => (int) $booking['user_id'],
+			'quantity'        => (int) $booking['quantity'],
+			'status'          => (string) $booking['status'],
+			'total_minor'     => (int) $booking['total_minor'],
+			'total_formatted' => (int) $booking['total_minor'] > 0 ? Currency::format( (int) $booking['total_minor'], (string) $booking['currency'] ) : __( 'Free', 're-events' ),
+			'currency'        => (string) $booking['currency'],
+			'created_utc'     => (string) $booking['created_utc'],
+			'updated_utc'     => (string) $booking['updated_utc'],
 		];
 
 		if ( $with_attendees ) {
@@ -463,68 +465,73 @@ final class Bookings_Controller extends WP_REST_Controller {
 			'title'      => 'booking',
 			'type'       => 'object',
 			'properties' => [
-				'id'            => [
+				'id'              => [
 					'description' => __( 'Unique identifier for the booking.', 're-events' ),
 					'type'        => 'integer',
 					'readonly'    => true,
 				],
-				'reference'     => [
+				'reference'       => [
 					'description' => __( 'Booking reference.', 're-events' ),
 					'type'        => 'string',
 					'readonly'    => true,
 				],
-				'event_title'   => [
+				'event_title'     => [
 					'description' => __( 'Event title.', 're-events' ),
 					'type'        => 'string',
 					'readonly'    => true,
 				],
-				'ticket_name'   => [
+				'ticket_name'     => [
 					'description' => __( 'Ticket name.', 're-events' ),
 					'type'        => 'string',
 					'readonly'    => true,
 				],
-				'event_id'      => [
+				'event_id'        => [
 					'description' => __( 'Event post ID.', 're-events' ),
 					'type'        => 'integer',
 				],
-				'occurrence_id' => [
+				'occurrence_id'   => [
 					'description' => __( 'Occurrence ID.', 're-events' ),
 					'type'        => 'integer',
 				],
-				'ticket_id'     => [
+				'ticket_id'       => [
 					'description' => __( 'Ticket ID.', 're-events' ),
 					'type'        => 'integer',
 				],
-				'user_id'       => [
+				'user_id'         => [
 					'description' => __( 'User ID.', 're-events' ),
 					'type'        => 'integer',
 				],
-				'quantity'      => [
+				'quantity'        => [
 					'description' => __( 'Number of seats.', 're-events' ),
 					'type'        => 'integer',
 				],
-				'status'        => [
+				'status'          => [
 					'description' => __( 'Booking status.', 're-events' ),
 					'type'        => 'string',
 					'enum'        => [ 'pending', 'confirmed', 'cancelled', 'rejected' ],
 				],
-				'total_minor'   => [
+				'total_minor'     => [
 					'description' => __( 'Total in the smallest currency unit.', 're-events' ),
 					'type'        => 'integer',
 				],
-				'currency'      => [
+				'total_formatted' => [
+					'description' => __( 'Formatted total.', 're-events' ),
+					'type'        => 'string',
+					'readonly'    => true,
+				],
+				'currency'        => [
 					'description' => __( 'Currency code.', 're-events' ),
 					'type'        => 'string',
 				],
-				'created_utc'   => [
+				'created_utc'     => [
 					'description' => __( 'Creation time in UTC.', 're-events' ),
 					'type'        => 'string',
 				],
-				'updated_utc'   => [
+				'updated_utc'     => [
 					'description' => __( 'Last update in UTC.', 're-events' ),
 					'type'        => 'string',
 				],
-				'attendees'     => [
+				'attendees'       => [
 					'description' => __( 'Attendees.', 're-events' ),
 					'type'        => 'array',
 					'items'       => [

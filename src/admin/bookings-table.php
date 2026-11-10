@@ -11,6 +11,7 @@ namespace ReEvents\Admin;
 
 use ReEvents\Data\Booking_Repository;
 use ReEvents\Services\Booking_Service;
+use ReEvents\Services\Currency;
 
 if ( ! class_exists( '\WP_List_Table' ) ) {
 	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
@@ -192,7 +193,7 @@ final class Bookings_Table extends \WP_List_Table {
 			case 'total':
 				$total = (int) ( $item['total_minor'] ?? 0 );
 
-				return $total > 0 ? esc_html( number_format_i18n( $total / 100, 2 ) . ' ' . (string) ( $item['currency'] ?? '' ) ) : esc_html__( 'Free', 're-events' );
+				return $total > 0 ? esc_html( Currency::format( $total, (string) ( $item['currency'] ?? '' ) ) ) : esc_html__( 'Free', 're-events' );
 			case 'created':
 				$date = \DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', (string) ( $item['created_utc'] ?? '' ), new \DateTimeZone( 'UTC' ) );
 

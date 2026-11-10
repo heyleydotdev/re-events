@@ -43,7 +43,7 @@ foreach ( $args['tickets'] as $ticket ) {
 	$label = (string) $ticket['name'];
 
 	if ( $price > 0 ) {
-		$label .= ' — ' . number_format_i18n( $price / 100, 2 ) . ' ' . (string) $ticket['currency'];
+		$label .= ' — ' . \ReEvents\Services\Currency::format( $price, (string) $ticket['currency'] );
 	} else {
 		$label .= ' — ' . (string) ( $widget_args['free_label'] ?? __( 'Free', 're-events' ) );
 	}
