@@ -27,14 +27,19 @@ final class My_Bookings {
 			return '';
 		}
 
-		$limit    = max( 1, min( 100, (int) ( $args['limit'] ?? 20 ) ) );
-		$query    = ( new Booking_Repository() )->query(
+		$limit     = max( 1, min( 100, (int) ( $args['limit'] ?? 20 ) ) );
+		$query     = ( new Booking_Repository() )->query(
 			[
 				'user_id' => get_current_user_id(),
 				'limit'   => $limit,
 			]
 		);
-		$bookings = [];
+		$bookings  = [];
+		$event_ids = array_values( array_unique( array_map( static fn( array $booking ): int => (int) $booking['event_id'], $query['items'] ) ) );
+
+		if ( $event_ids ) {
+			_prime_post_caches( $event_ids, false, true );
+		}
 
 		foreach ( $query['items'] as $booking ) {
 			$bookings[] = [

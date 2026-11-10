@@ -41,6 +41,22 @@ final class Calendar {
 			$rows        = array_merge( $rows, $batch );
 			$offset     += 2000;
 		} while ( 2000 === $batch_count );
+
+		$event_ids = [];
+
+		foreach ( $rows as $row ) {
+			$event_id = (int) ( $row['event_id'] ?? 0 );
+
+			if ( $event_id ) {
+				$event_ids[ $event_id ] = $event_id;
+			}
+		}
+
+		if ( $event_ids ) {
+			_prime_post_caches( array_values( $event_ids ), false, true );
+			update_meta_cache( 'post', array_values( $event_ids ) );
+		}
+
 		$base = is_post_type_archive( 'reevents_event' ) ? get_post_type_archive_link( 'reevents_event' ) : get_permalink();
 
 		if ( ! $base ) {

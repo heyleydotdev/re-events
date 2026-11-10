@@ -212,10 +212,12 @@ final class Feeds {
 		$from  = gmdate( 'Y-m-d H:i:s', strtotime( '-1 year' ) );
 		$to    = gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) );
 		$rows  = ( new Occurrence_Repository() )->get_between( $from, $to, 2000 );
+		$ids   = array_values( array_unique( array_map( static fn( array $row ): int => (int) $row['event_id'], $rows ) ) );
+		$found = $repo->find_many( $ids );
 		$items = [];
 
 		foreach ( $rows as $row ) {
-			$event = $repo->find( (int) $row['event_id'] );
+			$event = $found[ (int) $row['event_id'] ] ?? null;
 
 			if ( ! $event ) {
 				continue;

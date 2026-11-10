@@ -41,6 +41,12 @@ final class Events_List {
 			$events[] = $event;
 		}
 
+		$venue_ids = array_values( array_unique( array_filter( array_map( static fn( $event ): int => (int) $event->venue_id, $events ) ) ) );
+
+		if ( $venue_ids ) {
+			_prime_post_caches( $venue_ids, false, true );
+		}
+
 		return Template::render(
 			'events-list',
 			[
