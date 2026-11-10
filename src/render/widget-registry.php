@@ -369,6 +369,13 @@ final class Widget_Registry {
 						'placeholder' => __( 'Ticket', 're-events' ),
 						'description' => __( 'Label above the ticket selector.', 're-events' ),
 					],
+					'time_label'        => [
+						'type'        => 'text',
+						'label'       => __( 'Time label', 're-events' ),
+						'default'     => __( 'Time', 're-events' ),
+						'placeholder' => __( 'Time', 're-events' ),
+						'description' => __( 'Label above the timeslot selector.', 're-events' ),
+					],
 					'quantity_label'    => [
 						'type'        => 'text',
 						'label'       => __( 'Seats label', 're-events' ),

@@ -4,7 +4,7 @@
  *
  * @package ReEvents
  *
- * @var array{event_id:int,tickets:array<int, array<string, mixed>>,state:array{status:string,reference:string,message:string},action:string,endpoint:string,args:array<string,mixed>} $args
+ * @var array{event_id:int,tickets:array<int, array<string, mixed>>,occurrences:array<int, array{id:int,label:string}>,state:array{status:string,reference:string,message:string},action:string,endpoint:string,args:array<string,mixed>} $args
  */
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are scoped to the template include.
@@ -39,6 +39,19 @@ if ( '' !== (string) $args['nonce'] ) {
 wp_nonce_field( 'reevents_book', 'reevents_book_nonce' );
 
 echo '<p class="reevents-honeypot" hidden aria-hidden="true"><label>' . esc_html__( 'Website', 're-events' ) . '<input type="text" name="website" value="" tabindex="-1" autocomplete="off" /></label></p>';
+
+if ( ! empty( $args['occurrences'] ) ) {
+	echo '<p class="reevents-booking-field">';
+	echo '<label for="reevents-booking-occurrence">' . esc_html( (string) ( $widget_args['time_label'] ?? __( 'Time', 're-events' ) ) ) . '</label>';
+	echo '<select id="reevents-booking-occurrence" name="occurrence_id" required>';
+
+	foreach ( $args['occurrences'] as $occurrence ) {
+		echo '<option value="' . esc_attr( (string) $occurrence['id'] ) . '">' . esc_html( $occurrence['label'] ) . '</option>';
+	}
+
+	echo '</select>';
+	echo '</p>';
+}
 
 echo '<p class="reevents-booking-field">';
 echo '<label for="reevents-booking-ticket">' . esc_html( (string) ( $widget_args['ticket_label'] ?? __( 'Ticket', 're-events' ) ) ) . '</label>';

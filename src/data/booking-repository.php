@@ -193,6 +193,23 @@ final class Booking_Repository {
 	}
 
 	/**
+	 * Occurrence IDs referenced by bookings for an event.
+	 *
+	 * @param int $event_id Event ID.
+	 * @return int[]
+	 */
+	public function occurrence_ids_for_event( int $event_id ): array {
+		global $wpdb;
+
+		$table = $this->table();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT occurrence_id FROM {$table} WHERE event_id = %d AND occurrence_id > 0", $event_id ) );
+
+		return is_array( $ids ) ? array_map( 'intval', $ids ) : [];
+	}
+
+	/**
 	 * Count bookings for a ticket.
 	 *
 	 * @param int $ticket_id Ticket ID.

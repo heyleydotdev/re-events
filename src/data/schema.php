@@ -17,7 +17,7 @@ final class Schema {
 	/**
 	 * Schema version.
 	 */
-	public const VERSION = 4;
+	public const VERSION = 5;
 
 	/**
 	 * Schema version option.
@@ -102,8 +102,10 @@ final class Schema {
 			timezone varchar(64) NOT NULL DEFAULT 'UTC',
 			timeslot_key varchar(64) NOT NULL DEFAULT '',
 			capacity int(11) unsigned NOT NULL DEFAULT 0,
+			sold int(11) unsigned NOT NULL DEFAULT 0,
 			status varchar(20) NOT NULL DEFAULT 'scheduled',
 			PRIMARY KEY  (id),
+			UNIQUE KEY event_start_slot (event_id,start_utc,timeslot_key),
 			KEY event_start (event_id,start_utc),
 			KEY start_end (start_utc,end_utc)
 		) {$charset};";

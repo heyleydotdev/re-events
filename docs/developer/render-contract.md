@@ -119,6 +119,7 @@ Do not rely on inline styles. The plugin does not output them.
 | `wrapper_class`     | empty                | Extra wrapper class                  |
 | `event`             | `0`                  | Event ID. `0` uses the current event |
 | `ticket_label`      | `Ticket`             | Ticket label                         |
+| `time_label`        | `Time`               | Timeslot label                       |
 | `quantity_label`    | `Seats`              | Seat count label                     |
 | `name_label`        | `Name`               | Name label                           |
 | `name_placeholder`  | empty                | Name placeholder                     |

@@ -71,6 +71,7 @@
 
 			const payload = {
 				ticket_id: Number(data.get('ticket_id')),
+				occurrence_id: Number(data.get('occurrence_id') || 0),
 				quantity: Number(data.get('quantity')),
 				booking_token: bookingToken,
 				attendees: [

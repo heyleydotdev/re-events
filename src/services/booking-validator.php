@@ -12,6 +12,7 @@ namespace ReEvents\Services;
 use Rakit\Validation\Validator;
 use ReEvents\Admin\Settings;
 use ReEvents\Data\Event_Repository;
+use ReEvents\Data\Occurrence_Repository;
 use ReEvents\Data\Ticket_Repository;
 
 /**
@@ -103,7 +104,23 @@ final class Booking_Validator {
 		}
 
 		if ( $occurrence_id > 0 ) {
-			self::add_error( $errors, $code, $message, 'occurrence_id', __( 'The selected time is not available.', 're-events' ), 'reevents_booking_invalid_occurrence' );
+			$occurrence = ( new Occurrence_Repository() )->find( $occurrence_id );
+
+			if (
+				! $occurrence ||
+				(int) $occurrence['event_id'] !== $event_id ||
+				'scheduled' !== (string) $occurrence['status'] ||
+				(string) $occurrence['start_utc'] < current_time( 'mysql', true )
+			) {
+				self::add_error( $errors, $code, $message, 'occurrence_id', __( 'The selected time is not available.', 're-events' ), 'reevents_booking_invalid_occurrence' );
+			} elseif (
+				(int) $occurrence['capacity'] > 0 &&
+				(int) $occurrence['sold'] + $quantity > (int) $occurrence['capacity']
+			) {
+				self::add_error( $errors, $code, $message, 'occurrence_id', __( 'Not enough seats are available for this time.', 're-events' ), 'reevents_booking_sold_out' );
+			}
+		} elseif ( $event && $event->timeslots ) {
+			self::add_error( $errors, $code, $message, 'occurrence_id', __( 'Choose a time.', 're-events' ), 'reevents_booking_invalid_occurrence' );
 		}
 
 		$ticket = ( new Ticket_Repository() )->find( $ticket_id );

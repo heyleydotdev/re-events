@@ -24,19 +24,32 @@ final class Occurrence_Repository {
 	}
 
 	/**
-	 * Delete occurrences for an event.
+	 * Delete unreferenced occurrences for an event.
+	 *
+	 * Occurrences with bookings are kept so booking history stays valid.
 	 *
 	 * @param int $event_id Event ID.
 	 */
 	public function delete_for_event( int $event_id ): void {
 		global $wpdb;
 
+		$table      = $this->table();
+		$referenced = ( new Booking_Repository() )->occurrence_ids_for_event( $event_id );
+
+		if ( $referenced ) {
+			$placeholders = implode( ',', array_fill( 0, count( $referenced ), '%d' ) );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Internal table name and generated placeholders.
+			$wpdb->query( $wpdb->prepare( "DELETE FROM {$table} WHERE event_id = %d AND id NOT IN ({$placeholders})", $event_id, ...$referenced ) );
+
+			return;
+		}
+
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
-		$wpdb->delete( $this->table(), [ 'event_id' => $event_id ], [ '%d' ] );
+		$wpdb->delete( $table, [ 'event_id' => $event_id ], [ '%d' ] );
 	}
 
 	/**
-	 * Replace occurrences for an event.
+	 * Replace occurrences for an event, keeping existing row IDs.
 	 *
 	 * @param int                              $event_id    Event ID.
 	 * @param array<int, array<string, mixed>> $occurrences Occurrence rows.
@@ -49,49 +62,124 @@ final class Occurrence_Repository {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
 		$wpdb->query( 'START TRANSACTION' );
 
-		$this->delete_for_event( $event_id );
+		$existing = [];
+		$seen     = [];
 
-		if ( $occurrences ) {
-			foreach ( array_chunk( $occurrences, 200 ) as $chunk ) {
-				$values       = [];
-				$placeholders = [];
+		foreach ( $this->get_for_event( $event_id, 1000 ) as $row ) {
+			$existing[ (string) $row['start_utc'] . '|' . (string) $row['timeslot_key'] ] = (int) $row['id'];
+		}
 
-				foreach ( $chunk as $occurrence ) {
-					$placeholders[] = '(%d,%s,%s,%s,%s,%d,%s)';
-					array_push(
-						$values,
-						$event_id,
-						(string) ( $occurrence['start_utc'] ?? '' ),
-						(string) ( $occurrence['end_utc'] ?? '' ),
-						(string) ( $occurrence['timezone'] ?? 'UTC' ),
-						(string) ( $occurrence['timeslot_key'] ?? '' ),
-						(int) ( $occurrence['capacity'] ?? 0 ),
-						(string) ( $occurrence['status'] ?? 'scheduled' )
-					);
-				}
+		foreach ( $occurrences as $occurrence ) {
+			$start_utc    = (string) ( $occurrence['start_utc'] ?? '' );
+			$timeslot     = (string) ( $occurrence['timeslot_key'] ?? '' );
+			$key          = $start_utc . '|' . $timeslot;
+			$seen[ $key ] = true;
+			$data         = [
+				'end_utc'  => (string) ( $occurrence['end_utc'] ?? '' ),
+				'timezone' => (string) ( $occurrence['timezone'] ?? 'UTC' ),
+				'capacity' => (int) ( $occurrence['capacity'] ?? 0 ),
+				'status'   => (string) ( $occurrence['status'] ?? 'scheduled' ),
+			];
 
-				// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Internal table name and generated placeholders.
-				$result = $wpdb->query(
-					$wpdb->prepare(
-						"INSERT INTO {$table} (event_id,start_utc,end_utc,timezone,timeslot_key,capacity,status) VALUES " . implode( ',', $placeholders ),
-						...$values
-					)
+			if ( isset( $existing[ $key ] ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
+				$result = $wpdb->update( $table, $data, [ 'id' => $existing[ $key ] ] );
+			} else {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
+				$result = $wpdb->insert(
+					$table,
+					$data + [
+						'event_id'     => $event_id,
+						'start_utc'    => $start_utc,
+						'timeslot_key' => $timeslot,
+					]
 				);
-				// phpcs:enable
+			}
 
-				if ( false === $result ) {
-					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
-					$wpdb->query( 'ROLLBACK' );
-					return false;
-				}
+			if ( false === $result ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
+				$wpdb->query( 'ROLLBACK' );
+				return false;
+			}
+		}
+
+		$referenced = ( new Booking_Repository() )->occurrence_ids_for_event( $event_id );
+
+		foreach ( $existing as $key => $id ) {
+			if ( ! isset( $seen[ $key ] ) && ! in_array( $id, $referenced, true ) ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
+				$wpdb->delete( $table, [ 'id' => $id ], [ '%d' ] );
 			}
 		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Event occurrence storage.
 		$wpdb->query( 'COMMIT' );
 
-		// shortcut: row IDs change on every sync; switch to upsert before bookings reference occurrence_id.
 		return true;
+	}
+
+	/**
+	 * Find one occurrence.
+	 *
+	 * @param int $id Occurrence ID.
+	 * @return array<string, mixed>|null
+	 */
+	public function find( int $id ): ?array {
+		global $wpdb;
+
+		$table = $this->table();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $id ), ARRAY_A );
+
+		return is_array( $row ) ? $row : null;
+	}
+
+	/**
+	 * Reserve seats for an occurrence.
+	 *
+	 * @param int $id       Occurrence ID.
+	 * @param int $quantity Seats.
+	 */
+	public function reserve( int $id, int $quantity ): bool {
+		global $wpdb;
+
+		$table = $this->table();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+		$result = $wpdb->query(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+				"UPDATE {$table} SET sold = sold + %d WHERE id = %d AND status = 'scheduled' AND ( capacity = 0 OR sold + %d <= capacity )",
+				max( 1, $quantity ),
+				$id,
+				max( 1, $quantity )
+			)
+		);
+
+		return 1 === (int) $result;
+	}
+
+	/**
+	 * Release seats for an occurrence.
+	 *
+	 * @param int $id       Occurrence ID.
+	 * @param int $quantity Seats.
+	 */
+	public function release( int $id, int $quantity ): void {
+		global $wpdb;
+
+		$table = $this->table();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+		$wpdb->query(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+				"UPDATE {$table} SET sold = GREATEST( 0, sold - %d ) WHERE id = %d",
+				max( 1, $quantity ),
+				$id
+			)
+		);
 	}
 
 	/**

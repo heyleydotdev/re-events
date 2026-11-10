@@ -11,6 +11,7 @@ namespace ReEvents\Services;
 
 use ReEvents\Admin\Settings;
 use ReEvents\Data\Booking_Repository;
+use ReEvents\Data\Occurrence_Repository;
 use ReEvents\Data\Ticket_Repository;
 use WP_Error;
 
@@ -115,6 +116,12 @@ final class Booking_Service {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
 			$wpdb->query( 'ROLLBACK' );
 			return new WP_Error( 'reevents_booking_sold_out', __( 'Not enough seats are available.', 're-events' ), [ 'status' => 409 ] );
+		}
+
+		if ( $occurrence_id > 0 && ! ( new Occurrence_Repository() )->reserve( $occurrence_id, $quantity ) ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
+			$wpdb->query( 'ROLLBACK' );
+			return new WP_Error( 'reevents_booking_sold_out', __( 'Not enough seats are available for this time.', 're-events' ), [ 'status' => 409 ] );
 		}
 
 		$total  = (int) $ticket['price_minor'] * $quantity;
@@ -232,6 +239,10 @@ final class Booking_Service {
 
 			$tickets->release( (int) $booking['ticket_id'], (int) $booking['quantity'] );
 
+			if ( (int) $booking['occurrence_id'] > 0 ) {
+				( new Occurrence_Repository() )->release( (int) $booking['occurrence_id'], (int) $booking['quantity'] );
+			}
+
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
 			$wpdb->query( 'COMMIT' );
 
@@ -247,8 +258,22 @@ final class Booking_Service {
 				return new WP_Error( 'reevents_booking_sold_out', __( 'Not enough seats are available.', 're-events' ), [ 'status' => 409 ] );
 			}
 
+			$occurrences = new Occurrence_Repository();
+
+			if ( (int) $booking['occurrence_id'] > 0 && ! $occurrences->reserve( (int) $booking['occurrence_id'], (int) $booking['quantity'] ) ) {
+				$tickets->release( (int) $booking['ticket_id'], (int) $booking['quantity'] );
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
+				$wpdb->query( 'ROLLBACK' );
+				return new WP_Error( 'reevents_booking_sold_out', __( 'Not enough seats are available for this time.', 're-events' ), [ 'status' => 409 ] );
+			}
+
 			if ( ! $repo->update_status( $id, $status ) ) {
 				$tickets->release( (int) $booking['ticket_id'], (int) $booking['quantity'] );
+
+				if ( (int) $booking['occurrence_id'] > 0 ) {
+					$occurrences->release( (int) $booking['occurrence_id'], (int) $booking['quantity'] );
+				}
+
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking transaction.
 				$wpdb->query( 'ROLLBACK' );
 				return new WP_Error( 'reevents_booking_update_failed', __( 'The booking could not be updated.', 're-events' ), [ 'status' => 500 ] );

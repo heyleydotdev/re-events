@@ -10,9 +10,12 @@ declare( strict_types=1 );
 namespace ReEvents\Tests\Integration;
 
 use ReEvents\CLI\Test_Factory;
+use ReEvents\Data\Booking_Repository;
 use ReEvents\Data\Event_Repository;
+use ReEvents\Data\Occurrence_Repository;
 use ReEvents\Data\Ticket_Repository;
 use ReEvents\Services\Booking_Service;
+use ReEvents\Services\Occurrence_Service;
 use WP_UnitTestCase;
 
 /**
@@ -109,7 +112,7 @@ final class Booking_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Per-slot booking is rejected until it is implemented.
+	 * An unknown occurrence ID is rejected.
 	 */
 	public function test_occurrence_id_is_rejected(): void {
 		$event  = Test_Factory::event( [ 'title' => 'Occurrence test' ] );
@@ -126,6 +129,61 @@ final class Booking_Test extends WP_UnitTestCase {
 
 		self::assertWPError( $result );
 		self::assertSame( 'reevents_booking_invalid_occurrence', $result->get_error_code() );
+	}
+
+	/**
+	 * A per-slot booking reserves the occurrence capacity.
+	 */
+	public function test_per_slot_booking(): void {
+		$event  = Test_Factory::event(
+			[
+				'title' => 'Slot booking',
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days +2 hours' ) ),
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_status'    => 'scheduled',
+					'_reevents_timeslots' => [
+						[
+							'start'    => '10:00',
+							'end'      => '11:00',
+							'capacity' => 2,
+						],
+					],
+				],
+			]
+		);
+		$ticket = Test_Factory::ticket( $event );
+
+		Occurrence_Service::sync( $event );
+
+		$occurrences = ( new Occurrence_Repository() )->get_for_event( $event, 10 );
+		$occurrence  = (int) $occurrences[0]['id'];
+
+		$booking = Booking_Service::create(
+			[
+				'event_id'      => $event,
+				'ticket_id'     => $ticket,
+				'occurrence_id' => $occurrence,
+				'quantity'      => 2,
+			]
+		);
+
+		self::assertIsInt( $booking );
+		self::assertSame( $occurrence, (int) ( new Booking_Repository() )->find( $booking )['occurrence_id'] );
+		self::assertSame( 2, (int) ( new Occurrence_Repository() )->find( $occurrence )['sold'] );
+
+		$sold_out = Booking_Service::create(
+			[
+				'event_id'      => $event,
+				'ticket_id'     => $ticket,
+				'occurrence_id' => $occurrence,
+				'quantity'      => 1,
+			]
+		);
+
+		self::assertWPError( $sold_out );
+		self::assertSame( 'reevents_booking_sold_out', $sold_out->get_error_code() );
 	}
 
 	/**

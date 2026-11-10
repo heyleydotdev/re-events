@@ -139,6 +139,7 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `class` | — | Extra class on the form element. |
 | `wrapper_class` | — | Extra class on the wrapper element. |
 | `ticket_label` | Ticket | Label above the ticket selector. |
+| `time_label` | Time | Label above the timeslot selector. |
 | `quantity_label` | Seats | Label above the seat count. |
 | `name_label` | Name | Label above the attendee name. |
 | `name_placeholder` | — | Placeholder inside the name field. Leave empty for none. |
@@ -151,7 +152,7 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `event` | 0 | Leave 0 to use the current event. |
 
 ```text
-[reevents_booking ticket_label="Ticket" quantity_label="Seats" name_label="Name" email_label="Email" button_label="Book" success_message="Booking confirmed." free_label="Free" reference_label="Reference:"]
+[reevents_booking ticket_label="Ticket" time_label="Time" quantity_label="Seats" name_label="Name" email_label="Email" button_label="Book" success_message="Booking confirmed." free_label="Free" reference_label="Reference:"]
 ```
 
 ## Event Submission

@@ -9,7 +9,11 @@ declare( strict_types=1 );
 
 namespace ReEvents\Render;
 
+use DateTimeImmutable;
+use DateTimeZone;
 use ReEvents\Admin\Settings;
+use ReEvents\Data\Event_Repository;
+use ReEvents\Data\Occurrence_Repository;
 use ReEvents\Data\Ticket_Repository;
 
 /**
@@ -43,6 +47,13 @@ final class Booking_Form {
 			return '<p class="reevents-empty">' . esc_html__( 'No tickets are available.', 're-events' ) . '</p>';
 		}
 
+		$event       = ( new Event_Repository() )->find( $event_id );
+		$occurrences = $event && $event->timeslots ? self::occurrences( $event_id, $event->timezone ) : [];
+
+		if ( $event && $event->timeslots && ! $occurrences ) {
+			return '<p class="reevents-empty">' . esc_html__( 'No times are available.', 're-events' ) . '</p>';
+		}
+
 		wp_enqueue_script(
 			'reevents-booking',
 			plugins_url( 'assets/js/frontend-booking.js', RE_EVENTS_FILE ),
@@ -54,17 +65,72 @@ final class Booking_Form {
 		return Template::render(
 			'booking-form',
 			[
-				'event_id' => $event_id,
-				'tickets'  => $tickets,
-				'fields'   => Settings::attendee_fields(),
-				'state'    => self::state(),
-				'action'   => admin_url( 'admin-post.php' ),
-				'endpoint' => rest_url( 're-events/v1/events/' . $event_id . '/bookings' ),
-				'token'    => wp_generate_password( 32, false, false ),
-				'nonce'    => is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '',
-				'args'     => $args,
+				'event_id'    => $event_id,
+				'tickets'     => $tickets,
+				'occurrences' => $occurrences,
+				'fields'      => Settings::attendee_fields(),
+				'state'       => self::state(),
+				'action'      => admin_url( 'admin-post.php' ),
+				'endpoint'    => rest_url( 're-events/v1/events/' . $event_id . '/bookings' ),
+				'token'       => wp_generate_password( 32, false, false ),
+				'nonce'       => is_user_logged_in() ? wp_create_nonce( 'wp_rest' ) : '',
+				'args'        => $args,
 			]
 		);
+	}
+
+	/**
+	 * Upcoming bookable occurrences.
+	 *
+	 * @param int    $event_id Event ID.
+	 * @param string $timezone Event timezone.
+	 * @return array<int, array{id:int,label:string}>
+	 */
+	private static function occurrences( int $event_id, string $timezone ): array {
+		$now   = current_time( 'mysql', true );
+		$items = [];
+
+		foreach ( ( new Occurrence_Repository() )->get_for_event( $event_id, 200 ) as $row ) {
+			if ( 'scheduled' !== (string) $row['status'] || (string) $row['start_utc'] < $now ) {
+				continue;
+			}
+
+			$remaining = (int) $row['capacity'] > 0 ? max( 0, (int) $row['capacity'] - (int) $row['sold'] ) : null;
+			$label     = self::occurrence_label( (string) $row['start_utc'], $timezone );
+
+			if ( null !== $remaining ) {
+				$label .= ' (' . sprintf( /* translators: %d: remaining seats. */ __( '%d left', 're-events' ), $remaining ) . ')';
+			}
+
+			$items[] = [
+				'id'    => (int) $row['id'],
+				'label' => $label,
+			];
+		}
+
+		return $items;
+	}
+
+	/**
+	 * Format an occurrence start.
+	 *
+	 * @param string $utc      UTC datetime.
+	 * @param string $timezone Event timezone.
+	 */
+	private static function occurrence_label( string $utc, string $timezone ): string {
+		$date = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', $utc, new DateTimeZone( 'UTC' ) );
+
+		if ( ! $date instanceof DateTimeImmutable ) {
+			return $utc;
+		}
+
+		try {
+			$zone = new DateTimeZone( $timezone );
+		} catch ( \Exception ) {
+			$zone = new DateTimeZone( 'UTC' );
+		}
+
+		return $date->setTimezone( $zone )->format( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) );
 	}
 
 	/**

@@ -107,10 +107,11 @@ final class Booking_Handler {
 
 		$result = Booking_Service::create(
 			[
-				'event_id'  => $event_id,
-				'ticket_id' => isset( $_POST['ticket_id'] ) ? absint( wp_unslash( $_POST['ticket_id'] ) ) : 0,
-				'quantity'  => isset( $_POST['quantity'] ) ? absint( wp_unslash( $_POST['quantity'] ) ) : 1,
-				'attendees' => [
+				'event_id'      => $event_id,
+				'ticket_id'     => isset( $_POST['ticket_id'] ) ? absint( wp_unslash( $_POST['ticket_id'] ) ) : 0,
+				'occurrence_id' => isset( $_POST['occurrence_id'] ) ? absint( wp_unslash( $_POST['occurrence_id'] ) ) : 0,
+				'quantity'      => isset( $_POST['quantity'] ) ? absint( wp_unslash( $_POST['quantity'] ) ) : 1,
+				'attendees'     => [
 					[
 						'name'   => $name,
 						'email'  => $email,

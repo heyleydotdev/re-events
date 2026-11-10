@@ -152,7 +152,7 @@ final class Booking_Validator_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Occurrence bookings are rejected.
+	 * An unknown occurrence is rejected.
 	 */
 	public function test_occurrence_domain_error(): void {
 		$event  = Test_Factory::event( [ 'title' => 'Occurrence event' ] );
