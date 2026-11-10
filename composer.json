@@ -38,6 +38,7 @@
 		"test": "phpunit --configuration phpunit.xml.dist",
 		"test:integration": "phpunit --configuration phpunit-integration.xml.dist",
 		"test:coverage": "phpunit --configuration phpunit.xml.dist --coverage-text --coverage-clover coverage/unit.xml",
+		"release": "bash bin/build-release.sh",
 		"hooks": "git config core.hooksPath .githooks"
 	}
 }
