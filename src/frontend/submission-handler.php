@@ -64,12 +64,8 @@ final class Submission_Handler {
 		$user_id  = get_current_user_id();
 		$event_id = isset( $_POST['event_id'] ) ? absint( wp_unslash( $_POST['event_id'] ) ) : 0;
 
-		if ( $event_id > 0 ) {
-			$author = (int) get_post_field( 'post_author', $event_id );
-
-			if ( 0 === $user_id || 'reevents_event' !== get_post_type( $event_id ) || ( $author !== $user_id && ! current_user_can( 'edit_post', $event_id ) ) ) {
-				self::redirect( $redirect, 'forbidden' );
-			}
+		if ( $event_id > 0 && ! self::can_edit( $event_id, $user_id ) ) {
+			self::redirect( $redirect, 'forbidden' );
 		}
 
 		$name  = isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( $_POST['name'] ) ) : '';
@@ -111,7 +107,8 @@ final class Submission_Handler {
 			$existing ? $existing->status : 'scheduled'
 		);
 
-		$result = Event_Service::save( $event, 0 === $event_id ? 'pending' : '' );
+		$is_new = 0 === $event_id;
+		$result = Event_Service::save( $event, $is_new ? 'pending' : '' );
 
 		if ( is_wp_error( $result ) ) {
 			self::redirect( $redirect, $result->get_error_code() );
@@ -136,7 +133,64 @@ final class Submission_Handler {
 			update_post_meta( (int) $result, '_reevents_submitter_email', $email );
 		}
 
+		if ( $is_new ) {
+			self::notify_admin( (int) $result, $name, $email );
+		}
+
 		self::redirect( $redirect, 'submitted' );
+	}
+
+	/**
+	 * Notify the admin about a new submission.
+	 *
+	 * @param int    $event_id Event ID.
+	 * @param string $name     Guest name.
+	 * @param string $email    Guest email.
+	 */
+	private static function notify_admin( int $event_id, string $name, string $email ): void {
+		$user = wp_get_current_user();
+
+		if ( '' === $name ) {
+			$name = (string) $user->display_name;
+		}
+
+		if ( '' === $email ) {
+			$email = (string) $user->user_email;
+		}
+
+		$subject = sprintf(
+			/* translators: %s: event title. */
+			__( 'New event submission: %s', 're-events' ),
+			(string) get_the_title( $event_id )
+		);
+		$body = sprintf(
+			/* translators: 1: event title, 2: submitter name, 3: submitter email, 4: review URL. */
+			__( "A new event is awaiting review.\n\nEvent: %1\$s\nSubmitter: %2\$s <%3\$s>\nReview: %4\$s", 're-events' ),
+			(string) get_the_title( $event_id ),
+			$name,
+			$email,
+			admin_url( 'post.php?post=' . $event_id . '&action=edit' )
+		);
+
+		wp_mail( (string) get_option( 'admin_email' ), $subject, $body );
+	}
+
+	/**
+	 * Whether a user may edit an event.
+	 *
+	 * @param int $event_id Event ID.
+	 * @param int $user_id  User ID.
+	 */
+	public static function can_edit( int $event_id, int $user_id ): bool {
+		if ( $event_id <= 0 || $user_id <= 0 ) {
+			return false;
+		}
+
+		if ( 'reevents_event' !== get_post_type( $event_id ) ) {
+			return false;
+		}
+
+		return (int) get_post_field( 'post_author', $event_id ) === $user_id || user_can( $user_id, 'edit_post', $event_id );
 	}
 
 	/**

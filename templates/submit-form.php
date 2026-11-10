@@ -67,12 +67,12 @@ echo '</p>';
 if ( ! is_user_logged_in() ) {
 	echo '<p class="reevents-submit-field">';
 	echo '<label for="reevents-submit-name">' . esc_html( (string) ( $widget_args['name_label'] ?? __( 'Your name', 're-events' ) ) ) . '</label>';
-	echo '<input type="text" id="reevents-submit-name" name="name" value="' . esc_attr( $args['name'] ) . '" required />';
+	echo '<input type="text" id="reevents-submit-name" name="name" value="' . esc_attr( $args['name'] ) . '" autocomplete="name" required />';
 	echo '</p>';
 
 	echo '<p class="reevents-submit-field">';
 	echo '<label for="reevents-submit-email">' . esc_html( (string) ( $widget_args['email_label'] ?? __( 'Your email', 're-events' ) ) ) . '</label>';
-	echo '<input type="email" id="reevents-submit-email" name="email" value="' . esc_attr( $args['email'] ) . '" required />';
+	echo '<input type="email" id="reevents-submit-email" name="email" value="' . esc_attr( $args['email'] ) . '" autocomplete="email" required />';
 	echo '</p>';
 }
 

@@ -11,6 +11,7 @@ namespace ReEvents\Tests\Integration;
 
 use ReEvents\Data\Occurrence_Repository;
 use ReEvents\Domain\Event;
+use ReEvents\Frontend\Submission_Handler;
 use ReEvents\Services\Event_Service;
 use WP_UnitTestCase;
 
@@ -64,5 +65,25 @@ final class Submission_Test extends WP_UnitTestCase {
 		);
 
 		self::assertGreaterThan( 0, ( new Occurrence_Repository() )->count_for_event( $id ) );
+	}
+
+	/**
+	 * Only the owner or an editor can edit the event.
+	 */
+	public function test_edit_ownership(): void {
+		$owner = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+		$other = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+		$event = wp_insert_post(
+			[
+				'post_type'   => 'reevents_event',
+				'post_status' => 'pending',
+				'post_title'  => 'Owned event',
+				'post_author' => $owner,
+			]
+		);
+
+		self::assertTrue( Submission_Handler::can_edit( $event, $owner ) );
+		self::assertFalse( Submission_Handler::can_edit( $event, $other ) );
+		self::assertFalse( Submission_Handler::can_edit( $event, 0 ) );
 	}
 }
