@@ -32,7 +32,10 @@ final class Rate_Limit_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down(): void {
 		foreach ( [ 'limit', 'booking' ] as $bucket ) {
-			delete_transient( 'reevents_rate_' . md5( $bucket . '|203.0.113.10' ) );
+			$key = 'reevents_rate_' . md5( $bucket . '|203.0.113.10' );
+			delete_transient( $key );
+			delete_option( $key );
+			delete_option( $key . '_expires' );
 		}
 
 		unset( $_SERVER['REMOTE_ADDR'] );
@@ -47,6 +50,23 @@ final class Rate_Limit_Test extends WP_UnitTestCase {
 		self::assertFalse( Rate_Limit::hit( 'limit', 2 ) );
 		self::assertFalse( Rate_Limit::hit( 'limit', 2 ) );
 		self::assertTrue( Rate_Limit::hit( 'limit', 2 ) );
+	}
+
+	/**
+	 * An expired window starts a fresh count.
+	 */
+	public function test_expired_window_resets(): void {
+		$key = 'reevents_rate_' . md5( 'limit|203.0.113.10' );
+
+		update_option( $key, 5, false );
+		update_option( $key . '_expires', time() - 1, false );
+
+		self::assertFalse( Rate_Limit::hit( 'limit', 2 ) );
+
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Test counter value.
+		self::assertSame( '1', $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $key ) ) );
 	}
 
 	/**
