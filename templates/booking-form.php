@@ -32,7 +32,7 @@ echo '<input type="hidden" name="action" value="reevents_book" />';
 echo '<input type="hidden" name="event_id" value="' . esc_attr( (string) $args['event_id'] ) . '" />';
 wp_nonce_field( 'reevents_book', 'reevents_book_nonce' );
 
-echo '<p class="reevents-honeypot"><label>' . esc_html__( 'Website', 're-events' ) . '<input type="text" name="website" value="" tabindex="-1" autocomplete="off" /></label></p>';
+echo '<p class="reevents-honeypot" hidden aria-hidden="true"><label>' . esc_html__( 'Website', 're-events' ) . '<input type="text" name="website" value="" tabindex="-1" autocomplete="off" /></label></p>';
 
 echo '<p class="reevents-booking-field">';
 echo '<label for="reevents-booking-ticket">' . esc_html( (string) ( $widget_args['ticket_label'] ?? __( 'Ticket', 're-events' ) ) ) . '</label>';
@@ -45,7 +45,7 @@ foreach ( $args['tickets'] as $ticket ) {
 	if ( $price > 0 ) {
 		$label .= ' — ' . number_format_i18n( $price / 100, 2 ) . ' ' . (string) $ticket['currency'];
 	} else {
-		$label .= ' — ' . __( 'Free', 're-events' );
+		$label .= ' — ' . (string) ( $widget_args['free_label'] ?? __( 'Free', 're-events' ) );
 	}
 
 	echo '<option value="' . esc_attr( (string) $ticket['id'] ) . '" data-min="' . esc_attr( (string) $ticket['min_per_booking'] ) . '" data-max="' . esc_attr( (string) $ticket['max_per_booking'] ) . '">' . esc_html( $label ) . '</option>';

@@ -10,7 +10,7 @@
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are scoped to the template include.
 
 if ( empty( $args['events'] ) ) {
-	echo '<p class="reevents-empty">' . esc_html__( 'No events found.', 're-events' ) . '</p>';
+	echo '<p class="reevents-empty">' . esc_html( (string) ( $args['args']['empty_label'] ?? __( 'No events found.', 're-events' ) ) ) . '</p>';
 	return;
 }
 
@@ -29,7 +29,7 @@ foreach ( $args['events'] as $event ) {
 	}
 
 	if ( \ReEvents\Render\Event_Format::is_ongoing( $event ) ) {
-		echo '<span class="reevents-event-ongoing">' . esc_html__( 'Ongoing', 're-events' ) . '</span>';
+		echo '<span class="reevents-event-ongoing">' . esc_html( (string) ( $args['args']['ongoing_label'] ?? __( 'Ongoing', 're-events' ) ) ) . '</span>';
 	}
 
 	if ( ! empty( $args['args']['show_venue'] ) && $venue ) {

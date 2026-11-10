@@ -10,7 +10,7 @@
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are scoped to the template include.
 
 if ( empty( $args['markers'] ) ) {
-	echo '<p class="reevents-empty">' . esc_html__( 'No mapped venues.', 're-events' ) . '</p>';
+	echo '<p class="reevents-empty">' . esc_html( (string) ( $args['args']['empty_label'] ?? __( 'No mapped venues.', 're-events' ) ) ) . '</p>';
 	return;
 }
 

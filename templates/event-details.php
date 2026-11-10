@@ -18,9 +18,9 @@ echo '<div class="reevents-event-details ' . esc_attr( (string) ( $args['args'][
 echo '<h2 class="reevents-event-title">' . esc_html( $event->title ) . '</h2>';
 
 if ( 'cancelled' === $event->status ) {
-	echo '<p class="reevents-event-status">' . esc_html__( 'Cancelled', 're-events' ) . '</p>';
+	echo '<p class="reevents-event-status">' . esc_html( (string) ( $args['args']['cancelled_label'] ?? __( 'Cancelled', 're-events' ) ) ) . '</p>';
 } elseif ( \ReEvents\Render\Event_Format::is_ongoing( $event ) ) {
-	echo '<p class="reevents-event-status">' . esc_html__( 'Ongoing', 're-events' ) . '</p>';
+	echo '<p class="reevents-event-status">' . esc_html( (string) ( $args['args']['ongoing_label'] ?? __( 'Ongoing', 're-events' ) ) ) . '</p>';
 }
 
 if ( '' !== $start ) {
@@ -34,7 +34,7 @@ if ( '' !== $start ) {
 }
 
 if ( ! empty( $args['args']['show_venue'] ) && '' !== $args['venue'] ) {
-	echo '<p class="reevents-event-venue">' . esc_html__( 'Venue:', 're-events' ) . ' ' . esc_html( $args['venue'] ) . '</p>';
+	echo '<p class="reevents-event-venue">' . esc_html( (string) ( $args['args']['venue_label'] ?? __( 'Venue:', 're-events' ) ) ) . ' ' . esc_html( $args['venue'] ) . '</p>';
 }
 
 if ( ! empty( $args['args']['show_organizers'] ) && ! empty( $args['organizers'] ) ) {
@@ -44,7 +44,7 @@ if ( ! empty( $args['args']['show_organizers'] ) && ! empty( $args['organizers']
 		$organizers[] = esc_html( $organizer['name'] ) . ( '' !== $organizer['type'] ? ' (' . esc_html( $organizer['type'] ) . ')' : '' );
 	}
 
-	echo '<p class="reevents-event-organizers">' . esc_html__( 'Organizers:', 're-events' ) . ' ' . implode( ', ', $organizers ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
+	echo '<p class="reevents-event-organizers">' . esc_html( (string) ( $args['args']['organizers_label'] ?? __( 'Organizers:', 're-events' ) ) ) . ' ' . implode( ', ', $organizers ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
 }
 
 if ( ! empty( $args['args']['show_online_links'] ) && ! empty( $event->online_urls ) ) {

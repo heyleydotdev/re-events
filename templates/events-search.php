@@ -36,7 +36,7 @@ if ( ! empty( $widget_args['show_category'] ) && ! empty( $categories ) ) {
 	echo '<p class="reevents-search-field">';
 	echo '<label for="reevents-search-category">' . esc_html( (string) ( $widget_args['category_label'] ?? __( 'Category', 're-events' ) ) ) . '</label>';
 	echo '<select id="reevents-search-category" name="reevents_category">';
-	echo '<option value="0">' . esc_html__( 'All categories', 're-events' ) . '</option>';
+	echo '<option value="0">' . esc_html( (string) ( $widget_args['all_categories_label'] ?? __( 'All categories', 're-events' ) ) ) . '</option>';
 
 	foreach ( $categories as $category ) {
 		echo '<option value="' . esc_attr( (string) $category['id'] ) . '" ' . selected( $filters['category'], $category['id'], false ) . '>' . esc_html( $category['name'] ) . '</option>';
@@ -50,7 +50,7 @@ if ( ! empty( $widget_args['show_venue'] ) && ! empty( $venues ) ) {
 	echo '<p class="reevents-search-field">';
 	echo '<label for="reevents-search-venue">' . esc_html( (string) ( $widget_args['venue_label'] ?? __( 'Venue', 're-events' ) ) ) . '</label>';
 	echo '<select id="reevents-search-venue" name="reevents_venue_filter">';
-	echo '<option value="0">' . esc_html__( 'All venues', 're-events' ) . '</option>';
+	echo '<option value="0">' . esc_html( (string) ( $widget_args['all_venues_label'] ?? __( 'All venues', 're-events' ) ) ) . '</option>';
 
 	foreach ( $venues as $venue ) {
 		echo '<option value="' . esc_attr( (string) $venue['id'] ) . '" ' . selected( $filters['venue'], $venue['id'], false ) . '>' . esc_html( $venue['title'] ) . '</option>';

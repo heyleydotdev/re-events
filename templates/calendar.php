@@ -72,7 +72,7 @@ foreach ( array_chunk( $args['days'], 7 ) as $week ) {
 				echo '<li class="' . esc_attr( $event_classes ) . '">';
 
 				if ( ! empty( $event['ongoing'] ) ) {
-					echo '<span class="reevents-calendar-ongoing">' . esc_html__( 'Ongoing', 're-events' ) . '</span> ';
+					echo '<span class="reevents-calendar-ongoing">' . esc_html( (string) ( $args['args']['ongoing_label'] ?? __( 'Ongoing', 're-events' ) ) ) . '</span> ';
 				} elseif ( '' !== $event['time'] ) {
 					echo '<span class="reevents-calendar-time">' . esc_html( $event['time'] ) . '</span> ';
 				}
