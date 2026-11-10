@@ -44,50 +44,24 @@ final class Booking_Service {
 		$user_id       = (int) ( $args['user_id'] ?? get_current_user_id() );
 		$attendees     = (array) ( $args['attendees'] ?? [] );
 
-		if ( 'reevents_event' !== get_post_type( $event_id ) || 'publish' !== get_post_status( $event_id ) ) {
-			return new WP_Error( 'reevents_booking_invalid_event', __( 'Invalid event.', 're-events' ), [ 'status' => 400 ] );
-		}
+		$domain = Booking_Validator::validate_domain( $event_id, $ticket_id, $quantity, $occurrence_id, $attendees );
 
-		if ( 'cancelled' === (string) get_post_meta( $event_id, '_reevents_status', true ) ) {
-			return new WP_Error( 'reevents_booking_event_cancelled', __( 'This event has been cancelled.', 're-events' ), [ 'status' => 400 ] );
+		if ( $domain['errors'] ) {
+			return new WP_Error(
+				'' !== $domain['code'] ? $domain['code'] : 'reevents_booking_invalid',
+				'' !== $domain['message'] ? $domain['message'] : __( 'The booking could not be created.', 're-events' ),
+				[
+					'status' => 400,
+					'errors' => $domain['errors'],
+				]
+			);
 		}
 
 		$tickets = new Ticket_Repository();
 		$ticket  = $tickets->find( $ticket_id );
 
-		if ( ! $ticket || (int) $ticket['event_id'] !== $event_id ) {
+		if ( ! $ticket ) {
 			return new WP_Error( 'reevents_booking_invalid_ticket', __( 'Invalid ticket.', 're-events' ), [ 'status' => 400 ] );
-		}
-
-		if ( 'active' !== $ticket['status'] ) {
-			return new WP_Error( 'reevents_booking_ticket_inactive', __( 'This ticket is not on sale.', 're-events' ), [ 'status' => 400 ] );
-		}
-
-		// Per-slot booking is not implemented yet; reject it instead of storing an unvalidated ID.
-		if ( $occurrence_id > 0 ) {
-			return new WP_Error( 'reevents_booking_invalid_occurrence', __( 'The selected time is not available.', 're-events' ), [ 'status' => 400 ] );
-		}
-
-		$now = current_time( 'mysql', true );
-
-		if ( '' !== $ticket['sale_start_utc'] && $now < $ticket['sale_start_utc'] ) {
-			return new WP_Error( 'reevents_booking_sale_not_started', __( 'Ticket sales have not started.', 're-events' ), [ 'status' => 400 ] );
-		}
-
-		if ( '' !== $ticket['sale_end_utc'] && $now > $ticket['sale_end_utc'] ) {
-			return new WP_Error( 'reevents_booking_sale_ended', __( 'Ticket sales have ended.', 're-events' ), [ 'status' => 400 ] );
-		}
-
-		if ( $quantity < (int) $ticket['min_per_booking'] ) {
-			return new WP_Error( 'reevents_booking_min_quantity', __( 'Too few seats selected.', 're-events' ), [ 'status' => 400 ] );
-		}
-
-		if ( $attendees && count( $attendees ) > $quantity ) {
-			return new WP_Error( 'reevents_booking_too_many_attendees', __( 'There are more attendees than seats.', 're-events' ), [ 'status' => 400 ] );
-		}
-
-		if ( (int) $ticket['max_per_booking'] > 0 && $quantity > (int) $ticket['max_per_booking'] ) {
-			return new WP_Error( 'reevents_booking_max_quantity', __( 'Too many seats selected.', 're-events' ), [ 'status' => 400 ] );
 		}
 
 		global $wpdb;
