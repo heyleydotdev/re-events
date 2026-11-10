@@ -13,6 +13,7 @@ use ReEvents\Data\Booking_Repository;
 use ReEvents\Data\Ticket_Repository;
 use ReEvents\Services\Booking_Service;
 use ReEvents\Services\Booking_Validator;
+use ReEvents\Services\Payment_Service;
 use ReEvents\Services\Rate_Limit;
 use WP_Error;
 use WP_REST_Controller;
@@ -219,7 +220,16 @@ final class Bookings_Controller extends WP_REST_Controller {
 				$booking = ( new Booking_Repository() )->find( (int) $existing );
 
 				if ( $booking ) {
-					return $this->prepare_item_for_response( $booking, $request );
+					$response = $this->prepare_item_for_response( $booking, $request );
+					$checkout = Payment_Service::checkout( (int) $booking['id'] );
+
+					if ( ! is_wp_error( $checkout ) && '' !== $checkout ) {
+						$data                 = $response->get_data();
+						$data['checkout_url'] = $checkout;
+						$response->set_data( $data );
+					}
+
+					return $response;
 				}
 			}
 		}
@@ -289,6 +299,19 @@ final class Bookings_Controller extends WP_REST_Controller {
 		$response = $this->prepare_item_for_response( $booking, $request );
 		$response->set_status( 201 );
 		$response->header( 'Location', rest_url( $this->namespace . '/' . $this->rest_base . '/' . $booking['id'] ) );
+
+		$checkout = Payment_Service::checkout( (int) $booking['id'] );
+
+		if ( is_wp_error( $checkout ) ) {
+			Booking_Service::cancel( (int) $booking['id'] );
+			return $checkout;
+		}
+
+		if ( '' !== $checkout ) {
+			$data                 = $response->get_data();
+			$data['checkout_url'] = $checkout;
+			$response->set_data( $data );
+		}
 
 		return $response;
 	}

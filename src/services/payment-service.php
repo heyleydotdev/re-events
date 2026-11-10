@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Services;
 
+use ReEvents\Admin\Settings;
 use ReEvents\Data\Booking_Repository;
 use ReEvents\Data\Payment_Repository;
 use ReEvents\Services\Gateways\Gateway_Registry;
@@ -97,6 +98,66 @@ final class Payment_Service {
 			'status'       => $result['status'],
 			'redirect_url' => $result['redirect_url'],
 		];
+	}
+
+	/**
+	 * Start or reuse checkout for a booking.
+	 *
+	 * @param int $booking_id Booking ID.
+	 * @return string|WP_Error Redirect URL, or an empty string when no payment is needed.
+	 */
+	public static function checkout( int $booking_id ) {
+		$gateway_id = (string) Settings::get( 'payment_gateway', 'none' );
+
+		if ( 'none' === $gateway_id ) {
+			return '';
+		}
+
+		$booking = ( new Booking_Repository() )->find( $booking_id );
+
+		if ( ! $booking || (int) $booking['total_minor'] <= 0 ) {
+			return '';
+		}
+
+		if ( 'pending' !== (string) $booking['status'] ) {
+			return '';
+		}
+
+		$repo = new Payment_Repository();
+
+		foreach ( $repo->for_booking( $booking_id ) as $payment ) {
+			$redirect = (string) ( $payment['data']['redirect_url'] ?? '' );
+
+			if ( 'pending' === $payment['status'] && '' !== $redirect ) {
+				return $redirect;
+			}
+		}
+
+		$result = self::start( $booking_id, $gateway_id );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return $result['redirect_url'];
+	}
+
+	/**
+	 * Sync the latest payment of a booking.
+	 *
+	 * @param int $booking_id Booking ID.
+	 * @return bool|WP_Error
+	 */
+	public static function sync_booking( int $booking_id ) {
+		$payments = ( new Payment_Repository() )->for_booking( $booking_id );
+
+		if ( ! $payments ) {
+			return new WP_Error( 'reevents_payment_not_found', __( 'Payment not found.', 're-events' ), [ 'status' => 404 ] );
+		}
+
+		$payment = end( $payments );
+
+		return self::sync( (int) $payment['id'] );
 	}
 
 	/**

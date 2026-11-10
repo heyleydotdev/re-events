@@ -30,6 +30,7 @@ use ReEvents\CLI\Self_Test;
 use ReEvents\Frontend\Assets as Frontend_Assets;
 use ReEvents\Frontend\Blocks;
 use ReEvents\Frontend\Booking_Handler;
+use ReEvents\Frontend\Payment_Return;
 use ReEvents\Frontend\Shortcodes;
 use ReEvents\Render\Widget_Registry;
 use ReEvents\REST\Routes;
@@ -98,6 +99,7 @@ final class Plugin {
 		Payment_Service::register();
 		API_Keys::register();
 		Booking_Handler::register();
+		Payment_Return::register();
 		Frontend_Assets::register();
 		Menu::register();
 

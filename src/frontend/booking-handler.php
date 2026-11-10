@@ -12,6 +12,7 @@ namespace ReEvents\Frontend;
 use ReEvents\Admin\Settings;
 use ReEvents\Data\Booking_Repository;
 use ReEvents\Services\Booking_Service;
+use ReEvents\Services\Payment_Service;
 use ReEvents\Services\Rate_Limit;
 
 /**
@@ -97,6 +98,18 @@ final class Booking_Handler {
 			self::redirect( $redirect, 'error', $result->get_error_code() );
 		}
 
+		$checkout = Payment_Service::checkout( (int) $result );
+
+		if ( is_wp_error( $checkout ) ) {
+			Booking_Service::cancel( (int) $result );
+			self::redirect( $redirect, 'error', $checkout->get_error_code() );
+		}
+
+		if ( '' !== $checkout ) {
+			wp_safe_redirect( $checkout );
+			exit;
+		}
+
 		$booking = ( new Booking_Repository() )->find( (int) $result );
 		self::redirect( $redirect, 'success', (string) ( $booking['reference'] ?? '' ) );
 	}
@@ -108,7 +121,7 @@ final class Booking_Handler {
 	 * @param string $status    success or error.
 	 * @param string $value     Reference or error code.
 	 */
-	private static function redirect( string $url, string $status, string $value ): void {
+	public static function redirect( string $url, string $status, string $value ): void {
 		if ( 'success' === $status ) {
 			$token = wp_generate_password( 32, false, false );
 			set_transient( 'reevents_booking_result_' . $token, [ 'reference' => $value ], 5 * MINUTE_IN_SECONDS );

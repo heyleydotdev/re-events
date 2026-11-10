@@ -62,8 +62,8 @@ final class Stripe_Gateway implements Gateway {
 			'checkout/sessions',
 			[
 				'mode'                                   => 'payment',
-				'success_url'                            => $this->return_url( 'success', $booking_id ),
-				'cancel_url'                             => $this->return_url( 'cancel', $booking_id ),
+				'success_url'                            => $this->return_url( 'success', $booking_id, (string) ( $booking['reference'] ?? '' ) ),
+				'cancel_url'                             => $this->return_url( 'cancel', $booking_id, (string) ( $booking['reference'] ?? '' ) ),
 				'client_reference_id'                    => (string) $booking_id,
 				'metadata[booking_id]'                   => (string) $booking_id,
 				'metadata[payment_id]'                   => (string) $payment_id,
@@ -263,8 +263,9 @@ final class Stripe_Gateway implements Gateway {
 	 *
 	 * @param string $result     `success` or `cancel`.
 	 * @param int    $booking_id Booking ID.
+	 * @param string $reference  Booking reference.
 	 */
-	private function return_url( string $result, int $booking_id ): string {
+	private function return_url( string $result, int $booking_id, string $reference ): string {
 		$url = (string) Settings::get( 'stripe_' . $result . '_url', '' );
 
 		if ( '' === $url ) {
@@ -275,6 +276,7 @@ final class Stripe_Gateway implements Gateway {
 			[
 				'reevents_payment' => $result,
 				'booking'          => $booking_id,
+				'token'            => $reference,
 			],
 			$url
 		);

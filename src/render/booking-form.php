@@ -119,6 +119,9 @@ final class Booking_Form {
 			'reevents_booking_too_many_attendees' => __( 'There are more attendees than seats.', 're-events' ),
 			'invalid_attendee'                    => __( 'Enter a valid name and email address.', 're-events' ),
 			'required_field'                      => __( 'Fill in all required attendee fields.', 're-events' ),
+			'reevents_payment_cancelled'          => __( 'The payment was cancelled.', 're-events' ),
+			'reevents_payment_pending'            => __( 'The payment is not complete yet.', 're-events' ),
+			'reevents_payment_missing_key'        => __( 'The payment gateway is not configured.', 're-events' ),
 		];
 
 		return $messages[ $code ] ?? __( 'The booking could not be created. Please try again.', 're-events' );
