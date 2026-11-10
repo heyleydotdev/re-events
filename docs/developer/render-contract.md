@@ -89,6 +89,7 @@ Do not rely on inline styles. The plugin does not output them.
 | `month` | empty | `Y-m`; empty uses the current month |
 | `show_nav` | `true` | Previous and next links |
 | `ongoing_label` | `Ongoing` | Ongoing label |
+| `weekdays` | `Mon,Tue,Wed,Thu,Fri,Sat,Sun` | Comma-separated weekday headers |
 
 ### Map — `[reevents_map]`
 
@@ -116,6 +117,7 @@ Do not rely on inline styles. The plugin does not output them.
 | `button_label` | `Book` | Submit button |
 | `success_message` | `Booking confirmed.` | Success message |
 | `free_label` | `Free` | Free ticket label |
+| `reference_label` | `Reference:` | Booking reference prefix |
 
 ## Common classes
 

@@ -268,6 +268,12 @@ final class Widget_Registry {
 						'type'    => 'text',
 						'default' => __( 'Ongoing', 're-events' ),
 					],
+					'weekdays'      => [
+						'type'        => 'text',
+						'label'       => __( 'Weekday labels', 're-events' ),
+						'default'     => __( 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 're-events' ),
+						'description' => __( 'Comma-separated, seven labels.', 're-events' ),
+					],
 					'month'         => [
 						'type'    => 'text',
 						'default' => '',
@@ -394,6 +400,13 @@ final class Widget_Registry {
 						'default'     => __( 'Free', 're-events' ),
 						'placeholder' => __( 'Free', 're-events' ),
 						'description' => __( 'Text shown for a free ticket.', 're-events' ),
+					],
+					'reference_label'   => [
+						'type'        => 'text',
+						'label'       => __( 'Reference label', 're-events' ),
+						'default'     => __( 'Reference:', 're-events' ),
+						'placeholder' => __( 'Reference:', 're-events' ),
+						'description' => __( 'Label shown before the booking reference.', 're-events' ),
 					],
 					'event'             => [
 						'type'        => 'number',

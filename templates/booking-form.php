@@ -16,7 +16,7 @@ if ( 'success' === $state['status'] ) {
 	echo '<p class="reevents-booking-success" role="status">' . esc_html( (string) ( $widget_args['success_message'] ?? __( 'Booking confirmed.', 're-events' ) ) );
 
 	if ( '' !== $state['reference'] ) {
-		echo ' ' . esc_html__( 'Reference:', 're-events' ) . ' <strong>' . esc_html( $state['reference'] ) . '</strong>';
+		echo ' ' . esc_html( (string) ( $widget_args['reference_label'] ?? __( 'Reference:', 're-events' ) ) ) . ' <strong>' . esc_html( $state['reference'] ) . '</strong>';
 	}
 
 	echo '</p>';

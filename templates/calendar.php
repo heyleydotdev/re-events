@@ -9,15 +9,19 @@
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are scoped to the template include.
 
-$weekdays = [
-	__( 'Mon', 're-events' ),
-	__( 'Tue', 're-events' ),
-	__( 'Wed', 're-events' ),
-	__( 'Thu', 're-events' ),
-	__( 'Fri', 're-events' ),
-	__( 'Sat', 're-events' ),
-	__( 'Sun', 're-events' ),
-];
+$weekdays = array_map( 'trim', explode( ',', (string) ( $args['args']['weekdays'] ?? '' ) ) );
+
+if ( 7 !== count( $weekdays ) ) {
+	$weekdays = [
+		__( 'Mon', 're-events' ),
+		__( 'Tue', 're-events' ),
+		__( 'Wed', 're-events' ),
+		__( 'Thu', 're-events' ),
+		__( 'Fri', 're-events' ),
+		__( 'Sat', 're-events' ),
+		__( 'Sun', 're-events' ),
+	];
+}
 
 echo '<div class="reevents-calendar-wrapper ' . esc_attr( (string) ( $args['args']['wrapper_class'] ?? '' ) ) . '">';
 echo '<div class="reevents-calendar ' . esc_attr( (string) ( $args['args']['class'] ?? '' ) ) . '">';
