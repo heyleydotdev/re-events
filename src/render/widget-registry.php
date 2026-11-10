@@ -418,6 +418,131 @@ final class Widget_Registry {
 			]
 		);
 
+		self::register(
+			'submit-form',
+			[
+				'label'     => __( 'Event Submission', 're-events' ),
+				'shortcode' => 'reevents_submit',
+				'renderer'  => [ Submit_Form::class, 'render' ],
+				'args'      => [
+					'class'           => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'wrapper_class'   => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'submit_label'    => [
+						'type'    => 'text',
+						'default' => __( 'Submit event', 're-events' ),
+					],
+					'save_label'      => [
+						'type'    => 'text',
+						'default' => __( 'Save changes', 're-events' ),
+					],
+					'login_message'   => [
+						'type'    => 'text',
+						'default' => __( 'Log in to submit an event.', 're-events' ),
+					],
+					'success_message' => [
+						'type'    => 'text',
+						'default' => __( 'Thank you. Your event is awaiting review.', 're-events' ),
+					],
+					'title_label'     => [
+						'type'    => 'text',
+						'default' => __( 'Event title', 're-events' ),
+					],
+					'start_label'     => [
+						'type'    => 'text',
+						'default' => __( 'Starts', 're-events' ),
+					],
+					'end_label'       => [
+						'type'    => 'text',
+						'default' => __( 'Ends', 're-events' ),
+					],
+					'venue_label'     => [
+						'type'    => 'text',
+						'default' => __( 'Venue', 're-events' ),
+					],
+					'capacity_label'  => [
+						'type'    => 'text',
+						'default' => __( 'Capacity', 're-events' ),
+					],
+					'content_label'   => [
+						'type'    => 'text',
+						'default' => __( 'Description', 're-events' ),
+					],
+					'name_label'      => [
+						'type'    => 'text',
+						'default' => __( 'Your name', 're-events' ),
+					],
+					'email_label'     => [
+						'type'    => 'text',
+						'default' => __( 'Your email', 're-events' ),
+					],
+				],
+			]
+		);
+
+		self::register(
+			'my-events',
+			[
+				'label'     => __( 'My Events', 're-events' ),
+				'shortcode' => 'reevents_my_events',
+				'renderer'  => [ My_Events::class, 'render' ],
+				'args'      => [
+					'class'         => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'wrapper_class' => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'limit'         => [
+						'type'    => 'number',
+						'default' => 20,
+					],
+					'empty_label'   => [
+						'type'    => 'text',
+						'default' => __( 'You have not submitted any events yet.', 're-events' ),
+					],
+					'edit_label'    => [
+						'type'    => 'text',
+						'default' => __( 'Edit', 're-events' ),
+					],
+				],
+			]
+		);
+
+		self::register(
+			'my-bookings',
+			[
+				'label'     => __( 'My Bookings', 're-events' ),
+				'shortcode' => 'reevents_my_bookings',
+				'renderer'  => [ My_Bookings::class, 'render' ],
+				'args'      => [
+					'class'         => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'wrapper_class' => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'limit'         => [
+						'type'    => 'number',
+						'default' => 20,
+					],
+					'empty_label'   => [
+						'type'    => 'text',
+						'default' => __( 'You have no bookings yet.', 're-events' ),
+					],
+				],
+			]
+		);
+
 		self::decorate_args();
 	}
 

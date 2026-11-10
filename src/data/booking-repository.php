@@ -423,6 +423,7 @@ final class Booking_Repository {
 
 		$table    = $this->table();
 		$event_id = (int) ( $args['event_id'] ?? 0 );
+		$user_id  = (int) ( $args['user_id'] ?? 0 );
 		$status   = (string) ( $args['status'] ?? '' );
 		$search   = (string) ( $args['search'] ?? '' );
 		$limit    = max( 1, (int) ( $args['limit'] ?? 20 ) );
@@ -436,6 +437,11 @@ final class Booking_Repository {
 		$sort     = $columns[ $orderby ] ?? $columns['created'];
 		$where    = '( %d = 0 OR b.event_id = %d )';
 		$values   = [ $event_id, $event_id ];
+
+		if ( $user_id > 0 ) {
+			$where   .= ' AND b.user_id = %d';
+			$values[] = $user_id;
+		}
 
 		if ( '' !== $status ) {
 			$where   .= ' AND b.status = %s';

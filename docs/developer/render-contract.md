@@ -119,6 +119,47 @@ Do not rely on inline styles. The plugin does not output them.
 | `free_label` | `Free` | Free ticket label |
 | `reference_label` | `Reference:` | Booking reference prefix |
 
+### Event submission — `[reevents_submit]`
+
+Requires **Settings → Bookings → Event submissions** to be enabled.
+
+| Argument | Default | Purpose |
+|---|---|---|
+| `class` | empty | Extra class on the form |
+| `wrapper_class` | empty | Extra wrapper class |
+| `submit_label` | `Submit event` | Submit button |
+| `save_label` | `Save changes` | Button when editing |
+| `login_message` | `Log in to submit an event.` | Members-only prompt |
+| `title_label` | `Event title` | Title label |
+| `start_label` | `Starts` | Start label |
+| `end_label` | `Ends` | End label |
+| `venue_label` | `Venue` | Venue label |
+| `capacity_label` | `Capacity` | Capacity label |
+| `content_label` | `Description` | Description label |
+| `name_label` | `Your name` | Guest name label |
+| `email_label` | `Your email` | Guest email label |
+
+New submissions are saved as `pending`. Guests can submit when the setting allows it, but only members can edit their own events. The edit link is `?reevents_edit={id}` on the same page.
+
+### My events — `[reevents_my_events]`
+
+| Argument | Default | Purpose |
+|---|---|---|
+| `class` | empty | Extra class |
+| `wrapper_class` | empty | Extra wrapper class |
+| `limit` | `20` | Maximum events |
+| `empty_label` | `You have not submitted any events yet.` | Empty state |
+| `edit_label` | `Edit` | Edit link text |
+
+### My bookings — `[reevents_my_bookings]`
+
+| Argument | Default | Purpose |
+|---|---|---|
+| `class` | empty | Extra class |
+| `wrapper_class` | empty | Extra wrapper class |
+| `limit` | `20` | Maximum bookings |
+| `empty_label` | `You have no bookings yet.` | Empty state |
+
 ## Common classes
 
 - `reevents-events-list`, `reevents-event`, `reevents-event-title`
@@ -128,6 +169,9 @@ Do not rely on inline styles. The plugin does not output them.
 - `reevents-calendar`, `reevents-calendar-table`, `reevents-calendar-day`
 - `reevents-map`
 - `reevents-booking-form`, `reevents-booking-field`
+- `reevents-submit-form`, `reevents-submit-field`
+- `reevents-my-events`, `reevents-my-event`
+- `reevents-my-bookings`, `reevents-my-booking`
 
 ## Data attributes
 
