@@ -138,20 +138,6 @@ final class Settings {
 		self::add_section( 'formats', __( 'Formats', 're-events' ) );
 		self::add_field( 'formats', 'date_format', __( 'Date format', 're-events' ), [ 'placeholder' => 'F j, Y' ] );
 		self::add_field( 'formats', 'time_format', __( 'Time format', 're-events' ), [ 'placeholder' => 'g:i a' ] );
-		self::add_field(
-			'formats',
-			'frontend_style',
-			__( 'Frontend styles', 're-events' ),
-			[
-				'type'        => 'select',
-				'options'     => [
-					'none'    => __( 'None', 're-events' ),
-					'default' => __( 'Default', 're-events' ),
-				],
-				'description' => __( 'None outputs semantic HTML without plugin CSS. Use Default only if you do not style the widgets yourself.', 're-events' ),
-			]
-		);
-
 		self::add_section( 'bookings', __( 'Booking rules', 're-events' ), 'bookings_rules' );
 		self::add_field(
 			'bookings',
@@ -759,8 +745,9 @@ final class Settings {
 	public static function sanitize( $input ): array {
 		$settings = get_option( self::OPTION, self::defaults() );
 		$settings = array_merge( self::defaults(), is_array( $settings ) ? $settings : [] );
-		$input    = is_array( $input ) ? $input : [];
-		$tab      = sanitize_key( (string) ( $input['reevents_tab'] ?? '' ) );
+		unset( $settings['frontend_style'], $settings['submission_mode'] );
+		$input = is_array( $input ) ? $input : [];
+		$tab   = sanitize_key( (string) ( $input['reevents_tab'] ?? '' ) );
 
 		switch ( $tab ) {
 			case 'general':
@@ -772,10 +759,8 @@ final class Settings {
 				break;
 
 			case 'formats':
-				$settings['date_format']    = sanitize_text_field( (string) ( $input['date_format'] ?? '' ) );
-				$settings['time_format']    = sanitize_text_field( (string) ( $input['time_format'] ?? '' ) );
-				$frontend_style             = sanitize_key( (string) ( $input['frontend_style'] ?? 'none' ) );
-				$settings['frontend_style'] = in_array( $frontend_style, [ 'none', 'default' ], true ) ? $frontend_style : 'none';
+				$settings['date_format'] = sanitize_text_field( (string) ( $input['date_format'] ?? '' ) );
+				$settings['time_format'] = sanitize_text_field( (string) ( $input['time_format'] ?? '' ) );
 				break;
 
 			case 'bookings':
@@ -836,7 +821,6 @@ final class Settings {
 			'map_api_key'              => '',
 			'date_format'              => get_option( 'date_format', 'F j, Y' ),
 			'time_format'              => get_option( 'time_format', 'g:i a' ),
-			'frontend_style'           => 'none',
 			'require_approval'         => false,
 			'hold_minutes'             => 30,
 			'attendee_fields'          => [],
