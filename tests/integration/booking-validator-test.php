@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Tests\Integration;
 
+use ReEvents\CLI\Test_Factory;
 use ReEvents\Services\Booking_Validator;
 use WP_UnitTestCase;
 
@@ -49,6 +50,21 @@ final class Booking_Validator_Test extends WP_UnitTestCase {
 
 		self::assertArrayHasKey( 'attendees.0.name', $errors );
 		self::assertArrayHasKey( 'attendees.0.email', $errors );
+	}
+
+	/**
+	 * Cancelled events return an event field error.
+	 */
+	public function test_cancelled_event_domain_error(): void {
+		$event  = Test_Factory::event( [ 'title' => 'Validator event' ] );
+		$ticket = Test_Factory::ticket( $event );
+
+		update_post_meta( $event, '_reevents_status', 'cancelled' );
+
+		$result = Booking_Validator::validate_domain( $event, $ticket, 1, 0, [] );
+
+		self::assertArrayHasKey( 'event_id', $result['errors'] );
+		self::assertSame( 'reevents_booking_event_cancelled', $result['code'] );
 	}
 
 	/**

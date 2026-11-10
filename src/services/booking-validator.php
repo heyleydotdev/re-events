@@ -11,6 +11,8 @@ namespace ReEvents\Services;
 
 use Rakit\Validation\Validator;
 use ReEvents\Admin\Settings;
+use ReEvents\Data\Event_Repository;
+use ReEvents\Data\Ticket_Repository;
 
 /**
  * Validates the shape of a booking payload and returns field errors.
@@ -66,6 +68,94 @@ final class Booking_Validator {
 		}
 
 		return $errors;
+	}
+
+	/**
+	 * Validate event, ticket, sale window and capacity rules.
+	 *
+	 * @param int               $event_id      Event ID.
+	 * @param int               $ticket_id     Ticket ID.
+	 * @param int               $quantity      Seats.
+	 * @param int               $occurrence_id Occurrence ID.
+	 * @param array<int, mixed> $attendees     Attendees.
+	 * @return array{errors:array<string, string>,code:string,message:string}
+	 */
+	public static function validate_domain( int $event_id, int $ticket_id, int $quantity, int $occurrence_id, array $attendees ): array {
+		$errors  = [];
+		$code    = '';
+		$message = '';
+		$event   = ( new Event_Repository() )->find( $event_id );
+
+		if ( ! $event || 'publish' !== get_post_status( $event_id ) ) {
+			self::add_error( $errors, $code, $message, 'event_id', __( 'Invalid event.', 're-events' ), 'reevents_booking_invalid_event' );
+		} elseif ( 'cancelled' === $event->status ) {
+			self::add_error( $errors, $code, $message, 'event_id', __( 'This event has been cancelled.', 're-events' ), 'reevents_booking_event_cancelled' );
+		}
+
+		if ( $occurrence_id > 0 ) {
+			self::add_error( $errors, $code, $message, 'occurrence_id', __( 'The selected time is not available.', 're-events' ), 'reevents_booking_invalid_occurrence' );
+		}
+
+		$ticket = ( new Ticket_Repository() )->find( $ticket_id );
+
+		if ( ! $ticket || (int) $ticket['event_id'] !== $event_id ) {
+			self::add_error( $errors, $code, $message, 'ticket_id', __( 'Invalid ticket.', 're-events' ), 'reevents_booking_invalid_ticket' );
+		} else {
+			if ( 'active' !== $ticket['status'] ) {
+				self::add_error( $errors, $code, $message, 'ticket_id', __( 'This ticket is not on sale.', 're-events' ), 'reevents_booking_ticket_inactive' );
+			}
+
+			$now = current_time( 'mysql', true );
+
+			if ( '' !== (string) $ticket['sale_start_utc'] && $now < (string) $ticket['sale_start_utc'] ) {
+				self::add_error( $errors, $code, $message, 'ticket_id', __( 'Ticket sales have not started.', 're-events' ), 'reevents_booking_sale_not_started' );
+			}
+
+			if ( '' !== (string) $ticket['sale_end_utc'] && $now > (string) $ticket['sale_end_utc'] ) {
+				self::add_error( $errors, $code, $message, 'ticket_id', __( 'Ticket sales have ended.', 're-events' ), 'reevents_booking_sale_ended' );
+			}
+
+			if ( $quantity < (int) $ticket['min_per_booking'] ) {
+				self::add_error( $errors, $code, $message, 'quantity', __( 'Too few seats selected.', 're-events' ), 'reevents_booking_min_quantity' );
+			}
+
+			if ( (int) $ticket['max_per_booking'] > 0 && $quantity > (int) $ticket['max_per_booking'] ) {
+				self::add_error( $errors, $code, $message, 'quantity', __( 'Too many seats selected.', 're-events' ), 'reevents_booking_max_quantity' );
+			}
+
+			if ( (int) $ticket['capacity'] > 0 && (int) $ticket['sold'] + $quantity > (int) $ticket['capacity'] ) {
+				self::add_error( $errors, $code, $message, 'quantity', __( 'Not enough seats are available.', 're-events' ), 'reevents_booking_sold_out' );
+			}
+		}
+
+		if ( $attendees && count( $attendees ) > $quantity ) {
+			self::add_error( $errors, $code, $message, 'attendees', __( 'There are more attendees than seats.', 're-events' ), 'reevents_booking_too_many_attendees' );
+		}
+
+		return [
+			'errors'  => $errors,
+			'code'    => $code,
+			'message' => $message,
+		];
+	}
+
+	/**
+	 * Add the first domain error.
+	 *
+	 * @param array<string, string> $errors  Errors.
+	 * @param string                $code    Error code.
+	 * @param string                $message Error message.
+	 * @param string                $field   Field key.
+	 * @param string                $text    Field message.
+	 * @param string                $new_code Specific error code.
+	 */
+	private static function add_error( array &$errors, string &$code, string &$message, string $field, string $text, string $new_code ): void {
+		$errors[ $field ] = $text;
+
+		if ( '' === $code ) {
+			$code    = $new_code;
+			$message = $text;
+		}
 	}
 
 	/**
