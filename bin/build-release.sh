@@ -23,4 +23,5 @@ rm -f "$ZIP"
 
 test -f "$STAGE/re-events/vendor/rlanvin/php-rrule/composer.json"
 test -f "$STAGE/re-events/blocks/build/map/index.js"
+test -f "$STAGE/re-events/src/cli/import-export.php"
 echo "Built $ZIP"
