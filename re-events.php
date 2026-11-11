@@ -25,6 +25,8 @@ if ( is_readable( $re_events_autoloader ) ) {
 	require $re_events_autoloader;
 }
 
+require_once __DIR__ . '/src/api.php';
+
 // Class names map to kebab-case paths: ReEvents\Admin\Menu -> src/admin/menu.php.
 spl_autoload_register(
 	static function ( string $class_name ): void {
