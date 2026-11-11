@@ -163,6 +163,19 @@ Every registered widget is listed here. Arguments left at their default can be o
 [reevents_field field="venue" label="Venue:"]
 ```
 
+| Argument | Default | Description |
+| --- | --- | --- |
+| `field` | `title` | One of the fields listed below. |
+| `event` | `0` | Event ID. `0` uses the current post. |
+| `label` | — | Text shown before the value. |
+| `link` | `0` | Wrap the value in a link where the field supports one. |
+| `separator` | `, ` | Separator between list values. |
+| `empty_label` | — | Text shown when the value is empty. |
+| `class` | — | Extra classes on the wrapper. |
+| `tag` | `span` | Wrapper tag: `span`, `div` or `p`. |
+
+### Fields
+
 | Field | Value |
 | --- | --- |
 | `title` | Title |
@@ -186,4 +199,3 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `online_links` | Online links |
 | `calendar_links` | Add-to-calendar links |
 
-Arguments: `field`, `event` (defaults to the current post), `label`, `link`, `separator`, `empty_label`, `class`, `tag`.

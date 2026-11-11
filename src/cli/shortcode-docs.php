@@ -89,6 +89,18 @@ final class Shortcode_Docs {
 		$lines[] = '[reevents_field field="venue" label="Venue:"]';
 		$lines[] = '```';
 		$lines[] = '';
+		$lines[] = '| Argument | Default | Description |';
+		$lines[] = '| --- | --- | --- |';
+
+		foreach ( Field::args() as $key => $arg ) {
+			$default = self::default_text( $arg['default'] );
+			$display = '' === $default ? '—' : '`' . $default . '`';
+			$lines[] = '| `' . self::cell( (string) $key ) . '` | ' . self::cell( $display ) . ' | ' . self::cell( $arg['description'] ) . ' |';
+		}
+
+		$lines[] = '';
+		$lines[] = '### Fields';
+		$lines[] = '';
 		$lines[] = '| Field | Value |';
 		$lines[] = '| --- | --- |';
 
@@ -97,7 +109,6 @@ final class Shortcode_Docs {
 		}
 
 		$lines[] = '';
-		$lines[] = 'Arguments: `field`, `event` (defaults to the current post), `label`, `link`, `separator`, `empty_label`, `class`, `tag`.';
 
 		return implode( "\n", $lines );
 	}
