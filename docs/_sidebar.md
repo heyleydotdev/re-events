@@ -15,4 +15,5 @@
   - [CSV and CLI](/developer/csv-cli.md)
   - [Payment gateways](/developer/payments.md)
   - [Hooks](/developer/hooks.md)
+  - [Releasing](/developer/releasing.md)
 - <a href="../../../../wp-admin/admin.php?page=reevents-api-docs" target="_top">REST API reference</a>
