@@ -23,6 +23,7 @@
 		"phpunit/phpunit": "^9.6",
 		"squizlabs/php_codesniffer": "^3.10",
 		"szepeviktor/phpstan-wordpress": "^2.0",
+		"webmozart/assert": "^1.11",
 		"wp-coding-standards/wpcs": "^3.1",
 		"yoast/phpunit-polyfills": "^2.0"
 	},
