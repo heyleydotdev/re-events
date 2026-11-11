@@ -231,7 +231,7 @@ final class Field {
 			return '';
 		}
 
-		if ( 'content' === $name && post_password_required( $id ) ) {
+		if ( in_array( $name, [ 'content', 'description' ], true ) && post_password_required( $id ) ) {
 			return '';
 		}
 

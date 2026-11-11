@@ -647,6 +647,42 @@ final class Field_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Password-protected venue text stays hidden.
+	 */
+	public function test_protected_venue_description_is_hidden(): void {
+		$venue = wp_insert_post(
+			[
+				'post_type'     => 'reevents_venue',
+				'post_status'   => 'publish',
+				'post_title'    => 'Secret venue',
+				'post_content'  => 'TOP SECRET VENUE',
+				'post_password' => 'letmein',
+			]
+		);
+
+		wp_set_current_user( 0 );
+
+		self::assertSame(
+			'',
+			Field::render(
+				[
+					'field' => 'description',
+					'venue' => $venue,
+				]
+			)
+		);
+		self::assertSame(
+			'',
+			Field::render(
+				[
+					'field' => 'content',
+					'venue' => $venue,
+				]
+			)
+		);
+	}
+
+	/**
 	 * Stored occurrences are listed as dates.
 	 */
 	public function test_occurrences_field(): void {
