@@ -40,7 +40,7 @@ final class Venues_List {
 				'id'        => (int) $post->ID,
 				'title'     => (string) $post->post_title,
 				'permalink' => (string) get_permalink( $post->ID ),
-				'content'   => (string) $post->post_content,
+				'content'   => post_password_required( $post->ID ) ? '' : (string) $post->post_content,
 			];
 		}
 

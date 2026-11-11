@@ -157,6 +157,10 @@ final class Calendar_Links {
 	 * @param Event $event Event.
 	 */
 	private static function description( Event $event ): string {
+		if ( post_password_required( $event->id ) ) {
+			return '';
+		}
+
 		$excerpt = wp_strip_all_tags( (string) get_post_field( 'post_excerpt', $event->id ) );
 
 		if ( '' !== $excerpt ) {

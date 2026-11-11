@@ -212,6 +212,10 @@ final class Structured_Data {
 	 * @param int $event_id Event ID.
 	 */
 	private static function description( int $event_id ): string {
+		if ( post_password_required( $event_id ) ) {
+			return '';
+		}
+
 		$excerpt = wp_strip_all_tags( (string) get_post_field( 'post_excerpt', $event_id ) );
 
 		if ( '' !== $excerpt ) {

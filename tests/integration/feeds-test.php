@@ -14,6 +14,7 @@ use ReEvents\Data\Event_Repository;
 use ReEvents\Frontend\Feeds;
 use ReEvents\Frontend\Structured_Data;
 use ReEvents\Render\Calendar_Links;
+use ReEvents\Render\Venues_List;
 use ReEvents\Services\Occurrence_Service;
 use WP_UnitTestCase;
 
@@ -81,6 +82,50 @@ final class Feeds_Test extends WP_UnitTestCase {
 		self::assertContains( 'Google', $labels );
 		self::assertStringContainsString( 'calendar.google.com', $links[0]['url'] );
 		self::assertStringContainsString( 'reevents_ical', $links[3]['url'] );
+	}
+
+	/**
+	 * Password-protected events do not leak into feeds, schema or links.
+	 */
+	public function test_protected_event_is_not_exposed(): void {
+		$event = $this->event();
+
+		wp_update_post(
+			[
+				'ID'            => $event,
+				'post_password' => 'letmein',
+				'post_content'  => 'SECRET EVENT BODY',
+				'post_excerpt'  => 'SECRET EXCERPT',
+			]
+		);
+
+		self::assertStringNotContainsString( 'SECRET', Feeds::calendar( (string) $event ) );
+		self::assertStringNotContainsString( 'SECRET', (string) wp_json_encode( Structured_Data::data( $event ) ) );
+
+		$model = ( new Event_Repository() )->find( $event );
+
+		self::assertNotNull( $model );
+
+		foreach ( Calendar_Links::links( $model ) as $link ) {
+			self::assertStringNotContainsString( 'SECRET', rawurldecode( $link['url'] ) );
+		}
+	}
+
+	/**
+	 * Password-protected venue descriptions stay out of the venues list.
+	 */
+	public function test_protected_venue_content_is_hidden(): void {
+		wp_insert_post(
+			[
+				'post_type'     => 'reevents_venue',
+				'post_status'   => 'publish',
+				'post_title'    => 'Protected venue',
+				'post_content'  => 'SECRET VENUE CONTENT',
+				'post_password' => 'letmein',
+			]
+		);
+
+		self::assertStringNotContainsString( 'SECRET VENUE CONTENT', Venues_List::render( [ 'limit' => 50 ] ) );
 	}
 
 	/**
