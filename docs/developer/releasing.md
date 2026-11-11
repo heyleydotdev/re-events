@@ -4,7 +4,7 @@ The release gate: `1.0.0` is not tagged until the trademark policy is in place a
 
 ## 1. Version
 
-Bump the plugin header and `RE_EVENTS_VERSION` in `re-events.php`, the version in `readme.txt` (`Stable tag`), and the changelog entry.
+Bump the plugin header and `RE_EVENTS_VERSION` in `re-events.php`, `package.json`, `readme.txt` (`Stable tag`), and the changelog entry. Regenerate the OpenAPI document in the next step so its `info.version` matches.
 
 ## 2. Checks
 
@@ -24,7 +24,7 @@ Regenerate everything that is committed:
 ```bash
 composer api-docs
 bun run wp-env run cli wp re-events shortcode-docs | sed -n '/^# ReEvents shortcodes/,$p' > docs/shortcodes/README.md
-bun run wp-env run cli wp re-events openapi > docs/api/openapi.json
+bun run wp-env run cli wp re-events openapi | sed -n '/^{/,$p' > docs/api/openapi.json
 ```
 
 Then run the runtime checks:
