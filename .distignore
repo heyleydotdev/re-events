@@ -21,6 +21,8 @@ playwright.config.ts
 bin/
 phpstan-baseline.neon
 node_modules
+blocks/src
+tools
 src/cli/bench.php
 src/cli/concurrency-test.php
 src/cli/open-api.php
