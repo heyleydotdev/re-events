@@ -105,14 +105,14 @@ final class Bench {
 
 			if ( count( $batch ) >= 500 ) {
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Benchmark fixture.
-				$wpdb->query( "INSERT INTO {$table} (event_id,start_utc,end_utc,timezone,timeslot_key,capacity,status) VALUES " . implode( ',', $batch ) );
+				$wpdb->query( "INSERT IGNORE INTO {$table} (event_id,start_utc,end_utc,timezone,timeslot_key,capacity,status) VALUES " . implode( ',', $batch ) );
 				$batch = [];
 			}
 		}
 
 		if ( $batch ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Benchmark fixture.
-			$wpdb->query( "INSERT INTO {$table} (event_id,start_utc,end_utc,timezone,timeslot_key,capacity,status) VALUES " . implode( ',', $batch ) );
+			$wpdb->query( "INSERT IGNORE INTO {$table} (event_id,start_utc,end_utc,timezone,timeslot_key,capacity,status) VALUES " . implode( ',', $batch ) );
 		}
 
 		$booking_ids = [];
