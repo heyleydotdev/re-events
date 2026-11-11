@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\API;
 
+use ReEvents\Admin\Settings;
 use ReEvents\Data\Meta;
 use ReEvents\Domain\Event;
 use ReEvents\Services\Currency;
@@ -97,7 +98,7 @@ final class Mapper {
 			'name'            => self::string( $data, 'name', (string) ( $existing['name'] ?? '' ), 'sanitize_text_field' ),
 			'description'     => self::string( $data, 'description', (string) ( $existing['description'] ?? '' ), 'sanitize_textarea_field' ),
 			'price_minor'     => max( 0, (int) ( $data['price_minor'] ?? $existing['price_minor'] ?? 0 ) ),
-			'currency'        => Currency::sanitize_code( (string) ( $data['currency'] ?? $existing['currency'] ?? 'USD' ) ),
+			'currency'        => Currency::sanitize_code( (string) ( $data['currency'] ?? $existing['currency'] ?? Settings::get( 'default_currency', 'USD' ) ) ),
 			'capacity'        => max( 0, (int) ( $data['capacity'] ?? $existing['capacity'] ?? 0 ) ),
 			'min_per_booking' => max( 1, (int) ( $data['min_per_booking'] ?? $existing['min_per_booking'] ?? 1 ) ),
 			'max_per_booking' => max( 0, (int) ( $data['max_per_booking'] ?? $existing['max_per_booking'] ?? 0 ) ),

@@ -12,6 +12,7 @@ namespace ReEvents\Admin;
 use ReEvents\Data\Meta;
 use ReEvents\Services\API_Keys;
 use ReEvents\Services\Booking_Emails;
+use ReEvents\Services\Currency;
 use ReEvents\Services\Occurrence_Service;
 
 /**
@@ -187,6 +188,16 @@ final class Settings {
 					'paypal' => __( 'PayPal', 're-events' ),
 				],
 				'description' => __( 'Choose the provider, then fill in its settings below. The mock gateway is for local checkout tests only.', 're-events' ),
+			],
+			'payments_gateway'
+		);
+		self::add_field(
+			'payments',
+			'default_currency',
+			__( 'Default currency', 're-events' ),
+			[
+				'type'        => 'text',
+				'description' => __( 'Three-letter code used for new tickets when no currency is given.', 're-events' ),
 			],
 			'payments_gateway'
 		);
@@ -772,6 +783,7 @@ final class Settings {
 			case 'payments':
 				$gateway                           = sanitize_key( (string) ( $input['payment_gateway'] ?? 'none' ) );
 				$settings['payment_gateway']       = in_array( $gateway, [ 'none', 'mock', 'stripe', 'paypal' ], true ) ? $gateway : 'none';
+				$settings['default_currency']      = Currency::sanitize_code( (string) ( $input['default_currency'] ?? 'USD' ) );
 				$settings['stripe_secret_key']     = sanitize_text_field( (string) ( $input['stripe_secret_key'] ?? '' ) );
 				$settings['stripe_webhook_secret'] = sanitize_text_field( (string) ( $input['stripe_webhook_secret'] ?? '' ) );
 				$settings['stripe_success_url']    = esc_url_raw( (string) ( $input['stripe_success_url'] ?? '' ) );
@@ -835,6 +847,7 @@ final class Settings {
 			'api_cors'                 => '',
 			'feed_token'               => '',
 			'payment_gateway'          => 'none',
+			'default_currency'         => 'USD',
 			'stripe_secret_key'        => '',
 			'stripe_webhook_secret'    => '',
 			'stripe_success_url'       => '',

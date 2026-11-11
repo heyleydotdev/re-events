@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\REST;
 
+use ReEvents\Admin\Settings;
 use ReEvents\Data\Meta;
 use ReEvents\Data\Ticket_Repository;
 use ReEvents\Services\Currency;
@@ -308,7 +309,7 @@ final class Tickets_Controller extends WP_REST_Controller {
 				'name'            => '',
 				'description'     => '',
 				'price_minor'     => 0,
-				'currency'        => 'USD',
+				'currency'        => Settings::get( 'default_currency', 'USD' ),
 				'capacity'        => 0,
 				'min_per_booking' => 1,
 				'max_per_booking' => 0,

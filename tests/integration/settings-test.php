@@ -39,6 +39,29 @@ final class Settings_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The default currency is sanitized.
+	 */
+	public function test_default_currency_is_sanitized(): void {
+		$settings = Settings::sanitize(
+			[
+				'reevents_tab'     => 'payments',
+				'default_currency' => 'eur',
+			]
+		);
+
+		self::assertSame( 'EUR', $settings['default_currency'] );
+
+		$invalid = Settings::sanitize(
+			[
+				'reevents_tab'     => 'payments',
+				'default_currency' => 'x',
+			]
+		);
+
+		self::assertSame( 'USD', $invalid['default_currency'] );
+	}
+
+	/**
 	 * Checkbox attendee fields are accepted and required.
 	 */
 	public function test_checkbox_attendee_field(): void {
@@ -75,5 +98,28 @@ final class Settings_Test extends WP_UnitTestCase {
 		);
 
 		self::assertArrayHasKey( 'attendees.0.fields.consent', $errors );
+	}
+
+	/**
+	 * New tickets use the setting when no currency is passed.
+	 */
+	public function test_ticket_uses_default_currency(): void {
+		update_option( 'reevents_settings', [ 'default_currency' => 'EUR' ] );
+
+		$event = Test_Factory::event(
+			[
+				'title' => 'Currency event',
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+1 day' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 day +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+				],
+			]
+		);
+
+		$ticket = \reevents_create_ticket( $event, [ 'name' => 'Currency ticket' ] );
+
+		self::assertIsArray( $ticket );
+		self::assertSame( 'EUR', $ticket['currency'] );
 	}
 }
