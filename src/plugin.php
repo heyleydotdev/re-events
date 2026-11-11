@@ -104,6 +104,7 @@ final class Plugin {
 		Geocoder::register();
 		Booking_Service::register();
 		Booking_Emails::register();
+		Privacy::register();
 		Payment_Service::register();
 		API_Keys::register();
 		Booking_Handler::register();

@@ -396,6 +396,70 @@ final class Booking_Repository {
 	}
 
 	/**
+	 * Find attendees by exact email address.
+	 *
+	 * @param string $email  Email address.
+	 * @param int    $limit  Maximum rows.
+	 * @param int    $offset Row offset.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public function attendees_by_email( string $email, int $limit = 200, int $offset = 0 ): array {
+		global $wpdb;
+
+		$bookings  = $this->table();
+		$attendees = $this->attendees_table();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal tables.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT a.id, a.booking_id, a.name, a.email, a.fields_json, a.checked_in, b.reference, b.status AS booking_status, b.event_id, t.name AS ticket_name, p.post_title AS event_title
+				FROM {$attendees} a INNER JOIN {$bookings} b ON b.id = a.booking_id
+				LEFT JOIN {$wpdb->prefix}reevents_tickets t ON t.id = a.ticket_id
+				LEFT JOIN {$wpdb->posts} p ON p.ID = b.event_id
+				WHERE a.email = %s ORDER BY a.id ASC LIMIT %d OFFSET %d",
+				sanitize_email( $email ),
+				max( 1, $limit ),
+				max( 0, $offset )
+			),
+			ARRAY_A
+		);
+		// phpcs:enable
+
+		return is_array( $rows ) ? $rows : [];
+	}
+
+	/**
+	 * Remove personal data from attendee rows.
+	 *
+	 * Booking rows and seat counts stay intact.
+	 *
+	 * @param array<int, int> $ids Attendee IDs.
+	 */
+	public function anonymize_attendees( array $ids ): int {
+		global $wpdb;
+
+		$ids = array_values( array_unique( array_map( 'intval', $ids ) ) );
+
+		if ( ! $ids ) {
+			return 0;
+		}
+
+		$table        = $this->attendees_table();
+		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Internal table and dynamic ID list.
+		$removed = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$table} SET name = '', email = '', fields_json = '' WHERE id IN ({$placeholders})",
+				...$ids
+			)
+		);
+		// phpcs:enable
+
+		return false === $removed ? 0 : (int) $removed;
+	}
+
+	/**
 	 * Query attendees with pagination.
 	 *
 	 * @param array<string, mixed> $args Query arguments.
