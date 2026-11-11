@@ -6,7 +6,7 @@ ReEvents adds events, venues, organizers, tickets and bookings to WordPress. The
 
 Open **ReEvents → Settings**.
 
-- **General:** default event timezone, time display (site, event or visitor), map provider and Google Maps key.
+- **General:** default event timezone, time display (site, event or visitor), map provider, Google Maps key and the trusted-proxy client IP option for rate limits.
 - **Formats:** date and time formats used by every renderer.
 - **Booking rules:** require approval, unpaid hold window, custom attendee fields.
 - **Payments:** gateway, default currency, Stripe or PayPal credentials.

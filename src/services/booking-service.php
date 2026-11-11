@@ -25,6 +25,7 @@ final class Booking_Service {
 	 */
 	public static function register(): void {
 		add_action( 'reevents_expire_bookings', [ self::class, 'expire_pending' ] );
+		add_action( 'reevents_expire_bookings', [ Rate_Limit::class, 'cleanup' ] );
 		add_filter( 'pre_delete_post', [ self::class, 'guard_delete' ], 10, 3 );
 
 		if ( ! wp_next_scheduled( 'reevents_expire_bookings' ) ) {

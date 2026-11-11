@@ -40,7 +40,7 @@ Maximum venues in the front-end search filter.
 
 `apply_filters( 'reevents_client_ip', string $ip )`
 
-Overrides the address used by the rate limiter. Use it behind a trusted proxy.
+Overrides the address used by the rate limiter. Use it behind a trusted proxy. Settings → General → Client IP does the same for Cloudflare and `X-Forwarded-For` headers.
 
 ### `reevents_geocode_venue`
 

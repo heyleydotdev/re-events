@@ -135,6 +135,16 @@ final class Settings {
 				'description' => __( 'Used for maps and venue geocoding. Leave empty to keep OpenStreetMap.', 're-events' ),
 			]
 		);
+		self::add_field(
+			'general',
+			'trust_proxy_ip',
+			__( 'Client IP', 're-events' ),
+			[
+				'type'        => 'checkbox',
+				'label'       => __( 'Read the visitor IP from proxy headers', 're-events' ),
+				'description' => __( 'Enable only behind Cloudflare or a trusted reverse proxy. Rate limits are per IP, so otherwise every visitor can share one bucket.', 're-events' ),
+			]
+		);
 
 		self::add_section( 'formats', __( 'Formats', 're-events' ) );
 		self::add_field( 'formats', 'date_format', __( 'Date format', 're-events' ), [ 'placeholder' => 'F j, Y' ] );
@@ -762,11 +772,12 @@ final class Settings {
 
 		switch ( $tab ) {
 			case 'general':
-				$settings['timezone']     = Meta::sanitize_timezone( $input['timezone'] ?? 'UTC' );
-				$settings['time_display'] = self::sanitize_time_display( $input['time_display'] ?? 'event' );
-				$provider                 = sanitize_key( (string) ( $input['map_provider'] ?? 'osm' ) );
-				$settings['map_provider'] = in_array( $provider, [ 'osm', 'google' ], true ) ? $provider : 'osm';
-				$settings['map_api_key']  = sanitize_text_field( (string) ( $input['map_api_key'] ?? '' ) );
+				$settings['timezone']       = Meta::sanitize_timezone( $input['timezone'] ?? 'UTC' );
+				$settings['time_display']   = self::sanitize_time_display( $input['time_display'] ?? 'event' );
+				$provider                   = sanitize_key( (string) ( $input['map_provider'] ?? 'osm' ) );
+				$settings['map_provider']   = in_array( $provider, [ 'osm', 'google' ], true ) ? $provider : 'osm';
+				$settings['map_api_key']    = sanitize_text_field( (string) ( $input['map_api_key'] ?? '' ) );
+				$settings['trust_proxy_ip'] = ! empty( $input['trust_proxy_ip'] );
 				break;
 
 			case 'formats':
@@ -834,6 +845,7 @@ final class Settings {
 		return [
 			'timezone'                 => 'UTC',
 			'time_display'             => 'event',
+			'trust_proxy_ip'           => false,
 			'map_provider'             => 'osm',
 			'map_api_key'              => '',
 			'date_format'              => get_option( 'date_format', 'F j, Y' ),

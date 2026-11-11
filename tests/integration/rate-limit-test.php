@@ -70,6 +70,37 @@ final class Rate_Limit_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Cleanup removes expired counters and keeps live ones.
+	 */
+	public function test_cleanup_removes_expired_counters(): void {
+		$expired = 'reevents_rate_' . md5( 'limit|203.0.113.10' );
+		$live    = 'reevents_rate_' . md5( 'booking|203.0.113.10' );
+
+		update_option( $expired, 1, false );
+		update_option( $expired . '_expires', time() - 60, false );
+		update_option( $live, 1, false );
+		update_option( $live . '_expires', time() + 60, false );
+
+		Rate_Limit::cleanup();
+
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Cleanup check.
+		$found = $wpdb->get_col(
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+				"SELECT option_name FROM {$wpdb->options} WHERE option_name IN (%s, %s, %s, %s)",
+				$expired,
+				$expired . '_expires',
+				$live,
+				$live . '_expires'
+			)
+		);
+
+		self::assertEqualsCanonicalizing( [ $live, $live . '_expires' ], $found );
+	}
+
+	/**
 	 * The booking endpoint returns 429 after five attempts.
 	 */
 	public function test_booking_endpoint_rate_limits(): void {
