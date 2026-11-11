@@ -154,7 +154,7 @@
                         "name": "from",
                         "in": "query",
                         "required": false,
-                        "description": "Only events starting on or after this date (Y-m-d, UTC).",
+                        "description": "Only events starting on or after this date (Y-m-d, site time zone).",
                         "schema": {
                             "type": "string"
                         }
@@ -163,7 +163,7 @@
                         "name": "to",
                         "in": "query",
                         "required": false,
-                        "description": "Only events starting on or before this date (Y-m-d, UTC).",
+                        "description": "Only events starting on or before this date (Y-m-d, site time zone).",
                         "schema": {
                             "type": "string"
                         }

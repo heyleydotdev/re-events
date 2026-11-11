@@ -575,13 +575,13 @@ final class Events_Controller extends WP_REST_Controller {
 		];
 
 		$params['from'] = [
-			'description'       => __( 'Only events starting on or after this date (Y-m-d, UTC).', 're-events' ),
+			'description'       => __( 'Only events starting on or after this date (Y-m-d, site time zone).', 're-events' ),
 			'type'              => 'string',
 			'sanitize_callback' => [ self::class, 'sanitize_date' ],
 		];
 
 		$params['to'] = [
-			'description'       => __( 'Only events starting on or before this date (Y-m-d, UTC).', 're-events' ),
+			'description'       => __( 'Only events starting on or before this date (Y-m-d, site time zone).', 're-events' ),
 			'type'              => 'string',
 			'sanitize_callback' => [ self::class, 'sanitize_date' ],
 		];

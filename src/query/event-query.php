@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace ReEvents\Query;
 
+use DateTimeImmutable;
+use DateTimeZone;
 use ReEvents\Data\Meta;
 use ReEvents\Data\Occurrence_Repository;
 use WP_Query;
@@ -79,13 +81,13 @@ final class Event_Query {
 
 		if ( '' !== $from || '' !== $to || $upcoming ) {
 			$now   = current_time( 'mysql', true );
-			$start = '' !== $from ? $from . ' 00:00:00' : $now;
+			$start = '' !== $from ? self::utc_bound( $from, '00:00:00' ) : $now;
 
 			if ( $upcoming && $start < $now ) {
 				$start = $now;
 			}
 
-			$end = '' !== $to ? $to . ' 23:59:59' : gmdate( 'Y-m-d H:i:s', strtotime( '+1 year', strtotime( $start ) ) );
+			$end = '' !== $to ? self::utc_bound( $to, '23:59:59' ) : gmdate( 'Y-m-d H:i:s', strtotime( '+1 year', strtotime( $start ) ) );
 
 			if ( $end < $start ) {
 				return [
@@ -96,22 +98,40 @@ final class Event_Query {
 			}
 
 			$occurrences = new Occurrence_Repository();
-			$ids         = $occurrences->event_ids_between( $start, $end, $per_page, ( $page - 1 ) * $per_page );
-			$total       = $occurrences->count_events_between( $start, $end );
+			$filtered    = ! empty( $args['search'] ) || ! empty( $args['category'] ) || ! empty( $args['venue'] ) || ! empty( $args['organizer'] );
 
-			if ( ! $ids ) {
-				return [
-					'ids'   => [],
-					'total' => $total,
-					'pages' => (int) ceil( $total / $per_page ),
-				];
+			if ( $filtered ) {
+				// Filters run inside WP_Query, so pagination and totals must come from it too.
+				$ids = $occurrences->event_ids_between( $start, $end );
+
+				if ( ! $ids ) {
+					return [
+						'ids'   => [],
+						'total' => 0,
+						'pages' => 0,
+					];
+				}
+
+				$query_args['post__in'] = $ids;
+			} else {
+				$ids   = $occurrences->event_ids_between( $start, $end, $per_page, ( $page - 1 ) * $per_page );
+				$total = $occurrences->count_events_between( $start, $end );
+
+				if ( ! $ids ) {
+					return [
+						'ids'   => [],
+						'total' => $total,
+						'pages' => (int) ceil( $total / $per_page ),
+					];
+				}
+
+				$query_args['post__in']       = $ids;
+				$query_args['posts_per_page'] = count( $ids );
+				$query_args['paged']          = 1;
+				$query_args['no_found_rows']  = true;
 			}
 
-			$query_args['post__in']       = $ids;
-			$query_args['posts_per_page'] = count( $ids );
-			$query_args['paged']          = 1;
-			$query_args['orderby']        = 'post__in';
-			$query_args['no_found_rows']  = true;
+			$query_args['orderby'] = 'post__in';
 			unset( $query_args['meta_key'], $query_args['meta_type'] );
 		}
 
@@ -129,5 +149,21 @@ final class Event_Query {
 			'total' => $total,
 			'pages' => $pages,
 		];
+	}
+
+	/**
+	 * Convert a site-local date and time to UTC.
+	 *
+	 * @param string $date Site-local date (Y-m-d).
+	 * @param string $time Site-local time (H:i:s).
+	 */
+	private static function utc_bound( string $date, string $time ): string {
+		$local = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', $date . ' ' . $time, wp_timezone() );
+
+		if ( ! $local instanceof DateTimeImmutable ) {
+			return $date . ' ' . $time;
+		}
+
+		return $local->setTimezone( new DateTimeZone( 'UTC' ) )->format( 'Y-m-d H:i:s' );
 	}
 }

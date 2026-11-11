@@ -13,6 +13,7 @@ use ReEvents\CLI\Test_Factory;
 use ReEvents\Data\Ticket_Repository;
 use ReEvents\Query\Event_Query;
 use ReEvents\Render\Events_List;
+use ReEvents\Services\Occurrence_Service;
 use WP_UnitTestCase;
 
 /**
@@ -238,6 +239,104 @@ final class Events_List_Test extends WP_UnitTestCase {
 
 		self::assertContains( $inside, $result['ids'] );
 		self::assertNotContains( $outside, $result['ids'] );
+	}
+
+	/**
+	 * A date range with a venue filter paginates the filtered set.
+	 */
+	public function test_filtered_date_range_paginates(): void {
+		$venue = wp_insert_post(
+			[
+				'post_type'   => 'reevents_venue',
+				'post_status' => 'publish',
+				'post_title'  => 'Paged venue ' . wp_generate_uuid4(),
+			]
+		);
+
+		$ids = [];
+
+		for ( $i = 0; $i < 2; $i++ ) {
+			$ids[] = Test_Factory::event(
+				[
+					'title' => 'Venue event ' . $i . ' ' . wp_generate_uuid4(),
+					'meta'  => [
+						'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days +' . $i . ' hours' ) ),
+						'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days +' . ( $i + 1 ) . ' hours' ) ),
+						'_reevents_timezone'  => 'UTC',
+						'_reevents_status'    => 'scheduled',
+						'_reevents_venue_id'  => $venue,
+					],
+				]
+			);
+		}
+
+		$outside = Test_Factory::event(
+			[
+				'title' => 'No venue ' . wp_generate_uuid4(),
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_status'    => 'scheduled',
+				],
+			]
+		);
+
+		foreach ( array_merge( $ids, [ $outside ] ) as $event_id ) {
+			Occurrence_Service::sync( $event_id );
+		}
+
+		$args = [
+			'venue'    => $venue,
+			'from'     => gmdate( 'Y-m-d', strtotime( '+1 day' ) ),
+			'to'       => gmdate( 'Y-m-d', strtotime( '+5 days' ) ),
+			'per_page' => 1,
+			'upcoming' => false,
+		];
+
+		$first = Event_Query::query( array_merge( $args, [ 'page' => 1 ] ) );
+		$last  = Event_Query::query( array_merge( $args, [ 'page' => 2 ] ) );
+
+		self::assertSame( 2, $first['total'] );
+		self::assertSame( 2, $first['pages'] );
+		self::assertCount( 1, $first['ids'] );
+		self::assertCount( 1, $last['ids'] );
+		self::assertNotSame( $first['ids'][0], $last['ids'][0] );
+		self::assertSame( [ $ids[0], $ids[1] ], array_merge( $first['ids'], $last['ids'] ) );
+	}
+
+	/**
+	 * Date bounds are site-local, not UTC.
+	 */
+	public function test_date_range_uses_site_timezone(): void {
+		update_option( 'timezone_string', 'Pacific/Auckland' );
+
+		$event = Test_Factory::event(
+			[
+				'title' => 'Auckland midnight ' . wp_generate_uuid4(),
+				'meta'  => [
+					'_reevents_start_utc' => '2026-11-30 12:00:00',
+					'_reevents_end_utc'   => '2026-11-30 13:00:00',
+					'_reevents_timezone'  => 'Pacific/Auckland',
+					'_reevents_status'    => 'scheduled',
+				],
+			]
+		);
+
+		Occurrence_Service::sync( $event );
+
+		$result = Event_Query::query(
+			[
+				'from'     => '2026-12-01',
+				'to'       => '2026-12-01',
+				'per_page' => 10,
+				'upcoming' => false,
+			]
+		);
+
+		self::assertContains( $event, $result['ids'] );
+
+		update_option( 'timezone_string', '' );
 	}
 
 	/**
