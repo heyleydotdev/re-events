@@ -81,7 +81,7 @@ final class Shortcode_Docs {
 			$lines[] = '';
 		}
 
-		$lines[] = '## Event fields';
+		$lines[] = '## Field shortcode';
 		$lines[] = '';
 		$lines[] = '`[reevents_field]` prints a single value for custom layouts:';
 		$lines[] = '';
@@ -98,14 +98,24 @@ final class Shortcode_Docs {
 			$lines[] = '| `' . self::cell( (string) $key ) . '` | ' . self::cell( $display ) . ' | ' . self::cell( $arg['description'] ) . ' |';
 		}
 
-		$lines[] = '';
-		$lines[] = '### Fields';
-		$lines[] = '';
-		$lines[] = '| Field | Value |';
-		$lines[] = '| --- | --- |';
+		$lines[]  = '';
+		$contexts = [
+			'event'     => __( 'Event fields', 're-events' ),
+			'venue'     => __( 'Venue fields', 're-events' ),
+			'organizer' => __( 'Organizer fields', 're-events' ),
+		];
 
-		foreach ( Field::fields() as $field => $label ) {
-			$lines[] = '| `' . self::cell( (string) $field ) . '` | ' . self::cell( $label ) . ' |';
+		foreach ( $contexts as $context => $label ) {
+			$lines[] = '### ' . $label;
+			$lines[] = '';
+			$lines[] = '| Field | Value |';
+			$lines[] = '| --- | --- |';
+
+			foreach ( Field::fields( $context ) as $field => $field_label ) {
+				$lines[] = '| `' . self::cell( (string) $field ) . '` | ' . self::cell( $field_label ) . ' |';
+			}
+
+			$lines[] = '';
 		}
 
 		$lines[] = '';

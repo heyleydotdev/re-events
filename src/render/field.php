@@ -10,7 +10,10 @@ declare( strict_types=1 );
 namespace ReEvents\Render;
 
 use ReEvents\Data\Event_Repository;
+use ReEvents\Data\Occurrence_Repository;
+use ReEvents\Data\Organizer_Repository;
 use ReEvents\Data\Ticket_Repository;
+use ReEvents\Data\Venue_Repository;
 use ReEvents\Domain\Event;
 use ReEvents\Services\Currency;
 
@@ -29,9 +32,27 @@ final class Field {
 	/**
 	 * Available fields.
 	 *
+	 * @param string $context `event`, `venue` or `organizer`.
 	 * @return array<string, string>
 	 */
-	public static function fields(): array {
+	public static function fields( string $context = 'event' ): array {
+		if ( 'venue' === $context ) {
+			return self::venue_fields();
+		}
+
+		if ( 'organizer' === $context ) {
+			return self::organizer_fields();
+		}
+
+		return self::event_fields();
+	}
+
+	/**
+	 * Event fields.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function event_fields(): array {
 		return [
 			'title'           => __( 'Title', 're-events' ),
 			'permalink'       => __( 'Permalink', 're-events' ),
@@ -41,10 +62,13 @@ final class Field {
 			'end_date'        => __( 'End date', 're-events' ),
 			'start_time'      => __( 'Start time', 're-events' ),
 			'end_time'        => __( 'End time', 're-events' ),
+			'occurrences'     => __( 'Upcoming dates', 're-events' ),
 			'timezone'        => __( 'Time zone', 're-events' ),
 			'status'          => __( 'Status', 're-events' ),
 			'venue'           => __( 'Venue name', 're-events' ),
 			'venue_address'   => __( 'Venue address', 're-events' ),
+			'venue_website'   => __( 'Venue website', 're-events' ),
+			'venue_map_link'  => __( 'Venue map link', 're-events' ),
 			'venue_link'      => __( 'Venue permalink', 're-events' ),
 			'organizer_names' => __( 'Organizer names', 're-events' ),
 			'categories'      => __( 'Categories', 're-events' ),
@@ -59,6 +83,44 @@ final class Field {
 			'sold_out'        => __( 'Sold out', 're-events' ),
 			'online_links'    => __( 'Online links', 're-events' ),
 			'calendar_links'  => __( 'Add-to-calendar links', 're-events' ),
+		];
+	}
+
+	/**
+	 * Venue fields.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function venue_fields(): array {
+		return [
+			'title'       => __( 'Title', 're-events' ),
+			'permalink'   => __( 'Permalink', 're-events' ),
+			'content'     => __( 'Content', 're-events' ),
+			'description' => __( 'Description', 're-events' ),
+			'address'     => __( 'Address', 're-events' ),
+			'website'     => __( 'Website', 're-events' ),
+			'lat'         => __( 'Latitude', 're-events' ),
+			'lng'         => __( 'Longitude', 're-events' ),
+			'map_link'    => __( 'Map link', 're-events' ),
+			'image'       => __( 'Featured image', 're-events' ),
+			'image_url'   => __( 'Featured image URL', 're-events' ),
+		];
+	}
+
+	/**
+	 * Organizer fields.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function organizer_fields(): array {
+		return [
+			'title'       => __( 'Title', 're-events' ),
+			'permalink'   => __( 'Permalink', 're-events' ),
+			'content'     => __( 'Content', 're-events' ),
+			'description' => __( 'Description', 're-events' ),
+			'types'       => __( 'Types', 're-events' ),
+			'image'       => __( 'Featured image', 're-events' ),
+			'image_url'   => __( 'Featured image URL', 're-events' ),
 		];
 	}
 
@@ -105,6 +167,18 @@ final class Field {
 				'default'     => 'large',
 				'description' => __( 'Image size for `image` and `image_url`.', 're-events' ),
 			],
+			'venue'       => [
+				'default'     => 0,
+				'description' => __( 'Venue ID. `current` uses the current venue.', 're-events' ),
+			],
+			'organizer'   => [
+				'default'     => 0,
+				'description' => __( 'Organizer ID. `current` uses the current organizer.', 're-events' ),
+			],
+			'limit'       => [
+				'default'     => 10,
+				'description' => __( 'Maximum dates for the `occurrences` field.', 're-events' ),
+			],
 		];
 	}
 
@@ -133,19 +207,27 @@ final class Field {
 
 		$name = sanitize_key( (string) $args['field'] );
 
-		if ( ! array_key_exists( $name, self::fields() ) ) {
+		[ $context, $id ] = self::context( $args );
+
+		if ( ! array_key_exists( $name, self::fields( $context ) ) ) {
+			_doing_it_wrong(
+				__METHOD__,
+				sprintf(
+					/* translators: %s: field name. */
+					esc_html__( 'Unknown field "%s".', 're-events' ),
+					esc_html( $name )
+				),
+				'1.0.0'
+			);
+
 			return '';
 		}
 
-		$id = (int) $args['event'];
-
-		if ( ! $id ) {
-			$id = (int) get_the_ID();
+		if ( $id <= 0 || ! get_post( $id ) ) {
+			return '';
 		}
 
-		$event = self::event( $id );
-
-		if ( ! $event || ( 'publish' !== get_post_status( $id ) && ! current_user_can( 'read_post', $id ) ) ) {
+		if ( 'publish' !== get_post_status( $id ) && ! current_user_can( 'read_post', $id ) ) {
 			return '';
 		}
 
@@ -153,7 +235,14 @@ final class Field {
 			return '';
 		}
 
-		$value = self::value( $name, $event, $args );
+		if ( 'event' === $context ) {
+			$event = self::event( $id );
+			$value = $event ? self::event_value( $name, $event, $args ) : '';
+		} elseif ( 'venue' === $context ) {
+			$value = self::venue_value( $name, $id, $args );
+		} else {
+			$value = self::organizer_value( $name, $id, $args );
+		}
 
 		if ( '' === $value ) {
 			$value = '' !== (string) $args['empty_label'] ? esc_html( (string) $args['empty_label'] ) : '';
@@ -171,13 +260,48 @@ final class Field {
 	}
 
 	/**
+	 * Resolve the resource and ID for a field.
+	 *
+	 * @param array<string, mixed> $args Arguments.
+	 * @return array{0:string,1:int}
+	 */
+	private static function context( array $args ): array {
+		$venue = $args['venue'] ?? 0;
+
+		if ( '' !== (string) $venue && '0' !== (string) $venue ) {
+			return [ 'venue', 'current' === $venue ? (int) get_the_ID() : (int) $venue ];
+		}
+
+		$organizer = $args['organizer'] ?? 0;
+
+		if ( '' !== (string) $organizer && '0' !== (string) $organizer ) {
+			return [ 'organizer', 'current' === $organizer ? (int) get_the_ID() : (int) $organizer ];
+		}
+
+		$id = (int) ( $args['event'] ?? 0 );
+
+		if ( ! $id ) {
+			$id = (int) get_the_ID();
+		}
+
+		switch ( get_post_type( $id ) ) {
+			case 'reevents_venue':
+				return [ 'venue', $id ];
+			case 'reevents_organizer':
+				return [ 'organizer', $id ];
+		}
+
+		return [ 'event', $id ];
+	}
+
+	/**
 	 * Build the escaped value for a field.
 	 *
 	 * @param string               $name  Field name.
 	 * @param Event                $event Event.
 	 * @param array<string, mixed> $args  Arguments.
 	 */
-	private static function value( string $name, Event $event, array $args ): string {
+	private static function event_value( string $name, Event $event, array $args ): string {
 		$link      = ! empty( $args['link'] );
 		$separator = esc_html( (string) $args['separator'] );
 
@@ -227,10 +351,10 @@ final class Field {
 				return self::names( $event->organizer_ids, $separator );
 
 			case 'categories':
-				return self::terms( $event->id, 'reevents_event_category', $separator );
+				return self::terms( $event->id, 'reevents_event_category', $separator, $link );
 
 			case 'tags':
-				return self::terms( $event->id, 'reevents_event_tag', $separator );
+				return self::terms( $event->id, 'reevents_event_tag', $separator, $link );
 
 			case 'excerpt':
 				return wp_kses_post( (string) get_the_excerpt( $event->id ) );
@@ -241,13 +365,22 @@ final class Field {
 
 			case 'image':
 			case 'image_url':
-				return self::image( $name, $event, $args, $link );
+				return self::image( $name, $event->id, $args, $link );
 
 			case 'price_from':
 			case 'is_free':
 			case 'seats_left':
 			case 'sold_out':
 				return self::tickets( $name, $event );
+
+			case 'occurrences':
+				return self::occurrences( $event, (int) ( $args['limit'] ?? 10 ), $separator );
+
+			case 'venue_website':
+				return $event->venue_id ? esc_url( (string) get_post_meta( $event->venue_id, '_reevents_website', true ) ) : '';
+
+			case 'venue_map_link':
+				return $event->venue_id ? self::map_link( (string) get_post_meta( $event->venue_id, '_reevents_lat', true ), (string) get_post_meta( $event->venue_id, '_reevents_lng', true ) ) : '';
 
 			case 'online_links':
 				return self::links( $event->online_urls, $separator );
@@ -257,6 +390,159 @@ final class Field {
 		}
 
 		return '';
+	}
+
+	/**
+	 * Build a venue value.
+	 *
+	 * @param string               $name Field name.
+	 * @param int                  $id   Venue ID.
+	 * @param array<string, mixed> $args Arguments.
+	 */
+	private static function venue_value( string $name, int $id, array $args ): string {
+		$venue = ( new Venue_Repository() )->find( $id );
+
+		if ( ! $venue ) {
+			return '';
+		}
+
+		$link      = ! empty( $args['link'] );
+		$separator = esc_html( (string) $args['separator'] );
+
+		switch ( $name ) {
+			case 'title':
+				return self::text( (string) $venue['title'], $link, (string) $venue['permalink'] );
+
+			case 'permalink':
+				return esc_url( (string) $venue['permalink'] );
+
+			case 'content':
+				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core content filter.
+				return wp_kses_post( (string) apply_filters( 'the_content', (string) get_post_field( 'post_content', $id ) ) );
+
+			case 'description':
+				return esc_html( wp_strip_all_tags( (string) $venue['description'] ) );
+
+			case 'address':
+				return esc_html( (string) $venue['address'] );
+
+			case 'website':
+				return esc_url( (string) $venue['website'] );
+
+			case 'lat':
+				return esc_html( (string) $venue['lat'] );
+
+			case 'lng':
+				return esc_html( (string) $venue['lng'] );
+
+			case 'map_link':
+				return self::map_link( (string) $venue['lat'], (string) $venue['lng'] );
+
+			case 'image':
+			case 'image_url':
+				return self::image( $name, $id, $args, $link );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Build an organizer value.
+	 *
+	 * @param string               $name Field name.
+	 * @param int                  $id   Organizer ID.
+	 * @param array<string, mixed> $args Arguments.
+	 */
+	private static function organizer_value( string $name, int $id, array $args ): string {
+		$organizer = ( new Organizer_Repository() )->find( $id );
+
+		if ( ! $organizer ) {
+			return '';
+		}
+
+		$link      = ! empty( $args['link'] );
+		$separator = esc_html( (string) $args['separator'] );
+
+		switch ( $name ) {
+			case 'title':
+				return self::text( (string) $organizer['title'], $link, (string) $organizer['permalink'] );
+
+			case 'permalink':
+				return esc_url( (string) $organizer['permalink'] );
+
+			case 'content':
+				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core content filter.
+				return wp_kses_post( (string) apply_filters( 'the_content', (string) get_post_field( 'post_content', $id ) ) );
+
+			case 'description':
+				return esc_html( wp_strip_all_tags( (string) $organizer['description'] ) );
+
+			case 'types':
+				return self::terms( $id, 'reevents_organizer_type', $separator );
+
+			case 'image':
+			case 'image_url':
+				return self::image( $name, $id, $args, $link );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Build a map link from coordinates.
+	 *
+	 * @param string $lat Latitude.
+	 * @param string $lng Longitude.
+	 */
+	private static function map_link( string $lat, string $lng ): string {
+		if ( ! is_numeric( $lat ) || ! is_numeric( $lng ) ) {
+			return '';
+		}
+
+		$url = add_query_arg(
+			[
+				'mlat' => $lat,
+				'mlon' => $lng,
+			],
+			'https://www.openstreetmap.org/'
+		);
+
+		return esc_url( $url . '#map=16/' . rawurlencode( $lat ) . '/' . rawurlencode( $lng ) );
+	}
+
+	/**
+	 * Join upcoming scheduled dates.
+	 *
+	 * @param Event  $event     Event.
+	 * @param int    $limit     Maximum dates.
+	 * @param string $separator Separator.
+	 */
+	private static function occurrences( Event $event, int $limit, string $separator ): string {
+		$rows  = ( new Occurrence_Repository() )->get_all_for_event( $event->id );
+		$now   = current_time( 'mysql', true );
+		$limit = max( 1, min( 50, $limit ) );
+		$dates = [];
+
+		foreach ( $rows as $row ) {
+			$status = (string) ( $row['status'] ?? '' );
+
+			if ( ( '' !== $status && 'scheduled' !== $status ) || (string) ( $row['start_utc'] ?? '' ) < $now ) {
+				continue;
+			}
+
+			$occurrence = new Event( 0, '', (string) $row['start_utc'], (string) ( $row['end_utc'] ?? '' ), $event->timezone, $event->all_day );
+			$label      = Event_Format::start( $occurrence );
+
+			if ( '' !== $label ) {
+				$dates[] = esc_html( $label );
+			}
+
+			if ( count( $dates ) >= $limit ) {
+				break;
+			}
+		}
+
+		return implode( $separator, $dates );
 	}
 
 	/**
@@ -297,16 +583,20 @@ final class Field {
 	/**
 	 * Join term names.
 	 *
-	 * @param int    $post_id  Post ID.
-	 * @param string $taxonomy Taxonomy.
+	 * @param int    $post_id   Post ID.
+	 * @param string $taxonomy  Taxonomy.
 	 * @param string $separator Separator.
+	 * @param bool   $link      Link each term to its archive.
 	 */
-	private static function terms( int $post_id, string $taxonomy, string $separator ): string {
+	private static function terms( int $post_id, string $taxonomy, string $separator, bool $link = false ): string {
 		$terms = get_the_terms( $post_id, $taxonomy );
 		$names = [];
 
 		foreach ( is_array( $terms ) ? $terms : [] as $term ) {
-			$names[] = esc_html( $term->name );
+			$name = esc_html( $term->name );
+			$url  = $link ? get_term_link( $term ) : '';
+
+			$names[] = $link && ! is_wp_error( $url ) && '' !== $url ? '<a href="' . esc_url( $url ) . '">' . $name . '</a>' : $name;
 		}
 
 		return implode( $separator, $names );
@@ -315,14 +605,14 @@ final class Field {
 	/**
 	 * Render the featured image.
 	 *
-	 * @param string               $name  Field name.
-	 * @param Event                $event Event.
-	 * @param array<string, mixed> $args  Arguments.
-	 * @param bool                 $link  Wrap in the event link.
+	 * @param string               $name    Field name.
+	 * @param int                  $post_id Post ID.
+	 * @param array<string, mixed> $args    Arguments.
+	 * @param bool                 $link    Wrap in the post link.
 	 */
-	private static function image( string $name, Event $event, array $args, bool $link ): string {
+	private static function image( string $name, int $post_id, array $args, bool $link ): string {
 		$size = (string) ( $args['size'] ?? 'large' );
-		$url  = (string) get_the_post_thumbnail_url( $event->id, $size );
+		$url  = (string) get_the_post_thumbnail_url( $post_id, $size );
 
 		if ( '' === $url ) {
 			return '';
@@ -332,13 +622,13 @@ final class Field {
 			return esc_url( $url );
 		}
 
-		$image = get_the_post_thumbnail( $event->id, $size, [ 'class' => 'reevents-field-image' ] );
+		$image = get_the_post_thumbnail( $post_id, $size, [ 'class' => 'reevents-field-image' ] );
 
 		if ( '' === $image ) {
 			return '';
 		}
 
-		return $link ? '<a href="' . esc_url( (string) get_permalink( $event->id ) ) . '">' . $image . '</a>' : $image;
+		return $link ? '<a href="' . esc_url( (string) get_permalink( $post_id ) ) . '">' . $image . '</a>' : $image;
 	}
 
 	/**

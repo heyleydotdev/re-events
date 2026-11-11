@@ -84,6 +84,7 @@ final class Field_Test extends WP_UnitTestCase {
 				]
 			)
 		);
+		$this->setExpectedIncorrectUsage( 'ReEvents\\Render\\Field::render' );
 		self::assertSame(
 			'',
 			Field::render(
@@ -201,6 +202,16 @@ final class Field_Test extends WP_UnitTestCase {
 				[
 					'field' => 'categories',
 					'event' => $id,
+				]
+			)
+		);
+		self::assertStringContainsString(
+			'reevents_event_category=',
+			Field::render(
+				[
+					'field' => 'categories',
+					'event' => $id,
+					'link'  => true,
 				]
 			)
 		);
@@ -462,6 +473,193 @@ final class Field_Test extends WP_UnitTestCase {
 					'field' => 'title',
 					'event' => $id,
 					'class' => 'text-lg mt-4',
+				]
+			)
+		);
+	}
+
+	/**
+	 * Venue context fields.
+	 */
+	public function test_venue_fields(): void {
+		$venue = wp_insert_post(
+			[
+				'post_type'    => 'reevents_venue',
+				'post_status'  => 'publish',
+				'post_title'   => 'Hall & Co',
+				'post_content' => 'Venue body',
+			]
+		);
+		update_post_meta( $venue, '_reevents_address', '1 Main St' );
+		update_post_meta( $venue, '_reevents_website', 'https://example.com/venue' );
+		update_post_meta( $venue, '_reevents_lat', '40.7' );
+		update_post_meta( $venue, '_reevents_lng', '-74.0' );
+
+		self::assertStringContainsString(
+			'Hall &amp; Co',
+			Field::render(
+				[
+					'field' => 'title',
+					'venue' => $venue,
+				]
+			)
+		);
+		self::assertStringContainsString(
+			'1 Main St',
+			Field::render(
+				[
+					'field' => 'address',
+					'venue' => $venue,
+				]
+			)
+		);
+		self::assertStringContainsString(
+			'https://example.com/venue',
+			Field::render(
+				[
+					'field' => 'website',
+					'venue' => $venue,
+				]
+			)
+		);
+		self::assertStringContainsString(
+			'openstreetmap.org',
+			Field::render(
+				[
+					'field' => 'map_link',
+					'venue' => $venue,
+				]
+			)
+		);
+		self::assertStringContainsString(
+			'mlat=40.7',
+			Field::render(
+				[
+					'field' => 'map_link',
+					'venue' => $venue,
+				]
+			)
+		);
+		self::assertStringContainsString(
+			'Venue body',
+			Field::render(
+				[
+					'field' => 'description',
+					'venue' => $venue,
+				]
+			)
+		);
+	}
+
+	/**
+	 * The current venue is used on its own page.
+	 */
+	public function test_current_venue(): void {
+		$venue = wp_insert_post(
+			[
+				'post_type'   => 'reevents_venue',
+				'post_status' => 'publish',
+				'post_title'  => 'Current venue',
+			]
+		);
+		update_post_meta( $venue, '_reevents_website', 'https://example.com/current' );
+
+		$this->go_to( get_permalink( $venue ) );
+
+		self::assertStringContainsString( 'https://example.com/current', Field::render( [ 'field' => 'website' ] ) );
+		self::assertStringContainsString(
+			'https://example.com/current',
+			Field::render(
+				[
+					'field' => 'website',
+					'venue' => 'current',
+				]
+			)
+		);
+	}
+
+	/**
+	 * Organizer context fields.
+	 */
+	public function test_organizer_fields(): void {
+		$organizer = wp_insert_post(
+			[
+				'post_type'    => 'reevents_organizer',
+				'post_status'  => 'publish',
+				'post_title'   => 'Festival Org',
+				'post_content' => 'Organizer body',
+			]
+		);
+		wp_set_object_terms( $organizer, [ 'Festival' ], 'reevents_organizer_type' );
+
+		self::assertStringContainsString(
+			'Festival Org',
+			Field::render(
+				[
+					'field'     => 'title',
+					'organizer' => $organizer,
+				]
+			)
+		);
+		self::assertStringContainsString(
+			'Organizer body',
+			Field::render(
+				[
+					'field'     => 'description',
+					'organizer' => $organizer,
+				]
+			)
+		);
+		self::assertStringContainsString(
+			'Festival',
+			Field::render(
+				[
+					'field'     => 'types',
+					'organizer' => $organizer,
+				]
+			)
+		);
+	}
+
+	/**
+	 * Draft venues stay hidden from anonymous callers.
+	 */
+	public function test_draft_venue_is_hidden(): void {
+		$venue = wp_insert_post(
+			[
+				'post_type'   => 'reevents_venue',
+				'post_status' => 'draft',
+				'post_title'  => 'Draft venue',
+			]
+		);
+
+		wp_set_current_user( 0 );
+
+		self::assertSame(
+			'',
+			Field::render(
+				[
+					'field' => 'title',
+					'venue' => $venue,
+				]
+			)
+		);
+	}
+
+	/**
+	 * Stored occurrences are listed as dates.
+	 */
+	public function test_occurrences_field(): void {
+		$id = $this->event();
+
+		\ReEvents\Services\Occurrence_Service::sync( $id );
+
+		self::assertStringContainsString(
+			'2027',
+			Field::render(
+				[
+					'field' => 'occurrences',
+					'event' => $id,
 				]
 			)
 		);
