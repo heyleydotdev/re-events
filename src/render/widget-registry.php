@@ -61,8 +61,14 @@ final class Widget_Registry {
 						'default' => '',
 					],
 					'venue'           => [
-						'type'    => 'number',
-						'default' => 0,
+						'type'        => 'number',
+						'default'     => 0,
+						'description' => __( 'Venue ID, or `current` on a venue page.', 're-events' ),
+					],
+					'organizer'       => [
+						'type'        => 'number',
+						'default'     => 0,
+						'description' => __( 'Organizer ID, or `current` on an organizer page.', 're-events' ),
 					],
 					'upcoming'        => [
 						'type'    => 'toggle',

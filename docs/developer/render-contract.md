@@ -22,7 +22,8 @@ Do not rely on inline styles. The plugin does not output them.
 | `wrapper_class` | empty              | Extra class on the wrapper |
 | `limit`         | `5`                | Maximum events             |
 | `category`      | empty              | Category term ID           |
-| `venue`         | `0`                | Venue ID                   |
+| `venue`         | `0`                | Venue ID, or `current` on a venue page |
+| `organizer`     | `0`                | Organizer ID, or `current` on an organizer page |
 | `upcoming`      | `true`               | Only upcoming events       |
 | `show_venue`    | `true`               | Show the venue name        |
 | `page`          | `0`                  | Page number; 0 uses the current page |

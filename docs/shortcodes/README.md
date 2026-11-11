@@ -15,6 +15,7 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `limit` | 5 | Maximum number of items. |
 | `category` | — | Limit to a category term ID. |
 | `venue` | 0 | Limit to a venue ID. |
+| `organizer` | 0 | Organizer ID, or `current` on an organizer page. |
 | `upcoming` | 1 | Show upcoming events only. |
 | `show_venue` | 1 | Display the venue name. |
 | `page` | 0 | Page number. 0 uses the current page. |
@@ -163,7 +164,7 @@ Every registered widget is listed here. Arguments left at their default can be o
 [reevents_booking_form ticket_label="Ticket" time_label="Time" quantity_label="Seats" name_label="Name" email_label="Email" button_label="Book" success_message="Booking confirmed." free_label="Free" reference_label="Reference:"]
 ```
 
-## Event fields
+## Field shortcode
 
 `[reevents_field]` prints a single value for custom layouts:
 
@@ -182,8 +183,11 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `class` | — | Extra classes on the wrapper. |
 | `tag` | `span` | Wrapper tag: `span`, `div` or `p`. |
 | `size` | `large` | Image size for `image` and `image_url`. |
+| `venue` | `0` | Venue ID. `current` uses the current venue. |
+| `organizer` | `0` | Organizer ID. `current` uses the current organizer. |
+| `limit` | `10` | Maximum dates for the `occurrences` field. |
 
-### Fields
+### Event fields
 
 | Field | Value |
 | --- | --- |
@@ -195,10 +199,13 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `end_date` | End date |
 | `start_time` | Start time |
 | `end_time` | End time |
+| `occurrences` | Upcoming dates |
 | `timezone` | Time zone |
 | `status` | Status |
 | `venue` | Venue name |
 | `venue_address` | Venue address |
+| `venue_website` | Venue website |
+| `venue_map_link` | Venue map link |
 | `venue_link` | Venue permalink |
 | `organizer_names` | Organizer names |
 | `categories` | Categories |
@@ -213,4 +220,33 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `sold_out` | Sold out |
 | `online_links` | Online links |
 | `calendar_links` | Add-to-calendar links |
+
+### Venue fields
+
+| Field | Value |
+| --- | --- |
+| `title` | Title |
+| `permalink` | Permalink |
+| `content` | Content |
+| `description` | Description |
+| `address` | Address |
+| `website` | Website |
+| `lat` | Latitude |
+| `lng` | Longitude |
+| `map_link` | Map link |
+| `image` | Featured image |
+| `image_url` | Featured image URL |
+
+### Organizer fields
+
+| Field | Value |
+| --- | --- |
+| `title` | Title |
+| `permalink` | Permalink |
+| `content` | Content |
+| `description` | Description |
+| `types` | Types |
+| `image` | Featured image |
+| `image_url` | Featured image URL |
+
 

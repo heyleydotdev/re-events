@@ -11,6 +11,7 @@ namespace ReEvents\Tests\Integration;
 
 use ReEvents\CLI\Test_Factory;
 use ReEvents\Data\Ticket_Repository;
+use ReEvents\Query\Event_Query;
 use ReEvents\Render\Events_List;
 use WP_UnitTestCase;
 
@@ -106,6 +107,107 @@ final class Events_List_Test extends WP_UnitTestCase {
 				]
 			)
 		);
+	}
+
+	/**
+	 * The current venue filters its own page.
+	 */
+	public function test_current_venue_filter(): void {
+		$venue = wp_insert_post(
+			[
+				'post_type'   => 'reevents_venue',
+				'post_status' => 'publish',
+				'post_title'  => 'Filter venue',
+			]
+		);
+
+		$inside  = Test_Factory::event(
+			[
+				'title' => 'Venue event ' . wp_generate_uuid4(),
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+3 days' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+3 days +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_venue_id'  => $venue,
+				],
+			]
+		);
+		$outside = Test_Factory::event(
+			[
+				'title' => 'Other event ' . wp_generate_uuid4(),
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+3 days' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+3 days +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+				],
+			]
+		);
+
+		$this->go_to( get_permalink( $venue ) );
+		$html = Events_List::render(
+			[
+				'limit'    => 20,
+				'venue'    => 'current',
+				'upcoming' => false,
+			]
+		);
+
+		self::assertStringContainsString( get_the_title( $inside ), $html );
+		self::assertStringNotContainsString( get_the_title( $outside ), $html );
+	}
+
+	/**
+	 * Organizer filtering uses the stored organizer list.
+	 */
+	public function test_organizer_filter(): void {
+		$first  = wp_insert_post(
+			[
+				'post_type'   => 'reevents_organizer',
+				'post_status' => 'publish',
+				'post_title'  => 'Org A',
+			]
+		);
+		$second = wp_insert_post(
+			[
+				'post_type'   => 'reevents_organizer',
+				'post_status' => 'publish',
+				'post_title'  => 'Org B',
+			]
+		);
+
+		$inside  = Test_Factory::event(
+			[
+				'title' => 'Org event ' . wp_generate_uuid4(),
+				'meta'  => [
+					'_reevents_start_utc'     => gmdate( 'Y-m-d H:i:s', strtotime( '+4 days' ) ),
+					'_reevents_end_utc'       => gmdate( 'Y-m-d H:i:s', strtotime( '+4 days +1 hour' ) ),
+					'_reevents_timezone'      => 'UTC',
+					'_reevents_organizer_ids' => [ $first ],
+				],
+			]
+		);
+		$outside = Test_Factory::event(
+			[
+				'title' => 'Other org event ' . wp_generate_uuid4(),
+				'meta'  => [
+					'_reevents_start_utc'     => gmdate( 'Y-m-d H:i:s', strtotime( '+4 days' ) ),
+					'_reevents_end_utc'       => gmdate( 'Y-m-d H:i:s', strtotime( '+4 days +1 hour' ) ),
+					'_reevents_timezone'      => 'UTC',
+					'_reevents_organizer_ids' => [ $second ],
+				],
+			]
+		);
+
+		$result = Event_Query::query(
+			[
+				'organizer' => $first,
+				'upcoming'  => false,
+				'per_page'  => 100,
+			]
+		);
+
+		self::assertContains( $inside, $result['ids'] );
+		self::assertNotContains( $outside, $result['ids'] );
 	}
 
 	/**

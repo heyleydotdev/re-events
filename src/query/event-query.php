@@ -68,6 +68,15 @@ final class Event_Query {
 			];
 		}
 
+		if ( ! empty( $args['organizer'] ) ) {
+			// shortcut: organizers are a serialized meta array, so this is an unindexed LIKE scan. Move to an index table when organizer pages get traffic.
+			$query_args['meta_query'][] = [
+				'key'     => '_reevents_organizer_ids',
+				'value'   => 'i:' . (int) $args['organizer'] . ';',
+				'compare' => 'LIKE',
+			];
+		}
+
 		if ( '' !== $from || '' !== $to || $upcoming ) {
 			$now   = current_time( 'mysql', true );
 			$start = '' !== $from ? $from . ' 00:00:00' : $now;

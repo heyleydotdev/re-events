@@ -26,20 +26,32 @@ final class Events_List {
 	public static function render( array $args ): string {
 		$requested = absint( $_GET['reevents_page'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public pagination.
 		$page      = max( 1, $requested > 0 ? $requested : (int) ( $args['page'] ?? 1 ) );
-		$result    = Event_Query::query(
+		$venue     = $args['venue'] ?? 0;
+		$organizer = $args['organizer'] ?? 0;
+
+		if ( 'current' === $venue ) {
+			$venue = 'reevents_venue' === get_post_type() ? (int) get_the_ID() : 0;
+		}
+
+		if ( 'current' === $organizer ) {
+			$organizer = 'reevents_organizer' === get_post_type() ? (int) get_the_ID() : 0;
+		}
+
+		$result = Event_Query::query(
 			[
-				'per_page' => max( 1, (int) ( $args['limit'] ?? 5 ) ),
-				'page'     => $page,
-				'search'   => (string) ( $args['search'] ?? '' ),
-				'category' => (int) ( $args['category'] ?? 0 ),
-				'venue'    => (int) ( $args['venue'] ?? 0 ),
-				'upcoming' => ! empty( $args['upcoming'] ),
-				'from'     => (string) ( $args['from'] ?? '' ),
-				'to'       => (string) ( $args['to'] ?? '' ),
+				'per_page'  => max( 1, (int) ( $args['limit'] ?? 5 ) ),
+				'page'      => $page,
+				'search'    => (string) ( $args['search'] ?? '' ),
+				'category'  => (int) ( $args['category'] ?? 0 ),
+				'venue'     => (int) $venue,
+				'organizer' => (int) $organizer,
+				'upcoming'  => ! empty( $args['upcoming'] ),
+				'from'      => (string) ( $args['from'] ?? '' ),
+				'to'        => (string) ( $args['to'] ?? '' ),
 			]
 		);
-		$repo      = new Event_Repository();
-		$events    = [];
+		$repo   = new Event_Repository();
+		$events = [];
 
 		foreach ( $repo->find_many( $result['ids'] ) as $event ) {
 			$events[] = $event;
