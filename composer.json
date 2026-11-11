@@ -18,6 +18,7 @@
 		"doctrine/instantiator": "^1.5",
 		"php-stubs/wordpress-stubs": "^6.5",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"phpdocumentor/reflection-docblock": "^5.6",
 		"phpstan/phpstan": "^2.0",
 		"phpunit/phpunit": "^9.6",
 		"squizlabs/php_codesniffer": "^3.10",
@@ -38,6 +39,7 @@
 		"test": "phpunit --configuration phpunit.xml.dist",
 		"test:integration": "phpunit --configuration phpunit-integration.xml.dist",
 		"test:coverage": "phpunit --configuration phpunit.xml.dist --coverage-text --coverage-clover coverage/unit.xml",
+		"api-docs": "php bin/generate-api-docs.php",
 		"release": "bash bin/build-release.sh",
 		"hooks": "git config core.hooksPath .githooks"
 	}
