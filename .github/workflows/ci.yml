@@ -119,6 +119,10 @@ jobs:
         run: |
           bun run wp-env run cli wp re-events shortcode-docs | sed -n '/^# ReEvents shortcodes/,$p' > /tmp/shortcodes.md
           diff -u docs/shortcodes/README.md /tmp/shortcodes.md
+      - name: Check public API docs are current
+        run: |
+          php bin/generate-api-docs.php
+          git diff --exit-code docs/api/public-api-reference.md
       - name: Run self-test
         run: bun run wp-env run cli wp re-events self-test
       - name: Run booking concurrency test
