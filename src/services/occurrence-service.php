@@ -109,10 +109,9 @@ final class Occurrence_Service {
 	 * Expand an event into occurrence rows.
 	 *
 	 * @param Event $event Event.
-	 * @param int   $limit Maximum occurrence dates.
 	 * @return array<int, array{start_utc:string,end_utc:string,timezone:string,timeslot_key:string,capacity:int,status:string}>
 	 */
-	public static function expand( Event $event, int $limit = 500 ): array {
+	public static function expand( Event $event ): array {
 		$start = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', $event->start_utc, new DateTimeZone( 'UTC' ) );
 
 		if ( ! $start instanceof DateTimeImmutable ) {
@@ -167,7 +166,7 @@ final class Occurrence_Service {
 
 		$occurrences = [];
 
-		foreach ( $set->getOccurrencesBetween( $window_start, $window_end, $limit ) as $date ) {
+		foreach ( $set->getOccurrencesBetween( $window_start, $window_end ) as $date ) {
 			if ( ! empty( $event->timeslots ) ) {
 				foreach ( $event->timeslots as $slot ) {
 					$occurrences[] = self::slot_row( $date, $slot, $event, $timezone );
