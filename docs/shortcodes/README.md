@@ -38,12 +38,12 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `show_venue` | 1 | Display the venue name. |
 | `show_organizers` | 1 | Display the organizer names. |
 | `show_online_links` | 1 | Display online event links. |
-| `show_calendar_links` | 1 |  |
-| `calendar_label` | Add to calendar |  |
-| `google_label` | Google |  |
-| `outlook_label` | Outlook |  |
-| `office365_label` | Office 365 |  |
-| `ical_label` | Apple / iCal |  |
+| `show_calendar_links` | 1 | Display add-to-calendar links. |
+| `calendar_label` | Add to calendar | Heading above the calendar links. |
+| `google_label` | Google | Google Calendar link label. |
+| `outlook_label` | Outlook | Outlook link label. |
+| `office365_label` | Office 365 | Office 365 link label. |
+| `ical_label` | Apple / iCal | Apple / iCal link label. |
 | `show_content` | 1 | Display the event description. |
 
 ```text
