@@ -9,6 +9,7 @@ ReEvents is an open-source event manager for WordPress.
 - [Custom booking forms](api/booking-form.md) — schema endpoint, payload and field errors.
 - [Public API](api/public-api.md) — PHP CRUD functions for events, tickets and bookings.
 - [Public API reference](api/public-api-reference.md) — generated function signatures.
+- [Page builders](developer/builders.md) — Elementor widgets and the shortcode fallback.
 - [Bookings](bookings.md) — timeslots, capacity and cancellation.
 - [Maps](maps.md) — OpenStreetMap, Google Maps and geocoding.
 - [Payments](payments.md) — Stripe and PayPal setup, webhooks and test checks.

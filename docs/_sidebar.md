@@ -10,6 +10,7 @@
 - Developer
   - [Architecture](/developer/architecture.md)
   - [Render contract](/developer/render-contract.md)
+  - [Page builders](/developer/builders.md)
   - [Feeds and structured data](/developer/feeds.md)
   - [CSV and CLI](/developer/csv-cli.md)
   - [Payment gateways](/developer/payments.md)
