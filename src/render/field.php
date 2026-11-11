@@ -55,24 +55,69 @@ final class Field {
 	}
 
 	/**
+	 * Shortcode arguments.
+	 *
+	 * @return array<string, array{default:string|int|bool,description:string}>
+	 */
+	public static function args(): array {
+		return [
+			'field'       => [
+				'default'     => 'title',
+				'description' => __( 'One of the fields listed below.', 're-events' ),
+			],
+			'event'       => [
+				'default'     => 0,
+				'description' => __( 'Event ID. `0` uses the current post.', 're-events' ),
+			],
+			'label'       => [
+				'default'     => '',
+				'description' => __( 'Text shown before the value.', 're-events' ),
+			],
+			'link'        => [
+				'default'     => false,
+				'description' => __( 'Wrap the value in a link where the field supports one.', 're-events' ),
+			],
+			'separator'   => [
+				'default'     => ', ',
+				'description' => __( 'Separator between list values.', 're-events' ),
+			],
+			'empty_label' => [
+				'default'     => '',
+				'description' => __( 'Text shown when the value is empty.', 're-events' ),
+			],
+			'class'       => [
+				'default'     => '',
+				'description' => __( 'Extra classes on the wrapper.', 're-events' ),
+			],
+			'tag'         => [
+				'default'     => 'span',
+				'description' => __( 'Wrapper tag: `span`, `div` or `p`.', 're-events' ),
+			],
+		];
+	}
+
+	/**
+	 * Shortcode argument defaults.
+	 *
+	 * @return array<string, string|int|bool>
+	 */
+	private static function defaults(): array {
+		$defaults = [];
+
+		foreach ( self::args() as $key => $arg ) {
+			$defaults[ $key ] = $arg['default'];
+		}
+
+		return $defaults;
+	}
+
+	/**
 	 * Render a field.
 	 *
 	 * @param array<string, mixed> $args Shortcode arguments.
 	 */
 	public static function render( array $args ): string {
-		$args = wp_parse_args(
-			$args,
-			[
-				'field'       => 'title',
-				'event'       => 0,
-				'label'       => '',
-				'link'        => false,
-				'separator'   => ', ',
-				'empty_label' => '',
-				'class'       => '',
-				'tag'         => 'span',
-			]
-		);
+		$args = wp_parse_args( $args, self::defaults() );
 
 		$name = sanitize_key( (string) $args['field'] );
 

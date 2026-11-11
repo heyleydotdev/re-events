@@ -72,6 +72,7 @@ final class Field_Test extends WP_UnitTestCase {
 		);
 
 		self::assertStringContainsString( 'Field event &amp; more', $title );
+		self::assertStringContainsString( 'Field event', Field::render( [ 'event' => $id ] ) );
 		self::assertStringContainsString( '<span class="reevents-field reevents-field-title">', $title );
 		self::assertStringContainsString(
 			'2027',
