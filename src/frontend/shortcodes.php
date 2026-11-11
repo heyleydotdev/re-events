@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Frontend;
 
+use ReEvents\Render\Field;
 use ReEvents\Render\Widget_Registry;
 
 /**
@@ -32,5 +33,12 @@ final class Shortcodes {
 				}
 			);
 		}
+
+		add_shortcode(
+			'reevents_field',
+			static function ( array $atts ): string {
+				return Field::render( $atts );
+			}
+		);
 	}
 }

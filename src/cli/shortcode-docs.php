@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\CLI;
 
+use ReEvents\Render\Field;
 use ReEvents\Render\Widget_Registry;
 use WP_CLI;
 
@@ -79,6 +80,24 @@ final class Shortcode_Docs {
 			$lines[] = '```';
 			$lines[] = '';
 		}
+
+		$lines[] = '## Event fields';
+		$lines[] = '';
+		$lines[] = '`[reevents_field]` prints a single value for custom layouts:';
+		$lines[] = '';
+		$lines[] = '```text';
+		$lines[] = '[reevents_field field="venue" label="Venue:"]';
+		$lines[] = '```';
+		$lines[] = '';
+		$lines[] = '| Field | Value |';
+		$lines[] = '| --- | --- |';
+
+		foreach ( Field::fields() as $field => $label ) {
+			$lines[] = '| `' . self::cell( (string) $field ) . '` | ' . self::cell( $label ) . ' |';
+		}
+
+		$lines[] = '';
+		$lines[] = 'Arguments: `field`, `event` (defaults to the current post), `label`, `link`, `separator`, `empty_label`, `class`, `tag`.';
 
 		return implode( "\n", $lines );
 	}

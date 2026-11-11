@@ -155,3 +155,35 @@ Every registered widget is listed here. Arguments left at their default can be o
 [reevents_booking ticket_label="Ticket" time_label="Time" quantity_label="Seats" name_label="Name" email_label="Email" button_label="Book" success_message="Booking confirmed." free_label="Free" reference_label="Reference:"]
 ```
 
+## Event fields
+
+`[reevents_field]` prints a single value for custom layouts:
+
+```text
+[reevents_field field="venue" label="Venue:"]
+```
+
+| Field | Value |
+| --- | --- |
+| `title` | Title |
+| `permalink` | Permalink |
+| `start` | Start date and time |
+| `end` | End date and time |
+| `start_date` | Start date |
+| `end_date` | End date |
+| `start_time` | Start time |
+| `end_time` | End time |
+| `timezone` | Time zone |
+| `status` | Status |
+| `venue` | Venue name |
+| `venue_address` | Venue address |
+| `venue_link` | Venue permalink |
+| `organizer_names` | Organizer names |
+| `categories` | Categories |
+| `tags` | Tags |
+| `excerpt` | Excerpt |
+| `content` | Content |
+| `online_links` | Online links |
+| `calendar_links` | Add-to-calendar links |
+
+Arguments: `field`, `event` (defaults to the current post), `label`, `link`, `separator`, `empty_label`, `class`, `tag`.
