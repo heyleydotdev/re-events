@@ -38,4 +38,26 @@ function reevents_manually_load_plugin(): void {
 
 tests_add_filter( 'muplugins_loaded', 'reevents_manually_load_plugin' );
 
+/**
+ * Create and empty the plugin tables.
+ *
+ * Custom tables survive the core table reset, so old rows would leak
+ * between runs and collide with reused post IDs.
+ */
+function reevents_reset_tables(): void {
+	global $wpdb;
+
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Test reset.
+	$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $wpdb->esc_like( 'reevents_' ) . '%' ) );
+
+	\ReEvents\Data\Schema::install();
+
+	foreach ( [ 'reevents_occurrences', 'reevents_tickets', 'reevents_bookings', 'reevents_attendees' ] as $reevents_table ) {
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Test reset.
+		$wpdb->query( "TRUNCATE TABLE {$wpdb->prefix}{$reevents_table}" );
+	}
+}
+
+tests_add_filter( 'muplugins_loaded', 'reevents_reset_tables' );
+
 require "{$reevents_tests_dir}/includes/bootstrap.php";
