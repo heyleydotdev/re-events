@@ -61,6 +61,39 @@ final class Ticket_Editor_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Sale dates are typed in the event time zone and stored as UTC.
+	 */
+	public function test_sale_dates_use_event_timezone(): void {
+		update_post_meta( $this->event, '_reevents_timezone', 'America/New_York' );
+
+		$this->submit(
+			[
+				'id'         => '0',
+				'name'       => 'Timed sale',
+				'price'      => '10.00',
+				'currency'   => 'USD',
+				'sale_start' => '2026-06-01 10:00:00',
+				'sale_end'   => '2026-06-01 12:00:00',
+				'delete'     => '0',
+			]
+		);
+
+		Ticket_Editor::save( $this->event );
+
+		$tickets = ( new Ticket_Repository() )->for_event( $this->event );
+
+		self::assertSame( '2026-06-01 14:00:00', $tickets[0]['sale_start_utc'] );
+		self::assertSame( '2026-06-01 16:00:00', $tickets[0]['sale_end_utc'] );
+
+		ob_start();
+		Ticket_Editor::render( get_post( $this->event ) );
+		$html = (string) ob_get_clean();
+
+		self::assertStringContainsString( 'value="2026-06-01 10:00:00"', $html );
+		self::assertStringContainsString( 'value="2026-06-01 12:00:00"', $html );
+	}
+
+	/**
 	 * A row creates a ticket with a converted price.
 	 */
 	public function test_save_creates_ticket(): void {

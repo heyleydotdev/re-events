@@ -9,6 +9,8 @@ declare( strict_types=1 );
 
 namespace ReEvents\Admin;
 
+use DateTimeImmutable;
+use DateTimeZone;
 use ReEvents\Data\Meta;
 use ReEvents\Data\Ticket_Repository;
 use ReEvents\Services\Currency;
@@ -87,6 +89,7 @@ final class Ticket_Editor {
 	public static function render( WP_Post $post ): void {
 		$tickets  = ( new Ticket_Repository() )->for_event( $post->ID );
 		$currency = (string) Settings::get( 'default_currency', 'USD' );
+		$timezone = self::timezone( $post->ID );
 
 		wp_nonce_field( self::NONCE, 'reevents_tickets_nonce' );
 
@@ -102,21 +105,27 @@ final class Ticket_Editor {
 		$index = 0;
 
 		foreach ( $tickets as $ticket ) {
-			self::row( $index, $ticket, $currency );
+			self::row( $index, $ticket, $currency, $timezone );
 			++$index;
 		}
 
 		if ( ! $tickets ) {
-			self::row( 0, [], $currency );
+			self::row( 0, [], $currency, $timezone );
 		}
 
 		echo '</div>';
 		echo '<template id="reevents-ticket-template">';
-		self::row( '__i__', [], $currency );
+		self::row( '__i__', [], $currency, $timezone );
 		echo '</template>';
 		echo '<p><button type="button" class="button" id="reevents-add-ticket">' . esc_html__( 'Add ticket', 're-events' ) . '</button> ';
 		echo '<button type="button" class="button" id="reevents-add-free-ticket" data-name="' . esc_attr__( 'RSVP', 're-events' ) . '">' . esc_html__( 'Add free ticket', 're-events' ) . '</button></p>';
-		echo '<p class="description">' . esc_html__( 'Capacity 0 means unlimited. Sale dates use UTC and accept YYYY-MM-DD HH:MM:SS. Prices use a dot for decimals, for example 25.00.', 're-events' ) . '</p>';
+		echo '<p class="description">' . esc_html(
+			sprintf(
+				/* translators: %s: event time zone. */
+				__( 'Capacity 0 means unlimited. Sale dates use %s and accept YYYY-MM-DD HH:MM:SS. Prices use a dot for decimals, for example 25.00.', 're-events' ),
+				$timezone
+			)
+		) . '</p>';
 		echo '</div>';
 	}
 
@@ -126,8 +135,9 @@ final class Ticket_Editor {
 	 * @param int|string           $index    Row index.
 	 * @param array<string, mixed> $ticket   Ticket row.
 	 * @param string               $currency Default currency.
+	 * @param string               $timezone Event time zone.
 	 */
-	private static function row( $index, array $ticket, string $currency ): void {
+	private static function row( $index, array $ticket, string $currency, string $timezone ): void {
 		$name      = (string) ( $ticket['name'] ?? '' );
 		$currency  = (string) ( $ticket['currency'] ?? $currency );
 		$price     = isset( $ticket['price_minor'] ) ? Currency::amount( (int) $ticket['price_minor'], $currency ) : '0.00';
@@ -154,12 +164,13 @@ final class Ticket_Editor {
 		}
 
 		$sale_labels = [
-			'sale_start_utc' => __( 'Sale start (UTC)', 're-events' ),
-			'sale_end_utc'   => __( 'Sale end (UTC)', 're-events' ),
+			'sale_start' => __( 'Sale start', 're-events' ),
+			'sale_end'   => __( 'Sale end', 're-events' ),
 		];
 
 		foreach ( $sale_labels as $key => $label ) {
-			echo '<label class="reevents-ticket-field"><span>' . esc_html( $label ) . '</span><input type="text" placeholder="YYYY-MM-DD HH:MM:SS" name="' . esc_attr( $name_attr . '[' . $key . ']' ) . '" value="' . esc_attr( (string) ( $ticket[ $key ] ?? '' ) ) . '" /></label>';
+			$value = self::to_local( (string) ( $ticket[ $key . '_utc' ] ?? '' ), $timezone );
+			echo '<label class="reevents-ticket-field"><span>' . esc_html( $label ) . '</span><input type="text" placeholder="YYYY-MM-DD HH:MM:SS" name="' . esc_attr( $name_attr . '[' . $key . ']' ) . '" value="' . esc_attr( $value ) . '" /></label>';
 		}
 
 		echo '<label class="reevents-ticket-field"><span>' . esc_html__( 'Status', 're-events' ) . '</span><select name="' . esc_attr( $name_attr . '[status]' ) . '">';
@@ -204,8 +215,9 @@ final class Ticket_Editor {
 
 		set_transient( $lock_key, $payload, 30 );
 
-		$repo = new Ticket_Repository();
-		$fail = false;
+		$repo     = new Ticket_Repository();
+		$fail     = false;
+		$timezone = self::timezone( $post_id );
 
 		foreach ( $rows as $row ) {
 			if ( ! is_array( $row ) ) {
@@ -257,8 +269,8 @@ final class Ticket_Editor {
 					'capacity'        => absint( $row['capacity'] ?? 0 ),
 					'min_per_booking' => max( 1, absint( $row['min_per_booking'] ?? 1 ) ),
 					'max_per_booking' => absint( $row['max_per_booking'] ?? 0 ),
-					'sale_start_utc'  => Meta::sanitize_datetime( (string) ( $row['sale_start_utc'] ?? '' ) ),
-					'sale_end_utc'    => Meta::sanitize_datetime( (string) ( $row['sale_end_utc'] ?? '' ) ),
+					'sale_start_utc'  => Meta::local_to_utc( (string) ( $row['sale_start'] ?? '' ), $timezone ),
+					'sale_end_utc'    => Meta::local_to_utc( (string) ( $row['sale_end'] ?? '' ), $timezone ),
 					'status'          => in_array( $status, [ 'active', 'inactive' ], true ) ? $status : 'active',
 				]
 			);
@@ -276,6 +288,29 @@ final class Ticket_Editor {
 				}
 			);
 		}
+	}
+
+	/**
+	 * Event time zone, falling back to the plugin default.
+	 *
+	 * @param int $post_id Event ID.
+	 */
+	private static function timezone( int $post_id ): string {
+		$timezone = (string) get_post_meta( $post_id, '_reevents_timezone', true );
+
+		return Meta::sanitize_timezone( '' !== $timezone ? $timezone : (string) Settings::get( 'timezone', 'UTC' ) );
+	}
+
+	/**
+	 * Convert a stored UTC date to the event time zone.
+	 *
+	 * @param string $utc      UTC datetime.
+	 * @param string $timezone Event time zone.
+	 */
+	private static function to_local( string $utc, string $timezone ): string {
+		$date = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', $utc, new DateTimeZone( 'UTC' ) );
+
+		return $date instanceof DateTimeImmutable ? $date->setTimezone( new DateTimeZone( $timezone ) )->format( 'Y-m-d H:i:s' ) : '';
 	}
 
 	/**

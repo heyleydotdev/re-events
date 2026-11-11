@@ -18,7 +18,7 @@ Open **ReEvents → Settings**.
 1. **Venues** — title, address, coordinates and website. Without coordinates the venue is geocoded on save.
 2. **Organizers** — title, description and organizer types.
 3. **Events** — title, description, featured image, start and end, timezone, recurrence rule, timeslots and online links.
-4. **Tickets** — add them in the **Tickets** box on the event screen: price, currency, capacity, minimum and maximum seats, sale window and status. **Add free ticket** pre-fills an RSVP with price 0 and the event capacity.
+4. **Tickets** — add them in the **Tickets** box on the event screen: price, currency, capacity, minimum and maximum seats, sale window and status. Sale dates are typed in the event's time zone and stored in UTC. **Add free ticket** pre-fills an RSVP with price 0 and the event capacity.
 
 An event without an active ticket shows “No tickets are available.” in the booking form.
 
