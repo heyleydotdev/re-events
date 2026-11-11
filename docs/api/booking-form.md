@@ -11,8 +11,8 @@ GET /wp-json/re-events/v1/events/{event_id}/booking-form
 The response contains:
 
 - `event_id` and `event_title`
-- `tickets`: ID, name, price, currency, capacity, sold, available, min/max and sale window
-- `fields`: custom attendee fields with key, label, type and required
+- `tickets`: ID, name, price, currency, capacity, sold, available, min/max, sale window and `on_sale`
+- `fields`: custom attendee fields with key, label, type, required and placeholder
 - `submit_url`
 - `honeypot`: the field name that must stay empty
 - `token_field`: the idempotency field name

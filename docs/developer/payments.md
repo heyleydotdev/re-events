@@ -14,7 +14,7 @@ Implement `ReEvents\Services\Gateways\Gateway`:
 | `create_payment( $payment, $booking )` | Return `gateway_ref`, `status`, `redirect_url` and `data` |
 | `verify_webhook( $payload, $headers )` | Verify the signature and return `gateway_ref` plus `status` |
 | `refund( $gateway_ref, $amount_minor )` | Refund all or part of a payment |
-| `sync( $gateway_ref )` | Read the current provider status |
+| `sync( $gateway_ref, $read_only = false )` | Read the current provider status; `$read_only` skips capture or completion |
 
 Register a gateway on the `reevents_register_gateways` action:
 

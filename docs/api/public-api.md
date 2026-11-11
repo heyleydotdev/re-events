@@ -6,6 +6,8 @@ ReEvents exposes PHP CRUD functions for themes and plugins. They use the same se
 
 Functions run as the current user. Server-side PHP calls do not need a nonce. Nonces remain an HTTP and REST concern. API keys remain REST-only.
 
+The functions do not read the Settings → API switches, rate limits or CORS settings. Those guard HTTP requests; server-side code is already inside WordPress.
+
 See [Public API reference](public-api-reference.md) for generated signatures.
 
 ## Events
@@ -19,6 +21,8 @@ See [Public API reference](public-api-reference.md) for generated signatures.
 | `reevents_delete_event( int $id ): array\|WP_Error` | `delete_post` |
 | `reevents_get_event_occurrences( int $id, array $args = [] ): array\|WP_Error` | Event read access |
 | `reevents_sync_event_occurrences( int $id ): array\|WP_Error` | `edit_post` |
+
+`reevents_get_events()` accepts `per_page` (max 100, default 10), `page`, `search`, `category`, `venue`, `from`, `to` and `upcoming`. It returns the current page only; query `Event_Query::query()` directly when you need the total.
 
 Event fields: `title`, `start_utc`, `end_utc`, `timezone`, `all_day`, `rrule`, `exdates`, `rdates`, `timeslots`, `venue_id`, `organizer_ids`, `capacity`, `online_urls`, `status`.
 
@@ -70,6 +74,8 @@ Category fields: `name`, `description`, `parent`.
 
 Ticket fields: `name`, `description`, `price_minor`, `currency`, `capacity`, `min_per_booking`, `max_per_booking`, `sale_start_utc`, `sale_end_utc`, `status`.
 
+`reevents_get_event_tickets()` returns an empty array when the caller cannot read the event. The status argument is ignored unless the caller may edit the event.
+
 ## Bookings
 
 | Function | Permission |
@@ -80,7 +86,9 @@ Ticket fields: `name`, `description`, `price_minor`, `currency`, `capacity`, `mi
 | `reevents_create_booking( array $data ): array\|WP_Error` | Public, same as REST |
 | `reevents_update_booking_status( int $id, string $status ): array\|WP_Error` | `edit_post` or `reevents_manage_bookings` |
 
-Booking creation fields: `event_id`, `ticket_id`, `occurrence_id`, `quantity`, `attendees`, `booking_token`. Use one token per form load so retries return the existing booking. Paid bookings add `checkout_url` when a gateway is configured.
+Booking creation fields: `event_id`, `ticket_id`, `occurrence_id`, `quantity`, `attendees`, `booking_token`. Use one token per form load so retries return the existing booking. Paid bookings add `checkout_url` when a gateway is configured. The token is remembered for five minutes, matching the REST endpoint, so a much later retry creates a new booking.
+
+`reevents_get_event_bookings()` accepts `status`, `per_page` (max 100, default 20) and `page`.
 
 There is no delete helper. Cancel or reject the booking instead.
 
