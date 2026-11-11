@@ -180,7 +180,13 @@ final class Stripe_Gateway implements Gateway {
 		$params = [ 'payment_intent' => $intent ];
 
 		if ( $amount_minor > 0 ) {
-			$params['amount'] = (string) $amount_minor;
+			$amount = Currency::stripe_amount( $amount_minor, strtoupper( (string) ( $session['currency'] ?? 'USD' ) ) );
+
+			if ( $amount < 1 ) {
+				return new WP_Error( 'reevents_payment_refund_failed', __( 'The refund amount is too small.', 're-events' ), [ 'status' => 400 ] );
+			}
+
+			$params['amount'] = (string) $amount;
 		}
 
 		$result = $this->request( 'POST', 'refunds', $params, [ 'Idempotency-Key' => 'reevents_refund_' . md5( $gateway_ref . '|' . $amount_minor ) ] );
