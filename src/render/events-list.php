@@ -30,11 +30,11 @@ final class Events_List {
 		$organizer = $args['organizer'] ?? 0;
 
 		if ( 'current' === $venue ) {
-			$venue = 'reevents_venue' === get_post_type() ? (int) get_the_ID() : 0;
+			$venue = 'reevents_venue' === get_post_type() ? (int) get_the_ID() : -1;
 		}
 
 		if ( 'current' === $organizer ) {
-			$organizer = 'reevents_organizer' === get_post_type() ? (int) get_the_ID() : 0;
+			$organizer = 'reevents_organizer' === get_post_type() ? (int) get_the_ID() : -1;
 		}
 
 		$result = Event_Query::query(

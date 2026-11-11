@@ -157,6 +157,36 @@ final class Events_List_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A current filter on the wrong page returns no events.
+	 */
+	public function test_current_filter_on_wrong_page(): void {
+		$page = self::factory()->post->create( [ 'post_title' => 'Plain page' ] );
+
+		$this->go_to( get_permalink( $page ) );
+
+		self::assertStringContainsString(
+			'No events found.',
+			Events_List::render(
+				[
+					'limit'    => 5,
+					'venue'    => 'current',
+					'upcoming' => false,
+				]
+			)
+		);
+		self::assertStringContainsString(
+			'No events found.',
+			Events_List::render(
+				[
+					'limit'     => 5,
+					'organizer' => 'current',
+					'upcoming'  => false,
+				]
+			)
+		);
+	}
+
+	/**
 	 * Organizer filtering uses the stored organizer list.
 	 */
 	public function test_organizer_filter(): void {
