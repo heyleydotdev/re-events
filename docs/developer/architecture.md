@@ -6,6 +6,8 @@ ReEvents is a WordPress plugin. WordPress supplies the request lifecycle, post t
 
 `re-events.php` defines the plugin constants and registers activation and deactivation hooks. It loads `src/plugin.php`, which wires the services on `plugins_loaded`.
 
+`src/api.php` declares the public PHP API. It loads before the autoloader because it only declares global functions; class references resolve when a function is called.
+
 `ReEvents\Plugin::boot()` registers:
 
 - post types, taxonomies, meta, and capabilities
@@ -35,7 +37,7 @@ The `ReEvents\` namespace maps to `src/`. Class names map to kebab-case file nam
 
 Events, venues, and organizers are custom post types. Their data lives in post fields and registered post meta. Event categories, event tags, and organizer tags are taxonomies.
 
-Occurrences, tickets, bookings, and attendees use custom tables. They are queried directly through repositories because they need indexes, transactions, and capacity checks that post meta cannot provide. See [ADR 0001](adr/0001-custom-tables-for-bookings.md).
+Occurrences, tickets, bookings, and attendees use custom tables. They are queried directly through repositories because they need indexes, transactions, and capacity checks that post meta cannot provide. See [ADR 0001](../adr/0001-custom-tables-for-bookings.md).
 
 The schema is installed and upgraded with `dbDelta` in `src/data/schema.php`.
 
@@ -69,7 +71,7 @@ Plugins and themes also get a PHP CRUD API in `src/api.php`, backed by the same 
 
 Templates live in `templates/`. A theme can override a template by placing a file with the same name in a `re-events/` directory in the theme. Renderers call `Template::render()` and never build markup outside the template.
 
-The frontend render contract — widget args, classes, data attributes and style modes — is documented in [render-contract.md](developer/render-contract.md).
+The frontend render contract — widget args, classes, data attributes and style modes — is documented in [render-contract.md](render-contract.md).
 
 ## Assets
 

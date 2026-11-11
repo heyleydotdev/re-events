@@ -155,7 +155,7 @@ Use the booking form schema:
 GET /wp-json/re-events/v1/events/{id}/booking-form
 ```
 
-See [custom booking forms](api/booking-form.md) for the payload and error format.
+See [custom booking forms](../api/booking-form.md) for the payload and error format.
 
 ## Filters
 
