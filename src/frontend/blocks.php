@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Frontend;
 
+use ReEvents\Render\Booking_Form;
 use ReEvents\Render\Field;
 use ReEvents\Render\Widget_Registry;
 
@@ -80,6 +81,7 @@ final class Blocks {
 		}
 
 		self::register_field_block();
+		self::register_booking_form_block();
 	}
 
 	/**
@@ -90,6 +92,17 @@ final class Blocks {
 
 		if ( file_exists( $path ) ) {
 			register_block_type( $path, [ 'render_callback' => [ self::class, 'render_field' ] ] );
+		}
+	}
+
+	/**
+	 * Register the booking form block.
+	 */
+	private static function register_booking_form_block(): void {
+		$path = RE_EVENTS_DIR . 'blocks/build/booking-form/block.json';
+
+		if ( file_exists( $path ) ) {
+			register_block_type( $path, [ 'render_callback' => [ self::class, 'render_booking_form' ] ] );
 		}
 	}
 
@@ -142,5 +155,28 @@ final class Blocks {
 		}
 
 		return Field::render( $args );
+	}
+
+	/**
+	 * Render the booking form block.
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 */
+	public static function render_booking_form( array $attributes ): string {
+		$args = [
+			'event' => (int) ( $attributes['event'] ?? 0 ),
+			'class' => (string) ( $attributes['className'] ?? '' ),
+		];
+
+		foreach ( [
+			'button_label'    => 'buttonLabel',
+			'success_message' => 'successMessage',
+		] as $arg => $attribute ) {
+			if ( '' !== (string) ( $attributes[ $attribute ] ?? '' ) ) {
+				$args[ $arg ] = (string) $attributes[ $attribute ];
+			}
+		}
+
+		return Booking_Form::render( $args );
 	}
 }

@@ -91,4 +91,29 @@ final class Blocks_Test extends WP_UnitTestCase {
 			)
 		);
 	}
+
+	/**
+	 * Empty block labels fall back to the translated defaults.
+	 */
+	public function test_booking_form_default_labels(): void {
+		$html = Blocks::render_booking_form( [ 'event' => $this->event ] );
+
+		self::assertStringContainsString( '<button type="submit">Book</button>', $html );
+	}
+
+	/**
+	 * The booking form block renders the form.
+	 */
+	public function test_render_booking_form(): void {
+		$html = Blocks::render_booking_form(
+			[
+				'event'          => $this->event,
+				'buttonLabel'    => 'Reserve',
+				'successMessage' => 'See you there.',
+			]
+		);
+
+		self::assertStringContainsString( 'reevents-booking-form', $html );
+		self::assertStringContainsString( 'Reserve', $html );
+	}
 }
