@@ -94,7 +94,7 @@ final class Ticket_Editor {
 			echo '<div class="notice notice-error inline"><p>' . esc_html__( 'Some tickets could not be saved.', 're-events' ) . '</p></div>';
 		}
 
-		echo '<div id="reevents-tickets" class="reevents-tickets">';
+		echo '<div class="reevents-tickets">';
 		echo '<div id="reevents-tickets-list" data-next="' . esc_attr( (string) max( 1, count( $tickets ) ) ) . '">';
 
 		$index = 0;
@@ -190,6 +190,7 @@ final class Ticket_Editor {
 		}
 
 		$rows = isset( $_POST['reevents_tickets'] ) && is_array( $_POST['reevents_tickets'] ) ? wp_unslash( $_POST['reevents_tickets'] ) : []; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized per field below.
+
 		$repo = new Ticket_Repository();
 		$fail = false;
 
