@@ -52,7 +52,7 @@ function reevents_reset_tables(): void {
 
 	\ReEvents\Data\Schema::install();
 
-	foreach ( [ 'reevents_occurrences', 'reevents_tickets', 'reevents_bookings', 'reevents_attendees' ] as $reevents_table ) {
+	foreach ( [ 'reevents_occurrences', 'reevents_tickets', 'reevents_bookings', 'reevents_attendees', 'reevents_payments' ] as $reevents_table ) {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Test reset.
 		$wpdb->query( "TRUNCATE TABLE {$wpdb->prefix}{$reevents_table}" );
 	}
