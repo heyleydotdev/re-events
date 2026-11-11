@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-11T20:05:23+00:00\n"
+"POT-Creation-Date: 2026-11-11T22:03:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: re-events\n"
@@ -24,7 +24,7 @@ msgstr ""
 
 #. Description of the plugin
 #: re-events.php
-msgid "Open-source event manager for WordPress."
+msgid "Events, venues, organizers, tickets, bookings and Stripe/PayPal payments for WordPress."
 msgstr ""
 
 #. Author of the plugin
@@ -78,7 +78,7 @@ msgid "Name"
 msgstr ""
 
 #: src/admin/attendees-table.php:56
-#: src/admin/settings.php:924
+#: src/admin/settings.php:936
 #: src/privacy.php:93
 #: src/render/widget-registry.php:459
 #: src/render/widget-registry.php:460
@@ -96,7 +96,7 @@ msgstr ""
 #: src/admin/attendees-table.php:58
 #: src/admin/bookings-table.php:59
 #: src/admin/quick-view.php:91
-#: src/admin/settings.php:646
+#: src/admin/settings.php:656
 msgid "Created"
 msgstr ""
 
@@ -181,8 +181,8 @@ msgstr ""
 #: src/admin/bookings.php:110
 #: src/admin/bookings.php:136
 #: src/admin/export.php:173
-#: src/admin/settings.php:569
-#: src/admin/settings.php:693
+#: src/admin/settings.php:579
+#: src/admin/settings.php:703
 #: src/services/api-keys.php:140
 #: src/services/api-keys.php:159
 msgid "Forbidden"
@@ -243,7 +243,7 @@ msgstr ""
 #: src/admin/bookings.php:36
 #: src/admin/bookings.php:66
 #: src/admin/menu.php:250
-#: src/admin/settings.php:438
+#: src/admin/settings.php:448
 msgid "Bookings"
 msgstr ""
 
@@ -360,7 +360,7 @@ msgid "Organizers"
 msgstr ""
 
 #: src/admin/menu.php:263
-#: src/admin/settings.php:419
+#: src/admin/settings.php:429
 msgid "Settings"
 msgstr ""
 
@@ -460,7 +460,7 @@ msgid "Monthly on day"
 msgstr ""
 
 #: src/admin/meta-boxes.php:235
-#: src/admin/settings.php:656
+#: src/admin/settings.php:666
 msgid "Never"
 msgstr ""
 
@@ -509,7 +509,7 @@ msgstr ""
 #: src/admin/meta-boxes.php:466
 #: src/admin/meta-boxes.php:474
 #: src/admin/meta-boxes.php:487
-#: src/admin/settings.php:969
+#: src/admin/settings.php:981
 #: src/admin/ticket-editor.php:171
 msgid "Remove"
 msgstr ""
@@ -540,7 +540,7 @@ msgid "Add a venue"
 msgstr ""
 
 #: src/admin/meta-boxes.php:350
-#: src/admin/settings.php:185
+#: src/admin/settings.php:195
 msgid "None"
 msgstr ""
 
@@ -552,9 +552,9 @@ msgstr ""
 #: src/admin/meta-boxes.php:366
 #: src/admin/meta-boxes.php:373
 #: src/admin/meta-boxes.php:385
-#: src/admin/settings.php:633
-#: src/admin/settings.php:644
-#: src/admin/settings.php:956
+#: src/admin/settings.php:643
+#: src/admin/settings.php:654
+#: src/admin/settings.php:968
 #: blocks/build/field/index.js:1
 #: blocks/src/field/index.js:84
 msgid "Label"
@@ -668,7 +668,7 @@ msgid "ReEvents requires WordPress 6.5 or newer."
 msgstr ""
 
 #: src/admin/quick-view.php:71
-#: src/admin/settings.php:619
+#: src/admin/settings.php:629
 msgid "Close"
 msgstr ""
 
@@ -690,7 +690,7 @@ msgid "Ticket"
 msgstr ""
 
 #: src/admin/settings.php:92
-#: src/admin/settings.php:436
+#: src/admin/settings.php:446
 msgid "General"
 msgstr ""
 
@@ -746,415 +746,427 @@ msgstr ""
 msgid "Used for maps and venue geocoding. Leave empty to keep OpenStreetMap."
 msgstr ""
 
-#: src/admin/settings.php:139
-#: src/admin/settings.php:437
-msgid "Formats"
-msgstr ""
-
-#: src/admin/settings.php:140
-msgid "Date format"
-msgstr ""
-
 #: src/admin/settings.php:141
-msgid "Time format"
+msgid "Client IP"
 msgstr ""
 
-#: src/admin/settings.php:142
-msgid "Booking rules"
+#: src/admin/settings.php:144
+msgid "Read the visitor IP from proxy headers"
 msgstr ""
 
-#: src/admin/settings.php:146
-msgid "Approval"
+#: src/admin/settings.php:145
+msgid "Enable only behind Cloudflare or a trusted reverse proxy. Rate limits are per IP, so otherwise every visitor can share one bucket."
 msgstr ""
 
 #: src/admin/settings.php:149
-msgid "Require approval for every booking"
+#: src/admin/settings.php:447
+msgid "Formats"
 msgstr ""
 
 #: src/admin/settings.php:150
+msgid "Date format"
+msgstr ""
+
+#: src/admin/settings.php:151
+msgid "Time format"
+msgstr ""
+
+#: src/admin/settings.php:152
+msgid "Booking rules"
+msgstr ""
+
+#: src/admin/settings.php:156
+msgid "Approval"
+msgstr ""
+
+#: src/admin/settings.php:159
+msgid "Require approval for every booking"
+msgstr ""
+
+#: src/admin/settings.php:160
 msgid "Free bookings stay pending until an administrator confirms them."
 msgstr ""
 
-#: src/admin/settings.php:157
+#: src/admin/settings.php:167
 msgid "Hold time"
 msgstr ""
 
-#: src/admin/settings.php:162
+#: src/admin/settings.php:172
 msgid "Minutes before an unpaid booking is cancelled. Minimum 5."
 msgstr ""
 
-#: src/admin/settings.php:166
-#: src/admin/settings.php:170
+#: src/admin/settings.php:176
+#: src/admin/settings.php:180
 msgid "Attendee fields"
 msgstr ""
 
-#: src/admin/settings.php:173
+#: src/admin/settings.php:183
 msgid "Name and email are always collected. These fields are added to the booking form."
 msgstr ""
 
-#: src/admin/settings.php:177
+#: src/admin/settings.php:187
 msgid "Payment gateway"
 msgstr ""
 
-#: src/admin/settings.php:181
+#: src/admin/settings.php:191
 msgid "Gateway"
 msgstr ""
 
-#: src/admin/settings.php:186
+#: src/admin/settings.php:196
 msgid "Mock (testing)"
 msgstr ""
 
-#: src/admin/settings.php:187
-#: src/admin/settings.php:204
+#: src/admin/settings.php:197
+#: src/admin/settings.php:214
 msgid "Stripe"
 msgstr ""
 
-#: src/admin/settings.php:188
-#: src/admin/settings.php:249
+#: src/admin/settings.php:198
+#: src/admin/settings.php:259
 msgid "PayPal"
 msgstr ""
 
-#: src/admin/settings.php:190
+#: src/admin/settings.php:200
 msgid "Choose the provider, then fill in its settings below. The mock gateway is for local checkout tests only."
 msgstr ""
 
-#: src/admin/settings.php:197
+#: src/admin/settings.php:207
 msgid "Default currency"
 msgstr ""
 
-#: src/admin/settings.php:200
+#: src/admin/settings.php:210
 msgid "Three-letter code used for new tickets when no currency is given."
 msgstr ""
 
-#: src/admin/settings.php:208
+#: src/admin/settings.php:218
 msgid "Stripe secret key"
 msgstr ""
 
-#: src/admin/settings.php:211
+#: src/admin/settings.php:221
 msgid "Secret API key from the Stripe dashboard."
 msgstr ""
 
-#: src/admin/settings.php:218
+#: src/admin/settings.php:228
 msgid "Stripe webhook secret"
 msgstr ""
 
 #. translators: %s: webhook endpoint URL.
-#: src/admin/settings.php:223
+#: src/admin/settings.php:233
 #, php-format
 msgid "Signing secret of the webhook endpoint: %s"
 msgstr ""
 
-#: src/admin/settings.php:232
-msgid "Success URL"
-msgstr ""
-
-#: src/admin/settings.php:235
-#: src/admin/settings.php:303
-msgid "Page shown after a completed payment. Defaults to the home page."
-msgstr ""
-
 #: src/admin/settings.php:242
-msgid "Cancel URL"
+msgid "Success URL"
 msgstr ""
 
 #: src/admin/settings.php:245
 #: src/admin/settings.php:313
+msgid "Page shown after a completed payment. Defaults to the home page."
+msgstr ""
+
+#: src/admin/settings.php:252
+msgid "Cancel URL"
+msgstr ""
+
+#: src/admin/settings.php:255
+#: src/admin/settings.php:323
 msgid "Page shown after a cancelled payment. Defaults to the home page."
 msgstr ""
 
-#: src/admin/settings.php:253
+#: src/admin/settings.php:263
 msgid "PayPal mode"
 msgstr ""
 
-#: src/admin/settings.php:257
+#: src/admin/settings.php:267
 msgid "Sandbox"
 msgstr ""
 
-#: src/admin/settings.php:258
+#: src/admin/settings.php:268
 msgid "Live"
 msgstr ""
 
-#: src/admin/settings.php:266
+#: src/admin/settings.php:276
 msgid "PayPal client ID"
 msgstr ""
 
-#: src/admin/settings.php:269
+#: src/admin/settings.php:279
 msgid "REST app client ID from the PayPal developer dashboard."
 msgstr ""
 
-#: src/admin/settings.php:276
+#: src/admin/settings.php:286
 msgid "PayPal client secret"
 msgstr ""
 
-#: src/admin/settings.php:279
+#: src/admin/settings.php:289
 msgid "REST app secret from the PayPal developer dashboard."
 msgstr ""
 
-#: src/admin/settings.php:286
+#: src/admin/settings.php:296
 msgid "PayPal webhook ID"
 msgstr ""
 
 #. translators: %s: webhook endpoint URL.
-#: src/admin/settings.php:291
+#: src/admin/settings.php:301
 #, php-format
 msgid "Webhook ID shown after creating the endpoint: %s"
 msgstr ""
 
-#: src/admin/settings.php:300
+#: src/admin/settings.php:310
 msgid "PayPal success URL"
 msgstr ""
 
-#: src/admin/settings.php:310
+#: src/admin/settings.php:320
 msgid "PayPal cancel URL"
 msgstr ""
 
-#: src/admin/settings.php:318
-#: src/admin/settings.php:551
+#: src/admin/settings.php:328
+#: src/admin/settings.php:561
 msgid "Admin mail"
 msgstr ""
 
-#: src/admin/settings.php:319
-#: src/admin/settings.php:331
+#: src/admin/settings.php:329
+#: src/admin/settings.php:341
 msgid "Subject"
 msgstr ""
 
-#: src/admin/settings.php:319
+#: src/admin/settings.php:329
 msgid "Placeholders: {event}, {date}, {venue}, {reference}, {name}, {email}, {quantity}, {total}, {site}, {status}."
 msgstr ""
 
-#: src/admin/settings.php:323
-#: src/admin/settings.php:335
+#: src/admin/settings.php:333
+#: src/admin/settings.php:345
 msgid "Body"
 msgstr ""
 
-#: src/admin/settings.php:330
-#: src/admin/settings.php:552
+#: src/admin/settings.php:340
+#: src/admin/settings.php:562
 msgid "Attendee mail"
 msgstr ""
 
-#: src/admin/settings.php:331
+#: src/admin/settings.php:341
 msgid "Same placeholders as the admin mail."
 msgstr ""
 
-#: src/admin/settings.php:343
+#: src/admin/settings.php:353
 msgid "REST API"
 msgstr ""
 
-#: src/admin/settings.php:347
-#: src/admin/settings.php:441
+#: src/admin/settings.php:357
+#: src/admin/settings.php:451
 msgid "API"
 msgstr ""
 
-#: src/admin/settings.php:350
+#: src/admin/settings.php:360
 msgid "Enable the plugin REST API"
 msgstr ""
 
-#: src/admin/settings.php:351
+#: src/admin/settings.php:361
 msgid "When disabled, external API requests are blocked. Admin screens continue to work."
 msgstr ""
 
-#: src/admin/settings.php:358
+#: src/admin/settings.php:368
 msgid "Public access"
 msgstr ""
 
-#: src/admin/settings.php:361
+#: src/admin/settings.php:371
 msgid "Allow unauthenticated read requests"
 msgstr ""
 
-#: src/admin/settings.php:362
+#: src/admin/settings.php:372
 msgid "Writes always require authentication."
 msgstr ""
 
-#: src/admin/settings.php:369
+#: src/admin/settings.php:379
 msgid "Default page size"
 msgstr ""
 
-#: src/admin/settings.php:374
+#: src/admin/settings.php:384
 msgid "Used when a request does not set per_page. Between 1 and 100."
 msgstr ""
 
-#: src/admin/settings.php:381
+#: src/admin/settings.php:391
 msgid "Rate limit"
 msgstr ""
 
-#: src/admin/settings.php:386
+#: src/admin/settings.php:396
 msgid "Maximum unauthenticated requests per minute per IP. 0 disables the limit."
 msgstr ""
 
-#: src/admin/settings.php:393
+#: src/admin/settings.php:403
 msgid "Allowed origins"
 msgstr ""
 
-#: src/admin/settings.php:396
+#: src/admin/settings.php:406
 msgid "One origin per line, for example https://app.example.com. Leave empty to disable CORS headers."
 msgstr ""
 
-#: src/admin/settings.php:403
+#: src/admin/settings.php:413
 msgid "Feed token"
 msgstr ""
 
-#: src/admin/settings.php:406
+#: src/admin/settings.php:416
 msgid "Optional token for private iCal and RSS links. Leave empty to keep private events out of feeds."
 msgstr ""
 
-#: src/admin/settings.php:418
-#: src/admin/settings.php:453
+#: src/admin/settings.php:428
+#: src/admin/settings.php:463
 msgid "ReEvents Settings"
 msgstr ""
 
-#: src/admin/settings.php:439
+#: src/admin/settings.php:449
 msgid "Payments"
 msgstr ""
 
-#: src/admin/settings.php:440
+#: src/admin/settings.php:450
 msgid "Emails"
 msgstr ""
 
-#: src/admin/settings.php:442
+#: src/admin/settings.php:452
 msgid "Tools"
 msgstr ""
 
-#: src/admin/settings.php:476
+#: src/admin/settings.php:486
 msgid "Save Changes"
 msgstr ""
 
-#: src/admin/settings.php:497
+#: src/admin/settings.php:507
 msgid "Occurrences rebuilt."
 msgstr ""
 
-#: src/admin/settings.php:500
+#: src/admin/settings.php:510
 msgid "Maintenance"
 msgstr ""
 
-#: src/admin/settings.php:504
+#: src/admin/settings.php:514
 msgid "Rebuild stored occurrences for every published event."
 msgstr ""
 
-#: src/admin/settings.php:505
+#: src/admin/settings.php:515
 msgid "Rebuild occurrences"
 msgstr ""
 
-#: src/admin/settings.php:507
+#: src/admin/settings.php:517
 msgid "Uninstall"
 msgstr ""
 
-#: src/admin/settings.php:515
+#: src/admin/settings.php:525
 msgid "Delete all ReEvents data when the plugin is uninstalled."
 msgstr ""
 
-#: src/admin/settings.php:518
+#: src/admin/settings.php:528
 msgid "Removes events, venues, organizers, bookings, attendees, settings and API keys. This cannot be undone."
 msgstr ""
 
-#: src/admin/settings.php:519
+#: src/admin/settings.php:529
 msgid "Save"
 msgstr ""
 
-#: src/admin/settings.php:532
+#: src/admin/settings.php:542
 msgid "Test email sent."
 msgstr ""
 
-#: src/admin/settings.php:534
+#: src/admin/settings.php:544
 msgid "The test email could not be sent. Check your site mail configuration."
 msgstr ""
 
-#: src/admin/settings.php:543
+#: src/admin/settings.php:553
 msgid "Send a test"
 msgstr ""
 
-#: src/admin/settings.php:544
+#: src/admin/settings.php:554
 msgid "Sends the saved template with sample values to the address below."
 msgstr ""
 
-#: src/admin/settings.php:549
+#: src/admin/settings.php:559
 msgid "Template"
 msgstr ""
 
-#: src/admin/settings.php:556
+#: src/admin/settings.php:566
 msgid "Recipient"
 msgstr ""
 
-#: src/admin/settings.php:559
+#: src/admin/settings.php:569
 msgid "Send test email"
 msgstr ""
 
-#: src/admin/settings.php:578
+#: src/admin/settings.php:588
 msgid "Enter a valid email address."
 msgstr ""
 
-#: src/admin/settings.php:608
+#: src/admin/settings.php:618
 msgid "API keys"
 msgstr ""
 
-#: src/admin/settings.php:609
+#: src/admin/settings.php:619
 msgid "Send a key as an Authorization: Bearer header. Keys inherit the capabilities of the user who created them."
 msgstr ""
 
-#: src/admin/settings.php:612
+#: src/admin/settings.php:622
 msgid "Dismiss this notice."
 msgstr ""
 
-#: src/admin/settings.php:613
+#: src/admin/settings.php:623
 msgid "API key revoked."
 msgstr ""
 
-#: src/admin/settings.php:621
+#: src/admin/settings.php:631
 msgid "Copy this key now"
 msgstr ""
 
-#: src/admin/settings.php:622
+#: src/admin/settings.php:632
 msgid "It will not be shown again."
 msgstr ""
 
-#: src/admin/settings.php:625
+#: src/admin/settings.php:635
 msgid "Copied"
 msgstr ""
 
-#: src/admin/settings.php:625
+#: src/admin/settings.php:635
 msgid "Copy key"
 msgstr ""
 
-#: src/admin/settings.php:634
+#: src/admin/settings.php:644
 msgid "Label, e.g. Zapier"
 msgstr ""
 
-#: src/admin/settings.php:635
+#: src/admin/settings.php:645
 msgid "Generate key"
 msgstr ""
 
-#: src/admin/settings.php:639
+#: src/admin/settings.php:649
 msgid "No API keys yet. Generate one above."
 msgstr ""
 
-#: src/admin/settings.php:645
+#: src/admin/settings.php:655
 msgid "User"
 msgstr ""
 
-#: src/admin/settings.php:647
+#: src/admin/settings.php:657
 msgid "Last used"
 msgstr ""
 
-#: src/admin/settings.php:648
+#: src/admin/settings.php:658
 msgid "Actions"
 msgstr ""
 
-#: src/admin/settings.php:664
+#: src/admin/settings.php:674
 msgid "Unknown"
 msgstr ""
 
-#: src/admin/settings.php:667
+#: src/admin/settings.php:677
 msgid "Revoke this API key? This cannot be undone."
 msgstr ""
 
-#: src/admin/settings.php:667
+#: src/admin/settings.php:677
 msgid "Revoke"
 msgstr ""
 
-#: src/admin/settings.php:844
+#: src/admin/settings.php:856
 msgid "[{site}] New booking {reference}"
 msgstr ""
 
-#: src/admin/settings.php:845
+#: src/admin/settings.php:857
 msgid ""
 "A new booking was created.\n"
 "\n"
@@ -1167,11 +1179,11 @@ msgid ""
 "Total: {total}"
 msgstr ""
 
-#: src/admin/settings.php:846
+#: src/admin/settings.php:858
 msgid "Booking {status}: {event}"
 msgstr ""
 
-#: src/admin/settings.php:847
+#: src/admin/settings.php:859
 msgid ""
 "Hello {name},\n"
 "\n"
@@ -1185,51 +1197,51 @@ msgid ""
 "Total: {total}"
 msgstr ""
 
-#: src/admin/settings.php:923
+#: src/admin/settings.php:935
 msgid "Text"
 msgstr ""
 
-#: src/admin/settings.php:925
+#: src/admin/settings.php:937
 msgid "Telephone"
 msgstr ""
 
-#: src/admin/settings.php:926
+#: src/admin/settings.php:938
 msgid "Textarea"
 msgstr ""
 
-#: src/admin/settings.php:927
+#: src/admin/settings.php:939
 msgid "Checkbox"
 msgstr ""
 
-#: src/admin/settings.php:939
+#: src/admin/settings.php:951
 msgid "Add field"
 msgstr ""
 
-#: src/admin/settings.php:957
+#: src/admin/settings.php:969
 msgid "Type"
 msgstr ""
 
-#: src/admin/settings.php:964
+#: src/admin/settings.php:976
 msgid "Required"
 msgstr ""
 
-#: src/admin/settings.php:967
+#: src/admin/settings.php:979
 msgid "Move up"
 msgstr ""
 
-#: src/admin/settings.php:968
+#: src/admin/settings.php:980
 msgid "Move down"
 msgstr ""
 
-#: src/admin/settings.php:969
+#: src/admin/settings.php:981
 msgid "Remove field"
 msgstr ""
 
-#: src/admin/settings.php:1015
+#: src/admin/settings.php:1027
 msgid "Click a placeholder to insert it at the cursor."
 msgstr ""
 
-#: src/admin/settings.php:1030
+#: src/admin/settings.php:1042
 msgid "Saved — leave blank to keep"
 msgstr ""
 
@@ -1817,8 +1829,8 @@ msgid "%d left"
 msgstr ""
 
 #: src/render/booking-form.php:178
-#: src/services/booking-service.php:118
-#: src/services/booking-service.php:290
+#: src/services/booking-service.php:119
+#: src/services/booking-service.php:291
 #: src/services/booking-validator.php:154
 msgid "Not enough seats are available."
 msgstr ""
@@ -1840,8 +1852,8 @@ msgstr ""
 
 #: src/render/booking-form.php:182
 #: src/render/booking-form.php:183
-#: src/services/booking-service.php:69
-#: src/services/booking-service.php:72
+#: src/services/booking-service.php:70
+#: src/services/booking-service.php:73
 #: src/services/booking-validator.php:150
 msgid "Too many seats selected."
 msgstr ""
@@ -2788,7 +2800,7 @@ msgid "Invalid booking ID."
 msgstr ""
 
 #: src/rest/bookings-controller.php:211
-#: src/services/booking-service.php:95
+#: src/services/booking-service.php:96
 msgid "The booking could not be created."
 msgstr ""
 
@@ -3003,11 +3015,11 @@ msgid "Limit results to a venue ID."
 msgstr ""
 
 #: src/rest/events-controller.php:578
-msgid "Only events starting on or after this date (Y-m-d, UTC)."
+msgid "Only events starting on or after this date (Y-m-d, site time zone)."
 msgstr ""
 
 #: src/rest/events-controller.php:584
-msgid "Only events starting on or before this date (Y-m-d, UTC)."
+msgid "Only events starting on or before this date (Y-m-d, site time zone)."
 msgstr ""
 
 #: src/rest/events-controller.php:590
@@ -3318,34 +3330,34 @@ msgstr ""
 msgid "Sample Attendee"
 msgstr ""
 
-#: src/services/booking-service.php:80
-#: src/services/booking-service.php:83
+#: src/services/booking-service.php:81
+#: src/services/booking-service.php:84
 msgid "There are too many attendees."
 msgstr ""
 
-#: src/services/booking-service.php:107
+#: src/services/booking-service.php:108
 #: src/services/booking-validator.php:129
 msgid "Invalid ticket."
 msgstr ""
 
-#: src/services/booking-service.php:124
-#: src/services/booking-service.php:299
+#: src/services/booking-service.php:125
+#: src/services/booking-service.php:300
 #: src/services/booking-validator.php:120
 msgid "Not enough seats are available for this time."
 msgstr ""
 
-#: src/services/booking-service.php:237
+#: src/services/booking-service.php:238
 msgid "Invalid booking status."
 msgstr ""
 
-#: src/services/booking-service.php:251
+#: src/services/booking-service.php:252
 #: src/services/payment-service.php:42
 msgid "Invalid booking."
 msgstr ""
 
-#: src/services/booking-service.php:269
-#: src/services/booking-service.php:311
-#: src/services/booking-service.php:325
+#: src/services/booking-service.php:270
+#: src/services/booking-service.php:312
+#: src/services/booking-service.php:326
 msgid "The booking could not be updated."
 msgstr ""
 
@@ -3490,17 +3502,21 @@ msgstr ""
 
 #: src/services/gateways/pay-pal-gateway.php:305
 #: src/services/gateways/pay-pal-gateway.php:355
-#: src/services/gateways/stripe-gateway.php:334
+#: src/services/gateways/stripe-gateway.php:340
 msgid "The payment provider request failed."
 msgstr ""
 
 #: src/services/gateways/stripe-gateway.php:49
-#: src/services/gateways/stripe-gateway.php:301
+#: src/services/gateways/stripe-gateway.php:307
 msgid "Stripe is not configured."
 msgstr ""
 
 #: src/services/gateways/stripe-gateway.php:104
 msgid "Stripe webhooks are not configured."
+msgstr ""
+
+#: src/services/gateways/stripe-gateway.php:186
+msgid "The refund amount is too small."
 msgstr ""
 
 #: src/services/payment-service.php:46
