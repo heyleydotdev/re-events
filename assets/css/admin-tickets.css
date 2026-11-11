@@ -1,0 +1,33 @@
+.reevents-ticket {
+	border: 1px solid #dcdcde;
+	background: #fff;
+	border-radius: 2px;
+	padding: 12px;
+	margin: 0 0 10px;
+}
+
+.reevents-ticket-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+	gap: 10px 16px;
+}
+
+.reevents-ticket-field span {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 4px;
+}
+
+.reevents-ticket-field input,
+.reevents-ticket-field select {
+	width: 100%;
+}
+
+.reevents-ticket-field-name {
+	grid-column: span 2;
+}
+
+.reevents-ticket-actions {
+	margin: 8px 0 0;
+	text-align: right;
+}

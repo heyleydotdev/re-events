@@ -22,6 +22,7 @@ use ReEvents\Admin\Meta_Boxes;
 use ReEvents\Admin\Notices;
 use ReEvents\Admin\Quick_View;
 use ReEvents\Admin\Settings;
+use ReEvents\Admin\Ticket_Editor;
 use ReEvents\Admin\Venue_Meta_Boxes;
 use ReEvents\CLI\Concurrency_Test;
 use ReEvents\CLI\OpenAPI;
@@ -84,6 +85,7 @@ final class Plugin {
 		Taxonomies::register();
 		Meta::register();
 		Meta_Boxes::register();
+		Ticket_Editor::register();
 		Venue_Meta_Boxes::register();
 		Assets::register();
 		API_Docs::register();
