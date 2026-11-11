@@ -28,16 +28,16 @@ echo '<div class="reevents-calendar ' . esc_attr( (string) ( $args['args']['clas
 
 if ( ! empty( $args['args']['show_nav'] ) ) {
 	echo '<div class="reevents-calendar-nav">';
-	echo '<a class="reevents-calendar-prev" href="' . esc_url( $args['prev_url'] ) . '">&larr;</a>';
+	echo '<a class="reevents-calendar-prev" href="' . esc_url( $args['prev_url'] ) . '" aria-label="' . esc_attr__( 'Previous month', 're-events' ) . '">&larr;</a>';
 	echo '<h2 class="reevents-calendar-title">' . esc_html( $args['month_label'] ) . '</h2>';
-	echo '<a class="reevents-calendar-next" href="' . esc_url( $args['next_url'] ) . '">&rarr;</a>';
+	echo '<a class="reevents-calendar-next" href="' . esc_url( $args['next_url'] ) . '" aria-label="' . esc_attr__( 'Next month', 're-events' ) . '">&rarr;</a>';
 	echo '</div>';
 	echo '</div>';
 } else {
 	echo '<h2 class="reevents-calendar-title">' . esc_html( $args['month_label'] ) . '</h2>';
 }
 
-echo '<table class="reevents-calendar-table">';
+echo '<table class="reevents-calendar-table" aria-label="' . esc_attr( $args['month_label'] ) . '">';
 echo '<thead><tr>';
 
 foreach ( $weekdays as $weekday ) {
