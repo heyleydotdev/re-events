@@ -24,6 +24,7 @@ bun run build
 bun run docs:build
 bun run wp-env run cli wp re-events self-test
 bun run wp-env run cli wp re-events shortcode-docs | sed -n '/^# ReEvents shortcodes/,$p' > docs/shortcodes/README.md
+composer api-docs
 ```
 
 If you changed queries or booking paths, also run:
