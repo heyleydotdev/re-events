@@ -14,7 +14,7 @@ use ReEvents\Data\Venue_Repository;
 use WP_UnitTestCase;
 
 /**
- * Covers the public PHP CRUD functions.
+ * Covers the public PHP API.
  */
 final class Public_API_Test extends WP_UnitTestCase {
 
@@ -79,7 +79,7 @@ final class Public_API_Test extends WP_UnitTestCase {
 	/**
 	 * Read and write events.
 	 */
-	public function test_event_crud(): void {
+	public function test_event_api(): void {
 		$created = \reevents_create_event(
 			[
 				'title'     => 'API created event',
@@ -182,9 +182,9 @@ final class Public_API_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Ticket, venue and organizer CRUD.
+	 * Ticket, venue and organizer API.
 	 */
-	public function test_resource_crud(): void {
+	public function test_resource_api(): void {
 		$fixture = $this->fixture();
 
 		$ticket = \reevents_create_ticket(
@@ -219,9 +219,9 @@ final class Public_API_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Category CRUD.
+	 * Category API.
 	 */
-	public function test_category_crud(): void {
+	public function test_category_api(): void {
 		$category = \reevents_create_category( [ 'name' => 'API category' ] );
 
 		self::assertIsArray( $category );
@@ -232,7 +232,7 @@ final class Public_API_Test extends WP_UnitTestCase {
 	/**
 	 * Booking creation and status update.
 	 */
-	public function test_booking_crud(): void {
+	public function test_booking_api(): void {
 		$fixture = $this->fixture();
 
 		$booking = \reevents_create_booking(

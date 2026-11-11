@@ -1,6 +1,6 @@
 <?php
 /**
- * Public PHP CRUD API.
+ * Public PHP API.
  *
  * @package ReEvents
  */
