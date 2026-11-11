@@ -1,6 +1,6 @@
 # ReEvents
 
-Open-source event manager for WordPress.
+Events, venues, organizers, tickets, bookings and Stripe/PayPal payments for WordPress.
 
 Licensed under GPL-2.0-or-later.
 

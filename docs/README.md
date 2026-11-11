@@ -1,6 +1,6 @@
 # ReEvents documentation
 
-ReEvents is an open-source event manager for WordPress.
+ReEvents adds events, venues, organizers, tickets, bookings and Stripe/PayPal payments to WordPress.
 
 ## Guides
 

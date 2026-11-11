@@ -8,7 +8,7 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Open-source event manager with recurring events, venues, organizers, tickets, bookings and payments.
+Events, venues, organizers, tickets, bookings and Stripe/PayPal payments for WordPress.
 
 == Description ==
 

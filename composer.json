@@ -1,6 +1,6 @@
 {
 	"name": "reevents/reevents",
-	"description": "Open-source event manager for WordPress.",
+	"description": "Events, venues, organizers, tickets, bookings and Stripe/PayPal payments for WordPress.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {

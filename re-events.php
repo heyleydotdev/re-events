@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: ReEvents
- * Description: Open-source event manager for WordPress.
+ * Description: Events, venues, organizers, tickets, bookings and Stripe/PayPal payments for WordPress.
  * Version: 1.0.0
  * Requires at least: 6.5
  * Requires PHP: 8.0
