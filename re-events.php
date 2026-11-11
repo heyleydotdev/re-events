@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ReEvents
  * Description: Open-source event manager for WordPress.
- * Version: 0.1.0
+ * Version: 1.0.0
  * Requires at least: 6.5
  * Requires PHP: 8.0
  * Author: Relaps
@@ -16,7 +16,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'RE_EVENTS_VERSION', '0.1.0' );
+define( 'RE_EVENTS_VERSION', '1.0.0' );
 define( 'RE_EVENTS_FILE', __FILE__ );
 define( 'RE_EVENTS_DIR', __DIR__ . '/' );
 
