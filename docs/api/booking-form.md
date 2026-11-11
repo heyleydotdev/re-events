@@ -155,3 +155,18 @@ Returning from the gateway lands on the configured success or cancel URL with `r
 ## Styling
 
 The schema endpoint returns data only. Your form owns all markup and CSS.
+
+## Accessibility
+
+A custom form owns its markup, so it also owns these basics:
+
+- Put a visible `<label for="...">` on every input. Do not use placeholders as labels.
+- Add `required` and `aria-required="true"` to mandatory fields.
+- Show validation text next to the field and link it with `aria-describedby`. Move focus to the first invalid field on submit.
+- Announce success and failure with `role="status"` or `role="alert"`, or a container with `aria-live="polite"`.
+- Keep the honeypot hidden from assistive tech: `hidden`, `aria-hidden="true"` and `tabindex="-1"`.
+- Do not communicate price, sold-out state or errors with color alone.
+- Give the submit button a clear label and keep the form usable with the keyboard.
+- When a paid booking redirects to the gateway, announce that the visitor is leaving the site.
+
+The built-in `[reevents_booking_form]` covers labels, required fields, a hidden honeypot and live regions, but it reports one form-level error and does not move focus to a field. Use your own markup when you need per-field errors and focus management; `templates/booking-form.php` is the reference.
