@@ -95,6 +95,87 @@ final class Payment_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A payment that arrives after the hold expired revives the cancelled booking.
+	 */
+	public function test_late_payment_revives_cancelled_booking(): void {
+		$event  = Test_Factory::event( [ 'title' => 'Late payment test' ] );
+		$ticket = Test_Factory::ticket(
+			$event,
+			[
+				'capacity'    => 1,
+				'price_minor' => 1000,
+			]
+		);
+		$id     = Test_Factory::booking( $event, $ticket );
+		$start  = Payment_Service::start( $id, 'mock' );
+
+		self::assertIsArray( $start );
+
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Test fixture.
+		$wpdb->update( $wpdb->prefix . 'reevents_bookings', [ 'created_utc' => gmdate( 'Y-m-d H:i:s', time() - HOUR_IN_SECONDS ) ], [ 'id' => $id ] );
+
+		Booking_Service::expire_pending();
+		self::assertSame( 'cancelled', ( new Booking_Repository() )->find( $id )['status'] );
+
+		Payment_Service::handle_webhook(
+			'mock',
+			(string) wp_json_encode(
+				[
+					'gateway_ref' => $start['gateway_ref'],
+					'status'      => 'succeeded',
+				]
+			),
+			[]
+		);
+
+		self::assertSame( 'confirmed', ( new Booking_Repository() )->find( $id )['status'] );
+	}
+
+	/**
+	 * A late payment with no seats left is refunded instead of kept.
+	 */
+	public function test_late_payment_without_seats_is_refunded(): void {
+		$event  = Test_Factory::event( [ 'title' => 'Late refund test' ] );
+		$ticket = Test_Factory::ticket(
+			$event,
+			[
+				'capacity'    => 1,
+				'price_minor' => 1000,
+			]
+		);
+		$id     = Test_Factory::booking( $event, $ticket );
+		$start  = Payment_Service::start( $id, 'mock' );
+
+		self::assertIsArray( $start );
+
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Test fixture.
+		$wpdb->update( $wpdb->prefix . 'reevents_bookings', [ 'created_utc' => gmdate( 'Y-m-d H:i:s', time() - HOUR_IN_SECONDS ) ], [ 'id' => $id ] );
+
+		Booking_Service::expire_pending();
+
+		$other = Test_Factory::booking( $event, $ticket );
+		self::assertIsInt( $other );
+
+		Payment_Service::handle_webhook(
+			'mock',
+			(string) wp_json_encode(
+				[
+					'gateway_ref' => $start['gateway_ref'],
+					'status'      => 'succeeded',
+				]
+			),
+			[]
+		);
+
+		self::assertSame( 'cancelled', ( new Booking_Repository() )->find( $id )['status'] );
+		self::assertSame( 'refunded', ( new Payment_Repository() )->find( $start['payment_id'] )['status'] );
+	}
+
+	/**
 	 * A replayed success webhook does not resurrect a cancelled booking.
 	 */
 	public function test_replayed_success_does_not_resurrect_cancelled_booking(): void {

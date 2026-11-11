@@ -446,11 +446,25 @@ final class Payment_Service {
 	private static function confirm_booking( int $booking_id ): void {
 		$booking = ( new Booking_Repository() )->find( $booking_id );
 
-		if ( ! $booking || 'pending' !== (string) $booking['status'] ) {
+		if ( ! $booking ) {
 			return;
 		}
 
-		if ( Settings::get( 'require_approval', false ) ) {
+		$status = (string) $booking['status'];
+
+		// The hold expired before the provider confirmed; holding the money without a seat is not an option.
+		if ( 'cancelled' === $status || 'rejected' === $status ) {
+			$target = Settings::get( 'require_approval', false ) ? 'pending' : 'confirmed';
+			$result = Booking_Service::update_status( $booking_id, $target );
+
+			if ( is_wp_error( $result ) ) {
+				self::refund_booking( $booking_id );
+			}
+
+			return;
+		}
+
+		if ( 'pending' !== $status || Settings::get( 'require_approval', false ) ) {
 			return;
 		}
 
