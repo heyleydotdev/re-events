@@ -23,7 +23,6 @@ use ReEvents\Admin\Notices;
 use ReEvents\Admin\Quick_View;
 use ReEvents\Admin\Settings;
 use ReEvents\Admin\Venue_Meta_Boxes;
-use ReEvents\Builders\Builders;
 use ReEvents\CLI\Concurrency_Test;
 use ReEvents\CLI\OpenAPI;
 use ReEvents\CLI\Bench;
@@ -100,7 +99,6 @@ final class Plugin {
 		add_action( 'init', [ Widget_Registry::class, 'register_defaults' ], -10 );
 		add_action( 'init', [ Shortcodes::class, 'register' ], 3 );
 		Blocks::register();
-		Builders::register();
 		Routes::register();
 		Occurrence_Service::register();
 		Geocoder::register();
