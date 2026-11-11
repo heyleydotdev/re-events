@@ -219,9 +219,11 @@ final class Bookings_Controller extends WP_REST_Controller {
 			$existing = get_transient( $cache_key );
 
 			if ( is_numeric( $existing ) ) {
-				$booking = ( new Booking_Repository() )->find( (int) $existing );
+				$booking   = ( new Booking_Repository() )->find( (int) $existing );
+				$attendees = (array) $request['attendees'];
+				$email     = (string) ( $attendees[0]['email'] ?? '' );
 
-				if ( $booking ) {
+				if ( $booking && $this->booking_matches_email( $booking, $email ) ) {
 					$response = $this->prepare_item_for_response( $booking, $request );
 					$checkout = Payment_Service::checkout( (int) $booking['id'] );
 
@@ -313,6 +315,28 @@ final class Bookings_Controller extends WP_REST_Controller {
 		} finally {
 			Booking_Service::release_token( $token, $event_id );
 		}
+	}
+
+	/**
+	 * Whether the submitted email owns a cached booking.
+	 *
+	 * @param array<string, mixed> $booking Booking row.
+	 * @param string               $email   Submitted attendee email.
+	 */
+	private function booking_matches_email( array $booking, string $email ): bool {
+		$email = strtolower( sanitize_email( $email ) );
+
+		if ( '' === $email ) {
+			return false;
+		}
+
+		foreach ( ( new Booking_Repository() )->attendees( (int) $booking['id'] ) as $attendee ) {
+			if ( strtolower( (string) $attendee['email'] ) === $email ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

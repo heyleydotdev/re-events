@@ -88,7 +88,7 @@ final class Booking_Handler {
 			if ( is_numeric( $existing ) ) {
 				$booking = ( new Booking_Repository() )->find( (int) $existing );
 
-				if ( $booking ) {
+				if ( $booking && self::booking_matches_email( (int) $booking['id'], $email ) ) {
 					$checkout = Payment_Service::checkout( (int) $booking['id'] );
 
 					if ( is_wp_error( $checkout ) ) {
@@ -163,6 +163,35 @@ final class Booking_Handler {
 	 * @param string $url       Redirect URL.
 	 * @param string $status    success or error.
 	 * @param string $value     Reference or error code.
+	 */
+	/**
+	 * Whether the submitted email owns a cached booking.
+	 *
+	 * @param int    $booking_id Booking ID.
+	 * @param string $email      Submitted attendee email.
+	 */
+	private static function booking_matches_email( int $booking_id, string $email ): bool {
+		$email = strtolower( sanitize_email( $email ) );
+
+		if ( '' === $email ) {
+			return false;
+		}
+
+		foreach ( ( new Booking_Repository() )->attendees( $booking_id ) as $attendee ) {
+			if ( strtolower( (string) $attendee['email'] ) === $email ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Redirect with a status flag.
+	 *
+	 * @param string $url    Target URL.
+	 * @param string $status `success` or `error`.
+	 * @param string $value  Reference or error code.
 	 */
 	public static function redirect( string $url, string $status, string $value ): void {
 		if ( 'success' === $status ) {
