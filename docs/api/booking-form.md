@@ -12,7 +12,7 @@ The response contains:
 
 - `event_id` and `event_title`
 - `tickets`: ID, name, price, currency, capacity, sold, available, min/max, sale window and `on_sale`
-- `fields`: custom attendee fields with key, label, type, required and placeholder
+- `fields`: custom attendee fields with key, label, type, required and placeholder. Types are `text`, `email`, `tel`, `textarea` and `checkbox`.
 - `submit_url`
 - `honeypot`: the field name that must stay empty
 - `token_field`: the idempotency field name

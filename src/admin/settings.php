@@ -906,6 +906,7 @@ final class Settings {
 			'email'    => __( 'Email', 're-events' ),
 			'tel'      => __( 'Telephone', 're-events' ),
 			'textarea' => __( 'Textarea', 're-events' ),
+			'checkbox' => __( 'Checkbox', 're-events' ),
 		];
 		?>
 		<div id="reevents-attendee-fields" class="reevents-attendee-fields">
@@ -1079,7 +1080,7 @@ final class Settings {
 		}
 
 		$fields = [];
-		$types  = [ 'text', 'email', 'tel', 'textarea' ];
+		$types  = [ 'text', 'email', 'tel', 'textarea', 'checkbox' ];
 
 		foreach ( $value as $row ) {
 			if ( ! is_array( $row ) ) {

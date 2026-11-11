@@ -93,6 +93,13 @@ foreach ( $args['fields'] as $field_key => $field ) {
 	$field_name = 'reevents_fields[' . $field_key . ']';
 	$required   = ! empty( $field['required'] ) ? ' required' : '';
 
+	if ( 'checkbox' === $field['type'] ) {
+		echo '<p class="reevents-booking-field reevents-booking-consent">';
+		echo '<label for="' . esc_attr( $field_id ) . '"><input type="checkbox" id="' . esc_attr( $field_id ) . '" name="' . esc_attr( $field_name ) . '" value="1" data-reevents-field="' . esc_attr( (string) $field_key ) . '"' . esc_attr( $required ) . ' /> ' . esc_html( (string) $field['label'] ) . '</label>';
+		echo '</p>';
+		continue;
+	}
+
 	echo '<p class="reevents-booking-field">';
 	echo '<label for="' . esc_attr( $field_id ) . '">' . esc_html( (string) $field['label'] ) . '</label>';
 
