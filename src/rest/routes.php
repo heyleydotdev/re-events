@@ -192,6 +192,10 @@ final class Routes {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function webhook( WP_REST_Request $request ) {
+		if ( Rate_Limit::hit( 'webhook', 120, MINUTE_IN_SECONDS ) ) {
+			return new WP_Error( 'rest_webhook_rate_limited', __( 'Too many webhook requests. Try again later.', 're-events' ), [ 'status' => 429 ] );
+		}
+
 		$result = Payment_Service::handle_webhook(
 			sanitize_key( (string) $request->get_param( 'gateway' ) ),
 			(string) $request->get_body(),
