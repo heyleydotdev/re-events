@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-11T18:06:56+00:00\n"
+"POT-Creation-Date: 2026-11-11T18:41:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: re-events\n"
@@ -78,7 +78,7 @@ msgid "Name"
 msgstr ""
 
 #: src/admin/attendees-table.php:56
-#: src/admin/settings.php:919
+#: src/admin/settings.php:924
 #: src/privacy.php:93
 #: src/render/widget-registry.php:459
 #: src/render/widget-registry.php:460
@@ -220,7 +220,7 @@ msgstr ""
 #: src/render/widget-registry.php:487
 #: src/render/widget-registry.php:488
 #: src/render/widget-registry.php:551
-#: src/rest/bookings-controller.php:370
+#: src/rest/bookings-controller.php:394
 #: src/services/booking-emails.php:117
 #: templates/booking-form.php:67
 #: templates/events-list.php:47
@@ -509,7 +509,7 @@ msgstr ""
 #: src/admin/meta-boxes.php:466
 #: src/admin/meta-boxes.php:474
 #: src/admin/meta-boxes.php:487
-#: src/admin/settings.php:964
+#: src/admin/settings.php:969
 #: src/admin/ticket-editor.php:168
 msgid "Remove"
 msgstr ""
@@ -554,7 +554,7 @@ msgstr ""
 #: src/admin/meta-boxes.php:385
 #: src/admin/settings.php:633
 #: src/admin/settings.php:644
-#: src/admin/settings.php:951
+#: src/admin/settings.php:956
 #: blocks/build/field/index.js:1
 #: blocks/src/field/index.js:84
 msgid "Label"
@@ -1150,11 +1150,11 @@ msgstr ""
 msgid "Revoke"
 msgstr ""
 
-#: src/admin/settings.php:839
+#: src/admin/settings.php:844
 msgid "[{site}] New booking {reference}"
 msgstr ""
 
-#: src/admin/settings.php:840
+#: src/admin/settings.php:845
 msgid ""
 "A new booking was created.\n"
 "\n"
@@ -1167,11 +1167,11 @@ msgid ""
 "Total: {total}"
 msgstr ""
 
-#: src/admin/settings.php:841
+#: src/admin/settings.php:846
 msgid "Booking {status}: {event}"
 msgstr ""
 
-#: src/admin/settings.php:842
+#: src/admin/settings.php:847
 msgid ""
 "Hello {name},\n"
 "\n"
@@ -1185,48 +1185,52 @@ msgid ""
 "Total: {total}"
 msgstr ""
 
-#: src/admin/settings.php:918
+#: src/admin/settings.php:923
 msgid "Text"
 msgstr ""
 
-#: src/admin/settings.php:920
+#: src/admin/settings.php:925
 msgid "Telephone"
 msgstr ""
 
-#: src/admin/settings.php:921
+#: src/admin/settings.php:926
 msgid "Textarea"
 msgstr ""
 
-#: src/admin/settings.php:922
+#: src/admin/settings.php:927
 msgid "Checkbox"
 msgstr ""
 
-#: src/admin/settings.php:934
+#: src/admin/settings.php:939
 msgid "Add field"
 msgstr ""
 
-#: src/admin/settings.php:952
+#: src/admin/settings.php:957
 msgid "Type"
 msgstr ""
 
-#: src/admin/settings.php:959
+#: src/admin/settings.php:964
 msgid "Required"
 msgstr ""
 
-#: src/admin/settings.php:962
+#: src/admin/settings.php:967
 msgid "Move up"
 msgstr ""
 
-#: src/admin/settings.php:963
+#: src/admin/settings.php:968
 msgid "Move down"
 msgstr ""
 
-#: src/admin/settings.php:964
+#: src/admin/settings.php:969
 msgid "Remove field"
 msgstr ""
 
-#: src/admin/settings.php:1010
+#: src/admin/settings.php:1015
 msgid "Click a placeholder to insert it at the cursor."
+msgstr ""
+
+#: src/admin/settings.php:1030
+msgid "Saved — leave blank to keep"
 msgstr ""
 
 #: src/admin/ticket-editor.php:42
@@ -1475,13 +1479,13 @@ msgid "You are not allowed to read this booking."
 msgstr ""
 
 #: src/api.php:906
-#: src/rest/bookings-controller.php:258
+#: src/rest/bookings-controller.php:260
 msgid "Please correct the booking fields."
 msgstr ""
 
 #: src/api.php:915
 #: src/render/booking-form.php:188
-#: src/rest/bookings-controller.php:267
+#: src/rest/bookings-controller.php:269
 msgid "This booking is already being processed. Please wait a moment."
 msgstr ""
 
@@ -1542,7 +1546,7 @@ msgid "Organizer fields"
 msgstr ""
 
 #: src/data/booking-repository.php:114
-#: src/rest/bookings-controller.php:288
+#: src/rest/bookings-controller.php:290
 msgid "The booking could not be saved."
 msgstr ""
 
@@ -2771,7 +2775,7 @@ msgid "Sorry, you are not allowed to update this booking."
 msgstr ""
 
 #: src/rest/bookings-controller.php:197
-#: src/rest/bookings-controller.php:334
+#: src/rest/bookings-controller.php:358
 msgid "Invalid booking ID."
 msgstr ""
 
@@ -2780,99 +2784,99 @@ msgstr ""
 msgid "The booking could not be created."
 msgstr ""
 
-#: src/rest/bookings-controller.php:240
+#: src/rest/bookings-controller.php:242
 msgid "Too many booking attempts. Try again later."
 msgstr ""
 
-#: src/rest/bookings-controller.php:394
-#: src/rest/bookings-controller.php:497
+#: src/rest/bookings-controller.php:418
+#: src/rest/bookings-controller.php:521
 msgid "Ticket ID."
 msgstr ""
 
-#: src/rest/bookings-controller.php:400
-#: src/rest/bookings-controller.php:493
+#: src/rest/bookings-controller.php:424
+#: src/rest/bookings-controller.php:517
 msgid "Occurrence ID."
 msgstr ""
 
-#: src/rest/bookings-controller.php:405
-#: src/rest/bookings-controller.php:505
+#: src/rest/bookings-controller.php:429
+#: src/rest/bookings-controller.php:529
 msgid "Number of seats."
 msgstr ""
 
-#: src/rest/bookings-controller.php:412
-#: src/rest/bookings-controller.php:535
+#: src/rest/bookings-controller.php:436
+#: src/rest/bookings-controller.php:559
 msgid "Attendees."
 msgstr ""
 
-#: src/rest/bookings-controller.php:428
+#: src/rest/bookings-controller.php:452
 msgid "Leave empty."
 msgstr ""
 
-#: src/rest/bookings-controller.php:432
+#: src/rest/bookings-controller.php:456
 msgid "Idempotency token for retries."
 msgstr ""
 
-#: src/rest/bookings-controller.php:448
+#: src/rest/bookings-controller.php:472
 msgid "Limit results to a booking status."
 msgstr ""
 
-#: src/rest/bookings-controller.php:469
-#: src/rest/bookings-controller.php:606
+#: src/rest/bookings-controller.php:493
+#: src/rest/bookings-controller.php:630
 msgid "Unique identifier for the booking."
 msgstr ""
 
-#: src/rest/bookings-controller.php:474
-#: src/rest/bookings-controller.php:576
+#: src/rest/bookings-controller.php:498
+#: src/rest/bookings-controller.php:600
 msgid "Booking reference."
 msgstr ""
 
-#: src/rest/bookings-controller.php:479
+#: src/rest/bookings-controller.php:503
 #: src/rest/events-controller.php:607
 #: src/rest/events-controller.php:731
 msgid "Event title."
 msgstr ""
 
-#: src/rest/bookings-controller.php:484
+#: src/rest/bookings-controller.php:508
 #: src/rest/tickets-controller.php:359
 #: src/rest/tickets-controller.php:434
 msgid "Ticket name."
 msgstr ""
 
-#: src/rest/bookings-controller.php:489
-#: src/rest/bookings-controller.php:591
+#: src/rest/bookings-controller.php:513
+#: src/rest/bookings-controller.php:615
 #: src/rest/events-controller.php:830
 #: src/rest/tickets-controller.php:430
 #: src/rest/tickets-controller.php:491
 msgid "Event post ID."
 msgstr ""
 
-#: src/rest/bookings-controller.php:501
+#: src/rest/bookings-controller.php:525
 msgid "User ID."
 msgstr ""
 
-#: src/rest/bookings-controller.php:509
-#: src/rest/bookings-controller.php:559
+#: src/rest/bookings-controller.php:533
+#: src/rest/bookings-controller.php:583
 msgid "Booking status."
 msgstr ""
 
-#: src/rest/bookings-controller.php:514
+#: src/rest/bookings-controller.php:538
 msgid "Total in the smallest currency unit."
 msgstr ""
 
-#: src/rest/bookings-controller.php:518
+#: src/rest/bookings-controller.php:542
 msgid "Formatted total."
 msgstr ""
 
-#: src/rest/bookings-controller.php:523
+#: src/rest/bookings-controller.php:547
 #: src/rest/tickets-controller.php:446
 msgid "Currency code."
 msgstr ""
 
-#: src/rest/bookings-controller.php:527
+#: src/rest/bookings-controller.php:551
 msgid "Creation time in UTC."
 msgstr ""
 
-#: src/rest/bookings-controller.php:531
+#: src/rest/bookings-controller.php:555
 msgid "Last update in UTC."
 msgstr ""
 
@@ -3115,6 +3119,10 @@ msgstr ""
 
 #: src/rest/routes.php:179
 msgid "Payment gateway ID."
+msgstr ""
+
+#: src/rest/routes.php:196
+msgid "Too many webhook requests. Try again later."
 msgstr ""
 
 #: src/rest/settings-controller.php:68
