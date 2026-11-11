@@ -52,7 +52,7 @@ final class Assets {
 			return false;
 		}
 
-		foreach ( [ 'reevents_list', 'reevents_event', 'reevents_venues', 'reevents_search', 'reevents_calendar', 'reevents_map', 'reevents_booking' ] as $shortcode ) {
+		foreach ( [ 'reevents_events', 'reevents_event', 'reevents_venues', 'reevents_search', 'reevents_calendar', 'reevents_map', 'reevents_booking_form' ] as $shortcode ) {
 			if ( has_shortcode( $post->post_content, $shortcode ) ) {
 				return true;
 			}

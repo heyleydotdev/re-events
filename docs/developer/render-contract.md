@@ -14,7 +14,7 @@ Do not rely on inline styles. The plugin does not output them.
 
 ## Widgets
 
-### Events list — `[reevents_list]`
+### Events list — `[reevents_events]`
 
 | Argument        | Default            | Purpose                    |
 | --------------- | ------------------ | -------------------------- |
@@ -106,7 +106,7 @@ Do not rely on inline styles. The plugin does not output them.
 | `height`        | `400`               | Height in pixels, applied by JavaScript |
 | `empty_label`   | `No mapped venues.` | Empty state                             |
 
-### Booking form — `[reevents_booking]`
+### Booking form — `[reevents_booking_form]`
 
 | Argument            | Default              | Purpose                              |
 | ------------------- | -------------------- | ------------------------------------ |

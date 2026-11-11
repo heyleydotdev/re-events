@@ -284,7 +284,7 @@ final class Bench {
 				'budget_q'  => 50,
 				'run'       => static function () {
 					ob_start();
-					do_shortcode( '[reevents_list limit="10" upcoming="1"]' );
+					do_shortcode( '[reevents_events limit="10" upcoming="1"]' );
 
 					return ob_get_clean();
 				},

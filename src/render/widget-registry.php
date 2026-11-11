@@ -33,7 +33,7 @@ final class Widget_Registry {
 			'events-list',
 			[
 				'label'     => __( 'Events List', 're-events' ),
-				'shortcode' => 'reevents_list',
+				'shortcode' => 'reevents_events',
 				'renderer'  => [ Events_List::class, 'render' ],
 				'args'      => [
 					'class'         => [
@@ -355,7 +355,7 @@ final class Widget_Registry {
 			'booking-form',
 			[
 				'label'     => __( 'Booking Form', 're-events' ),
-				'shortcode' => 'reevents_booking',
+				'shortcode' => 'reevents_booking_form',
 				'renderer'  => [ Booking_Form::class, 'render' ],
 				'args'      => [
 					'class'             => [
