@@ -111,4 +111,13 @@ test( 'event ticket editor saves a ticket', async ( { page } ) => {
 	} );
 
 	await expect( page.locator( `input[value="${ name }"]` ) ).toHaveCount( 1 );
+
+	await page.evaluate( () =>
+		document.querySelector( '#reevents-add-free-ticket' )?.click()
+	);
+
+	const free = page.locator( '#reevents-tickets-list .reevents-ticket' ).last();
+
+	await expect( free.locator( 'input[name$="[name]"]' ) ).toHaveValue( 'RSVP' );
+	await expect( free.locator( 'input[name$="[price]"]' ) ).toHaveValue( '0.00' );
 } );

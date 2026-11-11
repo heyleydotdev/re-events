@@ -94,7 +94,9 @@ final class Ticket_Editor {
 			echo '<div class="notice notice-error inline"><p>' . esc_html__( 'Some tickets could not be saved.', 're-events' ) . '</p></div>';
 		}
 
-		echo '<div class="reevents-tickets">';
+		$capacity = (int) get_post_meta( $post->ID, '_reevents_capacity', true );
+
+		echo '<div class="reevents-tickets" data-capacity="' . esc_attr( (string) $capacity ) . '">';
 		echo '<div id="reevents-tickets-list" data-next="' . esc_attr( (string) max( 1, count( $tickets ) ) ) . '">';
 
 		$index = 0;
@@ -112,7 +114,8 @@ final class Ticket_Editor {
 		echo '<template id="reevents-ticket-template">';
 		self::row( '__i__', [], $currency );
 		echo '</template>';
-		echo '<p><button type="button" class="button" id="reevents-add-ticket">' . esc_html__( 'Add ticket', 're-events' ) . '</button></p>';
+		echo '<p><button type="button" class="button" id="reevents-add-ticket">' . esc_html__( 'Add ticket', 're-events' ) . '</button> ';
+		echo '<button type="button" class="button" id="reevents-add-free-ticket" data-name="' . esc_attr__( 'RSVP', 're-events' ) . '">' . esc_html__( 'Add free ticket', 're-events' ) . '</button></p>';
 		echo '<p class="description">' . esc_html__( 'Capacity 0 means unlimited. Sale dates use UTC and accept YYYY-MM-DD HH:MM:SS. Prices use a dot for decimals, for example 25.00.', 're-events' ) . '</p>';
 		echo '</div>';
 	}
