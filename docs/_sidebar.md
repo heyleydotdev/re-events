@@ -13,4 +13,4 @@
   - [Feeds and structured data](/developer/feeds.md)
   - [CSV and CLI](/developer/csv-cli.md)
   - [Payment gateways](/developer/payments.md)
-- <a href="../../../../wp-admin/admin.php?page=reevents-api-docs" target="_top">API reference</a>
+- <a href="../../../../wp-admin/admin.php?page=reevents-api-docs" target="_top">REST API reference</a>

@@ -13,8 +13,8 @@ ReEvents is an open-source event manager for WordPress.
 - [Maps](maps.md) — OpenStreetMap, Google Maps and geocoding.
 - [Payments](payments.md) — Stripe and PayPal setup, webhooks and test checks.
 
-## API reference
+## REST API reference
 
 The interactive OpenAPI reference lives on the API Docs admin page:
 
-<a href="../../../../wp-admin/admin.php?page=reevents-api-docs" target="_top">Open the API reference</a>
+<a href="../../../../wp-admin/admin.php?page=reevents-api-docs" target="_top">Open the REST API reference</a>
