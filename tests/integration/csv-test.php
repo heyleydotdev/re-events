@@ -69,6 +69,35 @@ final class Csv_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A UTF-8 byte-order mark does not hide the id column.
+	 */
+	public function test_import_strips_bom_from_header(): void {
+		$event = Test_Factory::event(
+			[
+				'title' => 'BOM event',
+				'meta'  => [
+					'_reevents_start_utc' => '2027-05-01 10:00:00',
+					'_reevents_end_utc'   => '2027-05-01 11:00:00',
+					'_reevents_timezone'  => 'UTC',
+				],
+			]
+		);
+
+		$file = $this->file(
+			[
+				"\xEF\xBB\xBFid,title,start_utc,end_utc,timezone",
+				$event . ',"Renamed",2027-05-01 10:00:00,2027-05-01 11:00:00,UTC',
+			]
+		);
+
+		$result = Csv::import( 'events', $file );
+
+		self::assertSame( 1, $result['updated'] );
+		self::assertSame( 0, $result['created'] );
+		self::assertSame( 'Renamed', get_the_title( $event ) );
+	}
+
+	/**
 	 * Importing an empty tag cell clears the old tags.
 	 */
 	public function test_import_events_clears_tags(): void {

@@ -476,7 +476,12 @@ final class Csv {
 	private static function read_rows( $handle ): Generator {
 		$header = fgetcsv( $handle );
 		$header = is_array( $header ) ? array_map( 'trim', $header ) : [];
-		$line   = 1;
+
+		if ( isset( $header[0] ) ) {
+			$header[0] = (string) preg_replace( '/^\xEF\xBB\xBF/', '', (string) $header[0] );
+		}
+
+		$line = 1;
 
 		$data = fgetcsv( $handle );
 
