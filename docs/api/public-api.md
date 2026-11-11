@@ -2,7 +2,7 @@
 
 Version: **1.0.0**
 
-ReEvents exposes PHP CRUD functions for themes and plugins. They use the same services and repositories as the REST API, but they do not dispatch REST requests and do not render HTML.
+ReEvents exposes PHP functions for themes and plugins. They use the same services and repositories as the REST API, but they do not dispatch REST requests and do not render HTML.
 
 Functions run as the current user. Server-side PHP calls do not need a nonce. Nonces remain an HTTP and REST concern. API keys remain REST-only.
 

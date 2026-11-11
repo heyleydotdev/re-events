@@ -63,7 +63,7 @@ The plugin exposes `re-events/v1`. Public reads can be disabled in Settings → 
 
 API keys are stored as HMAC-SHA256 hashes. A key authenticates as its owning user and inherits that user's capabilities.
 
-Plugins and themes also get a PHP CRUD API in `src/api.php`, backed by the same services and repositories. See [public-api.md](../api/public-api.md).
+Plugins and themes also get a PHP API in `src/api.php`, backed by the same services and repositories. See [public-api.md](../api/public-api.md).
 
 `docs/api/openapi.json` is generated from the registered routes and their schemas. CI regenerates it and fails when the committed file is stale.
 

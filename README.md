@@ -26,7 +26,7 @@ ReEvents adds a complete event domain to WordPress: a calendar, sellable tickets
 - **Bookings** — guest checkout, optional approval, unpaid holds, atomic seat reservation and cancellation.
 - **Payments** — Stripe Checkout and PayPal Orders with refunds and signed webhooks.
 - **Admin** — booking and attendee tables, check-in, resend email, editable mail templates and CSV export.
-- **Output** — shortcodes, Gutenberg blocks and a PHP CRUD API; no CSS to override.
+- **Output** — shortcodes, Gutenberg blocks and a PHP API; no CSS to override.
 - **Integrations** — REST API with OpenAPI docs, WP-CLI commands, CSV import/export, iCal/RSS feeds, add-to-calendar links and schema.org data.
 - **Privacy** — attendee data is exposed to the WordPress personal data exporter and eraser, and uninstall can remove all plugin data.
 
@@ -94,7 +94,7 @@ Full setup and test steps are in [Payments](docs/payments.md).
 
 ## For developers
 
-**PHP API** — CRUD functions for events, tickets and bookings that run as the current user and return arrays or `WP_Error`:
+**PHP API** — functions for events, tickets and bookings that run as the current user and return arrays or `WP_Error`:
 
 ```php
 $events = reevents_get_events(

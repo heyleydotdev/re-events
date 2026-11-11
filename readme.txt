@@ -23,7 +23,7 @@ ReEvents adds an event domain to WordPress without a page builder lock-in.
 * Admin booking screens, attendee export, editable mail templates and CSV import/export.
 * Shortcodes and Gutenberg blocks for lists, details, search, calendar, map, booking form and single event fields.
 * Semantic HTML with no frontend CSS; your theme owns the design.
-* REST API, PHP CRUD API, iCal/RSS feeds and schema.org output.
+* REST API, PHP API, iCal/RSS feeds and schema.org output.
 
 == Installation ==
 
