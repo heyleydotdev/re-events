@@ -77,7 +77,7 @@ final class Plugin {
 	 * Register hooks.
 	 */
 	public function boot(): void {
-		add_action( 'init', [ $this, 'load_textdomain' ], 1 );
+		$this->load_textdomain();
 		add_action( 'init', [ Schema::class, 'maybe_install' ] );
 		add_action( 'admin_init', [ Activation::class, 'maybe_upgrade' ] );
 		Post_Types::register();
