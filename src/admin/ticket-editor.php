@@ -239,8 +239,7 @@ final class Ticket_Editor {
 
 			$code     = sanitize_text_field( (string) ( $row['currency'] ?? '' ) );
 			$currency = '' !== $code ? Currency::sanitize_code( $code ) : (string) Settings::get( 'default_currency', 'USD' );
-			$price    = str_replace( ' ', '', sanitize_text_field( (string) ( $row['price'] ?? '0' ) ) );
-			$price    = str_contains( $price, ',' ) && ! str_contains( $price, '.' ) ? str_replace( ',', '.', $price ) : str_replace( ',', '', $price );
+			$price    = self::parse_price( sanitize_text_field( (string) ( $row['price'] ?? '0' ) ) );
 
 			if ( ! is_numeric( $price ) || (float) $price < 0 ) {
 				$fail = true;
@@ -277,5 +276,25 @@ final class Ticket_Editor {
 				}
 			);
 		}
+	}
+
+	/**
+	 * Normalise a typed price with either a comma or a dot as the decimal separator.
+	 *
+	 * @param string $price Raw price.
+	 */
+	private static function parse_price( string $price ): string {
+		$price = str_replace( ' ', '', $price );
+		$dot   = strrpos( $price, '.' );
+		$comma = strrpos( $price, ',' );
+
+		if ( false === $comma && false === $dot ) {
+			return $price;
+		}
+
+		$separator = false !== $comma && ( false === $dot || $comma > $dot ) ? $comma : $dot;
+		$whole     = str_replace( [ ',', '.' ], '', substr( $price, 0, (int) $separator ) );
+
+		return $whole . '.' . substr( $price, (int) $separator + 1 );
 	}
 }

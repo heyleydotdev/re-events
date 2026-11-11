@@ -123,10 +123,24 @@ final class Ticket_Editor_Test extends WP_UnitTestCase {
 
 		Ticket_Editor::save( $this->event );
 
-		$tickets = ( new Ticket_Repository() )->for_event( $this->event );
+		$this->submit(
+			[
+				'id'       => '0',
+				'name'     => 'EU thousands',
+				'price'    => '1.234,56',
+				'currency' => 'EUR',
+				'delete'   => '0',
+			]
+		);
 
-		self::assertCount( 2, $tickets );
-		self::assertSame( 125000, $tickets[1]['price_minor'] );
+		Ticket_Editor::save( $this->event );
+
+		$tickets = ( new Ticket_Repository() )->for_event( $this->event );
+		$named   = array_column( $tickets, null, 'name' );
+
+		self::assertCount( 3, $tickets );
+		self::assertSame( 125000, $named['Thousands']['price_minor'] );
+		self::assertSame( 123456, $named['EU thousands']['price_minor'] );
 	}
 
 	/**
