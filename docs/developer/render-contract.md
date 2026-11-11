@@ -4,7 +4,7 @@ ReEvents renders semantic HTML with no frontend CSS.
 
 ## Blocks
 
-Every widget is also a block under `reevents/<widget>`.
+Every widget is also a block under `reevents/<widget>`. `reevents/field` prints one event, venue or organizer value, and its field dropdown is filled from the PHP field lists.
 
 ## Styling
 

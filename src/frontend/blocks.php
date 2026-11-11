@@ -9,6 +9,7 @@ declare( strict_types=1 );
 
 namespace ReEvents\Frontend;
 
+use ReEvents\Render\Field;
 use ReEvents\Render\Widget_Registry;
 
 /**
@@ -21,6 +22,7 @@ final class Blocks {
 	 */
 	public static function register(): void {
 		add_action( 'init', [ self::class, 'register_blocks' ] );
+		add_action( 'enqueue_block_editor_assets', [ self::class, 'editor_data' ] );
 	}
 
 	/**
@@ -76,5 +78,69 @@ final class Blocks {
 				]
 			);
 		}
+
+		self::register_field_block();
+	}
+
+	/**
+	 * Register the field block.
+	 */
+	private static function register_field_block(): void {
+		$path = RE_EVENTS_DIR . 'blocks/build/field/block.json';
+
+		if ( file_exists( $path ) ) {
+			register_block_type( $path, [ 'render_callback' => [ self::class, 'render_field' ] ] );
+		}
+	}
+
+	/**
+	 * Pass the field lists to the field block editor.
+	 */
+	public static function editor_data(): void {
+		$handle = 'reevents-field-editor-script';
+
+		if ( ! wp_script_is( $handle, 'registered' ) ) {
+			return;
+		}
+
+		wp_localize_script(
+			$handle,
+			'reeventsFields',
+			[
+				'event'     => Field::fields( 'event' ),
+				'venue'     => Field::fields( 'venue' ),
+				'organizer' => Field::fields( 'organizer' ),
+			]
+		);
+	}
+
+	/**
+	 * Render the field block.
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 */
+	public static function render_field( array $attributes ): string {
+		$context = sanitize_key( (string) ( $attributes['source'] ?? 'event' ) );
+		$args    = [
+			'field'       => sanitize_key( (string) ( $attributes['field'] ?? 'title' ) ),
+			'label'       => (string) ( $attributes['label'] ?? '' ),
+			'link'        => ! empty( $attributes['link'] ),
+			'separator'   => (string) ( $attributes['separator'] ?? ', ' ),
+			'empty_label' => (string) ( $attributes['emptyLabel'] ?? '' ),
+			'class'       => (string) ( $attributes['className'] ?? '' ),
+			'tag'         => sanitize_key( (string) ( $attributes['tag'] ?? 'span' ) ),
+			'size'        => sanitize_key( (string) ( $attributes['size'] ?? 'large' ) ),
+		];
+		$id      = (int) ( $attributes['id'] ?? 0 );
+
+		if ( 'venue' === $context ) {
+			$args['venue'] = $id;
+		} elseif ( 'organizer' === $context ) {
+			$args['organizer'] = $id;
+		} else {
+			$args['event'] = $id;
+		}
+
+		return Field::render( $args );
 	}
 }

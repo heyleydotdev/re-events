@@ -1,0 +1,53 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "reevents/field",
+	"title": "Event Field",
+	"category": "widgets",
+	"icon": "editor-textcolor",
+	"description": "Display one event, venue or organizer value.",
+	"keywords": [ "events", "field", "venue", "organizer", "reevents" ],
+	"textdomain": "re-events",
+	"attributes": {
+		"source": {
+			"type": "string",
+			"default": "event"
+		},
+		"field": {
+			"type": "string",
+			"default": "title"
+		},
+		"id": {
+			"type": "number",
+			"default": 0
+		},
+		"label": {
+			"type": "string",
+			"default": ""
+		},
+		"link": {
+			"type": "boolean",
+			"default": false
+		},
+		"separator": {
+			"type": "string",
+			"default": ", "
+		},
+		"emptyLabel": {
+			"type": "string",
+			"default": ""
+		},
+		"tag": {
+			"type": "string",
+			"default": "span"
+		},
+		"size": {
+			"type": "string",
+			"default": "large"
+		}
+	},
+	"supports": {
+		"html": false
+	},
+	"editorScript": "file:./index.js"
+}
