@@ -4,8 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex" />
+    <link rel="icon" href="../assets/img/icon-128.png" />
+    <link rel="apple-touch-icon" href="../assets/img/icon-256.png" />
     <title>ReEvents Docs</title>
     <link rel="stylesheet" href="../assets/vendor/docsify/core.min.css" />
+    <style>
+      .sidebar .app-name { padding: 16px; }
+      .sidebar .app-name img { max-width: 150px; height: auto; }
+    </style>
   </head>
   <body>
     <div id="app">Loading…</div>
@@ -16,7 +22,8 @@
         : "_sidebar.md";
 
       window.$docsify = {
-        name: false,
+        name: "ReEvents",
+        logo: "../assets/img/logo.png",
         homepage: "README.md",
         loadSidebar: sidebarFile,
         subMaxLevel: 2,
