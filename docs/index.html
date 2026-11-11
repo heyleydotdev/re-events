@@ -11,10 +11,15 @@
   <body>
     <div id="app">Loading…</div>
     <script>
+      const docsVersion = new URLSearchParams( window.location.search ).get( "ver" ) || "";
+      const sidebarFile = docsVersion
+        ? "_sidebar.md?ver=" + encodeURIComponent( docsVersion )
+        : "_sidebar.md";
+
       window.$docsify = {
         name: false,
         homepage: "README.md",
-        loadSidebar: true,
+        loadSidebar: sidebarFile,
         subMaxLevel: 2,
         auto2top: true,
         noCompileLinks: [/wp-admin/],

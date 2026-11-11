@@ -2,6 +2,8 @@
 - [Shortcodes](shortcodes/README.md)
 - [Authentication](api/auth.md)
 - [Custom booking forms](api/booking-form.md)
+- [Public API](api/public-api.md)
+- [Public API reference](api/public-api-reference.md)
 - [Bookings](bookings.md)
 - [Maps](maps.md)
 - [Payments](payments.md)

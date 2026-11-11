@@ -47,6 +47,29 @@ Content-Type: application/json
 
 `quantity` is the number of seats. `attendees` cannot contain more rows than seats. A booking can use one lead attendee for multiple seats.
 
+## PHP helpers
+
+Plugins and themes can create and manage bookings with the [Public API](public-api.md):
+
+```php
+$booking = reevents_create_booking(
+	[
+		'event_id'      => $event_id,
+		'ticket_id'     => $ticket_id,
+		'quantity'      => 1,
+		'attendees'     => [
+			[
+				'name'  => 'Jane Doe',
+				'email' => 'jane@example.com',
+			],
+		],
+		'booking_token' => wp_generate_uuid4(),
+	]
+);
+```
+
+The same API can read events, tickets and venues when building a custom form.
+
 ## JavaScript example
 
 ```js

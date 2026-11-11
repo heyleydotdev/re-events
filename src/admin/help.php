@@ -44,7 +44,9 @@ final class Help {
 			return;
 		}
 
-		$frame_url = plugins_url( 'docs/index.html', RE_EVENTS_FILE );
+		$docs_file = RE_EVENTS_DIR . 'docs/_sidebar.md';
+		$docs_ver  = RE_EVENTS_VERSION . ( is_readable( $docs_file ) ? '.' . filemtime( $docs_file ) : '' );
+		$frame_url = add_query_arg( 'ver', $docs_ver, plugins_url( 'docs/index.html', RE_EVENTS_FILE ) );
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'ReEvents Documentation', 're-events' ); ?></h1>
