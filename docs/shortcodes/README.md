@@ -4,7 +4,7 @@ Every registered widget is listed here. Arguments left at their default can be o
 
 ## Events List
 
-`[reevents_list]`
+`[reevents_events]`
 
 | Argument | Default | Description |
 | --- | --- | --- |
@@ -17,9 +17,17 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `venue` | 0 | Limit to a venue ID. |
 | `upcoming` | 1 | Show upcoming events only. |
 | `show_venue` | 1 | Display the venue name. |
+| `page` | 0 | Page number. 0 uses the current page. |
+| `show_image` | 1 | Show the featured image. |
+| `image_size` | thumbnail | Registered image size. |
+| `show_price` | 1 | Show the lowest price or the free label. |
+| `show_excerpt` | 0 | Show the event excerpt. |
+| `show_categories` | 0 | Show event categories. |
+| `free_label` | Free | Text shown for a free ticket. |
+| `sold_out_label` | Sold out | Label when no ticket has seats left. |
 
 ```text
-[reevents_list empty_label="No events found." ongoing_label="Ongoing" limit="5" upcoming="1" show_venue="1"]
+[reevents_events empty_label="No events found." ongoing_label="Ongoing" limit="5" upcoming="1" show_venue="1" show_image="1" image_size="thumbnail" show_price="1" free_label="Free" sold_out_label="Sold out"]
 ```
 
 ## Event Details
@@ -132,7 +140,7 @@ Every registered widget is listed here. Arguments left at their default can be o
 
 ## Booking Form
 
-`[reevents_booking]`
+`[reevents_booking_form]`
 
 | Argument | Default | Description |
 | --- | --- | --- |
@@ -152,7 +160,7 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `event` | 0 | Leave 0 to use the current event. |
 
 ```text
-[reevents_booking ticket_label="Ticket" time_label="Time" quantity_label="Seats" name_label="Name" email_label="Email" button_label="Book" success_message="Booking confirmed." free_label="Free" reference_label="Reference:"]
+[reevents_booking_form ticket_label="Ticket" time_label="Time" quantity_label="Seats" name_label="Name" email_label="Email" button_label="Book" success_message="Booking confirmed." free_label="Free" reference_label="Reference:"]
 ```
 
 ## Event fields
@@ -173,6 +181,7 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `empty_label` | — | Text shown when the value is empty. |
 | `class` | — | Extra classes on the wrapper. |
 | `tag` | `span` | Wrapper tag: `span`, `div` or `p`. |
+| `size` | `large` | Image size for `image` and `image_url`. |
 
 ### Fields
 
@@ -196,6 +205,12 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `tags` | Tags |
 | `excerpt` | Excerpt |
 | `content` | Content |
+| `image` | Featured image |
+| `image_url` | Featured image URL |
+| `price_from` | Lowest paid ticket price |
+| `is_free` | Free event |
+| `seats_left` | Seats left |
+| `sold_out` | Sold out |
 | `online_links` | Online links |
 | `calendar_links` | Add-to-calendar links |
 

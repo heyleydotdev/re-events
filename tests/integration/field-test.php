@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace ReEvents\Tests\Integration;
 
 use ReEvents\CLI\Test_Factory;
+use ReEvents\Data\Ticket_Repository;
 use ReEvents\Render\Field;
 use WP_UnitTestCase;
 
@@ -208,6 +209,212 @@ final class Field_Test extends WP_UnitTestCase {
 			Field::render(
 				[
 					'field' => 'online_links',
+					'event' => $id,
+				]
+			)
+		);
+	}
+
+	/**
+	 * Ticket price and availability fields.
+	 */
+	public function test_ticket_fields(): void {
+		$id   = $this->event();
+		$free = Test_Factory::ticket( $id, [ 'capacity' => 10 ] );
+
+		self::assertSame(
+			'',
+			Field::render(
+				[
+					'field' => 'price_from',
+					'event' => $id,
+				]
+			)
+		);
+		self::assertStringContainsString(
+			'>1</span>',
+			Field::render(
+				[
+					'field' => 'is_free',
+					'event' => $id,
+				]
+			)
+		);
+		self::assertStringContainsString(
+			'>10</span>',
+			Field::render(
+				[
+					'field' => 'seats_left',
+					'event' => $id,
+				]
+			)
+		);
+		self::assertSame(
+			'',
+			Field::render(
+				[
+					'field' => 'sold_out',
+					'event' => $id,
+				]
+			)
+		);
+
+		( new Ticket_Repository() )->reserve( $free, 10 );
+
+		self::assertStringContainsString(
+			'>0</span>',
+			Field::render(
+				[
+					'field' => 'seats_left',
+					'event' => $id,
+				]
+			)
+		);
+		self::assertStringContainsString(
+			'>1</span>',
+			Field::render(
+				[
+					'field' => 'sold_out',
+					'event' => $id,
+				]
+			)
+		);
+
+		$paid_id = $this->event();
+		Test_Factory::ticket(
+			$paid_id,
+			[
+				'capacity'    => 5,
+				'price_minor' => 2500,
+			]
+		);
+
+		self::assertStringContainsString(
+			'>25.00 USD<',
+			Field::render(
+				[
+					'field' => 'price_from',
+					'event' => $paid_id,
+				]
+			)
+		);
+		self::assertSame(
+			'',
+			Field::render(
+				[
+					'field' => 'is_free',
+					'event' => $paid_id,
+				]
+			)
+		);
+
+		$mixed_id = $this->event();
+		Test_Factory::ticket( $mixed_id, [ 'capacity' => 5 ] );
+		Test_Factory::ticket(
+			$mixed_id,
+			[
+				'capacity'    => 5,
+				'price_minor' => 2500,
+			]
+		);
+
+		self::assertStringContainsString(
+			'>25.00 USD<',
+			Field::render(
+				[
+					'field' => 'price_from',
+					'event' => $mixed_id,
+				]
+			)
+		);
+		self::assertSame(
+			'',
+			Field::render(
+				[
+					'field' => 'is_free',
+					'event' => $mixed_id,
+				]
+			)
+		);
+	}
+
+	/**
+	 * An event without tickets has no price or availability.
+	 */
+	public function test_no_tickets(): void {
+		$id = $this->event();
+
+		self::assertSame(
+			'',
+			Field::render(
+				[
+					'field' => 'price_from',
+					'event' => $id,
+				]
+			)
+		);
+		self::assertSame(
+			'',
+			Field::render(
+				[
+					'field' => 'is_free',
+					'event' => $id,
+				]
+			)
+		);
+		self::assertSame(
+			'',
+			Field::render(
+				[
+					'field' => 'sold_out',
+					'event' => $id,
+				]
+			)
+		);
+	}
+
+	/**
+	 * Featured image fields.
+	 */
+	public function test_image_fields(): void {
+		$id = $this->event();
+
+		self::assertSame(
+			'',
+			Field::render(
+				[
+					'field' => 'image',
+					'event' => $id,
+				]
+			)
+		);
+		self::assertSame(
+			'',
+			Field::render(
+				[
+					'field' => 'image_url',
+					'event' => $id,
+				]
+			)
+		);
+
+		$attachment = self::factory()->attachment->create_upload_object( DIR_TESTDATA . '/images/canola.jpg', $id );
+		set_post_thumbnail( $id, $attachment );
+
+		self::assertStringContainsString(
+			'<img',
+			Field::render(
+				[
+					'field' => 'image',
+					'event' => $id,
+				]
+			)
+		);
+		self::assertStringContainsString(
+			'canola',
+			Field::render(
+				[
+					'field' => 'image_url',
 					'event' => $id,
 				]
 			)

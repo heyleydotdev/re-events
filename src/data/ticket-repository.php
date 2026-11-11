@@ -78,6 +78,47 @@ final class Ticket_Repository {
 	}
 
 	/**
+	 * Get tickets for several events, grouped by event ID.
+	 *
+	 * @param array<int, int> $event_ids Event IDs.
+	 * @param string          $status    Optional status.
+	 * @return array<int, array<int, array<string, mixed>>>
+	 */
+	public function for_events( array $event_ids, string $status = '' ): array {
+		global $wpdb;
+
+		$event_ids = array_values( array_unique( array_map( 'intval', $event_ids ) ) );
+
+		if ( ! $event_ids ) {
+			return [];
+		}
+
+		$table        = $this->table();
+		$placeholders = implode( ',', array_fill( 0, count( $event_ids ), '%d' ) );
+		$sql          = "SELECT * FROM {$table} WHERE event_id IN ({$placeholders})";
+		$args         = $event_ids;
+
+		if ( '' !== $status ) {
+			$sql   .= ' AND status = %s';
+			$args[] = $status;
+		}
+
+		$sql .= ' ORDER BY price_minor ASC, id ASC';
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared -- Internal table name and dynamic filters.
+		$rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$args ), ARRAY_A );
+		// phpcs:enable
+
+		$grouped = [];
+
+		foreach ( (array) $rows as $row ) {
+			$grouped[ (int) $row['event_id'] ][] = $this->hydrate( $row );
+		}
+
+		return $grouped;
+	}
+
+	/**
 	 * Save a ticket.
 	 *
 	 * @param array<string, mixed> $ticket Ticket data.

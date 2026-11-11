@@ -10,7 +10,7 @@ declare( strict_types=1 );
 namespace ReEvents\Render;
 
 /**
- * Single registry for renderers, shortcodes and builder widgets.
+ * Single registry for renderers and shortcodes.
  */
 final class Widget_Registry {
 
@@ -36,41 +36,81 @@ final class Widget_Registry {
 				'shortcode' => 'reevents_events',
 				'renderer'  => [ Events_List::class, 'render' ],
 				'args'      => [
-					'class'         => [
+					'class'           => [
 						'type'    => 'text',
 						'default' => '',
 					],
-					'wrapper_class' => [
+					'wrapper_class'   => [
 						'type'    => 'text',
 						'default' => '',
 					],
-					'empty_label'   => [
+					'empty_label'     => [
 						'type'    => 'text',
 						'default' => __( 'No events found.', 're-events' ),
 					],
-					'ongoing_label' => [
+					'ongoing_label'   => [
 						'type'    => 'text',
 						'default' => __( 'Ongoing', 're-events' ),
 					],
-					'limit'         => [
+					'limit'           => [
 						'type'    => 'number',
 						'default' => 5,
 					],
-					'category'      => [
+					'category'        => [
 						'type'    => 'text',
 						'default' => '',
 					],
-					'venue'         => [
+					'venue'           => [
 						'type'    => 'number',
 						'default' => 0,
 					],
-					'upcoming'      => [
+					'upcoming'        => [
 						'type'    => 'toggle',
 						'default' => true,
 					],
-					'show_venue'    => [
+					'show_venue'      => [
 						'type'    => 'toggle',
 						'default' => true,
+					],
+					'page'            => [
+						'type'        => 'number',
+						'default'     => 0,
+						'description' => __( 'Page number. 0 uses the current page.', 're-events' ),
+					],
+					'show_image'      => [
+						'type'        => 'toggle',
+						'default'     => true,
+						'description' => __( 'Show the featured image.', 're-events' ),
+					],
+					'image_size'      => [
+						'type'        => 'text',
+						'default'     => 'thumbnail',
+						'description' => __( 'Registered image size.', 're-events' ),
+					],
+					'show_price'      => [
+						'type'        => 'toggle',
+						'default'     => true,
+						'description' => __( 'Show the lowest price or the free label.', 're-events' ),
+					],
+					'show_excerpt'    => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show the event excerpt.', 're-events' ),
+					],
+					'show_categories' => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show event categories.', 're-events' ),
+					],
+					'free_label'      => [
+						'type'        => 'text',
+						'default'     => __( 'Free', 're-events' ),
+						'description' => __( 'Price label for free events.', 're-events' ),
+					],
+					'sold_out_label'  => [
+						'type'        => 'text',
+						'default'     => __( 'Sold out', 're-events' ),
+						'description' => __( 'Label when no ticket has seats left.', 're-events' ),
 					],
 				],
 			]

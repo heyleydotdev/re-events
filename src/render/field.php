@@ -10,7 +10,9 @@ declare( strict_types=1 );
 namespace ReEvents\Render;
 
 use ReEvents\Data\Event_Repository;
+use ReEvents\Data\Ticket_Repository;
 use ReEvents\Domain\Event;
+use ReEvents\Services\Currency;
 
 /**
  * Prints one event value for custom layouts.
@@ -49,6 +51,12 @@ final class Field {
 			'tags'            => __( 'Tags', 're-events' ),
 			'excerpt'         => __( 'Excerpt', 're-events' ),
 			'content'         => __( 'Content', 're-events' ),
+			'image'           => __( 'Featured image', 're-events' ),
+			'image_url'       => __( 'Featured image URL', 're-events' ),
+			'price_from'      => __( 'Lowest paid ticket price', 're-events' ),
+			'is_free'         => __( 'Free event', 're-events' ),
+			'seats_left'      => __( 'Seats left', 're-events' ),
+			'sold_out'        => __( 'Sold out', 're-events' ),
 			'online_links'    => __( 'Online links', 're-events' ),
 			'calendar_links'  => __( 'Add-to-calendar links', 're-events' ),
 		];
@@ -92,6 +100,10 @@ final class Field {
 			'tag'         => [
 				'default'     => 'span',
 				'description' => __( 'Wrapper tag: `span`, `div` or `p`.', 're-events' ),
+			],
+			'size'        => [
+				'default'     => 'large',
+				'description' => __( 'Image size for `image` and `image_url`.', 're-events' ),
 			],
 		];
 	}
@@ -227,6 +239,16 @@ final class Field {
 				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core content filter.
 				return wp_kses_post( (string) apply_filters( 'the_content', (string) get_post_field( 'post_content', $event->id ) ) );
 
+			case 'image':
+			case 'image_url':
+				return self::image( $name, $event, $args, $link );
+
+			case 'price_from':
+			case 'is_free':
+			case 'seats_left':
+			case 'sold_out':
+				return self::tickets( $name, $event );
+
 			case 'online_links':
 				return self::links( $event->online_urls, $separator );
 
@@ -288,6 +310,61 @@ final class Field {
 		}
 
 		return implode( $separator, $names );
+	}
+
+	/**
+	 * Render the featured image.
+	 *
+	 * @param string               $name  Field name.
+	 * @param Event                $event Event.
+	 * @param array<string, mixed> $args  Arguments.
+	 * @param bool                 $link  Wrap in the event link.
+	 */
+	private static function image( string $name, Event $event, array $args, bool $link ): string {
+		$size = (string) ( $args['size'] ?? 'large' );
+		$url  = (string) get_the_post_thumbnail_url( $event->id, $size );
+
+		if ( '' === $url ) {
+			return '';
+		}
+
+		if ( 'image_url' === $name ) {
+			return esc_url( $url );
+		}
+
+		$image = get_the_post_thumbnail( $event->id, $size, [ 'class' => 'reevents-field-image' ] );
+
+		if ( '' === $image ) {
+			return '';
+		}
+
+		return $link ? '<a href="' . esc_url( (string) get_permalink( $event->id ) ) . '">' . $image . '</a>' : $image;
+	}
+
+	/**
+	 * Render a ticket summary value.
+	 *
+	 * @param string $name  Field name.
+	 * @param Event  $event Event.
+	 */
+	private static function tickets( string $name, Event $event ): string {
+		$summary = Ticket_Summary::from_tickets( ( new Ticket_Repository() )->for_event( $event->id, 'active' ) );
+
+		switch ( $name ) {
+			case 'price_from':
+				return null === $summary['price_from'] ? '' : esc_html( Currency::format( $summary['price_from'], $summary['currency'] ) );
+
+			case 'is_free':
+				return $summary['is_free'] ? '1' : '';
+
+			case 'seats_left':
+				return null === $summary['seats_left'] ? '' : esc_html( (string) $summary['seats_left'] );
+
+			case 'sold_out':
+				return $summary['sold_out'] ? '1' : '';
+		}
+
+		return '';
 	}
 
 	/**

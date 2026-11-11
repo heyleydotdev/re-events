@@ -23,10 +23,18 @@ Do not rely on inline styles. The plugin does not output them.
 | `limit`         | `5`                | Maximum events             |
 | `category`      | empty              | Category term ID           |
 | `venue`         | `0`                | Venue ID                   |
-| `upcoming`      | `true`             | Only upcoming events       |
-| `show_venue`    | `true`             | Show the venue name        |
-| `empty_label`   | `No events found.` | Empty state                |
-| `ongoing_label` | `Ongoing`          | Ongoing badge              |
+| `upcoming`      | `true`               | Only upcoming events       |
+| `show_venue`    | `true`               | Show the venue name        |
+| `page`          | `0`                  | Page number; 0 uses the current page |
+| `show_image`    | `true`               | Show the featured image    |
+| `image_size`    | `thumbnail`          | Registered image size      |
+| `show_price`    | `true`               | Lowest price or free label |
+| `free_label`    | `Free`               | Price label for free events |
+| `sold_out_label` | `Sold out`          | Label when no seats are left |
+| `show_excerpt`  | `false`              | Show the event excerpt     |
+| `show_categories` | `false`            | Show event categories      |
+| `empty_label`   | `No events found.`   | Empty state                |
+| `ongoing_label` | `Ongoing`            | Ongoing badge              |
 
 ### Event details — `[reevents_event]`
 
