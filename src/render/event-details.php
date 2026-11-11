@@ -40,7 +40,7 @@ final class Event_Details {
 
 		$post = get_post( $id );
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core content filter.
-		$content    = $post ? (string) apply_filters( 'the_content', $post->post_content ) : '';
+		$content    = $post && ! post_password_required( $id ) ? (string) apply_filters( 'the_content', $post->post_content ) : '';
 		$venue      = $event->venue_id ? (string) get_the_title( $event->venue_id ) : '';
 		$organizers = [];
 
