@@ -7,5 +7,6 @@ parameters:
 		- re-events.php
 		- src
 	scanFiles:
+		- stubs/elementor.php
 		- stubs/wp-cli.php
 	tmpDir: .phpstan-cache

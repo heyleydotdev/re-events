@@ -25,6 +25,10 @@ final class Widget_Registry {
 	 * Register the default widgets.
 	 */
 	public static function register_defaults(): void {
+		if ( [] !== self::$widgets ) {
+			return;
+		}
+
 		self::register(
 			'events-list',
 			[
