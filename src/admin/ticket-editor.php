@@ -191,6 +191,16 @@ final class Ticket_Editor {
 
 		$rows = isset( $_POST['reevents_tickets'] ) && is_array( $_POST['reevents_tickets'] ) ? wp_unslash( $_POST['reevents_tickets'] ) : []; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized per field below.
 
+		// The block editor can submit the same meta box payload twice.
+		$lock_key = 'reevents_tickets_saved_' . $post_id;
+		$payload  = md5( (string) wp_json_encode( $rows ) );
+
+		if ( get_transient( $lock_key ) === $payload ) {
+			return;
+		}
+
+		set_transient( $lock_key, $payload, 30 );
+
 		$repo = new Ticket_Repository();
 		$fail = false;
 
