@@ -12,7 +12,6 @@ namespace ReEvents\Tests\Integration;
 use ReEvents\CLI\Test_Factory;
 use ReEvents\Data\Venue_Repository;
 use WP_UnitTestCase;
-use WP_User;
 
 /**
  * Covers the public PHP CRUD functions.
@@ -32,13 +31,10 @@ final class Public_API_Test extends WP_UnitTestCase {
 	public function set_up(): void {
 		parent::set_up();
 
+		\ReEvents\Capabilities::add();
+		delete_option( 'reevents_settings' );
+
 		$this->admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
-		$user        = new WP_User( $this->admin );
-
-		foreach ( [ 'edit_reevents_events', 'publish_reevents_events', 'publish_reevents_venues', 'publish_reevents_organizers', 'reevents_manage_bookings', 'reevents_manage_settings' ] as $capability ) {
-			$user->add_cap( $capability );
-		}
-
 		wp_set_current_user( $this->admin );
 	}
 
@@ -201,7 +197,7 @@ final class Public_API_Test extends WP_UnitTestCase {
 		);
 
 		self::assertIsArray( $ticket );
-		self::assertSame( 'API ticket', \reevents_update_ticket( (int) $ticket['id'], [ 'name' => 'API ticket updated' ] )['name'] );
+		self::assertSame( 'API ticket updated', \reevents_update_ticket( (int) $ticket['id'], [ 'name' => 'API ticket updated' ] )['name'] );
 		self::assertTrue( \reevents_delete_ticket( (int) $ticket['id'] )['deleted'] );
 
 		$venue = \reevents_create_venue(
@@ -280,8 +276,8 @@ final class Public_API_Test extends WP_UnitTestCase {
 			'booking_token' => 'api-token-' . wp_generate_uuid4(),
 		];
 
-		$first  = eevents_create_booking( $payload );
-		$second = eevents_create_booking( $payload );
+		$first  = \reevents_create_booking( $payload );
+		$second = \reevents_create_booking( $payload );
 
 		self::assertIsArray( $first );
 		self::assertIsArray( $second );
