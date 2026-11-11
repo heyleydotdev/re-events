@@ -118,12 +118,12 @@ final class Post_Types {
 				$singular
 			),
 			'search_items'  => sprintf(
-				/* translators: %s: post type plural name. */
+				/* translators: %s: plural name. */
 				__( 'Search %s', 're-events' ),
 				$plural
 			),
 			'not_found'     => sprintf(
-				/* translators: %s: post type plural name. */
+				/* translators: %s: plural name. */
 				__( 'No %s found.', 're-events' ),
 				strtolower( $plural )
 			),

@@ -141,12 +141,12 @@ final class Taxonomies {
 				$singular
 			),
 			'search_items'      => sprintf(
-				/* translators: %s: taxonomy plural name. */
+				/* translators: %s: plural name. */
 				__( 'Search %s', 're-events' ),
 				$plural
 			),
 			'not_found'         => sprintf(
-				/* translators: %s: taxonomy plural name. */
+				/* translators: %s: plural name. */
 				__( 'No %s found.', 're-events' ),
 				strtolower( $plural )
 			),
