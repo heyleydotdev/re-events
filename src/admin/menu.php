@@ -41,7 +41,7 @@ final class Menu {
 			'read',
 			're-events',
 			[ self::class, 'render' ],
-			'dashicons-calendar-alt',
+			plugins_url( 'assets/img/menu-icon.svg', RE_EVENTS_FILE ),
 			30
 		);
 
