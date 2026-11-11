@@ -62,6 +62,34 @@ final class Settings_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Blank secret fields keep the stored value.
+	 */
+	public function test_secrets_are_kept_when_blank(): void {
+		update_option(
+			'reevents_settings',
+			[
+				'stripe_secret_key'    => 'sk_old',
+				'paypal_client_secret' => 'pp_old',
+			]
+		);
+
+		$settings = Settings::sanitize( [ 'reevents_tab' => 'payments' ] );
+
+		self::assertSame( 'sk_old', $settings['stripe_secret_key'] );
+		self::assertSame( 'pp_old', $settings['paypal_client_secret'] );
+
+		$settings = Settings::sanitize(
+			[
+				'reevents_tab'      => 'payments',
+				'stripe_secret_key' => 'sk_new',
+			]
+		);
+
+		self::assertSame( 'sk_new', $settings['stripe_secret_key'] );
+		self::assertSame( 'pp_old', $settings['paypal_client_secret'] );
+	}
+
+	/**
 	 * Checkbox attendee fields are accepted and required.
 	 */
 	public function test_checkbox_attendee_field(): void {

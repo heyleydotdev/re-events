@@ -781,19 +781,24 @@ final class Settings {
 				break;
 
 			case 'payments':
-				$gateway                           = sanitize_key( (string) ( $input['payment_gateway'] ?? 'none' ) );
-				$settings['payment_gateway']       = in_array( $gateway, [ 'none', 'mock', 'stripe', 'paypal' ], true ) ? $gateway : 'none';
-				$settings['default_currency']      = Currency::sanitize_code( (string) ( $input['default_currency'] ?? 'USD' ) );
-				$settings['stripe_secret_key']     = sanitize_text_field( (string) ( $input['stripe_secret_key'] ?? '' ) );
-				$settings['stripe_webhook_secret'] = sanitize_text_field( (string) ( $input['stripe_webhook_secret'] ?? '' ) );
-				$settings['stripe_success_url']    = esc_url_raw( (string) ( $input['stripe_success_url'] ?? '' ) );
-				$settings['stripe_cancel_url']     = esc_url_raw( (string) ( $input['stripe_cancel_url'] ?? '' ) );
-				$settings['paypal_mode']           = 'live' === (string) ( $input['paypal_mode'] ?? '' ) ? 'live' : 'sandbox';
-				$settings['paypal_client_id']      = sanitize_text_field( (string) ( $input['paypal_client_id'] ?? '' ) );
-				$settings['paypal_client_secret']  = sanitize_text_field( (string) ( $input['paypal_client_secret'] ?? '' ) );
-				$settings['paypal_webhook_id']     = sanitize_text_field( (string) ( $input['paypal_webhook_id'] ?? '' ) );
-				$settings['paypal_success_url']    = esc_url_raw( (string) ( $input['paypal_success_url'] ?? '' ) );
-				$settings['paypal_cancel_url']     = esc_url_raw( (string) ( $input['paypal_cancel_url'] ?? '' ) );
+				$gateway                      = sanitize_key( (string) ( $input['payment_gateway'] ?? 'none' ) );
+				$settings['payment_gateway']  = in_array( $gateway, [ 'none', 'mock', 'stripe', 'paypal' ], true ) ? $gateway : 'none';
+				$settings['default_currency'] = Currency::sanitize_code( (string) ( $input['default_currency'] ?? 'USD' ) );
+				foreach ( [ 'stripe_secret_key', 'stripe_webhook_secret', 'paypal_client_secret' ] as $secret ) {
+					$value = sanitize_text_field( (string) ( $input[ $secret ] ?? '' ) );
+
+					if ( '' !== $value ) {
+						$settings[ $secret ] = $value;
+					}
+				}
+
+				$settings['stripe_success_url'] = esc_url_raw( (string) ( $input['stripe_success_url'] ?? '' ) );
+				$settings['stripe_cancel_url']  = esc_url_raw( (string) ( $input['stripe_cancel_url'] ?? '' ) );
+				$settings['paypal_mode']        = 'live' === (string) ( $input['paypal_mode'] ?? '' ) ? 'live' : 'sandbox';
+				$settings['paypal_client_id']   = sanitize_text_field( (string) ( $input['paypal_client_id'] ?? '' ) );
+				$settings['paypal_webhook_id']  = sanitize_text_field( (string) ( $input['paypal_webhook_id'] ?? '' ) );
+				$settings['paypal_success_url'] = esc_url_raw( (string) ( $input['paypal_success_url'] ?? '' ) );
+				$settings['paypal_cancel_url']  = esc_url_raw( (string) ( $input['paypal_cancel_url'] ?? '' ) );
 				break;
 
 			case 'emails':
@@ -1019,6 +1024,12 @@ final class Settings {
 			echo '</select>';
 		} else {
 			$attributes = '';
+			$display    = (string) $value;
+
+			if ( 'password' === $type && '' !== $display ) {
+				$attributes .= ' placeholder="' . esc_attr__( 'Saved — leave blank to keep', 're-events' ) . '"';
+				$display     = '';
+			}
 
 			foreach ( [ 'placeholder', 'min', 'max', 'step', 'maxlength' ] as $attribute ) {
 				if ( isset( $args[ $attribute ] ) ) {
@@ -1026,7 +1037,7 @@ final class Settings {
 				}
 			}
 
-			echo '<input type="' . esc_attr( $type ) . '" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( (string) $value ) . '" class="regular-text"' . $attributes . ' />'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attributes are escaped above.
+			echo '<input type="' . esc_attr( $type ) . '" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $display ) . '" class="regular-text"' . $attributes . ' />'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attributes are escaped above.
 		}
 
 		if ( ! empty( $args['description'] ) ) {
