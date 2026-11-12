@@ -13,13 +13,37 @@
 			"type": "number",
 			"default": 5
 		},
+		"search": {
+			"type": "string",
+			"default": ""
+		},
 		"category": {
-			"type": "number",
-			"default": 0
+			"type": "string",
+			"default": "0"
+		},
+		"tag": {
+			"type": "string",
+			"default": ""
 		},
 		"venue": {
 			"type": "number",
 			"default": 0
+		},
+		"organizer": {
+			"type": "number",
+			"default": 0
+		},
+		"from": {
+			"type": "string",
+			"default": ""
+		},
+		"to": {
+			"type": "string",
+			"default": ""
+		},
+		"order": {
+			"type": "string",
+			"default": "asc"
 		},
 		"upcoming": {
 			"type": "boolean",
@@ -36,6 +60,54 @@
 		"showVenue": {
 			"type": "boolean",
 			"default": true
+		},
+		"showImage": {
+			"type": "boolean",
+			"default": true
+		},
+		"showPrice": {
+			"type": "boolean",
+			"default": true
+		},
+		"showExcerpt": {
+			"type": "boolean",
+			"default": false
+		},
+		"showCategories": {
+			"type": "boolean",
+			"default": false
+		},
+		"showTags": {
+			"type": "boolean",
+			"default": false
+		},
+		"showOrganizers": {
+			"type": "boolean",
+			"default": false
+		},
+		"showEnd": {
+			"type": "boolean",
+			"default": false
+		},
+		"showSeatsLeft": {
+			"type": "boolean",
+			"default": false
+		},
+		"showCancelled": {
+			"type": "boolean",
+			"default": false
+		},
+		"titleTag": {
+			"type": "string",
+			"default": "a"
+		},
+		"link": {
+			"type": "boolean",
+			"default": true
+		},
+		"excerptLength": {
+			"type": "number",
+			"default": 0
 		},
 		"paginate": {
 			"type": "boolean",

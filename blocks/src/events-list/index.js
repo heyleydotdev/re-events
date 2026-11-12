@@ -14,12 +14,30 @@ import metadata from './block.json';
 function Edit( { attributes, setAttributes } ) {
 	const {
 		limit,
+		search,
 		category,
+		tag,
 		venue,
+		organizer,
+		from,
+		to,
+		order,
 		upcoming,
-		showVenue,
 		useQuery,
+		showImage,
 		imageSize,
+		showPrice,
+		showExcerpt,
+		excerptLength,
+		showVenue,
+		showOrganizers,
+		showCategories,
+		showTags,
+		showEnd,
+		showSeatsLeft,
+		showCancelled,
+		titleTag,
+		link,
 		paginate,
 		paginationKey,
 	} = attributes;
@@ -32,11 +50,29 @@ function Edit( { attributes, setAttributes } ) {
 			) || [],
 		[]
 	);
+	const tags = useSelect(
+		( select ) =>
+			select( 'core' ).getEntityRecords(
+				'taxonomy',
+				'reevents_event_tag',
+				{ per_page: 100 }
+			) || [],
+		[]
+	);
 	const venues = useSelect(
 		( select ) =>
 			select( 'core' ).getEntityRecords( 'postType', 'reevents_venue', {
 				per_page: 100,
 			} ) || [],
+		[]
+	);
+	const organizers = useSelect(
+		( select ) =>
+			select( 'core' ).getEntityRecords(
+				'postType',
+				'reevents_organizer',
+				{ per_page: 100 }
+			) || [],
 		[]
 	);
 	const imageSizeOptions = useSelect( ( select ) => {
@@ -75,6 +111,13 @@ function Edit( { attributes, setAttributes } ) {
 							} )
 						}
 					/>
+					<TextControl
+						label={ __( 'Search', 're-events' ) }
+						value={ search }
+						onChange={ ( value ) =>
+							setAttributes( { search: value } )
+						}
+					/>
 					<SelectControl
 						label={ __( 'Category', 're-events' ) }
 						value={ String( category ) }
@@ -83,15 +126,34 @@ function Edit( { attributes, setAttributes } ) {
 								value: '0',
 								label: __( 'All categories', 're-events' ),
 							},
+							{
+								value: 'current',
+								label: __( 'Current category', 're-events' ),
+							},
 							...categories.map( ( term ) => ( {
 								value: String( term.id ),
 								label: term.name,
 							} ) ),
 						] }
 						onChange={ ( value ) =>
-							setAttributes( {
-								category: parseInt( value, 10 ) || 0,
-							} )
+							setAttributes( { category: value } )
+						}
+					/>
+					<SelectControl
+						label={ __( 'Tag', 're-events' ) }
+						value={ String( tag ) }
+						options={ [
+							{
+								value: '',
+								label: __( 'All tags', 're-events' ),
+							},
+							...tags.map( ( term ) => ( {
+								value: String( term.id ),
+								label: term.name,
+							} ) ),
+						] }
+						onChange={ ( value ) =>
+							setAttributes( { tag: value } )
 						}
 					/>
 					<SelectControl
@@ -113,18 +175,61 @@ function Edit( { attributes, setAttributes } ) {
 							} )
 						}
 					/>
+					<SelectControl
+						label={ __( 'Organizer', 're-events' ) }
+						value={ String( organizer ) }
+						options={ [
+							{
+								value: '0',
+								label: __( 'All organizers', 're-events' ),
+							},
+							...organizers.map( ( item ) => ( {
+								value: String( item.id ),
+								label: item.title.rendered,
+							} ) ),
+						] }
+						onChange={ ( value ) =>
+							setAttributes( {
+								organizer: parseInt( value, 10 ) || 0,
+							} )
+						}
+					/>
+					<TextControl
+						label={ __( 'From date', 're-events' ) }
+						type="date"
+						value={ from }
+						onChange={ ( value ) =>
+							setAttributes( { from: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'To date', 're-events' ) }
+						type="date"
+						value={ to }
+						onChange={ ( value ) => setAttributes( { to: value } ) }
+					/>
+					<SelectControl
+						label={ __( 'Order', 're-events' ) }
+						value={ order }
+						options={ [
+							{
+								value: 'asc',
+								label: __( 'Soonest first', 're-events' ),
+							},
+							{
+								value: 'desc',
+								label: __( 'Latest first', 're-events' ),
+							},
+						] }
+						onChange={ ( value ) =>
+							setAttributes( { order: value } )
+						}
+					/>
 					<ToggleControl
 						label={ __( 'Only upcoming events', 're-events' ) }
 						checked={ upcoming }
 						onChange={ ( value ) =>
 							setAttributes( { upcoming: value } )
-						}
-					/>
-					<ToggleControl
-						label={ __( 'Show venue', 're-events' ) }
-						checked={ showVenue }
-						onChange={ ( value ) =>
-							setAttributes( { showVenue: value } )
 						}
 					/>
 					<ToggleControl
@@ -137,18 +242,6 @@ function Edit( { attributes, setAttributes } ) {
 						onChange={ ( value ) =>
 							setAttributes( { useQuery: value } )
 						}
-					/>
-					<SelectControl
-						label={ __( 'Image size', 're-events' ) }
-						value={ imageSize }
-						options={ availableImageSizes }
-						onChange={ ( value ) =>
-							setAttributes( { imageSize: value } )
-						}
-						help={ __(
-							'Registered WordPress image size used on event cards.',
-							're-events'
-						) }
 					/>
 					<ToggleControl
 						label={ __( 'Show pagination', 're-events' ) }
@@ -170,6 +263,142 @@ function Edit( { attributes, setAttributes } ) {
 						value={ paginationKey }
 						onChange={ ( value ) =>
 							setAttributes( { paginationKey: value } )
+						}
+					/>
+				</PanelBody>
+				<PanelBody
+					title={ __( 'Card', 're-events' ) }
+					initialOpen={ false }
+				>
+					<ToggleControl
+						label={ __( 'Show image', 're-events' ) }
+						checked={ showImage }
+						onChange={ ( value ) =>
+							setAttributes( { showImage: value } )
+						}
+					/>
+					{ showImage && (
+						<SelectControl
+							label={ __( 'Image size', 're-events' ) }
+							value={ imageSize }
+							options={ availableImageSizes }
+							onChange={ ( value ) =>
+								setAttributes( { imageSize: value } )
+							}
+							help={ __(
+								'Registered WordPress image size used on event cards.',
+								're-events'
+							) }
+						/>
+					) }
+					<ToggleControl
+						label={ __( 'Show price', 're-events' ) }
+						checked={ showPrice }
+						onChange={ ( value ) =>
+							setAttributes( { showPrice: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show excerpt', 're-events' ) }
+						checked={ showExcerpt }
+						onChange={ ( value ) =>
+							setAttributes( { showExcerpt: value } )
+						}
+					/>
+					{ showExcerpt && (
+						<TextControl
+							label={ __( 'Excerpt length', 're-events' ) }
+							type="number"
+							min={ 0 }
+							value={ String( excerptLength ) }
+							help={ __(
+								'Word count. 0 uses the theme length.',
+								're-events'
+							) }
+							onChange={ ( value ) =>
+								setAttributes( {
+									excerptLength: Math.max(
+										0,
+										parseInt( value, 10 ) || 0
+									),
+								} )
+							}
+						/>
+					) }
+					<ToggleControl
+						label={ __( 'Show venue', 're-events' ) }
+						checked={ showVenue }
+						onChange={ ( value ) =>
+							setAttributes( { showVenue: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show organizers', 're-events' ) }
+						checked={ showOrganizers }
+						onChange={ ( value ) =>
+							setAttributes( { showOrganizers: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show categories', 're-events' ) }
+						checked={ showCategories }
+						onChange={ ( value ) =>
+							setAttributes( { showCategories: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show tags', 're-events' ) }
+						checked={ showTags }
+						onChange={ ( value ) =>
+							setAttributes( { showTags: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show end date', 're-events' ) }
+						checked={ showEnd }
+						onChange={ ( value ) =>
+							setAttributes( { showEnd: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show seats left', 're-events' ) }
+						checked={ showSeatsLeft }
+						onChange={ ( value ) =>
+							setAttributes( { showSeatsLeft: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Include cancelled events', 're-events' ) }
+						help={ __(
+							'Cancelled events are hidden unless enabled.',
+							're-events'
+						) }
+						checked={ showCancelled }
+						onChange={ ( value ) =>
+							setAttributes( { showCancelled: value } )
+						}
+					/>
+					<SelectControl
+						label={ __( 'Title markup', 're-events' ) }
+						value={ titleTag }
+						options={ [
+							{
+								value: 'a',
+								label: __( 'Plain / inline', 're-events' ),
+							},
+							{ value: 'h2', label: 'H2' },
+							{ value: 'h3', label: 'H3' },
+							{ value: 'div', label: 'DIV' },
+						] }
+						onChange={ ( value ) =>
+							setAttributes( { titleTag: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Link title and image', 're-events' ) }
+						checked={ link }
+						onChange={ ( value ) =>
+							setAttributes( { link: value } )
 						}
 					/>
 				</PanelBody>
