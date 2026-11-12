@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-12T14:56:17+00:00\n"
+"POT-Creation-Date: 2026-11-12T19:06:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: re-events\n"
@@ -71,8 +71,8 @@ msgstr ""
 #: src/admin/attendees-table.php:55
 #: src/admin/ticket-editor.php:153
 #: src/privacy.php:89
-#: src/render/widget-registry.php:475
-#: src/render/widget-registry.php:476
+#: src/render/widget-registry.php:546
+#: src/render/widget-registry.php:547
 #: src/services/booking-validator.php:54
 #: src/services/booking-validator.php:205
 #: templates/booking-form.php:82
@@ -82,8 +82,8 @@ msgstr ""
 #: src/admin/attendees-table.php:56
 #: src/admin/settings.php:1110
 #: src/privacy.php:93
-#: src/render/widget-registry.php:489
-#: src/render/widget-registry.php:490
+#: src/render/widget-registry.php:560
+#: src/render/widget-registry.php:561
 #: src/services/booking-validator.php:55
 #: src/services/booking-validator.php:209
 #: templates/booking-form.php:87
@@ -112,7 +112,7 @@ msgstr ""
 
 #: src/admin/attendees-table.php:171
 #: src/admin/bookings-table.php:261
-#: src/render/widget-registry.php:568
+#: src/render/widget-registry.php:640
 msgid "Search events"
 msgstr ""
 
@@ -222,14 +222,14 @@ msgid "Cancel"
 msgstr ""
 
 #: src/admin/bookings-table.php:196
-#: src/render/widget-registry.php:128
-#: src/render/widget-registry.php:517
-#: src/render/widget-registry.php:518
-#: src/render/widget-registry.php:581
+#: src/render/widget-registry.php:199
+#: src/render/widget-registry.php:588
+#: src/render/widget-registry.php:589
+#: src/render/widget-registry.php:653
 #: src/rest/bookings-controller.php:394
 #: src/services/booking-emails.php:570
 #: templates/booking-form.php:67
-#: templates/events-list.php:47
+#: templates/events-list.php:84
 msgid "Free"
 msgstr ""
 
@@ -286,32 +286,32 @@ msgstr ""
 #: src/admin/event-list.php:47
 #: src/admin/meta-boxes.php:340
 #: src/data/post-types.php:51
-#: src/render/widget-registry.php:300
-#: src/render/widget-registry.php:570
+#: src/render/widget-registry.php:371
+#: src/render/widget-registry.php:642
 #: src/services/booking-emails.php:421
 #: templates/events-search.php:51
 #: blocks/build/events-list/index.js:1
 #: blocks/build/field/index.js:1
-#: blocks/src/events-list/index.js:80
+#: blocks/src/events-list/index.js:160
 #: blocks/src/field/index.js:15
 msgid "Venue"
 msgstr ""
 
 #: src/admin/event-list.php:121
-#: src/render/widget-registry.php:324
-#: src/render/widget-registry.php:579
+#: src/render/widget-registry.php:395
+#: src/render/widget-registry.php:651
 #: templates/events-search.php:39
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:66
+#: blocks/src/events-list/index.js:127
 msgid "All categories"
 msgstr ""
 
 #: src/admin/event-list.php:145
-#: src/render/widget-registry.php:328
-#: src/render/widget-registry.php:580
+#: src/render/widget-registry.php:399
+#: src/render/widget-registry.php:652
 #: templates/events-search.php:53
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:85
+#: blocks/src/events-list/index.js:165
 msgid "All venues"
 msgstr ""
 
@@ -322,10 +322,12 @@ msgstr ""
 
 #: src/admin/event-list.php:241
 #: src/admin/meta-boxes.php:442
-#: src/render/widget-registry.php:157
-#: src/render/widget-registry.php:577
+#: src/render/widget-registry.php:119
+#: src/render/widget-registry.php:228
+#: src/render/widget-registry.php:649
 #: src/services/booking-emails.php:583
 #: templates/event-details.php:21
+#: templates/events-list.php:61
 msgid "Cancelled"
 msgstr ""
 
@@ -350,7 +352,7 @@ msgstr ""
 #: src/admin/menu.php:226
 #: src/data/post-types.php:31
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:45
+#: blocks/src/events-list/index.js:99
 msgid "Events"
 msgstr ""
 
@@ -565,7 +567,7 @@ msgstr ""
 #: src/admin/settings.php:817
 #: src/admin/settings.php:1142
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:84
+#: blocks/src/field/index.js:93
 msgid "Label"
 msgstr ""
 
@@ -686,8 +688,8 @@ msgid "Close"
 msgstr ""
 
 #: src/admin/quick-view.php:78
-#: src/render/widget-registry.php:468
-#: src/render/widget-registry.php:469
+#: src/render/widget-registry.php:539
+#: src/render/widget-registry.php:540
 #: src/services/booking-emails.php:439
 #: src/services/booking-validator.php:52
 #: templates/booking-form.php:77
@@ -696,8 +698,8 @@ msgstr ""
 
 #: src/admin/quick-view.php:85
 #: src/privacy.php:85
-#: src/render/widget-registry.php:454
-#: src/render/widget-registry.php:455
+#: src/render/widget-registry.php:525
+#: src/render/widget-registry.php:526
 #: src/services/booking-emails.php:433
 #: src/services/booking-validator.php:51
 #: templates/booking-form.php:57
@@ -1426,7 +1428,7 @@ msgid "Website"
 msgstr ""
 
 #: src/admin/venue-meta-boxes.php:81
-#: src/render/widget-registry.php:402
+#: src/render/widget-registry.php:473
 #: blocks/build/map/index.js:1
 #: blocks/src/map/index.js:14
 msgid "Map"
@@ -1772,7 +1774,9 @@ msgid "The payment could not be saved."
 msgstr ""
 
 #: src/data/post-types.php:70
+#: blocks/build/events-list/index.js:1
 #: blocks/build/field/index.js:1
+#: blocks/src/events-list/index.js:179
 #: blocks/src/field/index.js:16
 msgid "Organizer"
 msgstr ""
@@ -2002,35 +2006,37 @@ msgstr ""
 
 #: src/render/calendar-links.php:36
 #: src/render/event-details.php:73
-#: src/render/widget-registry.php:199
+#: src/render/widget-registry.php:270
 msgid "Google"
 msgstr ""
 
 #: src/render/calendar-links.php:40
 #: src/render/event-details.php:74
-#: src/render/widget-registry.php:204
+#: src/render/widget-registry.php:275
 msgid "Outlook"
 msgstr ""
 
 #: src/render/calendar-links.php:44
 #: src/render/event-details.php:75
-#: src/render/widget-registry.php:209
+#: src/render/widget-registry.php:280
 msgid "Office 365"
 msgstr ""
 
 #: src/render/calendar-links.php:48
 #: src/render/event-details.php:76
-#: src/render/widget-registry.php:214
+#: src/render/widget-registry.php:285
 msgid "Apple / iCal"
 msgstr ""
 
-#: src/render/events-list.php:113
+#: src/render/events-list.php:148
 msgid "Event pages"
 msgstr ""
 
 #: src/render/field.php:57
 #: src/render/field.php:96
 #: src/render/field.php:117
+#: blocks/build/field/index.js:1
+#: blocks/src/field/index.js:44
 msgid "Title"
 msgstr ""
 
@@ -2136,8 +2142,8 @@ msgid "Seats left"
 msgstr ""
 
 #: src/render/field.php:83
-#: src/render/widget-registry.php:133
-#: templates/events-list.php:44
+#: src/render/widget-registry.php:204
+#: templates/events-list.php:81
 msgid "Sold out"
 msgstr ""
 
@@ -2234,327 +2240,389 @@ msgid "No events found."
 msgstr ""
 
 #: src/render/widget-registry.php:53
-#: src/render/widget-registry.php:161
-#: src/render/widget-registry.php:379
-#: src/render/widget-registry.php:566
+#: src/render/widget-registry.php:232
+#: src/render/widget-registry.php:450
+#: src/render/widget-registry.php:638
 #: templates/calendar.php:79
 #: templates/event-details.php:23
-#: templates/events-list.php:40
+#: templates/events-list.php:77
 msgid "Ongoing"
 msgstr ""
 
-#: src/render/widget-registry.php:66
+#: src/render/widget-registry.php:62
+msgid "Free-text keyword search."
+msgstr ""
+
+#: src/render/widget-registry.php:67
+msgid "Category ID, or `current` on a category page."
+msgstr ""
+
+#: src/render/widget-registry.php:72
+msgid "Tag ID or slug."
+msgstr ""
+
+#: src/render/widget-registry.php:77
 msgid "Venue ID, or `current` on a venue page."
 msgstr ""
 
-#: src/render/widget-registry.php:71
+#: src/render/widget-registry.php:82
 msgid "Organizer ID, or `current` on an organizer page."
 msgstr ""
 
-#: src/render/widget-registry.php:80
+#: src/render/widget-registry.php:87
+msgid "Earliest start date, Y-m-d."
+msgstr ""
+
+#: src/render/widget-registry.php:92
+msgid "Latest end date, Y-m-d."
+msgstr ""
+
+#: src/render/widget-registry.php:97
+msgid "Start date order: asc or desc."
+msgstr ""
+
+#: src/render/widget-registry.php:106
 msgid "Use the event search values in the current URL. Pair with a search form that hides its results."
 msgstr ""
 
-#: src/render/widget-registry.php:89
+#: src/render/widget-registry.php:115
+msgid "Include cancelled events and label them on the card."
+msgstr ""
+
+#: src/render/widget-registry.php:120
+msgid "Badge shown on cancelled events."
+msgstr ""
+
+#: src/render/widget-registry.php:125
 msgid "Page number. 0 uses the current page."
 msgstr ""
 
-#: src/render/widget-registry.php:94
+#: src/render/widget-registry.php:130
 msgid "Show pagination links. Turn off for sidebar and teaser lists."
 msgstr ""
 
-#: src/render/widget-registry.php:99
+#: src/render/widget-registry.php:135
 msgid "Suffix for the page URL argument when several lists share a page, for example main."
 msgstr ""
 
-#: src/render/widget-registry.php:104
+#: src/render/widget-registry.php:140
 msgid "Show the featured image."
 msgstr ""
 
-#: src/render/widget-registry.php:109
+#: src/render/widget-registry.php:145
 msgid "Registered image size."
 msgstr ""
 
-#: src/render/widget-registry.php:114
+#: src/render/widget-registry.php:150
 msgid "Show the lowest price or the free label."
 msgstr ""
 
-#: src/render/widget-registry.php:119
+#: src/render/widget-registry.php:155
 msgid "Show the event excerpt."
 msgstr ""
 
-#: src/render/widget-registry.php:124
+#: src/render/widget-registry.php:160
 msgid "Show event categories."
 msgstr ""
 
-#: src/render/widget-registry.php:129
+#: src/render/widget-registry.php:165
+msgid "Show event tags."
+msgstr ""
+
+#: src/render/widget-registry.php:170
+msgid "Show event organizer names."
+msgstr ""
+
+#: src/render/widget-registry.php:175
+msgid "Show the end date and time."
+msgstr ""
+
+#: src/render/widget-registry.php:180
+msgid "Show the remaining seats."
+msgstr ""
+
+#: src/render/widget-registry.php:185
+msgid "Title markup: a, h2, h3 or div."
+msgstr ""
+
+#: src/render/widget-registry.php:190
+msgid "Link the title and image to the event."
+msgstr ""
+
+#: src/render/widget-registry.php:195
+msgid "Excerpt word count. 0 uses the theme length."
+msgstr ""
+
+#: src/render/widget-registry.php:200
 msgid "Price label for free events."
 msgstr ""
 
-#: src/render/widget-registry.php:134
+#: src/render/widget-registry.php:205
 msgid "Label when no ticket has seats left."
 msgstr ""
 
-#: src/render/widget-registry.php:143
+#: src/render/widget-registry.php:214
 msgid "Event Details"
 msgstr ""
 
-#: src/render/widget-registry.php:165
+#: src/render/widget-registry.php:236
 #: templates/event-details.php:37
 msgid "Venue:"
 msgstr ""
 
-#: src/render/widget-registry.php:169
-#: src/render/widget-registry.php:578
+#: src/render/widget-registry.php:240
+#: src/render/widget-registry.php:650
 #: templates/event-details.php:47
 msgid "Organizers:"
 msgstr ""
 
-#: src/render/widget-registry.php:190
+#: src/render/widget-registry.php:261
 msgid "Display add-to-calendar links."
 msgstr ""
 
-#: src/render/widget-registry.php:194
+#: src/render/widget-registry.php:265
 #: templates/event-details.php:63
 msgid "Add to calendar"
 msgstr ""
 
-#: src/render/widget-registry.php:195
+#: src/render/widget-registry.php:266
 msgid "Heading above the calendar links."
 msgstr ""
 
-#: src/render/widget-registry.php:200
+#: src/render/widget-registry.php:271
 msgid "Google Calendar link label."
 msgstr ""
 
-#: src/render/widget-registry.php:205
+#: src/render/widget-registry.php:276
 msgid "Outlook link label."
 msgstr ""
 
-#: src/render/widget-registry.php:210
+#: src/render/widget-registry.php:281
 msgid "Office 365 link label."
 msgstr ""
 
-#: src/render/widget-registry.php:215
+#: src/render/widget-registry.php:286
 msgid "Apple / iCal link label."
 msgstr ""
 
-#: src/render/widget-registry.php:228
+#: src/render/widget-registry.php:299
 msgid "Venues List"
 msgstr ""
 
-#: src/render/widget-registry.php:242
+#: src/render/widget-registry.php:313
 #: templates/venues-list.php:13
 msgid "No venues found."
 msgstr ""
 
-#: src/render/widget-registry.php:251
+#: src/render/widget-registry.php:322
 msgid "Page number. 1 is the first page."
 msgstr ""
 
-#: src/render/widget-registry.php:256
+#: src/render/widget-registry.php:327
 msgid "Show pagination links. Turn off for featured venue lists."
 msgstr ""
 
-#: src/render/widget-registry.php:261
+#: src/render/widget-registry.php:332
 msgid "Suffix for the page URL argument when several venue lists share a page, for example featured."
 msgstr ""
 
-#: src/render/widget-registry.php:274
+#: src/render/widget-registry.php:345
 msgid "Events Search"
 msgstr ""
 
-#: src/render/widget-registry.php:288
-#: src/render/widget-registry.php:316
-#: src/render/widget-registry.php:567
-#: src/render/widget-registry.php:574
+#: src/render/widget-registry.php:359
+#: src/render/widget-registry.php:387
+#: src/render/widget-registry.php:639
+#: src/render/widget-registry.php:646
 #: templates/events-search.php:30
 #: templates/events-search.php:83
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:115
 msgid "Search"
 msgstr ""
 
-#: src/render/widget-registry.php:296
-#: src/render/widget-registry.php:569
+#: src/render/widget-registry.php:367
+#: src/render/widget-registry.php:641
 #: templates/events-search.php:37
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:61
+#: blocks/src/events-list/index.js:122
 msgid "Category"
 msgstr ""
 
-#: src/render/widget-registry.php:304
-#: src/render/widget-registry.php:571
+#: src/render/widget-registry.php:375
+#: src/render/widget-registry.php:643
 #: templates/events-search.php:65
 msgid "From"
 msgstr ""
 
-#: src/render/widget-registry.php:308
-#: src/render/widget-registry.php:572
+#: src/render/widget-registry.php:379
+#: src/render/widget-registry.php:644
 #: templates/events-search.php:70
 msgid "To"
 msgstr ""
 
-#: src/render/widget-registry.php:312
-#: src/render/widget-registry.php:551
-#: src/render/widget-registry.php:573
+#: src/render/widget-registry.php:383
+#: src/render/widget-registry.php:623
+#: src/render/widget-registry.php:645
 #: templates/events-search.php:78
 msgid "Only upcoming"
 msgstr ""
 
-#: src/render/widget-registry.php:320
-#: src/render/widget-registry.php:575
+#: src/render/widget-registry.php:391
+#: src/render/widget-registry.php:647
 #: templates/events-search.php:86
 msgid "Clear"
 msgstr ""
 
-#: src/render/widget-registry.php:365
+#: src/render/widget-registry.php:436
 #: blocks/build/calendar/index.js:1
 #: blocks/src/calendar/index.js:14
 msgid "Calendar"
 msgstr ""
 
-#: src/render/widget-registry.php:383
+#: src/render/widget-registry.php:454
 msgid "Weekday labels"
 msgstr ""
 
-#: src/render/widget-registry.php:384
+#: src/render/widget-registry.php:455
 msgid "Mon,Tue,Wed,Thu,Fri,Sat,Sun"
 msgstr ""
 
-#: src/render/widget-registry.php:385
+#: src/render/widget-registry.php:456
 msgid "Comma-separated, seven labels."
 msgstr ""
 
-#: src/render/widget-registry.php:416
+#: src/render/widget-registry.php:487
 #: templates/map.php:13
 msgid "No mapped venues."
 msgstr ""
 
-#: src/render/widget-registry.php:433
+#: src/render/widget-registry.php:504
 msgid "Booking Form"
 msgstr ""
 
-#: src/render/widget-registry.php:439
-#: src/render/widget-registry.php:546
+#: src/render/widget-registry.php:510
+#: src/render/widget-registry.php:617
 msgid "CSS class"
 msgstr ""
 
-#: src/render/widget-registry.php:441
+#: src/render/widget-registry.php:512
 msgid "my-booking-form"
 msgstr ""
 
-#: src/render/widget-registry.php:442
+#: src/render/widget-registry.php:513
 msgid "Extra class on the form element."
 msgstr ""
 
-#: src/render/widget-registry.php:446
-#: src/render/widget-registry.php:547
+#: src/render/widget-registry.php:517
+#: src/render/widget-registry.php:618
 msgid "Wrapper CSS class"
 msgstr ""
 
-#: src/render/widget-registry.php:448
+#: src/render/widget-registry.php:519
 msgid "my-booking-wrapper"
 msgstr ""
 
-#: src/render/widget-registry.php:449
+#: src/render/widget-registry.php:520
 msgid "Extra class on the wrapper element."
 msgstr ""
 
-#: src/render/widget-registry.php:453
+#: src/render/widget-registry.php:524
 msgid "Ticket label"
 msgstr ""
 
-#: src/render/widget-registry.php:456
+#: src/render/widget-registry.php:527
 msgid "Label above the ticket selector."
 msgstr ""
 
-#: src/render/widget-registry.php:460
+#: src/render/widget-registry.php:531
 msgid "Time label"
 msgstr ""
 
-#: src/render/widget-registry.php:461
-#: src/render/widget-registry.php:462
+#: src/render/widget-registry.php:532
+#: src/render/widget-registry.php:533
 #: templates/booking-form.php:45
 msgid "Time"
 msgstr ""
 
-#: src/render/widget-registry.php:463
+#: src/render/widget-registry.php:534
 msgid "Label above the timeslot selector."
 msgstr ""
 
-#: src/render/widget-registry.php:467
+#: src/render/widget-registry.php:538
 msgid "Seats label"
 msgstr ""
 
-#: src/render/widget-registry.php:470
+#: src/render/widget-registry.php:541
 msgid "Label above the seat count."
 msgstr ""
 
-#: src/render/widget-registry.php:474
+#: src/render/widget-registry.php:545
 msgid "Name label"
 msgstr ""
 
-#: src/render/widget-registry.php:477
+#: src/render/widget-registry.php:548
 msgid "Label above the attendee name."
 msgstr ""
 
-#: src/render/widget-registry.php:481
+#: src/render/widget-registry.php:552
 msgid "Name placeholder"
 msgstr ""
 
-#: src/render/widget-registry.php:483
+#: src/render/widget-registry.php:554
 msgid "e.g. Jane Doe"
 msgstr ""
 
-#: src/render/widget-registry.php:484
+#: src/render/widget-registry.php:555
 msgid "Placeholder inside the name field. Leave empty for none."
 msgstr ""
 
-#: src/render/widget-registry.php:488
+#: src/render/widget-registry.php:559
 msgid "Email label"
 msgstr ""
 
-#: src/render/widget-registry.php:491
+#: src/render/widget-registry.php:562
 msgid "Label above the attendee email."
 msgstr ""
 
-#: src/render/widget-registry.php:495
+#: src/render/widget-registry.php:566
 msgid "Email placeholder"
 msgstr ""
 
-#: src/render/widget-registry.php:497
+#: src/render/widget-registry.php:568
 msgid "jane@example.com"
 msgstr ""
 
-#: src/render/widget-registry.php:498
+#: src/render/widget-registry.php:569
 msgid "Placeholder inside the email field. Leave empty for none."
 msgstr ""
 
-#: src/render/widget-registry.php:502
+#: src/render/widget-registry.php:573
 #: blocks/build/booking-form/index.js:1
 #: blocks/src/booking-form/index.js:34
 msgid "Button label"
 msgstr ""
 
-#: src/render/widget-registry.php:503
-#: src/render/widget-registry.php:504
+#: src/render/widget-registry.php:574
+#: src/render/widget-registry.php:575
 #: templates/booking-form.php:115
 #: blocks/build/booking-form/index.js:1
 #: blocks/src/booking-form/index.js:36
 msgid "Book"
 msgstr ""
 
-#: src/render/widget-registry.php:505
+#: src/render/widget-registry.php:576
 msgid "Text shown on the submit button."
 msgstr ""
 
-#: src/render/widget-registry.php:509
+#: src/render/widget-registry.php:580
 #: blocks/build/booking-form/index.js:1
 #: blocks/src/booking-form/index.js:42
 msgid "Success message"
 msgstr ""
 
-#: src/render/widget-registry.php:510
-#: src/render/widget-registry.php:511
+#: src/render/widget-registry.php:581
+#: src/render/widget-registry.php:582
 #: templates/booking-form.php:16
 #: templates/booking-form.php:30
 #: blocks/build/booking-form/index.js:1
@@ -2562,37 +2630,37 @@ msgstr ""
 msgid "Booking confirmed."
 msgstr ""
 
-#: src/render/widget-registry.php:512
+#: src/render/widget-registry.php:583
 msgid "Message shown after a successful booking."
 msgstr ""
 
-#: src/render/widget-registry.php:516
-#: src/render/widget-registry.php:581
+#: src/render/widget-registry.php:587
+#: src/render/widget-registry.php:653
 msgid "Free label"
 msgstr ""
 
-#: src/render/widget-registry.php:519
-#: src/render/widget-registry.php:581
+#: src/render/widget-registry.php:590
+#: src/render/widget-registry.php:653
 msgid "Text shown for a free ticket."
 msgstr ""
 
-#: src/render/widget-registry.php:523
+#: src/render/widget-registry.php:594
 msgid "Reference label"
 msgstr ""
 
-#: src/render/widget-registry.php:524
-#: src/render/widget-registry.php:525
+#: src/render/widget-registry.php:595
+#: src/render/widget-registry.php:596
 #: templates/booking-form.php:19
 #: templates/booking-form.php:30
 msgid "Reference:"
 msgstr ""
 
-#: src/render/widget-registry.php:526
+#: src/render/widget-registry.php:597
 msgid "Label shown before the booking reference."
 msgstr ""
 
-#: src/render/widget-registry.php:530
-#: src/render/widget-registry.php:565
+#: src/render/widget-registry.php:601
+#: src/render/widget-registry.php:637
 #: blocks/build/booking-form/index.js:1
 #: blocks/build/field/index.js:1
 #: blocks/src/booking-form/index.js:16
@@ -2600,102 +2668,114 @@ msgstr ""
 msgid "Event ID"
 msgstr ""
 
-#: src/render/widget-registry.php:532
-#: src/render/widget-registry.php:565
+#: src/render/widget-registry.php:603
+#: src/render/widget-registry.php:637
 #: blocks/build/booking-form/index.js:1
 #: blocks/src/booking-form/index.js:20
 msgid "Leave 0 to use the current event."
 msgstr ""
 
-#: src/render/widget-registry.php:546
+#: src/render/widget-registry.php:617
 msgid "Extra class on the widget."
 msgstr ""
 
-#: src/render/widget-registry.php:546
+#: src/render/widget-registry.php:617
 msgid "my-widget"
 msgstr ""
 
-#: src/render/widget-registry.php:547
+#: src/render/widget-registry.php:618
 msgid "Extra class on the wrapper."
 msgstr ""
 
-#: src/render/widget-registry.php:547
+#: src/render/widget-registry.php:618
 msgid "my-wrapper"
 msgstr ""
 
-#: src/render/widget-registry.php:548
+#: src/render/widget-registry.php:619
 msgid "Limit"
 msgstr ""
 
-#: src/render/widget-registry.php:548
+#: src/render/widget-registry.php:619
 msgid "Maximum number of items."
 msgstr ""
 
-#: src/render/widget-registry.php:549
+#: src/render/widget-registry.php:620
 msgid "Category ID"
 msgstr ""
 
-#: src/render/widget-registry.php:549
-msgid "Limit to a category term ID."
+#: src/render/widget-registry.php:620
+msgid "Category term ID, or `current` on a category page."
 msgstr ""
 
-#: src/render/widget-registry.php:550
+#: src/render/widget-registry.php:621
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:143
+msgid "Tag"
+msgstr ""
+
+#: src/render/widget-registry.php:621
+msgid "Tag term ID or slug."
+msgstr ""
+
+#: src/render/widget-registry.php:622
 #: blocks/build/field/index.js:1
 #: blocks/src/field/index.js:21
 msgid "Venue ID"
 msgstr ""
 
-#: src/render/widget-registry.php:550
+#: src/render/widget-registry.php:622
 msgid "Limit to a venue ID."
 msgstr ""
 
-#: src/render/widget-registry.php:551
+#: src/render/widget-registry.php:623
 msgid "Show upcoming events only."
 msgstr ""
 
-#: src/render/widget-registry.php:552
+#: src/render/widget-registry.php:624
 #: blocks/build/event-details/index.js:1
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
 #: blocks/src/event-details/index.js:42
-#: blocks/src/events-list/index.js:106
+#: blocks/src/events-list/index.js:329
 #: blocks/src/events-search/index.js:52
 msgid "Show venue"
 msgstr ""
 
-#: src/render/widget-registry.php:552
+#: src/render/widget-registry.php:624
 msgid "Display the venue name."
 msgstr ""
 
-#: src/render/widget-registry.php:553
+#: src/render/widget-registry.php:625
 #: blocks/build/event-details/index.js:1
+#: blocks/build/events-list/index.js:1
 #: blocks/src/event-details/index.js:49
+#: blocks/src/events-list/index.js:336
 msgid "Show organizers"
 msgstr ""
 
-#: src/render/widget-registry.php:553
+#: src/render/widget-registry.php:625
 msgid "Display the organizer names."
 msgstr ""
 
-#: src/render/widget-registry.php:554
+#: src/render/widget-registry.php:626
 #: blocks/build/event-details/index.js:1
 #: blocks/src/event-details/index.js:56
 msgid "Show online links"
 msgstr ""
 
-#: src/render/widget-registry.php:554
+#: src/render/widget-registry.php:626
 msgid "Display online event links."
 msgstr ""
 
-#: src/render/widget-registry.php:555
+#: src/render/widget-registry.php:627
 msgid "Show content"
 msgstr ""
 
-#: src/render/widget-registry.php:555
+#: src/render/widget-registry.php:627
 msgid "Display the event description."
 msgstr ""
 
-#: src/render/widget-registry.php:556
+#: src/render/widget-registry.php:628
 #: blocks/build/event-details/index.js:1
 #: blocks/build/venues-list/index.js:1
 #: blocks/src/event-details/index.js:63
@@ -2703,203 +2783,203 @@ msgstr ""
 msgid "Show description"
 msgstr ""
 
-#: src/render/widget-registry.php:556
+#: src/render/widget-registry.php:628
 msgid "Display the venue description."
 msgstr ""
 
-#: src/render/widget-registry.php:557
+#: src/render/widget-registry.php:629
 #: blocks/build/events-search/index.js:1
 #: blocks/src/events-search/index.js:38
 msgid "Show keyword"
 msgstr ""
 
-#: src/render/widget-registry.php:557
+#: src/render/widget-registry.php:629
 msgid "Display the keyword field."
 msgstr ""
 
-#: src/render/widget-registry.php:558
+#: src/render/widget-registry.php:630
 #: blocks/build/events-search/index.js:1
 #: blocks/src/events-search/index.js:45
 msgid "Show category"
 msgstr ""
 
-#: src/render/widget-registry.php:558
+#: src/render/widget-registry.php:630
 msgid "Display the category field."
 msgstr ""
 
-#: src/render/widget-registry.php:559
+#: src/render/widget-registry.php:631
 #: blocks/build/events-search/index.js:1
 #: blocks/src/events-search/index.js:59
 msgid "Show dates"
 msgstr ""
 
-#: src/render/widget-registry.php:559
+#: src/render/widget-registry.php:631
 msgid "Display the date range fields."
 msgstr ""
 
-#: src/render/widget-registry.php:560
+#: src/render/widget-registry.php:632
 msgid "Show upcoming"
 msgstr ""
 
-#: src/render/widget-registry.php:560
+#: src/render/widget-registry.php:632
 msgid "Display the upcoming toggle."
 msgstr ""
 
-#: src/render/widget-registry.php:561
+#: src/render/widget-registry.php:633
 #: blocks/build/events-search/index.js:1
 #: blocks/src/events-search/index.js:73
 msgid "Show results"
 msgstr ""
 
-#: src/render/widget-registry.php:561
+#: src/render/widget-registry.php:633
 msgid "Display results below the form."
 msgstr ""
 
-#: src/render/widget-registry.php:562
+#: src/render/widget-registry.php:634
 msgid "Show navigation"
 msgstr ""
 
-#: src/render/widget-registry.php:562
+#: src/render/widget-registry.php:634
 msgid "Display previous and next month links."
 msgstr ""
 
-#: src/render/widget-registry.php:563
+#: src/render/widget-registry.php:635
 msgid "Month"
 msgstr ""
 
-#: src/render/widget-registry.php:563
+#: src/render/widget-registry.php:635
 msgid "Month in Y-m format. Leave empty for the current month."
 msgstr ""
 
-#: src/render/widget-registry.php:564
+#: src/render/widget-registry.php:636
 msgid "Height"
 msgstr ""
 
-#: src/render/widget-registry.php:564
+#: src/render/widget-registry.php:636
 msgid "Map height in pixels."
 msgstr ""
 
-#: src/render/widget-registry.php:566
+#: src/render/widget-registry.php:638
 msgid "Ongoing label"
 msgstr ""
 
-#: src/render/widget-registry.php:566
+#: src/render/widget-registry.php:638
 msgid "Label shown for ongoing events."
 msgstr ""
 
-#: src/render/widget-registry.php:567
+#: src/render/widget-registry.php:639
 msgid "Search label"
 msgstr ""
 
-#: src/render/widget-registry.php:567
+#: src/render/widget-registry.php:639
 msgid "Label above the keyword field."
 msgstr ""
 
-#: src/render/widget-registry.php:568
+#: src/render/widget-registry.php:640
 msgid "Search placeholder"
 msgstr ""
 
-#: src/render/widget-registry.php:568
+#: src/render/widget-registry.php:640
 msgid "Placeholder inside the keyword field."
 msgstr ""
 
-#: src/render/widget-registry.php:569
+#: src/render/widget-registry.php:641
 msgid "Category label"
 msgstr ""
 
-#: src/render/widget-registry.php:569
+#: src/render/widget-registry.php:641
 msgid "Label above the category field."
 msgstr ""
 
-#: src/render/widget-registry.php:570
+#: src/render/widget-registry.php:642
 msgid "Venue label"
 msgstr ""
 
-#: src/render/widget-registry.php:570
+#: src/render/widget-registry.php:642
 msgid "Label above the venue field."
 msgstr ""
 
-#: src/render/widget-registry.php:571
+#: src/render/widget-registry.php:643
 msgid "From label"
 msgstr ""
 
-#: src/render/widget-registry.php:571
+#: src/render/widget-registry.php:643
 msgid "Label above the start date."
 msgstr ""
 
-#: src/render/widget-registry.php:572
+#: src/render/widget-registry.php:644
 msgid "To label"
 msgstr ""
 
-#: src/render/widget-registry.php:572
+#: src/render/widget-registry.php:644
 msgid "Label above the end date."
 msgstr ""
 
-#: src/render/widget-registry.php:573
+#: src/render/widget-registry.php:645
 msgid "Upcoming label"
 msgstr ""
 
-#: src/render/widget-registry.php:573
+#: src/render/widget-registry.php:645
 msgid "Label for the upcoming toggle."
 msgstr ""
 
-#: src/render/widget-registry.php:574
+#: src/render/widget-registry.php:646
 msgid "Submit label"
 msgstr ""
 
-#: src/render/widget-registry.php:574
+#: src/render/widget-registry.php:646
 msgid "Text on the search button."
 msgstr ""
 
-#: src/render/widget-registry.php:575
+#: src/render/widget-registry.php:647
 msgid "Clear label"
 msgstr ""
 
-#: src/render/widget-registry.php:575
+#: src/render/widget-registry.php:647
 msgid "Text on the clear link."
 msgstr ""
 
-#: src/render/widget-registry.php:576
+#: src/render/widget-registry.php:648
 msgid "Empty message"
 msgstr ""
 
-#: src/render/widget-registry.php:576
+#: src/render/widget-registry.php:648
 msgid "Text shown when there are no results."
 msgstr ""
 
-#: src/render/widget-registry.php:576
+#: src/render/widget-registry.php:648
 msgid "No results found."
 msgstr ""
 
-#: src/render/widget-registry.php:577
+#: src/render/widget-registry.php:649
 msgid "Cancelled label"
 msgstr ""
 
-#: src/render/widget-registry.php:577
+#: src/render/widget-registry.php:649
 msgid "Label shown for cancelled events."
 msgstr ""
 
-#: src/render/widget-registry.php:578
+#: src/render/widget-registry.php:650
 msgid "Organizers label"
 msgstr ""
 
-#: src/render/widget-registry.php:578
+#: src/render/widget-registry.php:650
 msgid "Label shown before the organizer names."
 msgstr ""
 
-#: src/render/widget-registry.php:579
+#: src/render/widget-registry.php:651
 msgid "All categories label"
 msgstr ""
 
-#: src/render/widget-registry.php:579
+#: src/render/widget-registry.php:651
 msgid "Option for no category filter."
 msgstr ""
 
-#: src/render/widget-registry.php:580
+#: src/render/widget-registry.php:652
 msgid "All venues label"
 msgstr ""
 
-#: src/render/widget-registry.php:580
+#: src/render/widget-registry.php:652
 msgid "Option for no venue filter."
 msgstr ""
 
@@ -3726,6 +3806,14 @@ msgstr ""
 msgid "This message was sent by %s."
 msgstr ""
 
+#. translators: %d: number of remaining seats.
+#: templates/events-list.php:94
+#, php-format
+msgid "%d seat left"
+msgid_plural "%d seats left"
+msgstr[0] ""
+msgstr[1] ""
+
 #: templates/map.php:20
 msgid "Venue map"
 msgstr ""
@@ -3754,49 +3842,176 @@ msgid "Select an event"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:47
+#: blocks/src/events-list/index.js:101
 msgid "Number of events"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:99
+#: blocks/src/events-list/index.js:131
+msgid "Current category"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:148
+msgid "All tags"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:184
+msgid "All organizers"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:198
+msgid "From date"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:206
+msgid "To date"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:212
+msgid "Order"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:217
+msgid "Soonest first"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:221
+msgid "Latest first"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:229
 msgid "Only upcoming events"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:113
+#: blocks/src/events-list/index.js:236
 msgid "Use search query"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:114
+#: blocks/src/events-list/index.js:237
 msgid "Use the values from a search form on the same page."
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/events-list/index.js:124
+#: blocks/src/events-list/index.js:247
 #: blocks/src/venues-list/index.js:37
 msgid "Show pagination"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:125
+#: blocks/src/events-list/index.js:248
 msgid "Turn off for sidebar and teaser lists."
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/events-list/index.js:135
+#: blocks/src/events-list/index.js:258
 #: blocks/src/venues-list/index.js:48
 msgid "Pagination key"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/events-list/index.js:136
+#: blocks/src/events-list/index.js:259
 #: blocks/src/venues-list/index.js:49
 msgid "Only needed when several paginated lists share a page."
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:270
+msgid "Card"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:274
+msgid "Show image"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/build/field/index.js:1
+#: blocks/src/events-list/index.js:282
+#: blocks/src/field/index.js:138
+msgid "Image size"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:288
+msgid "Registered WordPress image size used on event cards."
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:295
+msgid "Show price"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:302
+msgid "Show excerpt"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:310
+msgid "Excerpt length"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:314
+msgid "Word count. 0 uses the theme length."
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:343
+msgid "Show categories"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:350
+msgid "Show tags"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:357
+msgid "Show end date"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:364
+msgid "Show seats left"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:371
+msgid "Include cancelled events"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:372
+msgid "Cancelled events are hidden unless enabled."
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:382
+msgid "Title markup"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:387
+msgid "Plain / inline"
+msgstr ""
+
+#: blocks/build/events-list/index.js:1
+#: blocks/src/events-list/index.js:398
+msgid "Link title and image"
 msgstr ""
 
 #: blocks/build/events-search/index.js:1
@@ -3820,73 +4035,68 @@ msgid "Organizer ID"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:43
+#: blocks/src/field/index.js:52
 msgid "Value"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:45
+#: blocks/src/field/index.js:54
 msgid "Source"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:59
+#: blocks/src/field/index.js:68
 msgid "Field"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:71
+#: blocks/src/field/index.js:80
 msgid "Leave 0 to use the current page."
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:82
+#: blocks/src/field/index.js:91
 msgid "Output"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:91
+#: blocks/src/field/index.js:100
 msgid "Link the value"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:98
+#: blocks/src/field/index.js:107
 msgid "Wrapper tag"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:101
+#: blocks/src/field/index.js:110
 msgid "Span"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:102
+#: blocks/src/field/index.js:111
 msgid "Div"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:105
+#: blocks/src/field/index.js:114
 msgid "Paragraph"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:113
+#: blocks/src/field/index.js:122
 msgid "Separator"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:115
+#: blocks/src/field/index.js:124
 msgid "Used between list values."
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:121
+#: blocks/src/field/index.js:130
 msgid "Empty text"
-msgstr ""
-
-#: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:129
-msgid "Image size"
 msgstr ""
 
 #: blocks/build/map/index.js:1
