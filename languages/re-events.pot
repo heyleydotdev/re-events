@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-12T20:36:45+00:00\n"
+"POT-Creation-Date: 2026-11-12T21:24:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: re-events\n"
@@ -62,8 +62,8 @@ msgstr ""
 #: src/services/booking-validator.php:50
 #: blocks/build/event-details/index.js:1
 #: blocks/build/field/index.js:1
-#: blocks/src/event-details/index.js:60
-#: blocks/src/event-details/index.js:62
+#: blocks/src/event-details/index.js:67
+#: blocks/src/event-details/index.js:69
 #: blocks/src/field/index.js:14
 msgid "Event"
 msgstr ""
@@ -296,10 +296,10 @@ msgstr ""
 #: blocks/build/events-list/index.js:1
 #: blocks/build/field/index.js:1
 #: blocks/build/map/index.js:1
-#: blocks/src/calendar/index.js:98
-#: blocks/src/events-list/index.js:160
+#: blocks/src/calendar/index.js:105
+#: blocks/src/events-list/index.js:162
 #: blocks/src/field/index.js:15
-#: blocks/src/map/index.js:70
+#: blocks/src/map/index.js:72
 msgid "Venue"
 msgstr ""
 
@@ -309,8 +309,8 @@ msgstr ""
 #: templates/events-search.php:43
 #: blocks/build/calendar/index.js:1
 #: blocks/build/events-list/index.js:1
-#: blocks/src/calendar/index.js:65
-#: blocks/src/events-list/index.js:127
+#: blocks/src/calendar/index.js:72
+#: blocks/src/events-list/index.js:129
 msgid "All categories"
 msgstr ""
 
@@ -321,9 +321,9 @@ msgstr ""
 #: blocks/build/calendar/index.js:1
 #: blocks/build/events-list/index.js:1
 #: blocks/build/map/index.js:1
-#: blocks/src/calendar/index.js:103
-#: blocks/src/events-list/index.js:165
-#: blocks/src/map/index.js:75
+#: blocks/src/calendar/index.js:110
+#: blocks/src/events-list/index.js:167
+#: blocks/src/map/index.js:77
 msgid "All venues"
 msgstr ""
 
@@ -364,14 +364,14 @@ msgstr ""
 #: src/admin/menu.php:226
 #: src/data/post-types.php:31
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:99
+#: blocks/src/events-list/index.js:101
 msgid "Events"
 msgstr ""
 
 #: src/admin/menu.php:234
 #: src/data/post-types.php:51
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/venues-list/index.js:56
+#: blocks/src/venues-list/index.js:58
 msgid "Venues"
 msgstr ""
 
@@ -579,7 +579,7 @@ msgstr ""
 #: src/admin/settings.php:817
 #: src/admin/settings.php:1142
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:93
+#: blocks/src/field/index.js:113
 msgid "Label"
 msgstr ""
 
@@ -793,10 +793,40 @@ msgid "Formats"
 msgstr ""
 
 #: src/admin/settings.php:146
+#: blocks/build/booking-form/index.js:1
+#: blocks/build/event-details/index.js:1
+#: blocks/build/events-list/index.js:1
+#: blocks/build/events-search/index.js:1
+#: blocks/build/field/index.js:1
+#: blocks/build/map/index.js:1
+#: blocks/build/venues-list/index.js:1
+#: blocks/src/booking-form/index.js:90
+#: blocks/src/event-details/index.js:139
+#: blocks/src/events-list/index.js:276
+#: blocks/src/events-search/index.js:189
+#: blocks/src/field/index.js:155
+#: blocks/src/map/index.js:174
+#: blocks/src/venues-list/index.js:198
 msgid "Date format"
 msgstr ""
 
 #: src/admin/settings.php:147
+#: blocks/build/booking-form/index.js:1
+#: blocks/build/calendar/index.js:1
+#: blocks/build/event-details/index.js:1
+#: blocks/build/events-list/index.js:1
+#: blocks/build/events-search/index.js:1
+#: blocks/build/field/index.js:1
+#: blocks/build/map/index.js:1
+#: blocks/build/venues-list/index.js:1
+#: blocks/src/booking-form/index.js:102
+#: blocks/src/calendar/index.js:186
+#: blocks/src/event-details/index.js:151
+#: blocks/src/events-list/index.js:288
+#: blocks/src/events-search/index.js:201
+#: blocks/src/field/index.js:167
+#: blocks/src/map/index.js:186
+#: blocks/src/venues-list/index.js:210
 msgid "Time format"
 msgstr ""
 
@@ -1445,7 +1475,7 @@ msgstr ""
 #: templates/event-details.php:64
 #: templates/venues-list.php:81
 #: blocks/build/map/index.js:1
-#: blocks/src/map/index.js:40
+#: blocks/src/map/index.js:42
 msgid "Map"
 msgstr ""
 
@@ -1794,8 +1824,8 @@ msgstr ""
 #: blocks/build/calendar/index.js:1
 #: blocks/build/events-list/index.js:1
 #: blocks/build/field/index.js:1
-#: blocks/src/calendar/index.js:117
-#: blocks/src/events-list/index.js:179
+#: blocks/src/calendar/index.js:124
+#: blocks/src/events-list/index.js:181
 #: blocks/src/field/index.js:16
 msgid "Organizer"
 msgstr ""
@@ -2056,8 +2086,8 @@ msgstr ""
 #: src/render/field.php:119
 #: blocks/build/field/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/field/index.js:44
-#: blocks/src/venues-list/index.js:101
+#: blocks/src/field/index.js:55
+#: blocks/src/venues-list/index.js:103
 msgid "Title"
 msgstr ""
 
@@ -2229,7 +2259,7 @@ msgid "Extra classes on the wrapper."
 msgstr ""
 
 #: src/render/field.php:174
-msgid "Wrapper tag: `span`, `div` or `p`."
+msgid "Wrapper tag: `span`, `div`, `p`, `h2`, `h3` or `h4`."
 msgstr ""
 
 #: src/render/field.php:178
@@ -2575,9 +2605,9 @@ msgstr ""
 #: blocks/build/events-list/index.js:1
 #: blocks/build/map/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/events-list/index.js:115
-#: blocks/src/map/index.js:99
-#: blocks/src/venues-list/index.js:72
+#: blocks/src/events-list/index.js:117
+#: blocks/src/map/index.js:101
+#: blocks/src/venues-list/index.js:74
 msgid "Search"
 msgstr ""
 
@@ -2586,8 +2616,8 @@ msgstr ""
 #: templates/events-search.php:41
 #: blocks/build/calendar/index.js:1
 #: blocks/build/events-list/index.js:1
-#: blocks/src/calendar/index.js:60
-#: blocks/src/events-list/index.js:122
+#: blocks/src/calendar/index.js:67
+#: blocks/src/events-list/index.js:124
 msgid "Category"
 msgstr ""
 
@@ -2621,8 +2651,8 @@ msgstr ""
 #: templates/events-search.php:69
 #: blocks/build/calendar/index.js:1
 #: blocks/build/events-list/index.js:1
-#: blocks/src/calendar/index.js:81
-#: blocks/src/events-list/index.js:143
+#: blocks/src/calendar/index.js:88
+#: blocks/src/events-list/index.js:145
 msgid "Tag"
 msgstr ""
 
@@ -2630,8 +2660,8 @@ msgstr ""
 #: templates/events-search.php:71
 #: blocks/build/calendar/index.js:1
 #: blocks/build/events-list/index.js:1
-#: blocks/src/calendar/index.js:86
-#: blocks/src/events-list/index.js:148
+#: blocks/src/calendar/index.js:93
+#: blocks/src/events-list/index.js:150
 msgid "All tags"
 msgstr ""
 
@@ -2639,8 +2669,8 @@ msgstr ""
 #: templates/events-search.php:85
 #: blocks/build/calendar/index.js:1
 #: blocks/build/events-list/index.js:1
-#: blocks/src/calendar/index.js:122
-#: blocks/src/events-list/index.js:184
+#: blocks/src/calendar/index.js:129
+#: blocks/src/events-list/index.js:186
 msgid "All organizers"
 msgstr ""
 
@@ -2648,8 +2678,8 @@ msgstr ""
 #: templates/events-search.php:97
 #: blocks/build/events-list/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/events-list/index.js:212
-#: blocks/src/venues-list/index.js:79
+#: blocks/src/events-list/index.js:214
+#: blocks/src/venues-list/index.js:81
 msgid "Order"
 msgstr ""
 
@@ -2667,7 +2697,7 @@ msgstr ""
 
 #: src/render/widget-registry.php:713
 #: blocks/build/calendar/index.js:1
-#: blocks/src/calendar/index.js:58
+#: blocks/src/calendar/index.js:65
 msgid "Calendar"
 msgstr ""
 
@@ -2875,7 +2905,7 @@ msgstr ""
 
 #: src/render/widget-registry.php:1000
 #: blocks/build/booking-form/index.js:1
-#: blocks/src/booking-form/index.js:131
+#: blocks/src/booking-form/index.js:157
 msgid "Button label"
 msgstr ""
 
@@ -2883,7 +2913,7 @@ msgstr ""
 #: src/render/widget-registry.php:1002
 #: templates/booking-form.php:126
 #: blocks/build/booking-form/index.js:1
-#: blocks/src/booking-form/index.js:133
+#: blocks/src/booking-form/index.js:159
 msgid "Book"
 msgstr ""
 
@@ -2893,7 +2923,7 @@ msgstr ""
 
 #: src/render/widget-registry.php:1007
 #: blocks/build/booking-form/index.js:1
-#: blocks/src/booking-form/index.js:139
+#: blocks/src/booking-form/index.js:165
 msgid "Success message"
 msgstr ""
 
@@ -2902,7 +2932,7 @@ msgstr ""
 #: templates/booking-form.php:16
 #: templates/booking-form.php:41
 #: blocks/build/booking-form/index.js:1
-#: blocks/src/booking-form/index.js:141
+#: blocks/src/booking-form/index.js:167
 msgid "Booking confirmed."
 msgstr ""
 
@@ -2939,7 +2969,7 @@ msgstr ""
 #: src/render/widget-registry.php:1064
 #: blocks/build/booking-form/index.js:1
 #: blocks/build/field/index.js:1
-#: blocks/src/booking-form/index.js:27
+#: blocks/src/booking-form/index.js:29
 #: blocks/src/field/index.js:20
 msgid "Event ID"
 msgstr ""
@@ -2947,7 +2977,7 @@ msgstr ""
 #: src/render/widget-registry.php:1030
 #: src/render/widget-registry.php:1064
 #: blocks/build/booking-form/index.js:1
-#: blocks/src/booking-form/index.js:31
+#: blocks/src/booking-form/index.js:33
 msgid "Leave 0 to use the current event."
 msgstr ""
 
@@ -3005,9 +3035,9 @@ msgstr ""
 #: blocks/build/event-details/index.js:1
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
-#: blocks/src/event-details/index.js:132
-#: blocks/src/events-list/index.js:329
-#: blocks/src/events-search/index.js:101
+#: blocks/src/event-details/index.js:163
+#: blocks/src/events-list/index.js:355
+#: blocks/src/events-search/index.js:103
 msgid "Show venue"
 msgstr ""
 
@@ -3019,9 +3049,9 @@ msgstr ""
 #: blocks/build/event-details/index.js:1
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
-#: blocks/src/event-details/index.js:153
-#: blocks/src/events-list/index.js:336
-#: blocks/src/events-search/index.js:232
+#: blocks/src/event-details/index.js:184
+#: blocks/src/events-list/index.js:362
+#: blocks/src/events-search/index.js:258
 msgid "Show organizers"
 msgstr ""
 
@@ -3031,7 +3061,7 @@ msgstr ""
 
 #: src/render/widget-registry.php:1053
 #: blocks/build/event-details/index.js:1
-#: blocks/src/event-details/index.js:195
+#: blocks/src/event-details/index.js:226
 msgid "Show online links"
 msgstr ""
 
@@ -3050,8 +3080,8 @@ msgstr ""
 #: src/render/widget-registry.php:1055
 #: blocks/build/event-details/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/event-details/index.js:209
-#: blocks/src/venues-list/index.js:124
+#: blocks/src/event-details/index.js:240
+#: blocks/src/venues-list/index.js:126
 msgid "Show description"
 msgstr ""
 
@@ -3061,7 +3091,7 @@ msgstr ""
 
 #: src/render/widget-registry.php:1056
 #: blocks/build/events-search/index.js:1
-#: blocks/src/events-search/index.js:80
+#: blocks/src/events-search/index.js:82
 msgid "Show keyword"
 msgstr ""
 
@@ -3071,7 +3101,7 @@ msgstr ""
 
 #: src/render/widget-registry.php:1057
 #: blocks/build/events-search/index.js:1
-#: blocks/src/events-search/index.js:87
+#: blocks/src/events-search/index.js:89
 msgid "Show category"
 msgstr ""
 
@@ -3081,7 +3111,7 @@ msgstr ""
 
 #: src/render/widget-registry.php:1058
 #: blocks/build/events-search/index.js:1
-#: blocks/src/events-search/index.js:115
+#: blocks/src/events-search/index.js:117
 msgid "Show dates"
 msgstr ""
 
@@ -3099,7 +3129,7 @@ msgstr ""
 
 #: src/render/widget-registry.php:1060
 #: blocks/build/events-search/index.js:1
-#: blocks/src/events-search/index.js:155
+#: blocks/src/events-search/index.js:157
 msgid "Show results"
 msgstr ""
 
@@ -4090,16 +4120,16 @@ msgstr[1] ""
 #: templates/events-search.php:99
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
-#: blocks/src/events-list/index.js:217
-#: blocks/src/events-search/index.js:142
+#: blocks/src/events-list/index.js:219
+#: blocks/src/events-search/index.js:144
 msgid "Soonest first"
 msgstr ""
 
 #: templates/events-search.php:100
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
-#: blocks/src/events-list/index.js:221
-#: blocks/src/events-search/index.js:146
+#: blocks/src/events-list/index.js:223
+#: blocks/src/events-search/index.js:148
 msgid "Latest first"
 msgstr ""
 
@@ -4116,109 +4146,145 @@ msgid "Could not load this booking."
 msgstr ""
 
 #: blocks/build/booking-form/index.js:1
-#: blocks/src/booking-form/index.js:25
+#: blocks/src/booking-form/index.js:27
 msgid "Booking form"
 msgstr ""
 
 #: blocks/build/booking-form/index.js:1
-#: blocks/src/booking-form/index.js:45
+#: blocks/src/booking-form/index.js:47
 msgid "Ticket ID"
 msgstr ""
 
 #: blocks/build/booking-form/index.js:1
-#: blocks/src/booking-form/index.js:48
+#: blocks/src/booking-form/index.js:50
 msgid "Leave 0 for the first ticket."
 msgstr ""
 
 #: blocks/build/booking-form/index.js:1
-#: blocks/src/booking-form/index.js:63
+#: blocks/src/booking-form/index.js:65
 msgid "Time ID"
 msgstr ""
 
 #: blocks/build/booking-form/index.js:1
-#: blocks/src/booking-form/index.js:66
+#: blocks/src/booking-form/index.js:68
 msgid "Leave 0 for the first time."
 msgstr ""
 
 #: blocks/build/booking-form/index.js:1
-#: blocks/src/booking-form/index.js:81
+#: blocks/src/booking-form/index.js:83
 msgid "Heading"
+msgstr ""
+
+#: blocks/build/booking-form/index.js:1
+#: blocks/build/calendar/index.js:1
+#: blocks/build/event-details/index.js:1
+#: blocks/build/events-list/index.js:1
+#: blocks/build/events-search/index.js:1
+#: blocks/build/field/index.js:1
+#: blocks/build/map/index.js:1
+#: blocks/build/venues-list/index.js:1
+#: blocks/src/booking-form/index.js:93
+#: blocks/src/booking-form/index.js:105
+#: blocks/src/calendar/index.js:189
+#: blocks/src/event-details/index.js:142
+#: blocks/src/event-details/index.js:154
+#: blocks/src/events-list/index.js:279
+#: blocks/src/events-list/index.js:291
+#: blocks/src/events-search/index.js:192
+#: blocks/src/events-search/index.js:204
+#: blocks/src/field/index.js:158
+#: blocks/src/field/index.js:170
+#: blocks/src/map/index.js:177
+#: blocks/src/map/index.js:189
+#: blocks/src/venues-list/index.js:201
+#: blocks/src/venues-list/index.js:213
+msgid "Leave empty to use the site format."
 msgstr ""
 
 #: blocks/build/booking-form/index.js:1
 #: blocks/build/event-details/index.js:1
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
-#: blocks/src/booking-form/index.js:88
-#: blocks/src/event-details/index.js:160
-#: blocks/src/events-list/index.js:295
-#: blocks/src/events-search/index.js:204
+#: blocks/src/booking-form/index.js:114
+#: blocks/src/event-details/index.js:191
+#: blocks/src/events-list/index.js:321
+#: blocks/src/events-search/index.js:230
 msgid "Show price"
 msgstr ""
 
 #: blocks/build/booking-form/index.js:1
-#: blocks/src/booking-form/index.js:95
+#: blocks/src/booking-form/index.js:121
 msgid "Default seats"
 msgstr ""
 
 #: blocks/build/booking-form/index.js:1
-#: blocks/src/booking-form/index.js:109
+#: blocks/src/booking-form/index.js:135
 msgid "Maximum seats"
 msgstr ""
 
 #: blocks/build/booking-form/index.js:1
-#: blocks/src/booking-form/index.js:112
+#: blocks/src/booking-form/index.js:138
 msgid "0 uses the ticket limit."
 msgstr ""
 
 #: blocks/build/booking-form/index.js:1
-#: blocks/src/booking-form/index.js:124
+#: blocks/src/booking-form/index.js:150
 msgid "Hide sold-out tickets"
 msgstr ""
 
 #: blocks/build/calendar/index.js:1
 #: blocks/build/events-list/index.js:1
-#: blocks/src/calendar/index.js:69
-#: blocks/src/events-list/index.js:131
+#: blocks/src/calendar/index.js:76
+#: blocks/src/events-list/index.js:133
 msgid "Current category"
 msgstr ""
 
 #: blocks/build/calendar/index.js:1
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
-#: blocks/src/calendar/index.js:136
-#: blocks/src/events-list/index.js:371
-#: blocks/src/events-search/index.js:253
+#: blocks/src/calendar/index.js:143
+#: blocks/src/events-list/index.js:397
+#: blocks/src/events-search/index.js:279
 msgid "Include cancelled events"
 msgstr ""
 
 #: blocks/build/calendar/index.js:1
-#: blocks/src/calendar/index.js:143
+#: blocks/src/calendar/index.js:150
 msgid "Mark today"
 msgstr ""
 
 #: blocks/build/calendar/index.js:1
-#: blocks/src/calendar/index.js:150
+#: blocks/src/calendar/index.js:157
 msgid "Week starts on"
 msgstr ""
 
 #: blocks/build/calendar/index.js:1
-#: blocks/src/calendar/index.js:155
+#: blocks/src/calendar/index.js:162
 msgid "Monday"
 msgstr ""
 
 #: blocks/build/calendar/index.js:1
-#: blocks/src/calendar/index.js:159
+#: blocks/src/calendar/index.js:166
 msgid "Sunday"
 msgstr ""
 
 #: blocks/build/calendar/index.js:1
-#: blocks/src/calendar/index.js:167
+#: blocks/src/calendar/index.js:174
+msgid "Month format"
+msgstr ""
+
+#: blocks/build/calendar/index.js:1
+#: blocks/src/calendar/index.js:177
+msgid "Leave empty to use the default month format."
+msgstr ""
+
+#: blocks/build/calendar/index.js:1
+#: blocks/src/calendar/index.js:198
 msgid "Show month navigation"
 msgstr ""
 
 #: blocks/build/event-details/index.js:1
-#: blocks/src/event-details/index.js:67
+#: blocks/src/event-details/index.js:74
 msgid "Select an event"
 msgstr ""
 
@@ -4226,10 +4292,10 @@ msgstr ""
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/event-details/index.js:79
-#: blocks/src/events-list/index.js:274
-#: blocks/src/events-search/index.js:187
-#: blocks/src/venues-list/index.js:151
+#: blocks/src/event-details/index.js:86
+#: blocks/src/events-list/index.js:300
+#: blocks/src/events-search/index.js:213
+#: blocks/src/venues-list/index.js:153
 msgid "Show image"
 msgstr ""
 
@@ -4238,16 +4304,16 @@ msgstr ""
 #: blocks/build/events-search/index.js:1
 #: blocks/build/field/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/event-details/index.js:87
-#: blocks/src/events-list/index.js:282
-#: blocks/src/events-search/index.js:195
-#: blocks/src/field/index.js:138
-#: blocks/src/venues-list/index.js:159
+#: blocks/src/event-details/index.js:94
+#: blocks/src/events-list/index.js:308
+#: blocks/src/events-search/index.js:221
+#: blocks/src/field/index.js:189
+#: blocks/src/venues-list/index.js:161
 msgid "Image size"
 msgstr ""
 
 #: blocks/build/event-details/index.js:1
-#: blocks/src/event-details/index.js:96
+#: blocks/src/event-details/index.js:103
 msgid "Show title"
 msgstr ""
 
@@ -4255,223 +4321,223 @@ msgstr ""
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/event-details/index.js:104
-#: blocks/src/events-list/index.js:382
-#: blocks/src/events-search/index.js:260
-#: blocks/src/venues-list/index.js:196
+#: blocks/src/event-details/index.js:111
+#: blocks/src/events-list/index.js:408
+#: blocks/src/events-search/index.js:286
+#: blocks/src/venues-list/index.js:222
 msgid "Title markup"
 msgstr ""
 
 #: blocks/build/event-details/index.js:1
-#: blocks/src/event-details/index.js:118
+#: blocks/src/event-details/index.js:125
 msgid "Show status"
 msgstr ""
 
 #: blocks/build/event-details/index.js:1
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
-#: blocks/src/event-details/index.js:125
-#: blocks/src/events-list/index.js:357
-#: blocks/src/events-search/index.js:239
+#: blocks/src/event-details/index.js:132
+#: blocks/src/events-list/index.js:383
+#: blocks/src/events-search/index.js:265
 msgid "Show end date"
 msgstr ""
 
 #: blocks/build/event-details/index.js:1
-#: blocks/src/event-details/index.js:139
+#: blocks/src/event-details/index.js:170
 msgid "Show venue address"
 msgstr ""
 
 #: blocks/build/event-details/index.js:1
-#: blocks/src/event-details/index.js:146
+#: blocks/src/event-details/index.js:177
 msgid "Show venue map link"
 msgstr ""
 
 #: blocks/build/event-details/index.js:1
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
-#: blocks/src/event-details/index.js:167
-#: blocks/src/events-list/index.js:364
-#: blocks/src/events-search/index.js:246
+#: blocks/src/event-details/index.js:198
+#: blocks/src/events-list/index.js:390
+#: blocks/src/events-search/index.js:272
 msgid "Show seats left"
 msgstr ""
 
 #: blocks/build/event-details/index.js:1
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
-#: blocks/src/event-details/index.js:174
-#: blocks/src/events-list/index.js:343
-#: blocks/src/events-search/index.js:218
+#: blocks/src/event-details/index.js:205
+#: blocks/src/events-list/index.js:369
+#: blocks/src/events-search/index.js:244
 msgid "Show categories"
 msgstr ""
 
 #: blocks/build/event-details/index.js:1
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
-#: blocks/src/event-details/index.js:181
-#: blocks/src/events-list/index.js:350
-#: blocks/src/events-search/index.js:225
+#: blocks/src/event-details/index.js:212
+#: blocks/src/events-list/index.js:376
+#: blocks/src/events-search/index.js:251
 msgid "Show tags"
 msgstr ""
 
 #: blocks/build/event-details/index.js:1
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
-#: blocks/src/event-details/index.js:188
-#: blocks/src/events-list/index.js:302
-#: blocks/src/events-search/index.js:211
+#: blocks/src/event-details/index.js:219
+#: blocks/src/events-list/index.js:328
+#: blocks/src/events-search/index.js:237
 msgid "Show excerpt"
 msgstr ""
 
 #: blocks/build/event-details/index.js:1
-#: blocks/src/event-details/index.js:202
+#: blocks/src/event-details/index.js:233
 msgid "Show calendar links"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:101
+#: blocks/src/events-list/index.js:103
 msgid "Number of events"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:198
+#: blocks/src/events-list/index.js:200
 msgid "From date"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:206
+#: blocks/src/events-list/index.js:208
 msgid "To date"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:229
+#: blocks/src/events-list/index.js:231
 msgid "Only upcoming events"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:236
+#: blocks/src/events-list/index.js:238
 msgid "Use search query"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:237
+#: blocks/src/events-list/index.js:239
 msgid "Use the values from a search form on the same page."
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/events-list/index.js:247
-#: blocks/src/events-search/index.js:167
-#: blocks/src/venues-list/index.js:219
+#: blocks/src/events-list/index.js:249
+#: blocks/src/events-search/index.js:169
+#: blocks/src/venues-list/index.js:245
 msgid "Show pagination"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:248
+#: blocks/src/events-list/index.js:250
 msgid "Turn off for sidebar and teaser lists."
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/events-list/index.js:258
-#: blocks/src/events-search/index.js:175
-#: blocks/src/venues-list/index.js:230
+#: blocks/src/events-list/index.js:260
+#: blocks/src/events-search/index.js:177
+#: blocks/src/venues-list/index.js:256
 msgid "Pagination key"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/events-list/index.js:259
-#: blocks/src/venues-list/index.js:231
+#: blocks/src/events-list/index.js:261
+#: blocks/src/venues-list/index.js:257
 msgid "Only needed when several paginated lists share a page."
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:270
+#: blocks/src/events-list/index.js:272
 msgid "Card"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:288
+#: blocks/src/events-list/index.js:314
 msgid "Registered WordPress image size used on event cards."
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:310
+#: blocks/src/events-list/index.js:336
 msgid "Excerpt length"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:314
+#: blocks/src/events-list/index.js:340
 msgid "Word count. 0 uses the theme length."
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
-#: blocks/src/events-list/index.js:372
+#: blocks/src/events-list/index.js:398
 msgid "Cancelled events are hidden unless enabled."
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/events-list/index.js:387
-#: blocks/src/events-search/index.js:265
-#: blocks/src/venues-list/index.js:201
+#: blocks/src/events-list/index.js:413
+#: blocks/src/events-search/index.js:291
+#: blocks/src/venues-list/index.js:227
 msgid "Plain / inline"
 msgstr ""
 
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/events-list/index.js:398
-#: blocks/src/events-search/index.js:276
-#: blocks/src/venues-list/index.js:212
+#: blocks/src/events-list/index.js:424
+#: blocks/src/events-search/index.js:302
+#: blocks/src/venues-list/index.js:238
 msgid "Link title and image"
 msgstr ""
 
 #: blocks/build/events-search/index.js:1
-#: blocks/src/events-search/index.js:64
+#: blocks/src/events-search/index.js:66
 msgid "Search fields"
 msgstr ""
 
 #: blocks/build/events-search/index.js:1
-#: blocks/src/events-search/index.js:66
+#: blocks/src/events-search/index.js:68
 msgid "Number of results"
 msgstr ""
 
 #: blocks/build/events-search/index.js:1
-#: blocks/src/events-search/index.js:94
+#: blocks/src/events-search/index.js:96
 msgid "Show tag"
 msgstr ""
 
 #: blocks/build/events-search/index.js:1
-#: blocks/src/events-search/index.js:108
+#: blocks/src/events-search/index.js:110
 msgid "Show organizer"
 msgstr ""
 
 #: blocks/build/events-search/index.js:1
-#: blocks/src/events-search/index.js:122
+#: blocks/src/events-search/index.js:124
 msgid "Show upcoming toggle"
 msgstr ""
 
 #: blocks/build/events-search/index.js:1
-#: blocks/src/events-search/index.js:129
+#: blocks/src/events-search/index.js:131
 msgid "Show order"
 msgstr ""
 
 #: blocks/build/events-search/index.js:1
-#: blocks/src/events-search/index.js:137
+#: blocks/src/events-search/index.js:139
 msgid "Default order"
 msgstr ""
 
 #: blocks/build/events-search/index.js:1
-#: blocks/src/events-search/index.js:163
+#: blocks/src/events-search/index.js:165
 msgid "Results"
 msgstr ""
 
 #: blocks/build/events-search/index.js:1
-#: blocks/src/events-search/index.js:176
+#: blocks/src/events-search/index.js:178
 msgid "Only needed when several searches share a page."
 msgstr ""
 
@@ -4481,188 +4547,188 @@ msgid "Organizer ID"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:52
+#: blocks/src/field/index.js:72
 msgid "Value"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:54
+#: blocks/src/field/index.js:74
 msgid "Source"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:68
+#: blocks/src/field/index.js:88
 msgid "Field"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:80
+#: blocks/src/field/index.js:100
 msgid "Leave 0 to use the current page."
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:91
+#: blocks/src/field/index.js:111
 msgid "Output"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:100
+#: blocks/src/field/index.js:120
 msgid "Link the value"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:107
+#: blocks/src/field/index.js:127
 msgid "Wrapper tag"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:110
+#: blocks/src/field/index.js:130
 msgid "Span"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:111
+#: blocks/src/field/index.js:131
 msgid "Div"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:114
+#: blocks/src/field/index.js:134
 msgid "Paragraph"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:122
+#: blocks/src/field/index.js:145
 msgid "Separator"
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:124
+#: blocks/src/field/index.js:147
 msgid "Used between list values."
 msgstr ""
 
 #: blocks/build/field/index.js:1
-#: blocks/src/field/index.js:130
+#: blocks/src/field/index.js:181
 msgid "Empty text"
 msgstr ""
 
 #: blocks/build/map/index.js:1
-#: blocks/src/map/index.js:42
+#: blocks/src/map/index.js:44
 msgid "Maximum venues"
 msgstr ""
 
 #: blocks/build/map/index.js:1
-#: blocks/src/map/index.js:56
+#: blocks/src/map/index.js:58
 msgid "Height (px)"
 msgstr ""
 
 #: blocks/build/map/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/map/index.js:89
-#: blocks/src/venues-list/index.js:114
+#: blocks/src/map/index.js:91
+#: blocks/src/venues-list/index.js:116
 msgid "Only venues with upcoming events"
 msgstr ""
 
 #: blocks/build/map/index.js:1
-#: blocks/src/map/index.js:106
+#: blocks/src/map/index.js:108
 msgid "Center"
 msgstr ""
 
 #: blocks/build/map/index.js:1
-#: blocks/src/map/index.js:107
+#: blocks/src/map/index.js:109
 msgid "Latitude,longitude."
 msgstr ""
 
 #: blocks/build/map/index.js:1
-#: blocks/src/map/index.js:114
+#: blocks/src/map/index.js:116
 msgid "Zoom"
 msgstr ""
 
 #: blocks/build/map/index.js:1
-#: blocks/src/map/index.js:129
+#: blocks/src/map/index.js:131
 msgid "Fit all markers"
 msgstr ""
 
 #: blocks/build/map/index.js:1
-#: blocks/src/map/index.js:136
+#: blocks/src/map/index.js:138
 msgid "Link markers to the venue"
 msgstr ""
 
 #: blocks/build/map/index.js:1
-#: blocks/src/map/index.js:143
+#: blocks/src/map/index.js:145
 msgid "Provider"
 msgstr ""
 
 #: blocks/build/map/index.js:1
-#: blocks/src/map/index.js:148
+#: blocks/src/map/index.js:150
 msgid "Site setting"
 msgstr ""
 
 #: blocks/build/map/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/map/index.js:158
-#: blocks/src/venues-list/index.js:168
+#: blocks/src/map/index.js:160
+#: blocks/src/venues-list/index.js:170
 msgid "Show address"
 msgstr ""
 
 #: blocks/build/map/index.js:1
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/map/index.js:165
-#: blocks/src/venues-list/index.js:189
+#: blocks/src/map/index.js:167
+#: blocks/src/venues-list/index.js:191
 msgid "Show next event"
 msgstr ""
 
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/venues-list/index.js:58
+#: blocks/src/venues-list/index.js:60
 msgid "Number of venues"
 msgstr ""
 
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/venues-list/index.js:84
+#: blocks/src/venues-list/index.js:86
 msgid "Ascending"
 msgstr ""
 
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/venues-list/index.js:88
+#: blocks/src/venues-list/index.js:90
 msgid "Descending"
 msgstr ""
 
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/venues-list/index.js:96
+#: blocks/src/venues-list/index.js:98
 msgid "Order by"
 msgstr ""
 
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/venues-list/index.js:103
+#: blocks/src/venues-list/index.js:105
 msgid "Date"
 msgstr ""
 
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/venues-list/index.js:106
+#: blocks/src/venues-list/index.js:108
 msgid "Menu order"
 msgstr ""
 
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/venues-list/index.js:132
+#: blocks/src/venues-list/index.js:134
 msgid "Description length"
 msgstr ""
 
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/venues-list/index.js:136
+#: blocks/src/venues-list/index.js:138
 msgid "Word count. 0 shows the full description."
 msgstr ""
 
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/venues-list/index.js:175
+#: blocks/src/venues-list/index.js:177
 msgid "Show website"
 msgstr ""
 
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/venues-list/index.js:182
+#: blocks/src/venues-list/index.js:184
 msgid "Show map link"
 msgstr ""
 
 #: blocks/build/venues-list/index.js:1
-#: blocks/src/venues-list/index.js:220
+#: blocks/src/venues-list/index.js:246
 msgid "Turn off for featured venue lists."
 msgstr ""
 
