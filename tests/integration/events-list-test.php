@@ -14,6 +14,7 @@ use ReEvents\Data\Ticket_Repository;
 use ReEvents\Query\Event_Query;
 use ReEvents\Render\Events_List;
 use ReEvents\Render\Venues_List;
+use ReEvents\Render\Widget_Registry;
 use ReEvents\Services\Occurrence_Service;
 use WP_UnitTestCase;
 
@@ -654,6 +655,373 @@ final class Events_List_Test extends WP_UnitTestCase {
 
 		self::assertSame( 1, substr_count( $html, '<li class="reevents-event">' ) );
 		self::assertStringContainsString( $prefix . ' 4', $html );
+	}
+
+	/**
+	 * Tag filtering accepts a slug or a term ID.
+	 */
+	public function test_tag_filter(): void {
+		$slug = 'gala-' . wp_generate_uuid4();
+		$term = wp_insert_term( 'Gala', 'reevents_event_tag', [ 'slug' => $slug ] );
+		$id   = (int) ( is_array( $term ) ? $term['term_id'] : 0 );
+
+		$inside  = Test_Factory::event(
+			[
+				'title' => 'Tagged event ' . wp_generate_uuid4(),
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_status'    => 'scheduled',
+				],
+			]
+		);
+		$outside = Test_Factory::event(
+			[
+				'title' => 'Untagged event ' . wp_generate_uuid4(),
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_status'    => 'scheduled',
+				],
+			]
+		);
+
+		wp_set_object_terms( $inside, [ $id ], 'reevents_event_tag' );
+		Occurrence_Service::sync( $inside );
+		Occurrence_Service::sync( $outside );
+
+		foreach ( [ $slug, $id ] as $filter ) {
+			$result = Event_Query::query(
+				[
+					'tag'      => $filter,
+					'upcoming' => false,
+					'per_page' => 100,
+				]
+			);
+
+			self::assertContains( $inside, $result['ids'] );
+			self::assertNotContains( $outside, $result['ids'] );
+		}
+
+		$dated = Event_Query::query(
+			[
+				'tag'      => $slug,
+				'upcoming' => true,
+				'from'     => gmdate( 'Y-m-d', strtotime( '+1 day' ) ),
+				'to'       => gmdate( 'Y-m-d', strtotime( '+5 days' ) ),
+				'per_page' => 1,
+			]
+		);
+
+		self::assertSame( 1, $dated['total'] );
+		self::assertSame( 1, $dated['pages'] );
+		self::assertSame( [ $inside ], $dated['ids'] );
+	}
+
+	/**
+	 * Ordering applies to the plain and the date-based query paths.
+	 */
+	public function test_order_desc(): void {
+		$prefix = 'ord' . str_replace( '-', '', wp_generate_uuid4() );
+		$ids    = [];
+
+		for ( $i = 1; $i <= 3; $i++ ) {
+			$ids[] = Test_Factory::event(
+				[
+					'title' => $prefix . ' ' . $i,
+					'meta'  => [
+						'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+' . $i . ' day' ) ),
+						'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+' . $i . ' day +1 hour' ) ),
+						'_reevents_timezone'  => 'UTC',
+						'_reevents_status'    => 'scheduled',
+					],
+				]
+			);
+			Occurrence_Service::sync( $ids[ $i - 1 ] );
+		}
+
+		$plain = Event_Query::query(
+			[
+				'search'   => $prefix,
+				'upcoming' => false,
+				'order'    => 'desc',
+				'per_page' => 100,
+			]
+		);
+
+		self::assertSame( array_reverse( $ids ), $plain['ids'] );
+
+		$dated = Event_Query::query(
+			[
+				'search'   => $prefix,
+				'upcoming' => true,
+				'order'    => 'desc',
+				'per_page' => 100,
+			]
+		);
+
+		self::assertSame( array_reverse( $ids ), $dated['ids'] );
+
+		$html = Events_List::render(
+			[
+				'limit'    => 10,
+				'upcoming' => false,
+				'search'   => $prefix,
+				'order'    => 'desc',
+			]
+		);
+
+		$last  = strpos( $html, $prefix . ' 3' );
+		$first = strpos( $html, $prefix . ' 1' );
+
+		self::assertNotFalse( $last );
+		self::assertNotFalse( $first );
+		self::assertTrue( $last < $first );
+	}
+
+	/**
+	 * The current category filters its own archive.
+	 */
+	public function test_current_category_filter(): void {
+		$term = wp_insert_term( 'Archive ' . wp_generate_uuid4(), 'reevents_event_category' );
+
+		if ( is_wp_error( $term ) ) {
+			self::fail( 'Category could not be created.' );
+		}
+
+		$inside  = Test_Factory::event(
+			[
+				'title' => 'Category event ' . wp_generate_uuid4(),
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+3 days' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+3 days +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+				],
+			]
+		);
+		$outside = Test_Factory::event(
+			[
+				'title' => 'Other category event ' . wp_generate_uuid4(),
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+3 days' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+3 days +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+				],
+			]
+		);
+
+		wp_set_object_terms( $inside, [ (int) $term['term_id'] ], 'reevents_event_category' );
+
+		$this->go_to( get_term_link( (int) $term['term_id'], 'reevents_event_category' ) );
+
+		$html = Events_List::render(
+			[
+				'limit'    => 100,
+				'category' => 'current',
+				'upcoming' => false,
+			]
+		);
+
+		self::assertStringContainsString( get_the_title( $inside ), $html );
+		self::assertStringNotContainsString( get_the_title( $outside ), $html );
+	}
+
+	/**
+	 * Cancelled events are hidden unless requested, then labelled.
+	 */
+	public function test_cancelled_events(): void {
+		$prefix    = 'cancelled' . str_replace( '-', '', wp_generate_uuid4() );
+		$cancelled = Test_Factory::event(
+			[
+				'title' => $prefix . ' cancelled',
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_status'    => 'cancelled',
+				],
+			]
+		);
+		$active    = Test_Factory::event(
+			[
+				'title' => $prefix . ' active',
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_status'    => 'scheduled',
+				],
+			]
+		);
+
+		$hidden = Events_List::render(
+			[
+				'limit'    => 10,
+				'upcoming' => false,
+				'search'   => $prefix,
+			]
+		);
+
+		self::assertStringNotContainsString( get_the_title( $cancelled ), $hidden );
+		self::assertStringContainsString( get_the_title( $active ), $hidden );
+
+		Occurrence_Service::sync( $cancelled );
+		Occurrence_Service::sync( $active );
+
+		$upcoming = Events_List::render(
+			[
+				'limit'          => 10,
+				'upcoming'       => true,
+				'search'         => $prefix,
+				'show_cancelled' => true,
+			]
+		);
+
+		self::assertStringContainsString( get_the_title( $cancelled ), $upcoming );
+		self::assertStringContainsString( 'reevents-event-cancelled', $upcoming );
+
+		$upcoming_hidden = Events_List::render(
+			[
+				'limit'    => 10,
+				'upcoming' => true,
+				'search'   => $prefix,
+			]
+		);
+
+		self::assertStringNotContainsString( get_the_title( $cancelled ), $upcoming_hidden );
+		self::assertStringContainsString( get_the_title( $active ), $upcoming_hidden );
+
+		$shown = Events_List::render(
+			[
+				'limit'          => 10,
+				'upcoming'       => false,
+				'search'         => $prefix,
+				'show_cancelled' => true,
+			]
+		);
+
+		self::assertStringContainsString( get_the_title( $cancelled ), $shown );
+		self::assertStringContainsString( 'reevents-event-cancelled', $shown );
+	}
+
+	/**
+	 * Card toggles print organizers, tags, end, seats, headings and trimmed excerpts.
+	 */
+	public function test_card_options(): void {
+		$organizer = wp_insert_post(
+			[
+				'post_type'   => 'reevents_organizer',
+				'post_status' => 'publish',
+				'post_title'  => 'Card organizer ' . wp_generate_uuid4(),
+			]
+		);
+
+		$id = Test_Factory::event(
+			[
+				'title' => 'Card options ' . wp_generate_uuid4(),
+				'meta'  => [
+					'_reevents_start_utc'     => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days' ) ),
+					'_reevents_end_utc'       => gmdate( 'Y-m-d H:i:s', strtotime( '+4 days' ) ),
+					'_reevents_timezone'      => 'UTC',
+					'_reevents_organizer_ids' => [ $organizer ],
+				],
+			]
+		);
+
+		wp_update_post(
+			[
+				'ID'           => $id,
+				'post_excerpt' => 'one two three four five six',
+			]
+		);
+
+		$attachment = self::factory()->attachment->create_upload_object( DIR_TESTDATA . '/images/canola.jpg', $id );
+		set_post_thumbnail( $id, $attachment );
+
+		wp_set_object_terms( $id, [ 'Card tag ' . wp_generate_uuid4() ], 'reevents_event_tag' );
+		$terms    = get_the_terms( $id, 'reevents_event_tag' );
+		$tag_name = is_array( $terms ) && $terms ? (string) $terms[0]->name : '';
+
+		$ticket = Test_Factory::ticket( $id, [ 'capacity' => 10 ] );
+		( new Ticket_Repository() )->reserve( $ticket, 3 );
+
+		$html = Events_List::render(
+			[
+				'limit'           => 10,
+				'upcoming'        => false,
+				'search'          => (string) get_the_title( $id ),
+				'show_image'      => true,
+				'show_organizers' => true,
+				'show_tags'       => true,
+				'show_end'        => true,
+				'show_seats_left' => true,
+				'show_excerpt'    => true,
+				'excerpt_length'  => 3,
+				'title_tag'       => 'h2',
+				'link'            => false,
+			]
+		);
+
+		self::assertStringContainsString( '<h2 class="reevents-event-title">', $html );
+		self::assertStringNotContainsString( '<a class="reevents-event-title"', $html );
+		self::assertStringContainsString( 'reevents-event-thumbnail', $html );
+		self::assertStringNotContainsString( '<a class="reevents-event-image"', $html );
+		self::assertStringContainsString( get_the_title( $organizer ), $html );
+		self::assertStringContainsString( $tag_name, $html );
+		self::assertStringContainsString( 'reevents-event-end', $html );
+		self::assertStringContainsString( '7 seats left', $html );
+		self::assertStringContainsString( 'one two three', $html );
+		self::assertStringNotContainsString( 'four', $html );
+	}
+
+	/**
+	 * Shortcode filters reach the renderer through the widget schema.
+	 */
+	public function test_shortcode_filters_survive_registry(): void {
+		Widget_Registry::register_defaults();
+
+		$prefix  = 'registry' . str_replace( '-', '', wp_generate_uuid4() );
+		$inside  = Test_Factory::event(
+			[
+				'title' => $prefix . ' inside',
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_status'    => 'scheduled',
+				],
+			]
+		);
+		$outside = Test_Factory::event(
+			[
+				'title' => $prefix . ' outside',
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+20 days' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+20 days +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_status'    => 'scheduled',
+				],
+			]
+		);
+
+		Occurrence_Service::sync( $inside );
+		Occurrence_Service::sync( $outside );
+
+		$html = Widget_Registry::render(
+			'events-list',
+			[
+				'limit'    => 10,
+				'upcoming' => false,
+				'search'   => $prefix,
+				'from'     => gmdate( 'Y-m-d', strtotime( '+1 day' ) ),
+				'to'       => gmdate( 'Y-m-d', strtotime( '+5 days' ) ),
+			]
+		);
+
+		self::assertStringContainsString( get_the_title( $inside ), $html );
+		self::assertStringNotContainsString( get_the_title( $outside ), $html );
 	}
 
 	/**
