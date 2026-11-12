@@ -11,6 +11,7 @@ namespace ReEvents\Tests\Integration;
 
 use ReEvents\CLI\Test_Factory;
 use ReEvents\Frontend\Blocks;
+use ReEvents\Services\Occurrence_Service;
 use WP_UnitTestCase;
 
 /**
@@ -121,6 +122,63 @@ final class Blocks_Test extends WP_UnitTestCase {
 		$html = Blocks::render_booking_form( [ 'event' => $this->event ] );
 
 		self::assertStringContainsString( '<button type="submit">Book</button>', $html );
+	}
+
+	/**
+	 * The field block honors date and time formats.
+	 */
+	public function test_render_field_date_format(): void {
+		$html = Blocks::render_field(
+			[
+				'source'     => 'event',
+				'field'      => 'start',
+				'id'         => $this->event,
+				'dateFormat' => 'Y/m/d',
+				'timeFormat' => 'H:i',
+			]
+		);
+
+		$expected = gmdate( 'Y/m/d H:i', strtotime( '+1 day' ) );
+
+		self::assertStringContainsString( $expected, $html );
+	}
+
+	/**
+	 * The booking form block honors date and time formats.
+	 */
+	public function test_render_booking_form_date_format(): void {
+		$event = Test_Factory::event(
+			[
+				'title' => 'Block booking date',
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+1 day' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 day +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_status'    => 'scheduled',
+					'_reevents_timeslots' => [
+						[
+							'start'    => '10:00',
+							'end'      => '11:00',
+							'capacity' => 10,
+						],
+					],
+				],
+			]
+		);
+		Test_Factory::ticket( $event, [ 'capacity' => 10 ] );
+		Occurrence_Service::sync( $event );
+
+		$html = Blocks::render_booking_form(
+			[
+				'event'      => $event,
+				'dateFormat' => 'Y/m/d',
+				'timeFormat' => 'H:i',
+			]
+		);
+
+		$expected = gmdate( 'Y/m/d', strtotime( '+1 day' ) ) . ' 10:00';
+
+		self::assertStringContainsString( $expected, $html );
 	}
 
 	/**
