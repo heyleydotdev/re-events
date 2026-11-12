@@ -293,7 +293,7 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `date_format` | `F j, Y` | Date format. Defaults to the site format. |
 | `time_format` | `g:i a` | Time format. Defaults to the site format. |
 | `class` | — | Extra classes on the wrapper. |
-| `tag` | `span` | Wrapper tag: `span`, `div` or `p`. |
+| `tag` | `span` | Wrapper tag: `span`, `div`, `p`, `h2`, `h3` or `h4`. |
 | `size` | `large` | Image size for `image` and `image_url`. |
 | `venue` | `0` | Venue ID. `current` uses the current venue. |
 | `organizer` | `0` | Organizer ID. `current` uses the current organizer. |

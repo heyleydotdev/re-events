@@ -6,6 +6,8 @@ ReEvents renders semantic HTML with no frontend CSS.
 
 Every widget is also a block under `reevents/<widget>`. `reevents/field` prints one event, venue or organizer value, and its field dropdown is filled from the PHP field lists.
 
+Date-sensitive blocks expose date and time format fields in the inspector. Leave them empty to use the site format. The calendar has a separate month format field.
+
 ## Styling
 
 ReEvents ships no frontend CSS. Every widget accepts `class` and `wrapper_class`. Those classes are styling hooks owned by the theme or site.
