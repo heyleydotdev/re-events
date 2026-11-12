@@ -27,9 +27,24 @@
 			}
 
 			const option = ticket.options[ticket.selectedIndex];
+			const globalMax = Number(form.dataset.maxQuantity || 0);
+			const min = Math.max(1, Number(option.dataset.min || 1));
+			let max = option.dataset.max && option.dataset.max !== '0' ? Number(option.dataset.max) : 0;
 
-			quantity.min = option.dataset.min || '1';
-			quantity.max = option.dataset.max && option.dataset.max !== '0' ? option.dataset.max : '';
+			if (globalMax > 0 && (max === 0 || globalMax < max)) {
+				max = globalMax;
+			}
+
+			quantity.min = String(min);
+			quantity.max = max > 0 ? String(max) : '';
+
+			if (Number(quantity.value) < min) {
+				quantity.value = String(min);
+			}
+
+			if (max > 0 && Number(quantity.value) > max) {
+				quantity.value = String(max);
+			}
 		}
 
 		if (ticket && quantity) {

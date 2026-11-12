@@ -20,9 +20,11 @@ echo '<ul class="reevents-events-list ' . esc_attr( (string) ( $args['args']['cl
 $title_tag = (string) ( $args['args']['title_tag'] ?? 'a' );
 $title_tag = in_array( $title_tag, [ 'a', 'h2', 'h3', 'div' ], true ) ? $title_tag : 'a';
 $is_link   = ! isset( $args['args']['link'] ) || ! empty( $args['args']['link'] );
+$date_fmt  = (string) ( $args['args']['date_format'] ?? '' );
+$time_fmt  = (string) ( $args['args']['time_format'] ?? '' );
 
 foreach ( $args['events'] as $event ) {
-	$start_text = \ReEvents\Render\Event_Format::start( $event );
+	$start_text = \ReEvents\Render\Event_Format::start( $event, true, $date_fmt, $time_fmt );
 	$venue      = $event->venue_id ? get_the_title( $event->venue_id ) : '';
 	$summary    = $args['summaries'][ $event->id ] ?? [];
 	$permalink  = get_permalink( $event->id );
@@ -66,7 +68,7 @@ foreach ( $args['events'] as $event ) {
 	}
 
 	if ( ! empty( $args['args']['show_end'] ) && '' !== $event->end_utc && $event->end_utc !== $event->start_utc ) {
-		$end_text = \ReEvents\Render\Event_Format::end( $event );
+		$end_text = \ReEvents\Render\Event_Format::end( $event, true, $date_fmt, $time_fmt );
 
 		if ( '' !== $end_text ) {
 			echo '<span class="reevents-event-end">' . esc_html( (string) $end_text ) . '</span>';

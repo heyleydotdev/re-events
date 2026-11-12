@@ -21,39 +21,65 @@ final class Event_Format {
 	/**
 	 * Format the event start.
 	 *
-	 * @param Event $event        Event.
-	 * @param bool  $include_time Include the time.
+	 * @param Event  $event        Event.
+	 * @param bool   $include_time Include the time.
+	 * @param string $date_format  Date format override.
+	 * @param string $time_format  Time format override.
 	 */
-	public static function start( Event $event, bool $include_time = true ): string {
-		return self::format( $event->start_utc, $event->timezone, $event->all_day, $include_time );
+	public static function start( Event $event, bool $include_time = true, string $date_format = '', string $time_format = '' ): string {
+		return self::format( $event->start_utc, $event->timezone, $event->all_day, $include_time, $date_format, $time_format );
 	}
 
 	/**
 	 * Format the event end.
 	 *
-	 * @param Event $event        Event.
-	 * @param bool  $include_time Include the time.
+	 * @param Event  $event        Event.
+	 * @param bool   $include_time Include the time.
+	 * @param string $date_format  Date format override.
+	 * @param string $time_format  Time format override.
 	 */
-	public static function end( Event $event, bool $include_time = true ): string {
-		return self::format( $event->end_utc, $event->timezone, $event->all_day, $include_time );
+	public static function end( Event $event, bool $include_time = true, string $date_format = '', string $time_format = '' ): string {
+		return self::format( $event->end_utc, $event->timezone, $event->all_day, $include_time, $date_format, $time_format );
 	}
 
 	/**
 	 * Format only the start time. Empty for all-day events.
 	 *
-	 * @param Event $event Event.
+	 * @param Event  $event       Event.
+	 * @param string $time_format Time format override.
 	 */
-	public static function start_time( Event $event ): string {
-		return self::time( $event->start_utc, $event->timezone, $event->all_day );
+	public static function start_time( Event $event, string $time_format = '' ): string {
+		return self::time( $event->start_utc, $event->timezone, $event->all_day, $time_format );
 	}
 
 	/**
 	 * Format only the end time. Empty for all-day events.
 	 *
-	 * @param Event $event Event.
+	 * @param Event  $event       Event.
+	 * @param string $time_format Time format override.
 	 */
-	public static function end_time( Event $event ): string {
-		return self::time( $event->end_utc, $event->timezone, $event->all_day );
+	public static function end_time( Event $event, string $time_format = '' ): string {
+		return self::time( $event->end_utc, $event->timezone, $event->all_day, $time_format );
+	}
+
+	/**
+	 * Format an occurrence row start.
+	 *
+	 * @param array<string, mixed> $row         Occurrence row.
+	 * @param string               $date_format Date format override.
+	 * @param string               $time_format Time format override.
+	 */
+	public static function occurrence_start( array $row, string $date_format = '', string $time_format = '' ): string {
+		$event = new Event(
+			0,
+			'',
+			(string) ( $row['start_utc'] ?? '' ),
+			(string) ( $row['end_utc'] ?? '' ),
+			(string) ( $row['timezone'] ?? 'UTC' ),
+			! empty( $row['all_day'] )
+		);
+
+		return self::start( $event, true, $date_format, $time_format );
 	}
 
 	/**
@@ -78,8 +104,10 @@ final class Event_Format {
 	 * @param string $timezone     IANA timezone.
 	 * @param bool   $all_day      All-day flag.
 	 * @param bool   $include_time Include the time.
+	 * @param string $date_format  Date format override.
+	 * @param string $time_format  Time format override.
 	 */
-	private static function format( string $utc, string $timezone, bool $all_day, bool $include_time ): string {
+	private static function format( string $utc, string $timezone, bool $all_day, bool $include_time, string $date_format = '', string $time_format = '' ): string {
 		if ( '' === $utc ) {
 			return '';
 		}
@@ -90,10 +118,10 @@ final class Event_Format {
 			return '';
 		}
 
-		$format = self::date_format();
+		$format = '' !== $date_format ? $date_format : self::date_format();
 
 		if ( $include_time && ! $all_day ) {
-			$format .= ' ' . self::time_format();
+			$format .= ' ' . ( '' !== $time_format ? $time_format : self::time_format() );
 		}
 
 		$formatted = wp_date( $format, $date->getTimestamp(), Time_Display::timezone( $timezone ) );
@@ -106,9 +134,10 @@ final class Event_Format {
 	 *
 	 * @param string $utc      UTC datetime.
 	 * @param string $timezone IANA timezone.
-	 * @param bool   $all_day  All-day flag.
+	 * @param bool   $all_day     All-day flag.
+	 * @param string $time_format Time format override.
 	 */
-	private static function time( string $utc, string $timezone, bool $all_day ): string {
+	private static function time( string $utc, string $timezone, bool $all_day, string $time_format = '' ): string {
 		if ( '' === $utc || $all_day ) {
 			return '';
 		}
@@ -119,7 +148,7 @@ final class Event_Format {
 			return '';
 		}
 
-		$formatted = wp_date( self::time_format(), $date->getTimestamp(), Time_Display::timezone( $timezone ) );
+		$formatted = wp_date( '' !== $time_format ? $time_format : self::time_format(), $date->getTimestamp(), Time_Display::timezone( $timezone ) );
 
 		return false !== $formatted ? $formatted : '';
 	}
@@ -138,7 +167,7 @@ final class Event_Format {
 	/**
 	 * Configured date format.
 	 */
-	private static function date_format(): string {
+	public static function date_format(): string {
 		$settings = get_option( 'reevents_settings', [] );
 
 		return is_array( $settings ) && ! empty( $settings['date_format'] ) ? (string) $settings['date_format'] : (string) get_option( 'date_format' );
@@ -147,7 +176,7 @@ final class Event_Format {
 	/**
 	 * Configured time format.
 	 */
-	private static function time_format(): string {
+	public static function time_format(): string {
 		$settings = get_option( 'reevents_settings', [] );
 
 		return is_array( $settings ) && ! empty( $settings['time_format'] ) ? (string) $settings['time_format'] : (string) get_option( 'time_format' );

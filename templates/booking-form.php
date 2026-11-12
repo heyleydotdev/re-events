@@ -4,7 +4,7 @@
  *
  * @package ReEvents
  *
- * @var array{event_id:int,tickets:array<int, array<string, mixed>>,occurrences:array<int, array{id:int,label:string}>,state:array{status:string,reference:string,message:string},action:string,endpoint:string,args:array<string,mixed>} $args
+ * @var array{event_id:int,tickets:array<int, array<string, mixed>>,occurrences:array<int, array{id:int,label:string}>,selected_ticket:int,selected_occurrence:int,state:array{status:string,reference:string,message:string},action:string,endpoint:string,args:array<string,mixed>} $args
  */
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are scoped to the template include.
@@ -26,8 +26,19 @@ if ( 'error' === $state['status'] && '' !== $state['message'] ) {
 	echo '<p class="reevents-booking-error" role="alert">' . esc_html( $state['message'] ) . '</p>';
 }
 
+$max_quantity     = max( 0, (int) ( $widget_args['max_quantity'] ?? 0 ) );
+$default_quantity = max( 1, (int) ( $widget_args['default_quantity'] ?? 1 ) );
+$max_quantity     = $max_quantity > 0 ? $max_quantity : 0;
+$default_quantity = $max_quantity > 0 ? min( $default_quantity, $max_quantity ) : $default_quantity;
+$show_price       = ! isset( $widget_args['show_price'] ) || ! empty( $widget_args['show_price'] );
+
 echo '<div class="reevents-booking-wrapper ' . esc_attr( (string) ( $widget_args['wrapper_class'] ?? '' ) ) . '">';
-echo '<form class="reevents-booking-form ' . esc_attr( (string) ( $widget_args['class'] ?? '' ) ) . '" method="post" action="' . esc_url( $args['action'] ) . '" data-endpoint="' . esc_url( $args['endpoint'] ) . '" data-success-message="' . esc_attr( (string) ( $widget_args['success_message'] ?? __( 'Booking confirmed.', 're-events' ) ) ) . '" data-reference-label="' . esc_attr( (string) ( $widget_args['reference_label'] ?? __( 'Reference:', 're-events' ) ) ) . '">';
+
+if ( '' !== (string) ( $widget_args['heading'] ?? '' ) ) {
+	echo '<h2 class="reevents-booking-heading">' . esc_html( (string) $widget_args['heading'] ) . '</h2>';
+}
+
+echo '<form class="reevents-booking-form ' . esc_attr( (string) ( $widget_args['class'] ?? '' ) ) . '" method="post" action="' . esc_url( $args['action'] ) . '" data-endpoint="' . esc_url( $args['endpoint'] ) . '" data-success-message="' . esc_attr( (string) ( $widget_args['success_message'] ?? __( 'Booking confirmed.', 're-events' ) ) ) . '" data-reference-label="' . esc_attr( (string) ( $widget_args['reference_label'] ?? __( 'Reference:', 're-events' ) ) ) . '" data-max-quantity="' . esc_attr( (string) $max_quantity ) . '">';
 echo '<input type="hidden" name="action" value="reevents_book" />';
 echo '<input type="hidden" name="event_id" value="' . esc_attr( (string) $args['event_id'] ) . '" />';
 echo '<input type="hidden" name="booking_token" value="' . esc_attr( (string) $args['token'] ) . '" />';
@@ -46,7 +57,7 @@ if ( ! empty( $args['occurrences'] ) ) {
 	echo '<select id="reevents-booking-occurrence" name="occurrence_id" required>';
 
 	foreach ( $args['occurrences'] as $occurrence ) {
-		echo '<option value="' . esc_attr( (string) $occurrence['id'] ) . '">' . esc_html( $occurrence['label'] ) . '</option>';
+		echo '<option value="' . esc_attr( (string) $occurrence['id'] ) . '" ' . selected( $args['selected_occurrence'], (int) $occurrence['id'], false ) . '>' . esc_html( $occurrence['label'] ) . '</option>';
 	}
 
 	echo '</select>';
@@ -61,13 +72,13 @@ foreach ( $args['tickets'] as $ticket ) {
 	$price = (int) $ticket['price_minor'];
 	$label = (string) $ticket['name'];
 
-	if ( $price > 0 ) {
-		$label .= ' — ' . \ReEvents\Services\Currency::format( $price, (string) $ticket['currency'] );
-	} else {
-		$label .= ' — ' . (string) ( $widget_args['free_label'] ?? __( 'Free', 're-events' ) );
+	if ( $show_price ) {
+		$label .= ' — ' . ( $price > 0
+			? \ReEvents\Services\Currency::format( $price, (string) $ticket['currency'] )
+			: (string) ( $widget_args['free_label'] ?? __( 'Free', 're-events' ) ) );
 	}
 
-	echo '<option value="' . esc_attr( (string) $ticket['id'] ) . '" data-min="' . esc_attr( (string) $ticket['min_per_booking'] ) . '" data-max="' . esc_attr( (string) $ticket['max_per_booking'] ) . '">' . esc_html( $label ) . '</option>';
+	echo '<option value="' . esc_attr( (string) $ticket['id'] ) . '" ' . selected( $args['selected_ticket'], (int) $ticket['id'], false ) . ' data-min="' . esc_attr( (string) $ticket['min_per_booking'] ) . '" data-max="' . esc_attr( (string) $ticket['max_per_booking'] ) . '">' . esc_html( $label ) . '</option>';
 }
 
 echo '</select>';
@@ -75,7 +86,7 @@ echo '</p>';
 
 echo '<p class="reevents-booking-field">';
 echo '<label for="reevents-booking-quantity">' . esc_html( (string) ( $widget_args['quantity_label'] ?? __( 'Seats', 're-events' ) ) ) . '</label>';
-echo '<input type="number" id="reevents-booking-quantity" name="quantity" value="1" min="1" required />';
+echo '<input type="number" id="reevents-booking-quantity" name="quantity" value="' . esc_attr( (string) $default_quantity ) . '" min="1" ' . ( $max_quantity > 0 ? 'max="' . esc_attr( (string) $max_quantity ) . '" ' : '' ) . 'required />';
 echo '</p>';
 
 echo '<p class="reevents-booking-field">';

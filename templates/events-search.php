@@ -4,7 +4,7 @@
  *
  * @package ReEvents
  *
- * @var array{args: array<string, mixed>, filters: array{search:string,category:int,venue:int,from:string,to:string,upcoming:bool}, categories: array<int, array{id:int,name:string}>, venues: array<int, array{id:int,title:string}>, results: string, action: string} $args
+ * @var array{args: array<string, mixed>, filters: array{search:string,category:int,tag:string,venue:int,organizer:int,from:string,to:string,order:string,upcoming:bool}, categories: array<int, array{id:int,name:string}>, venues: array<int, array{id:int,title:string}>, tags: array<int, array{id:int,name:string}>, organizers: array<int, array{id:int,title:string}>, results: string, action: string} $args
  */
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are scoped to the template include.
@@ -13,11 +13,15 @@ $widget_args = $args['args'];
 $filters     = $args['filters'];
 $categories  = $args['categories'];
 $venues      = $args['venues'];
+$tags        = $args['tags'];
+$organizers  = $args['organizers'];
 $results     = $args['results'];
 $form_action = $args['action'];
 $has_filters = '' !== $filters['search']
 	|| $filters['category']
+	|| '' !== $filters['tag']
 	|| $filters['venue']
+	|| $filters['organizer']
 	|| '' !== $filters['from']
 	|| '' !== $filters['to']
 	|| $filters['upcoming'];
@@ -56,6 +60,44 @@ if ( ! empty( $widget_args['show_venue'] ) && ! empty( $venues ) ) {
 		echo '<option value="' . esc_attr( (string) $venue['id'] ) . '" ' . selected( $filters['venue'], $venue['id'], false ) . '>' . esc_html( $venue['title'] ) . '</option>';
 	}
 
+	echo '</select>';
+	echo '</p>';
+}
+
+if ( ! empty( $widget_args['show_tag'] ) && ! empty( $tags ) ) {
+	echo '<p class="reevents-search-field">';
+	echo '<label for="reevents-search-tag">' . esc_html( (string) ( $widget_args['tag_label'] ?? __( 'Tag', 're-events' ) ) ) . '</label>';
+	echo '<select id="reevents-search-tag" name="reevents_tag">';
+	echo '<option value="">' . esc_html( (string) ( $widget_args['all_tags_label'] ?? __( 'All tags', 're-events' ) ) ) . '</option>';
+
+	foreach ( $tags as $tag_term ) {
+		echo '<option value="' . esc_attr( (string) $tag_term['id'] ) . '" ' . selected( $filters['tag'], (string) $tag_term['id'], false ) . '>' . esc_html( $tag_term['name'] ) . '</option>';
+	}
+
+	echo '</select>';
+	echo '</p>';
+}
+
+if ( ! empty( $widget_args['show_organizer'] ) && ! empty( $organizers ) ) {
+	echo '<p class="reevents-search-field">';
+	echo '<label for="reevents-search-organizer">' . esc_html( (string) ( $widget_args['organizer_label'] ?? __( 'Organizer', 're-events' ) ) ) . '</label>';
+	echo '<select id="reevents-search-organizer" name="reevents_organizer">';
+	echo '<option value="0">' . esc_html( (string) ( $widget_args['all_organizers_label'] ?? __( 'All organizers', 're-events' ) ) ) . '</option>';
+
+	foreach ( $organizers as $organizer ) {
+		echo '<option value="' . esc_attr( (string) $organizer['id'] ) . '" ' . selected( $filters['organizer'], $organizer['id'], false ) . '>' . esc_html( $organizer['title'] ) . '</option>';
+	}
+
+	echo '</select>';
+	echo '</p>';
+}
+
+if ( ! empty( $widget_args['show_order'] ) ) {
+	echo '<p class="reevents-search-field">';
+	echo '<label for="reevents-search-order">' . esc_html( (string) ( $widget_args['order_label'] ?? __( 'Order', 're-events' ) ) ) . '</label>';
+	echo '<select id="reevents-search-order" name="reevents_order">';
+	echo '<option value="asc" ' . selected( $filters['order'], 'asc', false ) . '>' . esc_html__( 'Soonest first', 're-events' ) . '</option>';
+	echo '<option value="desc" ' . selected( $filters['order'], 'desc', false ) . '>' . esc_html__( 'Latest first', 're-events' ) . '</option>';
 	echo '</select>';
 	echo '</p>';
 }

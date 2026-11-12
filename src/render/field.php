@@ -10,11 +10,13 @@ declare( strict_types=1 );
 namespace ReEvents\Render;
 
 use ReEvents\Data\Event_Repository;
+use ReEvents\Data\Meta;
 use ReEvents\Data\Occurrence_Repository;
 use ReEvents\Data\Organizer_Repository;
 use ReEvents\Data\Ticket_Repository;
 use ReEvents\Data\Venue_Repository;
 use ReEvents\Domain\Event;
+use ReEvents\Query\Event_Query;
 use ReEvents\Services\Currency;
 
 /**
@@ -131,53 +133,73 @@ final class Field {
 	 */
 	public static function args(): array {
 		return [
-			'field'       => [
+			'field'          => [
 				'default'     => 'title',
 				'description' => __( 'One of the fields listed below.', 're-events' ),
 			],
-			'event'       => [
+			'event'          => [
 				'default'     => 0,
 				'description' => __( 'Event ID. `0` uses the current post.', 're-events' ),
 			],
-			'label'       => [
+			'label'          => [
 				'default'     => '',
 				'description' => __( 'Text shown before the value.', 're-events' ),
 			],
-			'link'        => [
+			'link'           => [
 				'default'     => false,
 				'description' => __( 'Wrap the value in a link where the field supports one.', 're-events' ),
 			],
-			'separator'   => [
+			'separator'      => [
 				'default'     => ', ',
 				'description' => __( 'Separator between list values.', 're-events' ),
 			],
-			'empty_label' => [
+			'empty_label'    => [
 				'default'     => '',
 				'description' => __( 'Text shown when the value is empty.', 're-events' ),
 			],
-			'class'       => [
+			'date_format'    => [
+				'default'     => Event_Format::date_format(),
+				'description' => __( 'Date format. Defaults to the site format.', 're-events' ),
+			],
+			'time_format'    => [
+				'default'     => Event_Format::time_format(),
+				'description' => __( 'Time format. Defaults to the site format.', 're-events' ),
+			],
+			'class'          => [
 				'default'     => '',
 				'description' => __( 'Extra classes on the wrapper.', 're-events' ),
 			],
-			'tag'         => [
+			'tag'            => [
 				'default'     => 'span',
 				'description' => __( 'Wrapper tag: `span`, `div` or `p`.', 're-events' ),
 			],
-			'size'        => [
+			'size'           => [
 				'default'     => 'large',
 				'description' => __( 'Image size for `image` and `image_url`.', 're-events' ),
 			],
-			'venue'       => [
+			'venue'          => [
 				'default'     => 0,
 				'description' => __( 'Venue ID. `current` uses the current venue.', 're-events' ),
 			],
-			'organizer'   => [
+			'organizer'      => [
 				'default'     => 0,
 				'description' => __( 'Organizer ID. `current` uses the current organizer.', 're-events' ),
 			],
-			'limit'       => [
+			'limit'          => [
 				'default'     => 10,
 				'description' => __( 'Maximum dates for the `occurrences` field.', 're-events' ),
+			],
+			'from'           => [
+				'default'     => '',
+				'description' => __( 'Earliest date for `occurrences`, Y-m-d.', 're-events' ),
+			],
+			'to'             => [
+				'default'     => '',
+				'description' => __( 'Latest date for `occurrences`, Y-m-d.', 're-events' ),
+			],
+			'excerpt_length' => [
+				'default'     => 0,
+				'description' => __( 'Excerpt word count. 0 uses the theme length.', 're-events' ),
 			],
 		];
 	}
@@ -252,7 +274,7 @@ final class Field {
 			return '';
 		}
 
-		$tag   = in_array( $args['tag'], [ 'span', 'div', 'p' ], true ) ? (string) $args['tag'] : 'span';
+		$tag   = in_array( $args['tag'], [ 'span', 'div', 'p', 'h2', 'h3', 'h4' ], true ) ? (string) $args['tag'] : 'span';
 		$class = trim( 'reevents-field reevents-field-' . $name . ' ' . (string) $args['class'] );
 		$label = '' !== (string) $args['label'] ? '<span class="reevents-field-label">' . esc_html( (string) $args['label'] ) . '</span> ' : '';
 
@@ -302,8 +324,10 @@ final class Field {
 	 * @param array<string, mixed> $args  Arguments.
 	 */
 	private static function event_value( string $name, Event $event, array $args ): string {
-		$link      = ! empty( $args['link'] );
-		$separator = esc_html( (string) $args['separator'] );
+		$link        = ! empty( $args['link'] );
+		$separator   = esc_html( (string) $args['separator'] );
+		$date_format = (string) ( $args['date_format'] ?? '' );
+		$time_format = (string) ( $args['time_format'] ?? '' );
 
 		switch ( $name ) {
 			case 'title':
@@ -313,22 +337,22 @@ final class Field {
 				return esc_url( (string) get_permalink( $event->id ) );
 
 			case 'start':
-				return esc_html( Event_Format::start( $event ) );
+				return esc_html( Event_Format::start( $event, true, $date_format, $time_format ) );
 
 			case 'end':
-				return esc_html( Event_Format::end( $event ) );
+				return esc_html( Event_Format::end( $event, true, $date_format, $time_format ) );
 
 			case 'start_date':
-				return esc_html( Event_Format::start( $event, false ) );
+				return esc_html( Event_Format::start( $event, false, $date_format ) );
 
 			case 'end_date':
-				return esc_html( Event_Format::end( $event, false ) );
+				return esc_html( Event_Format::end( $event, false, $date_format ) );
 
 			case 'start_time':
-				return esc_html( Event_Format::start_time( $event ) );
+				return esc_html( Event_Format::start_time( $event, $time_format ) );
 
 			case 'end_time':
-				return esc_html( Event_Format::end_time( $event ) );
+				return esc_html( Event_Format::end_time( $event, $time_format ) );
 
 			case 'timezone':
 				return esc_html( $event->timezone );
@@ -357,7 +381,14 @@ final class Field {
 				return self::terms( $event->id, 'reevents_event_tag', $separator, $link );
 
 			case 'excerpt':
-				return wp_kses_post( (string) get_the_excerpt( $event->id ) );
+				$excerpt = (string) get_the_excerpt( $event->id );
+				$length  = (int) ( $args['excerpt_length'] ?? 0 );
+
+				if ( $length > 0 ) {
+					$excerpt = wp_trim_words( $excerpt, $length, '…' );
+				}
+
+				return wp_kses_post( $excerpt );
 
 			case 'content':
 				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core content filter.
@@ -374,13 +405,13 @@ final class Field {
 				return self::tickets( $name, $event );
 
 			case 'occurrences':
-				return self::occurrences( $event, (int) ( $args['limit'] ?? 10 ), $separator );
+				return self::occurrences( $event, $args, $separator );
 
 			case 'venue_website':
 				return $event->venue_id ? esc_url( (string) get_post_meta( $event->venue_id, '_reevents_website', true ) ) : '';
 
 			case 'venue_map_link':
-				return $event->venue_id ? self::map_link( (string) get_post_meta( $event->venue_id, '_reevents_lat', true ), (string) get_post_meta( $event->venue_id, '_reevents_lng', true ) ) : '';
+				return $event->venue_id ? esc_url( self::map_link( (string) get_post_meta( $event->venue_id, '_reevents_lat', true ), (string) get_post_meta( $event->venue_id, '_reevents_lng', true ) ) ) : '';
 
 			case 'online_links':
 				return self::links( $event->online_urls, $separator );
@@ -436,7 +467,7 @@ final class Field {
 				return esc_html( (string) $venue['lng'] );
 
 			case 'map_link':
-				return self::map_link( (string) $venue['lat'], (string) $venue['lng'] );
+				return esc_url( self::map_link( (string) $venue['lat'], (string) $venue['lng'] ) );
 
 			case 'image':
 			case 'image_url':
@@ -494,7 +525,7 @@ final class Field {
 	 * @param string $lat Latitude.
 	 * @param string $lng Longitude.
 	 */
-	private static function map_link( string $lat, string $lng ): string {
+	public static function map_link( string $lat, string $lng ): string {
 		if ( ! is_numeric( $lat ) || ! is_numeric( $lng ) ) {
 			return '';
 		}
@@ -507,31 +538,46 @@ final class Field {
 			'https://www.openstreetmap.org/'
 		);
 
-		return esc_url( $url . '#map=16/' . rawurlencode( $lat ) . '/' . rawurlencode( $lng ) );
+		return $url . '#map=16/' . rawurlencode( $lat ) . '/' . rawurlencode( $lng );
 	}
 
 	/**
 	 * Join upcoming scheduled dates.
 	 *
-	 * @param Event  $event     Event.
-	 * @param int    $limit     Maximum dates.
-	 * @param string $separator Separator.
+	 * @param Event                $event     Event.
+	 * @param array<string, mixed> $args      Arguments.
+	 * @param string               $separator Separator.
 	 */
-	private static function occurrences( Event $event, int $limit, string $separator ): string {
-		$rows  = ( new Occurrence_Repository() )->get_all_for_event( $event->id );
-		$now   = current_time( 'mysql', true );
-		$limit = max( 1, min( 50, $limit ) );
-		$dates = [];
+	private static function occurrences( Event $event, array $args, string $separator ): string {
+		$rows        = ( new Occurrence_Repository() )->get_all_for_event( $event->id );
+		$now         = current_time( 'mysql', true );
+		$limit       = max( 1, min( 50, (int) ( $args['limit'] ?? 10 ) ) );
+		$date_format = (string) ( $args['date_format'] ?? '' );
+		$time_format = (string) ( $args['time_format'] ?? '' );
+		$from        = Meta::sanitize_date( (string) ( $args['from'] ?? '' ) );
+		$to          = Meta::sanitize_date( (string) ( $args['to'] ?? '' ) );
+		$from_utc    = '' !== $from ? Event_Query::utc_bound( $from, '00:00:00' ) : '';
+		$to_utc      = '' !== $to ? Event_Query::utc_bound( $to, '23:59:59' ) : '';
+		$dates       = [];
 
 		foreach ( $rows as $row ) {
 			$status = (string) ( $row['status'] ?? '' );
+			$start  = (string) ( $row['start_utc'] ?? '' );
 
-			if ( ( '' !== $status && 'scheduled' !== $status ) || (string) ( $row['start_utc'] ?? '' ) < $now ) {
+			if ( ( '' !== $status && 'scheduled' !== $status ) || $start < $now ) {
 				continue;
 			}
 
-			$occurrence = new Event( 0, '', (string) $row['start_utc'], (string) ( $row['end_utc'] ?? '' ), $event->timezone, $event->all_day );
-			$label      = Event_Format::start( $occurrence );
+			if ( '' !== $from_utc && $start < $from_utc ) {
+				continue;
+			}
+
+			if ( '' !== $to_utc && $start > $to_utc ) {
+				break;
+			}
+
+			$occurrence = new Event( 0, '', $start, (string) ( $row['end_utc'] ?? '' ), $event->timezone, $event->all_day );
+			$label      = Event_Format::start( $occurrence, true, $date_format, $time_format );
 
 			if ( '' !== $label ) {
 				$dates[] = esc_html( $label );

@@ -44,6 +44,16 @@ final class Widget_Registry {
 						'type'    => 'text',
 						'default' => '',
 					],
+					'date_format'     => [
+						'type'        => 'text',
+						'default'     => Event_Format::date_format(),
+						'description' => __( 'Date format. Defaults to the site format.', 're-events' ),
+					],
+					'time_format'     => [
+						'type'        => 'text',
+						'default'     => Event_Format::time_format(),
+						'description' => __( 'Time format. Defaults to the site format.', 're-events' ),
+					],
 					'empty_label'     => [
 						'type'    => 'text',
 						'default' => __( 'No events found.', 're-events' ),
@@ -223,6 +233,16 @@ final class Widget_Registry {
 						'type'    => 'text',
 						'default' => '',
 					],
+					'date_format'         => [
+						'type'        => 'text',
+						'default'     => Event_Format::date_format(),
+						'description' => __( 'Date format. Defaults to the site format.', 're-events' ),
+					],
+					'time_format'         => [
+						'type'        => 'text',
+						'default'     => Event_Format::time_format(),
+						'description' => __( 'Time format. Defaults to the site format.', 're-events' ),
+					],
 					'cancelled_label'     => [
 						'type'    => 'text',
 						'default' => __( 'Cancelled', 're-events' ),
@@ -285,6 +305,80 @@ final class Widget_Registry {
 						'default'     => __( 'Apple / iCal', 're-events' ),
 						'description' => __( 'Apple / iCal link label.', 're-events' ),
 					],
+					'show_image'          => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show the featured image.', 're-events' ),
+					],
+					'image_size'          => [
+						'type'        => 'text',
+						'default'     => 'large',
+						'description' => __( 'Registered image size.', 're-events' ),
+					],
+					'show_title'          => [
+						'type'    => 'toggle',
+						'default' => true,
+					],
+					'title_tag'           => [
+						'type'        => 'text',
+						'default'     => 'h2',
+						'description' => __( 'Title markup: h1, h2, h3 or div.', 're-events' ),
+					],
+					'show_status'         => [
+						'type'        => 'toggle',
+						'default'     => true,
+						'description' => __( 'Show the cancelled or ongoing badge.', 're-events' ),
+					],
+					'show_price'          => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show the lowest price or the free label.', 're-events' ),
+					],
+					'show_seats_left'     => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show the remaining seats.', 're-events' ),
+					],
+					'show_categories'     => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show event categories.', 're-events' ),
+					],
+					'show_tags'           => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show event tags.', 're-events' ),
+					],
+					'show_excerpt'        => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show the event excerpt.', 're-events' ),
+					],
+					'show_end'            => [
+						'type'        => 'toggle',
+						'default'     => true,
+						'description' => __( 'Show the end date and time.', 're-events' ),
+					],
+					'show_venue_address'  => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show the venue address.', 're-events' ),
+					],
+					'show_venue_map_link' => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show a map link for the venue.', 're-events' ),
+					],
+					'free_label'          => [
+						'type'        => 'text',
+						'default'     => __( 'Free', 're-events' ),
+						'description' => __( 'Price label for free events.', 're-events' ),
+					],
+					'sold_out_label'      => [
+						'type'        => 'text',
+						'default'     => __( 'Sold out', 're-events' ),
+						'description' => __( 'Label when no ticket has seats left.', 're-events' ),
+					],
 					'show_content'        => [
 						'type'    => 'toggle',
 						'default' => true,
@@ -334,6 +428,86 @@ final class Widget_Registry {
 					'show_description' => [
 						'type'    => 'toggle',
 						'default' => true,
+					],
+					'search'           => [
+						'type'        => 'text',
+						'default'     => '',
+						'description' => __( 'Free-text venue search.', 're-events' ),
+					],
+					'order'            => [
+						'type'        => 'text',
+						'default'     => 'asc',
+						'description' => __( 'Order: asc or desc.', 're-events' ),
+					],
+					'orderby'          => [
+						'type'        => 'text',
+						'default'     => 'title',
+						'description' => __( 'Order by title, date, modified, menu_order or ID.', 're-events' ),
+					],
+					'upcoming'         => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Only venues with an upcoming event.', 're-events' ),
+					],
+					'show_image'       => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show the featured image.', 're-events' ),
+					],
+					'image_size'       => [
+						'type'        => 'text',
+						'default'     => 'thumbnail',
+						'description' => __( 'Registered image size.', 're-events' ),
+					],
+					'show_address'     => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show the venue address.', 're-events' ),
+					],
+					'show_website'     => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show the venue website.', 're-events' ),
+					],
+					'show_map_link'    => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show a map link when coordinates exist.', 're-events' ),
+					],
+					'show_next_event'  => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show the next upcoming event.', 're-events' ),
+					],
+					'next_event_label' => [
+						'type'        => 'text',
+						'default'     => __( 'Next event:', 're-events' ),
+						'description' => __( 'Label before the next event link.', 're-events' ),
+					],
+					'excerpt_length'   => [
+						'type'        => 'number',
+						'default'     => 30,
+						'description' => __( 'Description word count. 0 shows the full description.', 're-events' ),
+					],
+					'title_tag'        => [
+						'type'        => 'text',
+						'default'     => 'a',
+						'description' => __( 'Title markup: a, h2, h3 or div.', 're-events' ),
+					],
+					'link'             => [
+						'type'        => 'toggle',
+						'default'     => true,
+						'description' => __( 'Link the title and image to the venue.', 're-events' ),
+					],
+					'date_format'      => [
+						'type'        => 'text',
+						'default'     => Event_Format::date_format(),
+						'description' => __( 'Date format for the next event. Defaults to the site format.', 're-events' ),
+					],
+					'time_format'      => [
+						'type'        => 'text',
+						'default'     => Event_Format::time_format(),
+						'description' => __( 'Time format for the next event. Defaults to the site format.', 're-events' ),
 					],
 				],
 			]
@@ -398,6 +572,31 @@ final class Widget_Registry {
 						'type'    => 'text',
 						'default' => __( 'All venues', 're-events' ),
 					],
+					'tag_label'            => [
+						'type'    => 'text',
+						'default' => __( 'Tag', 're-events' ),
+					],
+					'all_tags_label'       => [
+						'type'    => 'text',
+						'default' => __( 'All tags', 're-events' ),
+					],
+					'organizer_label'      => [
+						'type'    => 'text',
+						'default' => __( 'Organizer', 're-events' ),
+					],
+					'all_organizers_label' => [
+						'type'    => 'text',
+						'default' => __( 'All organizers', 're-events' ),
+					],
+					'order_label'          => [
+						'type'    => 'text',
+						'default' => __( 'Order', 're-events' ),
+					],
+					'order'                => [
+						'type'        => 'text',
+						'default'     => 'asc',
+						'description' => __( 'Result order: asc or desc.', 're-events' ),
+					],
 					'limit'                => [
 						'type'    => 'number',
 						'default' => 20,
@@ -426,6 +625,84 @@ final class Widget_Registry {
 						'type'    => 'toggle',
 						'default' => true,
 					],
+					'show_tag'             => [
+						'type'    => 'toggle',
+						'default' => false,
+					],
+					'show_organizer'       => [
+						'type'    => 'toggle',
+						'default' => false,
+					],
+					'show_order'           => [
+						'type'    => 'toggle',
+						'default' => false,
+					],
+					'paginate'             => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show pagination links below the results.', 're-events' ),
+					],
+					'pagination_key'       => [
+						'type'        => 'text',
+						'default'     => '',
+						'description' => __( 'Suffix for the results page URL argument when several searches share a page.', 're-events' ),
+					],
+					'show_image'           => [
+						'type'    => 'toggle',
+						'default' => false,
+					],
+					'image_size'           => [
+						'type'    => 'text',
+						'default' => 'thumbnail',
+					],
+					'show_price'           => [
+						'type'    => 'toggle',
+						'default' => false,
+					],
+					'show_excerpt'         => [
+						'type'    => 'toggle',
+						'default' => false,
+					],
+					'show_categories'      => [
+						'type'    => 'toggle',
+						'default' => false,
+					],
+					'show_tags'            => [
+						'type'    => 'toggle',
+						'default' => false,
+					],
+					'show_organizers'      => [
+						'type'    => 'toggle',
+						'default' => false,
+					],
+					'show_end'             => [
+						'type'    => 'toggle',
+						'default' => false,
+					],
+					'show_seats_left'      => [
+						'type'    => 'toggle',
+						'default' => false,
+					],
+					'show_cancelled'       => [
+						'type'    => 'toggle',
+						'default' => false,
+					],
+					'title_tag'            => [
+						'type'    => 'text',
+						'default' => 'a',
+					],
+					'link'                 => [
+						'type'    => 'toggle',
+						'default' => true,
+					],
+					'date_format'          => [
+						'type'    => 'text',
+						'default' => Event_Format::date_format(),
+					],
+					'time_format'          => [
+						'type'    => 'text',
+						'default' => Event_Format::time_format(),
+					],
 				],
 			]
 		);
@@ -437,29 +714,74 @@ final class Widget_Registry {
 				'shortcode' => 'reevents_calendar',
 				'renderer'  => [ Calendar::class, 'render' ],
 				'args'      => [
-					'class'         => [
+					'class'          => [
 						'type'    => 'text',
 						'default' => '',
 					],
-					'wrapper_class' => [
+					'wrapper_class'  => [
 						'type'    => 'text',
 						'default' => '',
 					],
-					'ongoing_label' => [
+					'ongoing_label'  => [
 						'type'    => 'text',
 						'default' => __( 'Ongoing', 're-events' ),
 					],
-					'weekdays'      => [
+					'weekdays'       => [
 						'type'        => 'text',
 						'label'       => __( 'Weekday labels', 're-events' ),
 						'default'     => __( 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 're-events' ),
 						'description' => __( 'Comma-separated, seven labels.', 're-events' ),
 					],
-					'month'         => [
+					'month'          => [
 						'type'    => 'text',
 						'default' => '',
 					],
-					'show_nav'      => [
+					'month_format'   => [
+						'type'        => 'text',
+						'default'     => 'F Y',
+						'description' => __( 'Month heading format.', 're-events' ),
+					],
+					'time_format'    => [
+						'type'        => 'text',
+						'default'     => Event_Format::time_format(),
+						'description' => __( 'Time format. Defaults to the site format.', 're-events' ),
+					],
+					'category'       => [
+						'type'        => 'text',
+						'default'     => '',
+						'description' => __( 'Category ID, or `current` on a category page.', 're-events' ),
+					],
+					'tag'            => [
+						'type'        => 'text',
+						'default'     => '',
+						'description' => __( 'Tag ID or slug.', 're-events' ),
+					],
+					'venue'          => [
+						'type'        => 'number',
+						'default'     => 0,
+						'description' => __( 'Venue ID, or `current` on a venue page.', 're-events' ),
+					],
+					'organizer'      => [
+						'type'        => 'number',
+						'default'     => 0,
+						'description' => __( 'Organizer ID, or `current` on an organizer page.', 're-events' ),
+					],
+					'show_cancelled' => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Include cancelled events with a cancelled style.', 're-events' ),
+					],
+					'show_today'     => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Mark today in the grid.', 're-events' ),
+					],
+					'week_start'     => [
+						'type'        => 'text',
+						'default'     => 'mon',
+						'description' => __( 'First weekday: mon or sun.', 're-events' ),
+					],
+					'show_nav'       => [
 						'type'    => 'toggle',
 						'default' => true,
 					],
@@ -474,25 +796,85 @@ final class Widget_Registry {
 				'shortcode' => 'reevents_map',
 				'renderer'  => [ Map::class, 'render' ],
 				'args'      => [
-					'class'         => [
+					'class'           => [
 						'type'    => 'text',
 						'default' => '',
 					],
-					'wrapper_class' => [
+					'wrapper_class'   => [
 						'type'    => 'text',
 						'default' => '',
 					],
-					'empty_label'   => [
+					'empty_label'     => [
 						'type'    => 'text',
 						'default' => __( 'No mapped venues.', 're-events' ),
 					],
-					'limit'         => [
+					'limit'           => [
 						'type'    => 'number',
 						'default' => 50,
 					],
-					'height'        => [
+					'height'          => [
 						'type'    => 'number',
 						'default' => 400,
+					],
+					'venue'           => [
+						'type'        => 'number',
+						'default'     => 0,
+						'description' => __( 'Venue ID.', 're-events' ),
+					],
+					'upcoming'        => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Only venues with an upcoming event.', 're-events' ),
+					],
+					'search'          => [
+						'type'        => 'text',
+						'default'     => '',
+						'description' => __( 'Free-text venue search.', 're-events' ),
+					],
+					'center'          => [
+						'type'        => 'text',
+						'default'     => '',
+						'description' => __( 'Map center as lat,lng.', 're-events' ),
+					],
+					'zoom'            => [
+						'type'        => 'number',
+						'default'     => 0,
+						'description' => __( 'Zoom level 1-19. 0 uses the default.', 're-events' ),
+					],
+					'fit'             => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Fit all markers in view.', 're-events' ),
+					],
+					'link'            => [
+						'type'        => 'toggle',
+						'default'     => true,
+						'description' => __( 'Link markers to the venue.', 're-events' ),
+					],
+					'provider'        => [
+						'type'        => 'text',
+						'default'     => '',
+						'description' => __( 'Map provider: osm or google. Empty uses the site setting.', 're-events' ),
+					],
+					'show_address'    => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show the venue address in the marker.', 're-events' ),
+					],
+					'show_next_event' => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show the next event in the marker.', 're-events' ),
+					],
+					'date_format'     => [
+						'type'        => 'text',
+						'default'     => Event_Format::date_format(),
+						'description' => __( 'Date format for the next event. Defaults to the site format.', 're-events' ),
+					],
+					'time_format'     => [
+						'type'        => 'text',
+						'default'     => Event_Format::time_format(),
+						'description' => __( 'Time format for the next event. Defaults to the site format.', 're-events' ),
 					],
 				],
 			]
@@ -518,6 +900,51 @@ final class Widget_Registry {
 						'default'     => '',
 						'placeholder' => __( 'my-booking-wrapper', 're-events' ),
 						'description' => __( 'Extra class on the wrapper element.', 're-events' ),
+					],
+					'date_format'       => [
+						'type'        => 'text',
+						'default'     => Event_Format::date_format(),
+						'description' => __( 'Date format in the time options. Defaults to the site format.', 're-events' ),
+					],
+					'time_format'       => [
+						'type'        => 'text',
+						'default'     => Event_Format::time_format(),
+						'description' => __( 'Time format in the time options. Defaults to the site format.', 're-events' ),
+					],
+					'heading'           => [
+						'type'        => 'text',
+						'default'     => '',
+						'description' => __( 'Optional heading above the form.', 're-events' ),
+					],
+					'show_price'        => [
+						'type'        => 'toggle',
+						'default'     => true,
+						'description' => __( 'Show the ticket price in the selector.', 're-events' ),
+					],
+					'default_quantity'  => [
+						'type'        => 'number',
+						'default'     => 1,
+						'description' => __( 'Initial seat count.', 're-events' ),
+					],
+					'max_quantity'      => [
+						'type'        => 'number',
+						'default'     => 0,
+						'description' => __( 'Maximum seats shown in the form. 0 uses the ticket limit. The ticket limit is still enforced on the server.', 're-events' ),
+					],
+					'ticket'            => [
+						'type'        => 'number',
+						'default'     => 0,
+						'description' => __( 'Ticket ID to preselect.', 're-events' ),
+					],
+					'occurrence'        => [
+						'type'        => 'number',
+						'default'     => 0,
+						'description' => __( 'Occurrence ID to preselect.', 're-events' ),
+					],
+					'hide_sold_out'     => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Hide tickets with no seats left.', 're-events' ),
 					],
 					'ticket_label'      => [
 						'type'        => 'text',

@@ -20,6 +20,40 @@ use ReEvents\Query\Event_Query;
 final class Events_List {
 
 	/**
+	 * Card arguments present in a widget argument list.
+	 *
+	 * @param array<string, mixed> $args Widget arguments.
+	 * @return array<string, mixed>
+	 */
+	public static function card_args( array $args ): array {
+		$keys = [
+			'show_image',
+			'image_size',
+			'show_price',
+			'show_excerpt',
+			'show_categories',
+			'show_tags',
+			'show_organizers',
+			'show_end',
+			'show_seats_left',
+			'show_cancelled',
+			'title_tag',
+			'link',
+			'date_format',
+			'time_format',
+		];
+		$card = [];
+
+		foreach ( $keys as $key ) {
+			if ( array_key_exists( $key, $args ) ) {
+				$card[ $key ] = $args[ $key ];
+			}
+		}
+
+		return $card;
+	}
+
+	/**
 	 * Render the events list.
 	 *
 	 * @param array<string, mixed> $args Widget arguments.
@@ -49,6 +83,18 @@ final class Events_List {
 
 			if ( self::has_query_key( 'reevents_venue_filter' ) ) {
 				$venue = absint( self::query_value( 'reevents_venue_filter' ) );
+			}
+
+			if ( self::has_query_key( 'reevents_tag' ) ) {
+				$tag = sanitize_text_field( self::query_value( 'reevents_tag' ) );
+			}
+
+			if ( self::has_query_key( 'reevents_organizer' ) ) {
+				$organizer = absint( self::query_value( 'reevents_organizer' ) );
+			}
+
+			if ( self::has_query_key( 'reevents_order' ) ) {
+				$order = 'desc' === strtolower( self::query_value( 'reevents_order' ) ) ? 'desc' : 'asc';
 			}
 
 			if ( self::has_query_key( 'reevents_from' ) ) {

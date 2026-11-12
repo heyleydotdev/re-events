@@ -4,12 +4,13 @@
  *
  * @package ReEvents
  *
- * @var array{month_label:string,prev_url:string,next_url:string,days:array<int, array{date:string,label:int,in_month:bool,events:array<int, array{title:string,url:string,time:string,ongoing:bool,cancelled:bool}>}>,args:array<string,mixed>} $args
+ * @var array{month_label:string,prev_url:string,next_url:string,days:array<int, array{date:string,label:int,in_month:bool,is_today:bool,events:array<int, array{title:string,url:string,time:string,ongoing:bool,cancelled:bool}>}>,args:array<string,mixed>} $args
  */
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are scoped to the template include.
 
-$weekdays = array_map( 'trim', explode( ',', (string) ( $args['args']['weekdays'] ?? '' ) ) );
+$weekdays_arg = (string) ( $args['args']['weekdays'] ?? '' );
+$weekdays     = array_map( 'trim', explode( ',', $weekdays_arg ) );
 
 if ( 7 !== count( $weekdays ) ) {
 	$weekdays = [
@@ -21,6 +22,10 @@ if ( 7 !== count( $weekdays ) ) {
 		__( 'Sat', 're-events' ),
 		__( 'Sun', 're-events' ),
 	];
+}
+
+if ( 'sun' === strtolower( (string) ( $args['args']['week_start'] ?? 'mon' ) ) && ( '' === $weekdays_arg || __( 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 're-events' ) === $weekdays_arg ) ) {
+	$weekdays = array_merge( [ (string) array_pop( $weekdays ) ], $weekdays );
 }
 
 echo '<div class="reevents-calendar-wrapper ' . esc_attr( (string) ( $args['args']['wrapper_class'] ?? '' ) ) . '">';
@@ -56,11 +61,15 @@ foreach ( array_chunk( $args['days'], 7 ) as $week ) {
 			$classes .= ' is-outside';
 		}
 
+		if ( ! empty( $day['is_today'] ) ) {
+			$classes .= ' is-today';
+		}
+
 		if ( ! empty( $day['events'] ) ) {
 			$classes .= ' has-events';
 		}
 
-		echo '<td class="' . esc_attr( $classes ) . '">';
+		echo '<td class="' . esc_attr( $classes ) . '"' . ( ! empty( $day['is_today'] ) ? ' aria-current="date"' : '' ) . '>';
 		echo '<span class="reevents-calendar-daynum">' . esc_html( (string) $day['label'] ) . '</span>';
 
 		if ( ! empty( $day['events'] ) ) {
