@@ -289,6 +289,69 @@ final class Bench {
 					return ob_get_clean();
 				},
 			],
+			'render_details'    => [
+				'budget_ms' => 400,
+				'budget_q'  => 20,
+				'run'       => static function () use ( $ids ) {
+					ob_start();
+					do_shortcode( '[reevents_event id="' . (int) $ids[0] . '" show_price="1" show_categories="1" show_tags="1"]' );
+
+					return ob_get_clean();
+				},
+			],
+			'render_venues'     => [
+				'budget_ms' => 600,
+				'budget_q'  => 50,
+				'run'       => static function () {
+					ob_start();
+					do_shortcode( '[reevents_venues limit="20" upcoming="1" show_next_event="1"]' );
+
+					return ob_get_clean();
+				},
+			],
+			'render_search'     => [
+				'budget_ms' => 600,
+				'budget_q'  => 50,
+				'run'       => static function () {
+					$_GET['reevents_search'] = 'Bench';
+					ob_start();
+					do_shortcode( '[reevents_search show_tag="1" show_organizer="1" show_results="1" limit="10"]' );
+					$output = ob_get_clean();
+					unset( $_GET['reevents_search'] );
+
+					return $output;
+				},
+			],
+			'render_calendar'   => [
+				'budget_ms' => 2000,
+				'budget_q'  => 20,
+				'run'       => static function () {
+					ob_start();
+					do_shortcode( '[reevents_calendar show_cancelled="1" show_today="1"]' );
+
+					return ob_get_clean();
+				},
+			],
+			'render_map'        => [
+				'budget_ms' => 600,
+				'budget_q'  => 30,
+				'run'       => static function () {
+					ob_start();
+					do_shortcode( '[reevents_map limit="50" show_next_event="1" show_address="1"]' );
+
+					return ob_get_clean();
+				},
+			],
+			'render_booking'    => [
+				'budget_ms' => 400,
+				'budget_q'  => 20,
+				'run'       => static function () use ( $ids ) {
+					ob_start();
+					do_shortcode( '[reevents_booking_form event="' . (int) $ids[0] . '"]' );
+
+					return ob_get_clean();
+				},
+			],
 			'sync_500'          => [
 				'budget_ms' => 2000,
 				'budget_q'  => 20,
