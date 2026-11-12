@@ -197,20 +197,22 @@ final class Occurrence_Repository {
 	 *
 	 * @param string $from_utc Start UTC.
 	 * @param string $to_utc   End UTC.
-	 * @param int    $limit    Maximum rows.
-	 * @param int    $offset   Offset.
+	 * @param int    $limit             Maximum rows.
+	 * @param int    $offset            Offset.
+	 * @param bool   $include_cancelled Include cancelled events.
 	 * @return array<int, array<string, mixed>>
 	 */
-	public function get_between( string $from_utc, string $to_utc, int $limit = 2000, int $offset = 0 ): array {
+	public function get_between( string $from_utc, string $to_utc, int $limit = 2000, int $offset = 0, bool $include_cancelled = false ): array {
 		global $wpdb;
 
-		$table = $this->table();
+		$table            = $this->table();
+		[ $join, $where ] = $this->status_filter( $include_cancelled );
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT o.* FROM {$table} o INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id
-				WHERE p.post_status = 'publish' AND o.status = 'scheduled' AND o.start_utc <= %s AND o.end_utc >= %s
+				"SELECT o.* FROM {$table} o INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id {$join}
+				WHERE p.post_status = 'publish' AND {$where} AND o.start_utc <= %s AND o.end_utc >= %s
 				ORDER BY o.start_utc ASC LIMIT %d OFFSET %d",
 				$to_utc,
 				$from_utc,
@@ -302,6 +304,93 @@ final class Occurrence_Repository {
 			"LEFT JOIN {$wpdb->postmeta} pm ON pm.post_id = o.event_id AND pm.meta_key = '_reevents_status'",
 			"( o.status = 'scheduled' OR ( o.status = 'cancelled' AND pm.meta_value = 'cancelled' ) )",
 		];
+	}
+
+	/**
+	 * Get venue IDs with a scheduled occurrence in a UTC date range.
+	 *
+	 * @param string $from_utc Start UTC.
+	 * @param string $to_utc   End UTC.
+	 * @return int[]
+	 */
+	public function venue_ids_with_upcoming( string $from_utc, string $to_utc ): array {
+		global $wpdb;
+
+		$table = $this->table();
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT pm.meta_value FROM {$table} o
+				INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id
+				INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = o.event_id AND pm.meta_key = '_reevents_venue_id'
+				WHERE p.post_status = 'publish' AND o.status = 'scheduled' AND o.start_utc <= %s AND o.end_utc >= %s",
+				$to_utc,
+				$from_utc
+			)
+		);
+		// phpcs:enable
+
+		return is_array( $ids ) ? array_values( array_unique( array_filter( array_map( 'intval', $ids ) ) ) ) : [];
+	}
+
+	/**
+	 * Next scheduled occurrence for each venue.
+	 *
+	 * @param int[]  $venue_ids Venue IDs.
+	 * @param string $from_utc  Start UTC.
+	 * @param int    $limit     Row cap.
+	 * @return array<int, array{event_id:int,start_utc:string,end_utc:string,timezone:string,all_day:bool}>
+	 */
+	public function next_events_for_venues( array $venue_ids, string $from_utc, int $limit = 1000 ): array {
+		global $wpdb;
+
+		$venue_ids = array_values( array_unique( array_filter( array_map( 'intval', $venue_ids ) ) ) );
+
+		if ( ! $venue_ids ) {
+			return [];
+		}
+
+		$table        = $this->table();
+		$placeholders = implode( ',', array_fill( 0, count( $venue_ids ), '%d' ) );
+		$args         = array_merge( [ $from_utc ], $venue_ids, [ max( 1, $limit ) ] );
+
+		// shortcut: one bounded row scan covers the page; a venue with a very dense recurrence can be missed when the cap is hit.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Internal table and generated placeholders.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT pm.meta_value AS venue_id, o.event_id, o.start_utc, o.end_utc, o.timezone, ad.meta_value AS all_day
+				FROM {$table} o
+				INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id
+				INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = o.event_id AND pm.meta_key = '_reevents_venue_id'
+				LEFT JOIN {$wpdb->postmeta} ad ON ad.post_id = o.event_id AND ad.meta_key = '_reevents_all_day'
+				WHERE p.post_status = 'publish' AND o.status = 'scheduled' AND o.start_utc >= %s AND pm.meta_value IN ({$placeholders})
+				ORDER BY o.start_utc ASC LIMIT %d",
+				...$args
+			),
+			ARRAY_A
+		);
+		// phpcs:enable
+
+		$next = [];
+
+		foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+			$venue_id = (int) ( $row['venue_id'] ?? 0 );
+
+			if ( ! $venue_id || isset( $next[ $venue_id ] ) ) {
+				continue;
+			}
+
+			$next[ $venue_id ] = [
+				'event_id'  => (int) ( $row['event_id'] ?? 0 ),
+				'start_utc' => (string) ( $row['start_utc'] ?? '' ),
+				'end_utc'   => (string) ( $row['end_utc'] ?? '' ),
+				'timezone'  => (string) ( $row['timezone'] ?? 'UTC' ),
+				'all_day'   => ! empty( $row['all_day'] ),
+			];
+		}
+
+		return $next;
 	}
 
 	/**

@@ -56,39 +56,15 @@ final class Event_Query {
 			$query_args['s'] = sanitize_text_field( (string) $args['search'] );
 		}
 
-		if ( ! empty( $args['category'] ) ) {
-			$query_args['tax_query'][] = [
-				'taxonomy' => 'reevents_event_category',
-				'field'    => 'term_id',
-				'terms'    => (int) $args['category'],
-			];
-		}
+		[ $tax_query, $meta_query ] = self::filter_queries(
+			(int) ( $args['category'] ?? 0 ),
+			(string) ( $args['tag'] ?? '' ),
+			(int) ( $args['venue'] ?? 0 ),
+			(int) ( $args['organizer'] ?? 0 )
+		);
 
-		if ( ! empty( $args['tag'] ) ) {
-			$tag                       = $args['tag'];
-			$query_args['tax_query'][] = [
-				'taxonomy' => 'reevents_event_tag',
-				'field'    => is_numeric( $tag ) ? 'term_id' : 'slug',
-				'terms'    => is_numeric( $tag ) ? (int) $tag : sanitize_title( (string) $tag ),
-			];
-		}
-
-		if ( ! empty( $args['venue'] ) ) {
-			$query_args['meta_query'][] = [
-				'key'   => '_reevents_venue_id',
-				'value' => (int) $args['venue'],
-				'type'  => 'NUMERIC',
-			];
-		}
-
-		if ( ! empty( $args['organizer'] ) ) {
-			// shortcut: organizers are a serialized meta array, so this is an unindexed LIKE scan. Move to an index table when organizer pages get traffic.
-			$query_args['meta_query'][] = [
-				'key'     => '_reevents_organizer_ids',
-				'value'   => 'i:' . (int) $args['organizer'] . ';',
-				'compare' => 'LIKE',
-			];
-		}
+		$query_args['tax_query']  = $tax_query;
+		$query_args['meta_query'] = $meta_query;
 
 		if ( '' !== $from || '' !== $to || $upcoming ) {
 			$now   = current_time( 'mysql', true );
@@ -163,12 +139,61 @@ final class Event_Query {
 	}
 
 	/**
+	 * Build the shared category, tag, venue and organizer filters.
+	 *
+	 * @param int    $category  Category ID.
+	 * @param string $tag       Tag ID or slug.
+	 * @param int    $venue     Venue ID.
+	 * @param int    $organizer Organizer ID.
+	 * @return array{0: array<int, array<string, mixed>>, 1: array<int, array<string, mixed>>}
+	 */
+	public static function filter_queries( int $category, string $tag, int $venue, int $organizer ): array {
+		$tax_query  = [];
+		$meta_query = [];
+
+		if ( $category ) {
+			$tax_query[] = [
+				'taxonomy' => 'reevents_event_category',
+				'field'    => 'term_id',
+				'terms'    => $category,
+			];
+		}
+
+		if ( '' !== $tag ) {
+			$tax_query[] = [
+				'taxonomy' => 'reevents_event_tag',
+				'field'    => is_numeric( $tag ) ? 'term_id' : 'slug',
+				'terms'    => is_numeric( $tag ) ? (int) $tag : sanitize_title( $tag ),
+			];
+		}
+
+		if ( $venue ) {
+			$meta_query[] = [
+				'key'   => '_reevents_venue_id',
+				'value' => $venue,
+				'type'  => 'NUMERIC',
+			];
+		}
+
+		if ( $organizer ) {
+			// shortcut: organizers are a serialized meta array, so this is an unindexed LIKE scan. Move to an index table when organizer pages get traffic.
+			$meta_query[] = [
+				'key'     => '_reevents_organizer_ids',
+				'value'   => 'i:' . $organizer . ';',
+				'compare' => 'LIKE',
+			];
+		}
+
+		return [ $tax_query, $meta_query ];
+	}
+
+	/**
 	 * Convert a site-local date and time to UTC.
 	 *
 	 * @param string $date Site-local date (Y-m-d).
 	 * @param string $time Site-local time (H:i:s).
 	 */
-	private static function utc_bound( string $date, string $time ): string {
+	public static function utc_bound( string $date, string $time ): string {
 		$local = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', $date . ' ' . $time, wp_timezone() );
 
 		if ( ! $local instanceof DateTimeImmutable ) {
