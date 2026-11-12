@@ -301,8 +301,9 @@ final class Payment_Service {
 			$updated = $repo->update(
 				$payment_id,
 				[
-					'status' => $full ? 'refunded' : 'succeeded',
-					'data'   => $data,
+					'status'         => $full ? 'refunded' : 'succeeded',
+					'refunded_minor' => $refunded,
+					'data'           => $data,
 				]
 			);
 

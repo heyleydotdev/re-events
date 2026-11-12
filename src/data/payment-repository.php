@@ -38,19 +38,20 @@ final class Payment_Repository {
 		$currency = Currency::sanitize_code( (string) ( $payment['currency'] ?? 'USD' ) );
 
 		$data = [
-			'booking_id'   => (int) ( $payment['booking_id'] ?? 0 ),
-			'gateway'      => sanitize_key( (string) ( $payment['gateway'] ?? '' ) ),
-			'gateway_ref'  => sanitize_text_field( (string) ( $payment['gateway_ref'] ?? '' ) ),
-			'status'       => sanitize_key( (string) ( $payment['status'] ?? 'pending' ) ),
-			'amount_minor' => max( 0, (int) ( $payment['amount_minor'] ?? 0 ) ),
-			'currency'     => $currency,
-			'data_json'    => wp_json_encode( (array) ( $payment['data'] ?? [] ) ),
-			'created_utc'  => (string) ( $payment['created_utc'] ?? current_time( 'mysql', true ) ),
-			'updated_utc'  => (string) ( $payment['updated_utc'] ?? current_time( 'mysql', true ) ),
+			'booking_id'     => (int) ( $payment['booking_id'] ?? 0 ),
+			'gateway'        => sanitize_key( (string) ( $payment['gateway'] ?? '' ) ),
+			'gateway_ref'    => sanitize_text_field( (string) ( $payment['gateway_ref'] ?? '' ) ),
+			'status'         => sanitize_key( (string) ( $payment['status'] ?? 'pending' ) ),
+			'amount_minor'   => max( 0, (int) ( $payment['amount_minor'] ?? 0 ) ),
+			'refunded_minor' => max( 0, (int) ( $payment['refunded_minor'] ?? 0 ) ),
+			'currency'       => $currency,
+			'data_json'      => wp_json_encode( (array) ( $payment['data'] ?? [] ) ),
+			'created_utc'    => (string) ( $payment['created_utc'] ?? current_time( 'mysql', true ) ),
+			'updated_utc'    => (string) ( $payment['updated_utc'] ?? current_time( 'mysql', true ) ),
 		];
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Payment storage.
-		$result = $wpdb->insert( $this->table(), $data, [ '%d', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s' ] );
+		$result = $wpdb->insert( $this->table(), $data, [ '%d', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%s' ] );
 
 		return false === $result ? new WP_Error( 'reevents_payment_save_failed', __( 'The payment could not be saved.', 're-events' ), [ 'status' => 500 ] ) : (int) $wpdb->insert_id;
 	}
@@ -150,6 +151,14 @@ final class Payment_Repository {
 
 		if ( isset( $data['data'] ) ) {
 			$fields['data_json'] = wp_json_encode( (array) $data['data'] );
+
+			if ( array_key_exists( 'refunded_minor', (array) $data['data'] ) && ! isset( $data['refunded_minor'] ) ) {
+				$fields['refunded_minor'] = max( 0, (int) $data['data']['refunded_minor'] );
+			}
+		}
+
+		if ( isset( $data['refunded_minor'] ) ) {
+			$fields['refunded_minor'] = max( 0, (int) $data['refunded_minor'] );
 		}
 
 		if ( ! $fields ) {
@@ -174,16 +183,17 @@ final class Payment_Repository {
 		$data = json_decode( (string) ( $row['data_json'] ?? '[]' ), true );
 
 		return [
-			'id'           => (int) ( $row['id'] ?? 0 ),
-			'booking_id'   => (int) ( $row['booking_id'] ?? 0 ),
-			'gateway'      => (string) ( $row['gateway'] ?? '' ),
-			'gateway_ref'  => (string) ( $row['gateway_ref'] ?? '' ),
-			'status'       => (string) ( $row['status'] ?? 'pending' ),
-			'amount_minor' => (int) ( $row['amount_minor'] ?? 0 ),
-			'currency'     => (string) ( $row['currency'] ?? 'USD' ),
-			'data'         => is_array( $data ) ? $data : [],
-			'created_utc'  => (string) ( $row['created_utc'] ?? '' ),
-			'updated_utc'  => (string) ( $row['updated_utc'] ?? '' ),
+			'id'             => (int) ( $row['id'] ?? 0 ),
+			'booking_id'     => (int) ( $row['booking_id'] ?? 0 ),
+			'gateway'        => (string) ( $row['gateway'] ?? '' ),
+			'gateway_ref'    => (string) ( $row['gateway_ref'] ?? '' ),
+			'status'         => (string) ( $row['status'] ?? 'pending' ),
+			'amount_minor'   => (int) ( $row['amount_minor'] ?? 0 ),
+			'refunded_minor' => (int) ( $row['refunded_minor'] ?? 0 ),
+			'currency'       => (string) ( $row['currency'] ?? 'USD' ),
+			'data'           => is_array( $data ) ? $data : [],
+			'created_utc'    => (string) ( $row['created_utc'] ?? '' ),
+			'updated_utc'    => (string) ( $row['updated_utc'] ?? '' ),
 		];
 	}
 }

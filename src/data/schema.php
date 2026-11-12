@@ -17,7 +17,7 @@ final class Schema {
 	/**
 	 * Schema version.
 	 */
-	public const VERSION = 5;
+	public const VERSION = 6;
 
 	/**
 	 * Schema version option.
@@ -47,6 +47,7 @@ final class Schema {
 			return;
 		}
 
+		self::backfill_refunds();
 		update_option( self::OPTION, self::VERSION );
 	}
 
@@ -66,6 +67,43 @@ final class Schema {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Copy refunded amounts from the old JSON payload into the new column.
+	 */
+	private static function backfill_refunds(): void {
+		global $wpdb;
+
+		$table   = $wpdb->prefix . 'reevents_payments';
+		$like    = '%' . $wpdb->esc_like( '"refunded_minor"' ) . '%';
+		$last_id = 0;
+
+		do {
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Install-time data migration.
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT id, data_json FROM {$table} WHERE id > %d AND data_json LIKE %s ORDER BY id ASC LIMIT 500",
+					$last_id,
+					$like
+				),
+				ARRAY_A
+			);
+			// phpcs:enable
+
+			foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+				$last_id  = max( $last_id, (int) ( $row['id'] ?? 0 ) );
+				$data     = json_decode( (string) ( $row['data_json'] ?? '[]' ), true );
+				$refunded = is_array( $data ) ? max( 0, (int) ( $data['refunded_minor'] ?? 0 ) ) : 0;
+
+				if ( $refunded > 0 ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Install-time data migration.
+					$wpdb->update( $table, [ 'refunded_minor' => $refunded ], [ 'id' => (int) $row['id'] ], [ '%d' ], [ '%d' ] );
+				}
+			}
+
+			$count = is_array( $rows ) ? count( $rows ) : 0;
+		} while ( 500 === $count );
 	}
 
 	/**
@@ -149,6 +187,7 @@ final class Schema {
 			KEY event_occurrence (event_id,occurrence_id),
 			KEY ticket_id (ticket_id),
 			KEY status (status),
+			KEY status_currency_created (status,currency,created_utc),
 			KEY user_id (user_id)
 		) {$charset};";
 
@@ -173,6 +212,7 @@ final class Schema {
 			gateway_ref varchar(191) NOT NULL DEFAULT '',
 			status varchar(20) NOT NULL DEFAULT 'pending',
 			amount_minor bigint(20) NOT NULL DEFAULT 0,
+			refunded_minor bigint(20) NOT NULL DEFAULT 0,
 			currency char(3) NOT NULL DEFAULT 'USD',
 			data_json longtext NULL,
 			created_utc datetime NOT NULL,
