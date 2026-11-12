@@ -56,6 +56,14 @@
 		"showNextEvent": {
 			"type": "boolean",
 			"default": false
+		},
+		"dateFormat": {
+			"type": "string",
+			"default": ""
+		},
+		"timeFormat": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"supports": {

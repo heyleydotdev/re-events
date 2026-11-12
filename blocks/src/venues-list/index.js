@@ -26,6 +26,8 @@ function Edit( { attributes, setAttributes } ) {
 		showWebsite,
 		showMapLink,
 		showNextEvent,
+		dateFormat,
+		timeFormat,
 		titleTag,
 		link,
 		paginate,
@@ -190,6 +192,30 @@ function Edit( { attributes, setAttributes } ) {
 						checked={ showNextEvent }
 						onChange={ ( value ) =>
 							setAttributes( { showNextEvent: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Date format', 're-events' ) }
+						value={ dateFormat }
+						placeholder="F j, Y"
+						help={ __(
+							'Leave empty to use the site format.',
+							're-events'
+						) }
+						onChange={ ( value ) =>
+							setAttributes( { dateFormat: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Time format', 're-events' ) }
+						value={ timeFormat }
+						placeholder="g:i a"
+						help={ __(
+							'Leave empty to use the site format.',
+							're-events'
+						) }
+						onChange={ ( value ) =>
+							setAttributes( { timeFormat: value } )
 						}
 					/>
 					<SelectControl

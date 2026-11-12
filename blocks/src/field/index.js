@@ -32,8 +32,19 @@ function fieldOptions( source ) {
 }
 
 function Edit( { attributes, setAttributes } ) {
-	const { source, field, id, label, link, separator, emptyLabel, tag, size } =
-		attributes;
+	const {
+		source,
+		field,
+		id,
+		label,
+		link,
+		separator,
+		emptyLabel,
+		tag,
+		size,
+		dateFormat,
+		timeFormat,
+	} = attributes;
 	const options = fieldOptions( source );
 
 	if ( field && ! options.some( ( option ) => option.value === field ) ) {
@@ -45,6 +56,15 @@ function Edit( { attributes, setAttributes } ) {
 	}
 
 	const isImage = 'image' === field || 'image_url' === field;
+	const isDateField = [
+		'start',
+		'end',
+		'start_date',
+		'end_date',
+		'start_time',
+		'end_time',
+		'occurrences',
+	].includes( field );
 
 	return (
 		<>
@@ -113,6 +133,9 @@ function Edit( { attributes, setAttributes } ) {
 								value: 'p',
 								label: __( 'Paragraph', 're-events' ),
 							},
+							{ value: 'h2', label: 'H2' },
+							{ value: 'h3', label: 'H3' },
+							{ value: 'h4', label: 'H4' },
 						] }
 						onChange={ ( value ) =>
 							setAttributes( { tag: value } )
@@ -126,6 +149,34 @@ function Edit( { attributes, setAttributes } ) {
 							setAttributes( { separator: value } )
 						}
 					/>
+					{ isDateField && (
+						<>
+							<TextControl
+								label={ __( 'Date format', 're-events' ) }
+								value={ dateFormat }
+								placeholder="F j, Y"
+								help={ __(
+									'Leave empty to use the site format.',
+									're-events'
+								) }
+								onChange={ ( value ) =>
+									setAttributes( { dateFormat: value } )
+								}
+							/>
+							<TextControl
+								label={ __( 'Time format', 're-events' ) }
+								value={ timeFormat }
+								placeholder="g:i a"
+								help={ __(
+									'Leave empty to use the site format.',
+									're-events'
+								) }
+								onChange={ ( value ) =>
+									setAttributes( { timeFormat: value } )
+								}
+							/>
+						</>
+					) }
 					<TextControl
 						label={ __( 'Empty text', 're-events' ) }
 						value={ emptyLabel }

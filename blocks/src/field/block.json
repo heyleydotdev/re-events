@@ -44,6 +44,14 @@
 		"size": {
 			"type": "string",
 			"default": "large"
+		},
+		"dateFormat": {
+			"type": "string",
+			"default": ""
+		},
+		"timeFormat": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"supports": {

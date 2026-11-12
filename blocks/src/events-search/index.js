@@ -28,6 +28,8 @@ function Edit( { attributes, setAttributes } ) {
 		paginationKey,
 		showImage,
 		imageSize,
+		dateFormat,
+		timeFormat,
 		showPrice,
 		showExcerpt,
 		showCategories,
@@ -183,6 +185,30 @@ function Edit( { attributes, setAttributes } ) {
 							}
 						/>
 					) }
+					<TextControl
+						label={ __( 'Date format', 're-events' ) }
+						value={ dateFormat }
+						placeholder="F j, Y"
+						help={ __(
+							'Leave empty to use the site format.',
+							're-events'
+						) }
+						onChange={ ( value ) =>
+							setAttributes( { dateFormat: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Time format', 're-events' ) }
+						value={ timeFormat }
+						placeholder="g:i a"
+						help={ __(
+							'Leave empty to use the site format.',
+							're-events'
+						) }
+						onChange={ ( value ) =>
+							setAttributes( { timeFormat: value } )
+						}
+					/>
 					<ToggleControl
 						label={ __( 'Show image', 're-events' ) }
 						checked={ showImage }

@@ -74,6 +74,9 @@ final class Blocks {
 			'useQuery'          => 'use_query',
 			'imageSize'         => 'image_size',
 			'showNav'           => 'show_nav',
+			'dateFormat'        => 'date_format',
+			'timeFormat'        => 'time_format',
+			'monthFormat'       => 'month_format',
 			'className'         => 'class',
 			'wrapperClass'      => 'wrapper_class',
 			'emptyLabel'        => 'empty_label',
@@ -182,6 +185,8 @@ final class Blocks {
 			'class'       => (string) ( $attributes['className'] ?? '' ),
 			'tag'         => sanitize_key( (string) ( $attributes['tag'] ?? 'span' ) ),
 			'size'        => sanitize_key( (string) ( $attributes['size'] ?? 'large' ) ),
+			'date_format' => (string) ( $attributes['dateFormat'] ?? '' ),
+			'time_format' => (string) ( $attributes['timeFormat'] ?? '' ),
 		];
 		$id      = (int) ( $attributes['id'] ?? 0 );
 
@@ -211,6 +216,8 @@ final class Blocks {
 			'button_label'    => 'buttonLabel',
 			'success_message' => 'successMessage',
 			'heading'         => 'heading',
+			'date_format'     => 'dateFormat',
+			'time_format'     => 'timeFormat',
 		] as $arg => $attribute ) {
 			if ( '' !== (string) ( $attributes[ $attribute ] ?? '' ) ) {
 				$args[ $arg ] = (string) $attributes[ $attribute ];

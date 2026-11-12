@@ -1,6 +1,11 @@
 import { registerBlockType } from '@wordpress/blocks';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
+import {
+	PanelBody,
+	SelectControl,
+	TextControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import ServerSideRender from '@wordpress/server-side-render';
@@ -15,6 +20,8 @@ function Edit( { attributes, setAttributes } ) {
 		showCancelled,
 		showToday,
 		weekStart,
+		monthFormat,
+		timeFormat,
 		showNav,
 	} = attributes;
 	const categories = useSelect(
@@ -161,6 +168,30 @@ function Edit( { attributes, setAttributes } ) {
 						] }
 						onChange={ ( value ) =>
 							setAttributes( { weekStart: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Month format', 're-events' ) }
+						value={ monthFormat }
+						placeholder="F Y"
+						help={ __(
+							'Leave empty to use the default month format.',
+							're-events'
+						) }
+						onChange={ ( value ) =>
+							setAttributes( { monthFormat: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Time format', 're-events' ) }
+						value={ timeFormat }
+						placeholder="g:i a"
+						help={ __(
+							'Leave empty to use the site format.',
+							're-events'
+						) }
+						onChange={ ( value ) =>
+							setAttributes( { timeFormat: value } )
 						}
 					/>
 					<ToggleControl

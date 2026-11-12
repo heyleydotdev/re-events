@@ -84,6 +84,14 @@
 		"showContent": {
 			"type": "boolean",
 			"default": true
+		},
+		"dateFormat": {
+			"type": "string",
+			"default": ""
+		},
+		"timeFormat": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"supports": {

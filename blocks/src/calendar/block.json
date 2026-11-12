@@ -40,6 +40,14 @@
 		"showNav": {
 			"type": "boolean",
 			"default": true
+		},
+		"monthFormat": {
+			"type": "string",
+			"default": ""
+		},
+		"timeFormat": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"supports": {

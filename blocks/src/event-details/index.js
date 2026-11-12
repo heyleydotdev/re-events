@@ -1,6 +1,11 @@
 import { registerBlockType } from '@wordpress/blocks';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
+import {
+	PanelBody,
+	SelectControl,
+	TextControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import ServerSideRender from '@wordpress/server-side-render';
@@ -24,6 +29,8 @@ function Edit( { attributes, setAttributes } ) {
 		showTags,
 		showExcerpt,
 		showEnd,
+		dateFormat,
+		timeFormat,
 		showOnlineLinks,
 		showCalendarLinks,
 		showContent,
@@ -126,6 +133,30 @@ function Edit( { attributes, setAttributes } ) {
 						checked={ showEnd }
 						onChange={ ( value ) =>
 							setAttributes( { showEnd: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Date format', 're-events' ) }
+						value={ dateFormat }
+						placeholder="F j, Y"
+						help={ __(
+							'Leave empty to use the site format.',
+							're-events'
+						) }
+						onChange={ ( value ) =>
+							setAttributes( { dateFormat: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Time format', 're-events' ) }
+						value={ timeFormat }
+						placeholder="g:i a"
+						help={ __(
+							'Leave empty to use the site format.',
+							're-events'
+						) }
+						onChange={ ( value ) =>
+							setAttributes( { timeFormat: value } )
 						}
 					/>
 					<ToggleControl

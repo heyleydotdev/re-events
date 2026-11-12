@@ -171,7 +171,7 @@ final class Field {
 			],
 			'tag'            => [
 				'default'     => 'span',
-				'description' => __( 'Wrapper tag: `span`, `div` or `p`.', 're-events' ),
+				'description' => __( 'Wrapper tag: `span`, `div`, `p`, `h2`, `h3` or `h4`.', 're-events' ),
 			],
 			'size'           => [
 				'default'     => 'large',

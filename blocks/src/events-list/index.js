@@ -24,6 +24,8 @@ function Edit( { attributes, setAttributes } ) {
 		order,
 		upcoming,
 		useQuery,
+		dateFormat,
+		timeFormat,
 		showImage,
 		imageSize,
 		showPrice,
@@ -270,6 +272,30 @@ function Edit( { attributes, setAttributes } ) {
 					title={ __( 'Card', 're-events' ) }
 					initialOpen={ false }
 				>
+					<TextControl
+						label={ __( 'Date format', 're-events' ) }
+						value={ dateFormat }
+						placeholder="F j, Y"
+						help={ __(
+							'Leave empty to use the site format.',
+							're-events'
+						) }
+						onChange={ ( value ) =>
+							setAttributes( { dateFormat: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Time format', 're-events' ) }
+						value={ timeFormat }
+						placeholder="g:i a"
+						help={ __(
+							'Leave empty to use the site format.',
+							're-events'
+						) }
+						onChange={ ( value ) =>
+							setAttributes( { timeFormat: value } )
+						}
+					/>
 					<ToggleControl
 						label={ __( 'Show image', 're-events' ) }
 						checked={ showImage }

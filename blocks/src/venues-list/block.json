@@ -76,6 +76,14 @@
 		"paginationKey": {
 			"type": "string",
 			"default": ""
+		},
+		"dateFormat": {
+			"type": "string",
+			"default": ""
+		},
+		"timeFormat": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"supports": {
