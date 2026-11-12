@@ -44,9 +44,23 @@ final class Help {
 			return;
 		}
 
-		$docs_file = RE_EVENTS_DIR . 'docs/_sidebar.md';
-		$docs_ver  = RE_EVENTS_VERSION . ( is_readable( $docs_file ) ? '.' . filemtime( $docs_file ) : '' );
-		$frame_url = add_query_arg( 'ver', $docs_ver, plugins_url( 'docs/index.html', RE_EVENTS_FILE ) );
+		$docs_version = RE_EVENTS_VERSION;
+		$docs_root    = RE_EVENTS_DIR . 'docs';
+
+		if ( is_dir( $docs_root ) ) {
+			$latest = 0;
+			$files  = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $docs_root, \FilesystemIterator::SKIP_DOTS ) );
+
+			foreach ( $files as $file ) {
+				if ( $file->isFile() && in_array( $file->getExtension(), [ 'md', 'html' ], true ) ) {
+					$latest = max( $latest, $file->getMTime() );
+				}
+			}
+
+			$docs_version .= '.' . $latest;
+		}
+
+		$frame_url = add_query_arg( 'ver', $docs_version, plugins_url( 'docs/index.html', RE_EVENTS_FILE ) );
 		?>
 		<div class="wrap">
 			<h1><?php esc_html_e( 'ReEvents Documentation', 're-events' ); ?></h1>
