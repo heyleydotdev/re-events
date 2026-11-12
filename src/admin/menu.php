@@ -97,9 +97,10 @@ final class Menu {
 			'edit-tags.php?taxonomy=reevents_organizer_type&post_type=reevents_organizer' => 5,
 			'reevents-bookings'                     => 6,
 			'reevents-attendees'                    => 7,
-			'reevents-settings'                     => 8,
-			'reevents-api-docs'                     => 9,
-			'reevents-help'                         => 10,
+			'reevents-statistics'                   => 8,
+			'reevents-settings'                     => 9,
+			'reevents-api-docs'                     => 10,
+			'reevents-help'                         => 11,
 		];
 
 		usort(
@@ -255,6 +256,11 @@ final class Menu {
 				'label' => __( 'Attendees', 're-events' ),
 				'count' => null,
 				'url'   => admin_url( 'admin.php?page=reevents-attendees' ),
+			];
+			$cards[] = [
+				'label' => __( 'Statistics', 're-events' ),
+				'count' => null,
+				'url'   => admin_url( 'admin.php?page=reevents-statistics' ),
 			];
 		}
 

@@ -22,6 +22,7 @@ use ReEvents\Admin\Meta_Boxes;
 use ReEvents\Admin\Notices;
 use ReEvents\Admin\Quick_View;
 use ReEvents\Admin\Settings;
+use ReEvents\Admin\Statistics;
 use ReEvents\Admin\Ticket_Editor;
 use ReEvents\Admin\Venue_Meta_Boxes;
 use ReEvents\CLI\Concurrency_Test;
@@ -91,6 +92,7 @@ final class Plugin {
 		API_Docs::register();
 		Attendees::register();
 		Bookings::register();
+		Statistics::register();
 		Export::register();
 		Help::register();
 		Notices::register();
