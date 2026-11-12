@@ -35,6 +35,15 @@ function Edit( { attributes, setAttributes } ) {
 	const { source, field, id, label, link, separator, emptyLabel, tag, size } =
 		attributes;
 	const options = fieldOptions( source );
+
+	if ( field && ! options.some( ( option ) => option.value === field ) ) {
+		options.unshift( { value: field, label: field } );
+	}
+
+	if ( ! options.length ) {
+		options.push( { value: 'title', label: __( 'Title', 're-events' ) } );
+	}
+
 	const isImage = 'image' === field || 'image_url' === field;
 
 	return (
