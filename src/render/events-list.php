@@ -29,12 +29,14 @@ final class Events_List {
 		$param     = Pagination::param( $args, 'reevents_page_', 'reevents_page' );
 		$page      = Pagination::page( $args, $param, $paginate );
 		$search    = (string) ( $args['search'] ?? '' );
-		$category  = (int) ( $args['category'] ?? 0 );
+		$category  = $args['category'] ?? 0;
+		$tag       = $args['tag'] ?? '';
 		$venue     = $args['venue'] ?? 0;
 		$organizer = $args['organizer'] ?? 0;
 		$from      = (string) ( $args['from'] ?? '' );
 		$to        = (string) ( $args['to'] ?? '' );
 		$upcoming  = ! empty( $args['upcoming'] );
+		$order     = (string) ( $args['order'] ?? 'asc' );
 
 		if ( ! empty( $args['use_query'] ) ) {
 			if ( self::has_query_key( 'reevents_search' ) ) {
@@ -70,23 +72,36 @@ final class Events_List {
 			$organizer = 'reevents_organizer' === get_post_type() ? (int) get_the_ID() : -1;
 		}
 
+		if ( 'current' === $category ) {
+			$term     = is_tax( 'reevents_event_category' ) ? get_queried_object() : null;
+			$category = $term instanceof \WP_Term ? (int) $term->term_id : -1;
+		}
+
 		$result = Event_Query::query(
 			[
-				'per_page'  => max( 1, (int) ( $args['limit'] ?? 5 ) ),
-				'page'      => $page,
-				'search'    => $search,
-				'category'  => $category,
-				'venue'     => (int) $venue,
-				'organizer' => (int) $organizer,
-				'upcoming'  => $upcoming,
-				'from'      => $from,
-				'to'        => $to,
+				'per_page'          => max( 1, (int) ( $args['limit'] ?? 5 ) ),
+				'page'              => $page,
+				'search'            => $search,
+				'category'          => (int) $category,
+				'tag'               => $tag,
+				'venue'             => (int) $venue,
+				'organizer'         => (int) $organizer,
+				'upcoming'          => $upcoming,
+				'from'              => $from,
+				'to'                => $to,
+				'order'             => $order,
+				'include_cancelled' => ! empty( $args['show_cancelled'] ),
 			]
 		);
 		$repo   = new Event_Repository();
 		$events = [];
 
 		foreach ( $repo->find_many( $result['ids'] ) as $event ) {
+			// shortcut: cancelled events are filtered after pagination, so a page can shrink when listing past events without dates.
+			if ( empty( $args['show_cancelled'] ) && 'cancelled' === $event->status ) {
+				continue;
+			}
+
 			$events[] = $event;
 		}
 
@@ -94,6 +109,22 @@ final class Events_List {
 
 		if ( $venue_ids ) {
 			_prime_post_caches( $venue_ids, false, true );
+		}
+
+		if ( ! empty( $args['show_organizers'] ) ) {
+			$organizer_ids = [];
+
+			foreach ( $events as $event ) {
+				foreach ( $event->organizer_ids as $organizer_id ) {
+					$organizer_ids[] = (int) $organizer_id;
+				}
+			}
+
+			$organizer_ids = array_values( array_unique( array_filter( $organizer_ids ) ) );
+
+			if ( $organizer_ids ) {
+				_prime_post_caches( $organizer_ids, false, false );
+			}
 		}
 
 		$event_ids = array_map( static fn( $event ): int => (int) $event->id, $events );
@@ -106,6 +137,10 @@ final class Events_List {
 
 		if ( $event_ids && ! empty( $args['show_categories'] ) ) {
 			update_object_term_cache( $event_ids, 'reevents_event_category' );
+		}
+
+		if ( $event_ids && ! empty( $args['show_tags'] ) ) {
+			update_object_term_cache( $event_ids, 'reevents_event_tag' );
 		}
 
 		$base_url = (string) remove_query_arg( [ $param, 'reevents_page' ] );

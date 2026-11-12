@@ -56,9 +56,20 @@ final class Widget_Registry {
 						'type'    => 'number',
 						'default' => 5,
 					],
+					'search'          => [
+						'type'        => 'text',
+						'default'     => '',
+						'description' => __( 'Free-text keyword search.', 're-events' ),
+					],
 					'category'        => [
-						'type'    => 'text',
-						'default' => '',
+						'type'        => 'text',
+						'default'     => '',
+						'description' => __( 'Category ID, or `current` on a category page.', 're-events' ),
+					],
+					'tag'             => [
+						'type'        => 'text',
+						'default'     => '',
+						'description' => __( 'Tag ID or slug.', 're-events' ),
 					],
 					'venue'           => [
 						'type'        => 'number',
@@ -69,6 +80,21 @@ final class Widget_Registry {
 						'type'        => 'number',
 						'default'     => 0,
 						'description' => __( 'Organizer ID, or `current` on an organizer page.', 're-events' ),
+					],
+					'from'            => [
+						'type'        => 'text',
+						'default'     => '',
+						'description' => __( 'Earliest start date, Y-m-d.', 're-events' ),
+					],
+					'to'              => [
+						'type'        => 'text',
+						'default'     => '',
+						'description' => __( 'Latest end date, Y-m-d.', 're-events' ),
+					],
+					'order'           => [
+						'type'        => 'text',
+						'default'     => 'asc',
+						'description' => __( 'Start date order: asc or desc.', 're-events' ),
 					],
 					'upcoming'        => [
 						'type'    => 'toggle',
@@ -82,6 +108,16 @@ final class Widget_Registry {
 					'show_venue'      => [
 						'type'    => 'toggle',
 						'default' => true,
+					],
+					'show_cancelled'  => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Include cancelled events and label them on the card.', 're-events' ),
+					],
+					'cancelled_label' => [
+						'type'        => 'text',
+						'default'     => __( 'Cancelled', 're-events' ),
+						'description' => __( 'Badge shown on cancelled events.', 're-events' ),
 					],
 					'page'            => [
 						'type'        => 'number',
@@ -122,6 +158,41 @@ final class Widget_Registry {
 						'type'        => 'toggle',
 						'default'     => false,
 						'description' => __( 'Show event categories.', 're-events' ),
+					],
+					'show_tags'       => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show event tags.', 're-events' ),
+					],
+					'show_organizers' => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show event organizer names.', 're-events' ),
+					],
+					'show_end'        => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show the end date and time.', 're-events' ),
+					],
+					'show_seats_left' => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Show the remaining seats.', 're-events' ),
+					],
+					'title_tag'       => [
+						'type'        => 'text',
+						'default'     => 'a',
+						'description' => __( 'Title markup: a, h2, h3 or div.', 're-events' ),
+					],
+					'link'            => [
+						'type'        => 'toggle',
+						'default'     => true,
+						'description' => __( 'Link the title and image to the event.', 're-events' ),
+					],
+					'excerpt_length'  => [
+						'type'        => 'number',
+						'default'     => 0,
+						'description' => __( 'Excerpt word count. 0 uses the theme length.', 're-events' ),
 					],
 					'free_label'      => [
 						'type'        => 'text',
@@ -546,7 +617,8 @@ final class Widget_Registry {
 			'class'                => [ __( 'CSS class', 're-events' ), __( 'Extra class on the widget.', 're-events' ), __( 'my-widget', 're-events' ) ],
 			'wrapper_class'        => [ __( 'Wrapper CSS class', 're-events' ), __( 'Extra class on the wrapper.', 're-events' ), __( 'my-wrapper', 're-events' ) ],
 			'limit'                => [ __( 'Limit', 're-events' ), __( 'Maximum number of items.', 're-events' ), '10' ],
-			'category'             => [ __( 'Category ID', 're-events' ), __( 'Limit to a category term ID.', 're-events' ), '12' ],
+			'category'             => [ __( 'Category ID', 're-events' ), __( 'Category term ID, or `current` on a category page.', 're-events' ), '12' ],
+			'tag'                  => [ __( 'Tag', 're-events' ), __( 'Tag term ID or slug.', 're-events' ), 'music' ],
 			'venue'                => [ __( 'Venue ID', 're-events' ), __( 'Limit to a venue ID.', 're-events' ), '34' ],
 			'upcoming'             => [ __( 'Only upcoming', 're-events' ), __( 'Show upcoming events only.', 're-events' ), '' ],
 			'show_venue'           => [ __( 'Show venue', 're-events' ), __( 'Display the venue name.', 're-events' ), '' ],
@@ -592,7 +664,7 @@ final class Widget_Registry {
 				}
 
 				$arg['label']       = $meta[ $key ][0];
-				$arg['description'] = $meta[ $key ][1];
+				$arg['description'] = $arg['description'] ?? $meta[ $key ][1];
 
 				if ( 'text' === ( $arg['type'] ?? '' ) && '' !== $meta[ $key ][2] ) {
 					$arg['placeholder'] = $meta[ $key ][2];
