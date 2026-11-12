@@ -702,6 +702,82 @@ final class Field_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Date fields honor the widget formats.
+	 */
+	public function test_date_format(): void {
+		$id = $this->event();
+
+		$html = Field::render(
+			[
+				'field'       => 'start',
+				'event'       => $id,
+				'date_format' => 'Y/m/d',
+				'time_format' => 'H:i',
+			]
+		);
+
+		self::assertStringContainsString( '2027/03/04 18:30', $html );
+	}
+
+	/**
+	 * Heading tags and excerpt length apply.
+	 */
+	public function test_heading_and_excerpt_length(): void {
+		$id = $this->event();
+
+		wp_update_post(
+			[
+				'ID'           => $id,
+				'post_excerpt' => 'one two three four',
+			]
+		);
+
+		self::assertStringContainsString(
+			'<h2 class="reevents-field reevents-field-title',
+			Field::render(
+				[
+					'field' => 'title',
+					'event' => $id,
+					'tag'   => 'h2',
+				]
+			)
+		);
+
+		$html = Field::render(
+			[
+				'field'          => 'excerpt',
+				'event'          => $id,
+				'excerpt_length' => 2,
+			]
+		);
+
+		self::assertStringContainsString( 'one two', $html );
+		self::assertStringNotContainsString( 'three', $html );
+	}
+
+	/**
+	 * Occurrence dates honor a range and format.
+	 */
+	public function test_occurrence_range(): void {
+		$id = $this->event( [ '_reevents_rrule' => 'FREQ=WEEKLY' ] );
+		\ReEvents\Services\Occurrence_Service::sync( $id );
+
+		$html = Field::render(
+			[
+				'field'       => 'occurrences',
+				'event'       => $id,
+				'from'        => '2027-03-01',
+				'to'          => '2027-03-10',
+				'date_format' => 'Y/m/d',
+				'time_format' => 'H:i',
+			]
+		);
+
+		self::assertStringContainsString( '2027/03/04', $html );
+		self::assertStringNotContainsString( '2027/03/11', $html );
+	}
+
+	/**
 	 * The shortcode is registered.
 	 */
 	public function test_shortcode(): void {

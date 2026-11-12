@@ -1025,6 +1025,36 @@ final class Events_List_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Card dates honor the widget formats.
+	 */
+	public function test_date_format(): void {
+		$title = 'Format event ' . wp_generate_uuid4();
+		Test_Factory::event(
+			[
+				'title' => $title,
+				'meta'  => [
+					'_reevents_start_utc' => '2027-06-01 10:00:00',
+					'_reevents_end_utc'   => '2027-06-01 11:00:00',
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_status'    => 'scheduled',
+				],
+			]
+		);
+
+		$html = Events_List::render(
+			[
+				'limit'       => 5,
+				'upcoming'    => false,
+				'search'      => $title,
+				'date_format' => 'Y/m/d',
+				'time_format' => 'H:i',
+			]
+		);
+
+		self::assertStringContainsString( '2027/06/01 10:00', $html );
+	}
+
+	/**
 	 * Clear pagination query arguments.
 	 */
 	public function tear_down(): void {

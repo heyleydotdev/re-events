@@ -51,6 +51,28 @@ final class Blocks_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Every camelCase block attribute maps to a renderer argument.
+	 */
+	public function test_block_attributes_are_mapped(): void {
+		$map    = Blocks::attribute_map();
+		$blocks = [ 'events-list', 'event-details', 'venues-list', 'events-search', 'calendar', 'map' ];
+
+		foreach ( $blocks as $block ) {
+			$file = RE_EVENTS_DIR . 'blocks/src/' . $block . '/block.json';
+			self::assertFileExists( $file );
+
+			$data = wp_json_file_decode( $file, [ 'associative' => true ] );
+			self::assertIsArray( $data );
+
+			foreach ( array_keys( (array) ( $data['attributes'] ?? [] ) ) as $attribute ) {
+				if ( preg_match( '/[A-Z]/', $attribute ) ) {
+					self::assertArrayHasKey( $attribute, $map, $block . ':' . $attribute );
+				}
+			}
+		}
+	}
+
+	/**
 	 * The field block renders a single value.
 	 */
 	public function test_render_field(): void {
