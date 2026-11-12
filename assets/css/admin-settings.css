@@ -35,6 +35,10 @@
 	margin-top: 2rem;
 }
 
+.reevents-email-notices {
+	margin-top: 12px;
+}
+
 .reevents-api-key-form p,
 .reevents-api-key-copy {
 	display: flex;

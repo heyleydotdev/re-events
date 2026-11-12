@@ -90,6 +90,36 @@ final class Settings_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Email sender and recipient fields are sanitized.
+	 */
+	public function test_email_sender_settings_are_sanitized(): void {
+		$settings = Settings::sanitize(
+			[
+				'reevents_tab'           => 'emails',
+				'email_admin_recipients' => 'one@example.com, bad, two@example.com',
+				'email_from_name'        => 'ReEvents',
+				'email_from_address'     => 'events@example.com',
+				'email_reply_to'         => 'reply@example.com',
+			]
+		);
+
+		self::assertSame( 'one@example.com, two@example.com', $settings['email_admin_recipients'] );
+		self::assertSame( 'events@example.com', $settings['email_from_address'] );
+		self::assertSame( 'reply@example.com', $settings['email_reply_to'] );
+
+		$invalid = Settings::sanitize(
+			[
+				'reevents_tab'       => 'emails',
+				'email_from_address' => 'not an email',
+				'email_reply_to'     => 'not an email',
+			]
+		);
+
+		self::assertSame( '', $invalid['email_from_address'] );
+		self::assertSame( '', $invalid['email_reply_to'] );
+	}
+
+	/**
 	 * Checkbox attendee fields are accepted and required.
 	 */
 	public function test_checkbox_attendee_field(): void {

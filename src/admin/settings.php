@@ -13,6 +13,7 @@ use ReEvents\Data\Meta;
 use ReEvents\Services\API_Keys;
 use ReEvents\Services\Booking_Emails;
 use ReEvents\Services\Currency;
+use ReEvents\Services\Email_Design;
 use ReEvents\Services\Occurrence_Service;
 
 /**
@@ -24,11 +25,6 @@ final class Settings {
 	 * Option name.
 	 */
 	private const OPTION = 'reevents_settings';
-
-	/**
-	 * Placeholders available in mail templates.
-	 */
-	public const PLACEHOLDERS = [ '{event}', '{date}', '{venue}', '{reference}', '{name}', '{email}', '{quantity}', '{total}', '{site}', '{status}' ];
 
 	/**
 	 * Hook into WordPress.
@@ -325,27 +321,94 @@ final class Settings {
 			'payments_paypal'
 		);
 
+		self::add_section( 'emails', __( 'Sender and recipients', 're-events' ), 'emails_sender' );
+		self::add_field(
+			'emails',
+			'email_admin_recipients',
+			__( 'Admin recipients', 're-events' ),
+			[
+				'type'        => 'text',
+				'description' => __( 'Comma-separated addresses for booking notifications. Falls back to the site admin email.', 're-events' ),
+			],
+			'emails_sender'
+		);
+		self::add_field(
+			'emails',
+			'email_from_name',
+			__( 'From name', 're-events' ),
+			[
+				'type'        => 'text',
+				'description' => __( 'Sender name on plugin mail. Leave empty to use the WordPress default.', 're-events' ),
+			],
+			'emails_sender'
+		);
+		self::add_field(
+			'emails',
+			'email_from_address',
+			__( 'From address', 're-events' ),
+			[
+				'type'        => 'email',
+				'description' => __( 'Sender address on plugin mail. Leave empty to use the WordPress default.', 're-events' ),
+			],
+			'emails_sender'
+		);
+		self::add_field(
+			'emails',
+			'email_reply_to',
+			__( 'Reply-To', 're-events' ),
+			[
+				'type'        => 'email',
+				'description' => __( 'Optional reply address for plugin mail.', 're-events' ),
+			],
+			'emails_sender'
+		);
+
+		$placeholder_list = implode( ', ', Booking_Emails::tokens() );
+		$email_defaults   = self::defaults();
+
 		self::add_section( 'emails', __( 'Admin mail', 're-events' ), 'emails_admin' );
-		self::add_field( 'emails', 'email_admin_subject', __( 'Subject', 're-events' ), [ 'description' => __( 'Placeholders: {event}, {date}, {venue}, {reference}, {name}, {email}, {quantity}, {total}, {site}, {status}.', 're-events' ) ], 'emails_admin' );
+		self::add_field(
+			'emails',
+			'email_admin_subject',
+			__( 'Subject', 're-events' ),
+			[
+				'default'     => $email_defaults['email_admin_subject'],
+				'description' => sprintf( /* translators: %s: placeholder tokens. */ __( 'Placeholders: %s.', 're-events' ), $placeholder_list ),
+			],
+			'emails_admin'
+		);
 		self::add_field(
 			'emails',
 			'email_admin_body',
 			__( 'Body', 're-events' ),
 			[
-				'type'    => 'textarea',
-				'palette' => true,
+				'type'        => 'textarea',
+				'default'     => $email_defaults['email_admin_body'],
+				'palette'     => true,
+				'description' => __( 'The booking details are appended automatically.', 're-events' ),
 			],
 			'emails_admin'
 		);
 		self::add_section( 'emails', __( 'Attendee mail', 're-events' ), 'emails_attendee' );
-		self::add_field( 'emails', 'email_attendee_subject', __( 'Subject', 're-events' ), [ 'description' => __( 'Same placeholders as the admin mail.', 're-events' ) ], 'emails_attendee' );
+		self::add_field(
+			'emails',
+			'email_attendee_subject',
+			__( 'Subject', 're-events' ),
+			[
+				'default'     => $email_defaults['email_attendee_subject'],
+				'description' => __( 'Same placeholders as the admin mail.', 're-events' ),
+			],
+			'emails_attendee'
+		);
 		self::add_field(
 			'emails',
 			'email_attendee_body',
 			__( 'Body', 're-events' ),
 			[
-				'type'    => 'textarea',
-				'palette' => true,
+				'type'        => 'textarea',
+				'default'     => $email_defaults['email_attendee_body'],
+				'palette'     => true,
+				'description' => __( 'The booking details are appended automatically.', 're-events' ),
 			],
 			'emails_attendee'
 		);
@@ -535,6 +598,8 @@ final class Settings {
 	 * Render the mail test result notice.
 	 */
 	private static function render_email_notice(): void {
+		echo '<div class="reevents-email-notices">';
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice.
 		$notice = isset( $_GET['reevents_notice'] ) ? sanitize_key( wp_unslash( $_GET['reevents_notice'] ) ) : '';
 
@@ -543,30 +608,82 @@ final class Settings {
 		} elseif ( 'test_failed' === $notice ) {
 			echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'The test email could not be sent. Check your site mail configuration.', 're-events' ) . '</p></div>';
 		}
+
+		$designer = Email_Design::detected();
+
+		if ( $designer && 'plain' === Email_Design::format() ) {
+			echo '<div class="notice notice-info inline"><p>';
+			printf(
+				/* translators: %s: email plugin name. */
+				esc_html__( 'A site-wide email designer is active: %s. ReEvents sends plain text and lets it add the header and footer.', 're-events' ),
+				esc_html( $designer )
+			);
+			echo ' <a href="' . esc_url( admin_url( 'plugins.php' ) ) . '">' . esc_html__( 'Manage plugins', 're-events' ) . '</a>';
+			echo '</p></div>';
+		} else {
+			echo '<div class="notice notice-info inline"><p>' . esc_html__( 'ReEvents sends HTML email with a plain-text alternative.', 're-events' ) . '</p></div>';
+		}
+
+		echo '</div>';
 	}
 
 	/**
 	 * Render the test email form.
 	 */
 	private static function render_test_email(): void {
+		$events = get_posts(
+			[
+				'post_type'      => 'reevents_event',
+				'post_status'    => 'any',
+				'posts_per_page' => 50,
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+				'no_found_rows'  => true,
+			]
+		);
 		?>
 		<h2><?php esc_html_e( 'Send a test', 're-events' ); ?></h2>
 		<p class="description"><?php esc_html_e( 'Sends the saved template with sample values to the address below.', 're-events' ); ?></p>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
 			<input type="hidden" name="action" value="reevents_send_test_email" />
 			<?php wp_nonce_field( 'reevents_send_test_email' ); ?>
-			<p>
-				<label for="reevents-test-type"><?php esc_html_e( 'Template', 're-events' ); ?></label>
-				<select id="reevents-test-type" name="type">
-					<option value="admin"><?php esc_html_e( 'Admin mail', 're-events' ); ?></option>
-					<option value="attendee"><?php esc_html_e( 'Attendee mail', 're-events' ); ?></option>
-				</select>
+			<table class="form-table" role="presentation">
+				<tr>
+					<th scope="row"><label for="reevents-test-type"><?php esc_html_e( 'Template', 're-events' ); ?></label></th>
+					<td>
+						<select id="reevents-test-type" name="type">
+							<option value="admin"><?php esc_html_e( 'Admin mail', 're-events' ); ?></option>
+							<option value="attendee"><?php esc_html_e( 'Attendee mail', 're-events' ); ?></option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="reevents-test-event"><?php esc_html_e( 'Event', 're-events' ); ?></label></th>
+					<td>
+						<select id="reevents-test-event" name="event" aria-describedby="reevents-test-event-help">
+							<option value="0"><?php esc_html_e( 'Global templates (sample data)', 're-events' ); ?></option>
+							<?php if ( $events ) : ?>
+								<optgroup label="<?php esc_attr_e( 'Event overrides', 're-events' ); ?>">
+									<?php foreach ( $events as $event ) : ?>
+										<option value="<?php echo esc_attr( (string) $event->ID ); ?>"><?php echo esc_html( get_the_title( $event ) ); ?></option>
+									<?php endforeach; ?>
+								</optgroup>
+							<?php endif; ?>
+						</select>
+						<p class="description" id="reevents-test-event-help"><?php esc_html_e( 'Global templates use sample data. Pick an event to test its overrides.', 're-events' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="reevents-test-email"><?php esc_html_e( 'Recipient', 're-events' ); ?></label></th>
+					<td>
+						<input type="email" id="reevents-test-email" name="email" class="regular-text" value="<?php echo esc_attr( (string) get_option( 'admin_email' ) ); ?>" />
+					</td>
+				</tr>
+			</table>
+			<p class="submit" style="text-align:right;">
+				<?php submit_button( __( 'Send test email', 're-events' ), 'secondary', 'reevents-test-submit', false ); ?>
+				<?php submit_button( __( 'Preview', 're-events' ), 'secondary', 'preview', false ); ?>
 			</p>
-			<p>
-				<label for="reevents-test-email"><?php esc_html_e( 'Recipient', 're-events' ); ?></label>
-				<input type="email" id="reevents-test-email" name="email" class="regular-text" value="<?php echo esc_attr( (string) get_option( 'admin_email' ) ); ?>" required />
-			</p>
-			<?php submit_button( __( 'Send test email', 're-events' ), 'secondary', 'reevents-test-submit', false ); ?>
 		</form>
 		<?php
 	}
@@ -581,14 +698,21 @@ final class Settings {
 
 		check_admin_referer( 'reevents_send_test_email' );
 
-		$type  = isset( $_POST['type'] ) ? sanitize_key( wp_unslash( $_POST['type'] ) ) : 'admin';
+		$type     = isset( $_POST['type'] ) ? sanitize_key( wp_unslash( $_POST['type'] ) ) : 'admin';
+		$event_id = isset( $_POST['event'] ) ? absint( wp_unslash( $_POST['event'] ) ) : 0;
+
+		if ( isset( $_POST['preview'] ) ) {
+			self::render_preview( $type, $event_id );
+			exit;
+		}
+
 		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
 
 		if ( ! is_email( $email ) ) {
 			wp_die( esc_html__( 'Enter a valid email address.', 're-events' ), 400 );
 		}
 
-		$sent = Booking_Emails::send_test( $type, $email );
+		$sent = Booking_Emails::send_test( $type, $email, $event_id );
 
 		wp_safe_redirect(
 			add_query_arg(
@@ -598,6 +722,45 @@ final class Settings {
 			)
 		);
 		exit;
+	}
+
+	/**
+	 * Output a rendered mail preview without sending it.
+	 *
+	 * @param string $type     admin or attendee.
+	 * @param int    $event_id Event for per-event overrides.
+	 */
+	private static function render_preview( string $type, int $event_id ): void {
+		$preview     = Booking_Emails::preview( $type, $event_id );
+		$type_label  = 'attendee' === $type ? __( 'Attendee mail', 're-events' ) : __( 'Admin mail', 're-events' );
+		$event_label = $event_id > 0 ? get_the_title( $event_id ) : __( 'Global templates (sample data)', 're-events' );
+
+		nocache_headers();
+		header( 'Content-Type: text/html; charset=UTF-8' );
+		?>
+		<!doctype html>
+		<html lang="<?php echo esc_attr( (string) get_bloginfo( 'language' ) ); ?>">
+		<head>
+		<meta charset="utf-8" />
+		<title><?php esc_html_e( 'Email preview', 're-events' ); ?></title>
+		</head>
+		<body style="margin:24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1d2327;">
+		<h1 style="font-size:22px;"><?php echo esc_html( $type_label ); ?></h1>
+		<p><strong><?php esc_html_e( 'Event:', 're-events' ); ?></strong> <?php echo esc_html( $event_label ); ?></p>
+		<p><strong><?php esc_html_e( 'Subject:', 're-events' ); ?></strong> <?php echo esc_html( $preview['subject'] ); ?></p>
+		<?php if ( '' !== $preview['html'] ) : ?>
+			<iframe title="<?php esc_attr_e( 'Email preview', 're-events' ); ?>" style="width:100%;height:80vh;border:1px solid #dcdcde;background:#ffffff;" srcdoc="<?php echo esc_attr( $preview['html'] ); ?>"></iframe>
+		<?php else : ?>
+			<pre style="white-space:pre-wrap;padding:16px;border:1px solid #dcdcde;background:#ffffff;"><?php echo esc_html( $preview['text'] ); ?></pre>
+		<?php endif; ?>
+		<details style="margin-top:20px;">
+		<summary><?php esc_html_e( 'Plain text', 're-events' ); ?></summary>
+		<pre style="white-space:pre-wrap;padding:16px;border:1px solid #dcdcde;background:#ffffff;"><?php echo esc_html( $preview['text'] ); ?></pre>
+		</details>
+		<p><a href="<?php echo esc_url( admin_url( 'admin.php?page=reevents-settings&tab=emails' ) ); ?>"><?php esc_html_e( 'Back to settings', 're-events' ); ?></a></p>
+		</body>
+		</html>
+		<?php
 	}
 
 	/**
@@ -813,6 +976,13 @@ final class Settings {
 				break;
 
 			case 'emails':
+				$recipients                         = preg_split( '/[,;\s]+/', (string) ( $input['email_admin_recipients'] ?? '' ) );
+				$recipients                         = is_array( $recipients ) ? $recipients : [];
+				$recipients                         = array_filter( array_map( 'sanitize_email', $recipients ), 'is_email' );
+				$settings['email_admin_recipients'] = implode( ', ', array_unique( $recipients ) );
+				$settings['email_from_name']        = sanitize_text_field( (string) ( $input['email_from_name'] ?? '' ) );
+				$settings['email_from_address']     = sanitize_email( (string) ( $input['email_from_address'] ?? '' ) );
+				$settings['email_reply_to']         = sanitize_email( (string) ( $input['email_reply_to'] ?? '' ) );
 				$settings['email_admin_subject']    = sanitize_text_field( (string) ( $input['email_admin_subject'] ?? '' ) );
 				$settings['email_admin_body']       = sanitize_textarea_field( (string) ( $input['email_admin_body'] ?? '' ) );
 				$settings['email_attendee_subject'] = sanitize_text_field( (string) ( $input['email_attendee_subject'] ?? '' ) );
@@ -853,10 +1023,14 @@ final class Settings {
 			'require_approval'         => false,
 			'hold_minutes'             => 30,
 			'attendee_fields'          => [],
-			'email_admin_subject'      => __( '[{site}] New booking {reference}', 're-events' ),
-			'email_admin_body'         => __( "A new booking was created.\n\nEvent: {event}\nWhen: {date}\nVenue: {venue}\nReference: {reference}\nAttendee: {name} <{email}>\nSeats: {quantity}\nTotal: {total}", 're-events' ),
-			'email_attendee_subject'   => __( 'Booking {status}: {event}', 're-events' ),
-			'email_attendee_body'      => __( "Hello {name},\n\nYour booking is {status}.\n\nEvent: {event}\nWhen: {date}\nVenue: {venue}\nReference: {reference}\nSeats: {quantity}\nTotal: {total}", 're-events' ),
+			'email_admin_recipients'   => '',
+			'email_from_name'          => '',
+			'email_from_address'       => '',
+			'email_reply_to'           => '',
+			'email_admin_subject'      => __( '[{site}] Booking {status_label}: {reference}', 're-events' ),
+			'email_admin_body'         => __( 'A booking is now {status_label}.', 're-events' ),
+			'email_attendee_subject'   => __( 'Booking {status_label}: {event}', 're-events' ),
+			'email_attendee_body'      => __( "Hello {name},\n\nYour booking is {status_label}.", 're-events' ),
 			'api_enabled'              => true,
 			'api_public'               => true,
 			'api_per_page'             => 10,
@@ -992,8 +1166,13 @@ final class Settings {
 		$key   = (string) ( $args['key'] ?? '' );
 		$type  = (string) ( $args['type'] ?? 'text' );
 		$value = self::get( $key );
-		$name  = self::OPTION . '[' . $key . ']';
-		$id    = 'reevents_' . $key;
+
+		if ( is_string( $value ) && '' === $value && isset( $args['default'] ) && is_string( $args['default'] ) ) {
+			$value = $args['default'];
+		}
+
+		$name = self::OPTION . '[' . $key . ']';
+		$id   = 'reevents_' . $key;
 
 		if ( 'checkbox' === $type ) {
 			echo '<label for="' . esc_attr( $id ) . '">';
@@ -1020,7 +1199,7 @@ final class Settings {
 			if ( ! empty( $args['palette'] ) ) {
 				echo '<p class="reevents-placeholder-palette">';
 
-				foreach ( self::PLACEHOLDERS as $token ) {
+				foreach ( Booking_Emails::tokens() as $token ) {
 					echo '<button type="button" class="button button-small reevents-placeholder" data-target="' . esc_attr( $id ) . '" data-token="' . esc_attr( $token ) . '">' . esc_html( $token ) . '</button> ';
 				}
 

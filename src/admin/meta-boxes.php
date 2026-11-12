@@ -15,6 +15,7 @@ use ReEvents\Data\Event_Repository;
 use ReEvents\Data\Meta;
 use ReEvents\Domain\Event;
 use ReEvents\Domain\Recurrence_Rule;
+use ReEvents\Services\Booking_Emails;
 use ReEvents\Services\Event_Service;
 use WP_Post;
 
@@ -506,6 +507,7 @@ final class Meta_Boxes {
 		wp_nonce_field( 'reevents_event_details', 'reevents_event_details_nonce' );
 		?>
 		<p class="description"><?php esc_html_e( 'Leave a field empty to use the global template from Settings > Emails.', 're-events' ); ?></p>
+		<p class="description"><?php esc_html_e( 'These templates cover new, confirmed, cancelled and rejected mail. Use {status_label} in the subject so the status is clear.', 're-events' ); ?></p>
 		<table class="form-table" role="presentation">
 			<?php foreach ( $fields as $key => [ $label, $is_body ] ) : ?>
 				<tr>
@@ -514,7 +516,7 @@ final class Meta_Boxes {
 						<?php if ( $is_body ) : ?>
 							<textarea id="reevents-<?php echo esc_attr( str_replace( '_', '-', $key ) ); ?>" name="<?php echo esc_attr( $key ); ?>" rows="4" class="large-text code"><?php echo esc_textarea( (string) get_post_meta( $post->ID, '_reevents_' . $key, true ) ); ?></textarea>
 							<p class="reevents-placeholder-palette">
-								<?php foreach ( Settings::PLACEHOLDERS as $token ) : ?>
+								<?php foreach ( Booking_Emails::tokens() as $token ) : ?>
 									<button type="button" class="button button-small reevents-placeholder" data-target="reevents-<?php echo esc_attr( str_replace( '_', '-', $key ) ); ?>" data-token="<?php echo esc_attr( $token ); ?>"><?php echo esc_html( $token ); ?></button>
 								<?php endforeach; ?>
 							</p>

@@ -29,6 +29,7 @@ final class Activation {
 	public static function deactivate(): void {
 		wp_clear_scheduled_hook( 'reevents_expire_bookings' );
 		wp_unschedule_hook( 'reevents_send_booking_emails' );
+		wp_unschedule_hook( 'reevents_send_booking_admin_email' );
 		flush_rewrite_rules();
 	}
 

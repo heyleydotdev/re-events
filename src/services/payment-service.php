@@ -454,17 +454,24 @@ final class Payment_Service {
 
 		// The hold expired before the provider confirmed; holding the money without a seat is not an option.
 		if ( 'cancelled' === $status || 'rejected' === $status ) {
-			$target = Settings::get( 'require_approval', false ) ? 'pending' : 'confirmed';
-			$result = Booking_Service::update_status( $booking_id, $target );
+			$approval = (bool) Settings::get( 'require_approval', false );
+			$result   = Booking_Service::update_status( $booking_id, $approval ? 'pending' : 'confirmed' );
 
 			if ( is_wp_error( $result ) ) {
 				self::refund_booking( $booking_id );
+			} elseif ( $approval ) {
+				Booking_Emails::send_attendees( $booking_id, __( 'Awaiting approval', 're-events' ) );
 			}
 
 			return;
 		}
 
-		if ( 'pending' !== $status || Settings::get( 'require_approval', false ) ) {
+		if ( 'pending' !== $status ) {
+			return;
+		}
+
+		if ( Settings::get( 'require_approval', false ) ) {
+			Booking_Emails::send_attendees( $booking_id, __( 'Awaiting approval', 're-events' ) );
 			return;
 		}
 
