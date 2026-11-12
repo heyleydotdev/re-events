@@ -32,6 +32,8 @@ final class Event_Query {
 		$from     = Meta::sanitize_date( (string) ( $args['from'] ?? '' ) );
 		$to       = Meta::sanitize_date( (string) ( $args['to'] ?? '' ) );
 		$upcoming = ! empty( $args['upcoming'] );
+		$order    = 'DESC' === strtoupper( (string) ( $args['order'] ?? 'asc' ) ) ? 'DESC' : 'ASC';
+		$cancel   = ! empty( $args['include_cancelled'] );
 		$total    = null;
 
 		// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_query, WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Event queries filter by date, venue and category.
@@ -44,7 +46,7 @@ final class Event_Query {
 			'no_found_rows'  => false,
 			'meta_key'       => '_reevents_start_utc',
 			'orderby'        => 'meta_value',
-			'order'          => 'ASC',
+			'order'          => $order,
 			'meta_type'      => 'DATETIME',
 			'meta_query'     => [],
 			'tax_query'      => [],
@@ -59,6 +61,15 @@ final class Event_Query {
 				'taxonomy' => 'reevents_event_category',
 				'field'    => 'term_id',
 				'terms'    => (int) $args['category'],
+			];
+		}
+
+		if ( ! empty( $args['tag'] ) ) {
+			$tag                       = $args['tag'];
+			$query_args['tax_query'][] = [
+				'taxonomy' => 'reevents_event_tag',
+				'field'    => is_numeric( $tag ) ? 'term_id' : 'slug',
+				'terms'    => is_numeric( $tag ) ? (int) $tag : sanitize_title( (string) $tag ),
 			];
 		}
 
@@ -98,11 +109,11 @@ final class Event_Query {
 			}
 
 			$occurrences = new Occurrence_Repository();
-			$filtered    = ! empty( $args['search'] ) || ! empty( $args['category'] ) || ! empty( $args['venue'] ) || ! empty( $args['organizer'] );
+			$filtered    = ! empty( $args['search'] ) || ! empty( $args['category'] ) || ! empty( $args['tag'] ) || ! empty( $args['venue'] ) || ! empty( $args['organizer'] );
 
 			if ( $filtered ) {
 				// Filters run inside WP_Query, so pagination and totals must come from it too.
-				$ids = $occurrences->event_ids_between( $start, $end );
+				$ids = $occurrences->event_ids_between( $start, $end, 0, 0, $order, $cancel );
 
 				if ( ! $ids ) {
 					return [
@@ -114,8 +125,8 @@ final class Event_Query {
 
 				$query_args['post__in'] = $ids;
 			} else {
-				$ids   = $occurrences->event_ids_between( $start, $end, $per_page, ( $page - 1 ) * $per_page );
-				$total = $occurrences->count_events_between( $start, $end );
+				$ids   = $occurrences->event_ids_between( $start, $end, $per_page, ( $page - 1 ) * $per_page, $order, $cancel );
+				$total = $occurrences->count_events_between( $start, $end, $cancel );
 
 				if ( ! $ids ) {
 					return [

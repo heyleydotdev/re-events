@@ -227,20 +227,24 @@ final class Occurrence_Repository {
 	/**
 	 * Get event IDs with a published occurrence in a UTC date range.
 	 *
-	 * @param string $from_utc Start UTC.
-	 * @param string $to_utc   End UTC.
-	 * @param int    $limit    Maximum event IDs.
-	 * @param int    $offset   Offset.
+	 * @param string $from_utc          Start UTC.
+	 * @param string $to_utc            End UTC.
+	 * @param int    $limit             Maximum event IDs.
+	 * @param int    $offset            Offset.
+	 * @param string $order             ASC or DESC.
+	 * @param bool   $include_cancelled Include cancelled events.
 	 * @return int[]
 	 */
-	public function event_ids_between( string $from_utc, string $to_utc, int $limit = 0, int $offset = 0 ): array {
+	public function event_ids_between( string $from_utc, string $to_utc, int $limit = 0, int $offset = 0, string $order = 'ASC', bool $include_cancelled = false ): array {
 		global $wpdb;
 
-		$table = $this->table();
-		$sql   = "SELECT o.event_id FROM {$table} o INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id
-			WHERE p.post_status = 'publish' AND o.status = 'scheduled' AND o.start_utc <= %s AND o.end_utc >= %s
-			GROUP BY o.event_id ORDER BY MIN(o.start_utc) ASC";
-		$args  = [ $to_utc, $from_utc ];
+		$table            = $this->table();
+		$direction        = 'DESC' === strtoupper( $order ) ? 'DESC' : 'ASC';
+		[ $join, $where ] = $this->status_filter( $include_cancelled );
+		$sql              = "SELECT o.event_id FROM {$table} o INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id {$join}
+			WHERE p.post_status = 'publish' AND {$where} AND o.start_utc <= %s AND o.end_utc >= %s
+			GROUP BY o.event_id ORDER BY MIN(o.start_utc) {$direction}";
+		$args             = [ $to_utc, $from_utc ];
 
 		if ( $limit > 0 ) {
 			$sql   .= ' LIMIT %d OFFSET %d';
@@ -258,24 +262,46 @@ final class Occurrence_Repository {
 	/**
 	 * Count events with a published occurrence in a UTC date range.
 	 *
-	 * @param string $from_utc Start UTC.
-	 * @param string $to_utc   End UTC.
+	 * @param string $from_utc          Start UTC.
+	 * @param string $to_utc            End UTC.
+	 * @param bool   $include_cancelled Include cancelled events.
 	 */
-	public function count_events_between( string $from_utc, string $to_utc ): int {
+	public function count_events_between( string $from_utc, string $to_utc, bool $include_cancelled = false ): int {
 		global $wpdb;
 
-		$table = $this->table();
+		$table            = $this->table();
+		[ $join, $where ] = $this->status_filter( $include_cancelled );
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
-				"SELECT COUNT(DISTINCT o.event_id) FROM {$table} o INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id
-				WHERE p.post_status = 'publish' AND o.status = 'scheduled' AND o.start_utc <= %s AND o.end_utc >= %s",
+				"SELECT COUNT(DISTINCT o.event_id) FROM {$table} o INNER JOIN {$wpdb->posts} p ON p.ID = o.event_id {$join}
+				WHERE p.post_status = 'publish' AND {$where} AND o.start_utc <= %s AND o.end_utc >= %s",
 				$to_utc,
 				$from_utc
 			)
 		);
+		// phpcs:enable
+	}
+
+	/**
+	 * SQL join and condition for the occurrence status filter.
+	 *
+	 * @param bool $include_cancelled Include cancelled events.
+	 * @return array{0:string,1:string}
+	 */
+	private function status_filter( bool $include_cancelled ): array {
+		global $wpdb;
+
+		if ( ! $include_cancelled ) {
+			return [ '', "o.status = 'scheduled'" ];
+		}
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+		return [
+			"LEFT JOIN {$wpdb->postmeta} pm ON pm.post_id = o.event_id AND pm.meta_key = '_reevents_status'",
+			"( o.status = 'scheduled' OR ( o.status = 'cancelled' AND pm.meta_value = 'cancelled' ) )",
+		];
 	}
 
 	/**
