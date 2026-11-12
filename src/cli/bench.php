@@ -12,6 +12,7 @@ namespace ReEvents\CLI;
 use ReEvents\Data\Booking_Repository;
 use ReEvents\Data\Event_Repository;
 use ReEvents\Data\Occurrence_Repository;
+use ReEvents\Data\Statistics_Repository;
 use ReEvents\Query\Event_Query;
 use ReEvents\Services\Occurrence_Service;
 use WP_CLI;
@@ -268,6 +269,16 @@ final class Bench {
 				'budget_ms' => 300,
 				'budget_q'  => 10,
 				'run'       => static fn() => ( new Booking_Repository() )->query( [ 'limit' => 20 ] ),
+			],
+			'statistics'        => [
+				'budget_ms' => 200,
+				'budget_q'  => 6,
+				'run'       => static function () {
+					$repo = new Statistics_Repository();
+					$repo->currencies();
+					$repo->summary( [ 'currency' => 'USD' ] );
+					$repo->monthly( [ 'currency' => 'USD' ] );
+				},
 			],
 			'rest_events'       => [
 				'budget_ms' => 600,
