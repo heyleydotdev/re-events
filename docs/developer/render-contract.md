@@ -20,13 +20,16 @@ Do not rely on inline styles. The plugin does not output them.
 | --------------- | ------------------ | -------------------------- |
 | `class`         | empty              | Extra class on the list    |
 | `wrapper_class` | empty              | Extra class on the wrapper |
-| `limit`         | `5`                | Maximum events             |
+| `limit`         | `5`                | Maximum events, up to 100  |
 | `category`      | empty              | Category term ID           |
 | `venue`         | `0`                | Venue ID, or `current` on a venue page |
 | `organizer`     | `0`                | Organizer ID, or `current` on an organizer page |
 | `upcoming`      | `true`               | Only upcoming events       |
+| `use_query`     | `false`              | Read the event search form values from the URL |
 | `show_venue`    | `true`               | Show the venue name        |
 | `page`          | `0`                  | Page number; 0 uses the current page |
+| `paginate`      | `true`               | Show pagination links. Off for sidebar and teaser lists |
+| `pagination_key` | empty              | Suffix for the page URL argument, for example `main` |
 | `show_image`    | `true`               | Show the featured image    |
 | `image_size`    | `thumbnail`          | Registered image size      |
 | `show_price`    | `true`               | Lowest price or free label |
@@ -66,6 +69,9 @@ Do not rely on inline styles. The plugin does not output them.
 | `class`            | empty              | Extra class          |
 | `wrapper_class`    | empty              | Extra wrapper class  |
 | `limit`            | `10`               | Maximum venues       |
+| `page`             | `1`                | Page number          |
+| `paginate`         | `true`             | Show pagination links. Off for featured lists |
+| `pagination_key`   | empty              | Suffix for the venue page URL argument, for example `featured` |
 | `show_description` | `true`             | Show the description |
 | `empty_label`      | `No venues found.` | Empty state          |
 

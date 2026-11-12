@@ -17,8 +17,11 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `venue` | 0 | Limit to a venue ID. |
 | `organizer` | 0 | Organizer ID, or `current` on an organizer page. |
 | `upcoming` | 1 | Show upcoming events only. |
+| `use_query` | 0 | Use the event search values in the current URL. Pair with a search form that hides its results. |
 | `show_venue` | 1 | Display the venue name. |
 | `page` | 0 | Page number. 0 uses the current page. |
+| `paginate` | 1 | Show pagination links. Turn off for sidebar and teaser lists. |
+| `pagination_key` | — | Suffix for the page URL argument when several lists share a page, for example main. |
 | `show_image` | 1 | Show the featured image. |
 | `image_size` | thumbnail | Registered image size. |
 | `show_price` | 1 | Show the lowest price or the free label. |
@@ -28,7 +31,7 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `sold_out_label` | Sold out | Label when no ticket has seats left. |
 
 ```text
-[reevents_events empty_label="No events found." ongoing_label="Ongoing" limit="5" upcoming="1" show_venue="1" show_image="1" image_size="thumbnail" show_price="1" free_label="Free" sold_out_label="Sold out"]
+[reevents_events empty_label="No events found." ongoing_label="Ongoing" limit="5" upcoming="1" show_venue="1" paginate="1" show_image="1" image_size="thumbnail" show_price="1" free_label="Free" sold_out_label="Sold out"]
 ```
 
 ## Event Details
@@ -69,10 +72,13 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `wrapper_class` | — | Extra class on the wrapper. |
 | `empty_label` | No venues found. | Text shown when there are no results. |
 | `limit` | 10 | Maximum number of items. |
+| `page` | 1 | Page number. 1 is the first page. |
+| `paginate` | 1 | Show pagination links. Turn off for featured venue lists. |
+| `pagination_key` | — | Suffix for the page URL argument when several venue lists share a page, for example featured. |
 | `show_description` | 1 | Display the venue description. |
 
 ```text
-[reevents_venues empty_label="No venues found." limit="10" show_description="1"]
+[reevents_venues empty_label="No venues found." limit="10" page="1" paginate="1" show_description="1"]
 ```
 
 ## Events Search

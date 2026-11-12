@@ -30,6 +30,32 @@ Use a block, a shortcode or your theme:
 - **Shortcodes:** `[reevents_events]`, `[reevents_event]`, `[reevents_venues]`, `[reevents_search]`, `[reevents_calendar]`, `[reevents_map]`, `[reevents_booking_form]`, `[reevents_field]`.
 - **Theme:** call the renderers or the [public PHP API](api/public-api.md).
 
+To put a search form above a separate list, hide the search results and let the list read the query:
+
+```text
+[reevents_search show_results="0"]
+[reevents_events use_query="1" limit="10"]
+```
+
+### Pagination
+
+Event and venue lists paginate on the server. The event list uses `reevents_page`; the venue list uses `reevents_venue_page`. Use `limit` for the page size.
+
+A sidebar or teaser list should not paginate:
+
+```text
+[reevents_events limit="5" upcoming="1" paginate="0"]
+```
+
+If two paginated lists share a page, give each its own key:
+
+```text
+[reevents_events pagination_key="main"]
+[reevents_events pagination_key="past" upcoming="0"]
+```
+
+Venue lists use `pagination_key="featured"` for a second list. Pagination keeps the current search, category, venue and date filters.
+
 For custom layouts, place field shortcodes next to each other instead of hiding parts of `[reevents_event]`:
 
 ```text
