@@ -29,6 +29,10 @@
 			"type": "boolean",
 			"default": false
 		},
+		"imageSize": {
+			"type": "string",
+			"default": "thumbnail"
+		},
 		"showVenue": {
 			"type": "boolean",
 			"default": true

@@ -52,6 +52,7 @@ final class Blocks {
 			'showDescription' => 'show_description',
 			'paginationKey'   => 'pagination_key',
 			'useQuery'        => 'use_query',
+			'imageSize'       => 'image_size',
 			'showNav'         => 'show_nav',
 			'className'       => 'class',
 			'wrapperClass'    => 'wrapper_class',

@@ -19,6 +19,7 @@ function Edit( { attributes, setAttributes } ) {
 		upcoming,
 		showVenue,
 		useQuery,
+		imageSize,
 		paginate,
 		paginationKey,
 	} = attributes;
@@ -38,6 +39,23 @@ function Edit( { attributes, setAttributes } ) {
 			} ) || [],
 		[]
 	);
+	const imageSizeOptions = useSelect( ( select ) => {
+		const store = select( 'core/block-editor' );
+		const sizes =
+			store && store.getSettings
+				? store.getSettings()?.imageSizes || []
+				: [];
+
+		return sizes.map( ( size ) => ( {
+			value: size.slug,
+			label: size.name,
+		} ) );
+	}, [] );
+	const availableImageSizes = imageSizeOptions.length
+		? imageSizeOptions
+		: [ 'thumbnail', 'medium', 'medium_large', 'large', 'full' ].map(
+				( size ) => ( { value: size, label: size } )
+		  );
 
 	return (
 		<>
@@ -119,6 +137,18 @@ function Edit( { attributes, setAttributes } ) {
 						onChange={ ( value ) =>
 							setAttributes( { useQuery: value } )
 						}
+					/>
+					<SelectControl
+						label={ __( 'Image size', 're-events' ) }
+						value={ imageSize }
+						options={ availableImageSizes }
+						onChange={ ( value ) =>
+							setAttributes( { imageSize: value } )
+						}
+						help={ __(
+							'Registered WordPress image size used on event cards.',
+							're-events'
+						) }
 					/>
 					<ToggleControl
 						label={ __( 'Show pagination', 're-events' ) }
