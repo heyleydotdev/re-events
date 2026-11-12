@@ -22,7 +22,7 @@ See [Public API reference](public-api-reference.md) for generated signatures.
 | `reevents_get_event_occurrences( int $id, array $args = [] ): array\|WP_Error` | Event read access |
 | `reevents_sync_event_occurrences( int $id ): array\|WP_Error` | `edit_post` |
 
-`reevents_get_events()` accepts `per_page` (max 100, default 10), `page`, `search`, `category`, `venue`, `from`, `to` and `upcoming`. `from` and `to` are `Y-m-d` dates in the site time zone. It returns the current page only; query `Event_Query::query()` directly when you need the total.
+`reevents_get_events()` accepts `per_page` (max 100, default 10), `page`, `search`, `category`, `tag`, `venue`, `organizer`, `from`, `to`, `order` (`asc` or `desc`) and `upcoming`. `from` and `to` are `Y-m-d` dates in the site time zone. It returns the current page only; query `Event_Query::query()` directly when you need the total.
 
 Event fields: `title`, `start_utc`, `end_utc`, `timezone`, `all_day`, `rrule`, `exdates`, `rdates`, `timeslots`, `venue_id`, `organizer_ids`, `capacity`, `online_urls`, `status`.
 

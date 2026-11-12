@@ -13,12 +13,19 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `empty_label` | No events found. | Text shown when there are no results. |
 | `ongoing_label` | Ongoing | Label shown for ongoing events. |
 | `limit` | 5 | Maximum number of items. |
-| `category` | — | Limit to a category term ID. |
-| `venue` | 0 | Limit to a venue ID. |
+| `search` | — | Free-text keyword search. |
+| `category` | — | Category ID, or `current` on a category page. |
+| `tag` | — | Tag ID or slug. |
+| `venue` | 0 | Venue ID, or `current` on a venue page. |
 | `organizer` | 0 | Organizer ID, or `current` on an organizer page. |
+| `from` | — | Earliest start date, Y-m-d. |
+| `to` | — | Latest end date, Y-m-d. |
+| `order` | asc | Start date order: asc or desc. |
 | `upcoming` | 1 | Show upcoming events only. |
 | `use_query` | 0 | Use the event search values in the current URL. Pair with a search form that hides its results. |
 | `show_venue` | 1 | Display the venue name. |
+| `show_cancelled` | 0 | Include cancelled events and label them on the card. |
+| `cancelled_label` | Cancelled | Badge shown on cancelled events. |
 | `page` | 0 | Page number. 0 uses the current page. |
 | `paginate` | 1 | Show pagination links. Turn off for sidebar and teaser lists. |
 | `pagination_key` | — | Suffix for the page URL argument when several lists share a page, for example main. |
@@ -27,11 +34,18 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `show_price` | 1 | Show the lowest price or the free label. |
 | `show_excerpt` | 0 | Show the event excerpt. |
 | `show_categories` | 0 | Show event categories. |
-| `free_label` | Free | Text shown for a free ticket. |
+| `show_tags` | 0 | Show event tags. |
+| `show_organizers` | 0 | Show event organizer names. |
+| `show_end` | 0 | Show the end date and time. |
+| `show_seats_left` | 0 | Show the remaining seats. |
+| `title_tag` | a | Title markup: a, h2, h3 or div. |
+| `link` | 1 | Link the title and image to the event. |
+| `excerpt_length` | 0 | Excerpt word count. 0 uses the theme length. |
+| `free_label` | Free | Price label for free events. |
 | `sold_out_label` | Sold out | Label when no ticket has seats left. |
 
 ```text
-[reevents_events empty_label="No events found." ongoing_label="Ongoing" limit="5" upcoming="1" show_venue="1" paginate="1" show_image="1" image_size="thumbnail" show_price="1" free_label="Free" sold_out_label="Sold out"]
+[reevents_events empty_label="No events found." ongoing_label="Ongoing" limit="5" order="asc" upcoming="1" show_venue="1" cancelled_label="Cancelled" paginate="1" show_image="1" image_size="thumbnail" show_price="1" title_tag="a" link="1" free_label="Free" sold_out_label="Sold out"]
 ```
 
 ## Event Details

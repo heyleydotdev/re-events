@@ -56,6 +56,34 @@ If two paginated lists share a page, give each its own key:
 
 Venue lists use `pagination_key="featured"` for a second list. Pagination keeps the current search, category, venue and date filters.
 
+### Filtering and card content
+
+Filter the list by keyword, tag or date, and order it by start date:
+
+```text
+[reevents_events search="gala" tag="music" from="2027-01-01" to="2027-12-31" order="asc"]
+```
+
+Past events, newest first:
+
+```text
+[reevents_events upcoming="0" order="desc" limit="10"]
+```
+
+On a category archive, `category="current"` keeps the list inside that category. Venue and organizer archives accept the same value.
+
+Card options are opt-in. This list shows organizers, tags, the end date, remaining seats and a three-word teaser, with the title as an `h2`:
+
+```text
+[reevents_events show_organizers="1" show_tags="1" show_end="1" show_seats_left="1" show_excerpt="1" excerpt_length="3" title_tag="h2"]
+```
+
+Cancelled events are hidden by default. Add `show_cancelled="1"` to include them with a visible badge:
+
+```text
+[reevents_events show_cancelled="1" upcoming="0"]
+```
+
 For custom layouts, place field shortcodes next to each other instead of hiding parts of `[reevents_event]`:
 
 ```text

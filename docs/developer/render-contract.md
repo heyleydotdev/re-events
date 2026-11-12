@@ -21,9 +21,14 @@ Do not rely on inline styles. The plugin does not output them.
 | `class`         | empty              | Extra class on the list    |
 | `wrapper_class` | empty              | Extra class on the wrapper |
 | `limit`         | `5`                | Maximum events, up to 100  |
-| `category`      | empty              | Category term ID           |
+| `search`        | empty              | Keyword search             |
+| `category`      | empty              | Category term ID, or `current` on a category page |
+| `tag`           | empty              | Tag term ID or slug        |
 | `venue`         | `0`                | Venue ID, or `current` on a venue page |
 | `organizer`     | `0`                | Organizer ID, or `current` on an organizer page |
+| `from`          | empty              | Earliest start date, `Y-m-d` |
+| `to`            | empty              | Latest end date, `Y-m-d`   |
+| `order`         | `asc`              | Start date order: `asc` or `desc` |
 | `upcoming`      | `true`               | Only upcoming events       |
 | `use_query`     | `false`              | Read the event search form values from the URL |
 | `show_venue`    | `true`               | Show the venue name        |
@@ -35,8 +40,17 @@ Do not rely on inline styles. The plugin does not output them.
 | `show_price`    | `true`               | Lowest price or free label |
 | `free_label`    | `Free`               | Price label for free events |
 | `sold_out_label` | `Sold out`          | Label when no seats are left |
+| `show_seats_left` | `false`            | Remaining seat count       |
 | `show_excerpt`  | `false`              | Show the event excerpt     |
+| `excerpt_length` | `0`                 | Excerpt word count; 0 uses the theme length |
 | `show_categories` | `false`            | Show event categories      |
+| `show_tags`     | `false`              | Show event tags            |
+| `show_organizers` | `false`            | Show organizer names       |
+| `show_end`      | `false`              | Show the end date and time |
+| `show_cancelled` | `false`             | Include cancelled events, labelled on the card |
+| `cancelled_label` | `Cancelled`        | Badge on cancelled events  |
+| `title_tag`     | `a`                  | Title markup: `a`, `h2`, `h3` or `div` |
+| `link`          | `true`               | Link the title and image to the event |
 | `empty_label`   | `No events found.`   | Empty state                |
 | `ongoing_label` | `Ongoing`            | Ongoing badge              |
 
@@ -142,7 +156,10 @@ Do not rely on inline styles. The plugin does not output them.
 
 ## Common classes
 
-- `reevents-events-list`, `reevents-event`, `reevents-event-title`
+- `reevents-events-list`, `reevents-event`, `reevents-event-title`, `reevents-event-title-link`
+- `reevents-event-start`, `reevents-event-end`, `reevents-event-price`, `reevents-event-seats-left`
+- `reevents-event-venue`, `reevents-event-organizers`, `reevents-event-categories`, `reevents-event-tags`
+- `reevents-event-cancelled`, `reevents-event-ongoing`, `reevents-event-sold-out`
 - `reevents-event-details`, `reevents-event-when`, `reevents-event-status`
 - `reevents-venues-list`, `reevents-venue`
 - `reevents-search`, `reevents-search-field`
