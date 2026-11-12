@@ -93,6 +93,33 @@ For custom layouts, place field shortcodes next to each other instead of hiding 
 [reevents_field field="price_from"]
 ```
 
+### Other widgets
+
+The detail, venue, search, calendar, map and booking widgets accept the same kind of options:
+
+```text
+[reevents_event id="123" show_image="1" show_price="1" show_categories="1" show_end="1"]
+[reevents_venues search="hall" upcoming="1" show_address="1" show_next_event="1"]
+[reevents_search show_tag="1" show_organizer="1" show_order="1" paginate="1" show_price="1"]
+[reevents_calendar category="12" show_cancelled="1" show_today="1" week_start="sun"]
+[reevents_map upcoming="1" center="51.5,-0.12" zoom="11" fit="1" show_address="1"]
+[reevents_booking_form event="123" heading="Book a seat" max_quantity="4" hide_sold_out="1"]
+```
+
+### Date and time formats
+
+Every widget that prints a date or time accepts a format. Defaults are the site formats; an empty value falls back to the site setting.
+
+```text
+[reevents_events date_format="Y-m-d" time_format="H:i"]
+[reevents_event date_format="j F Y" time_format="H:i"]
+[reevents_calendar month_format="F Y" time_format="H:i"]
+[reevents_field field="start" date_format="D, j M Y" time_format="H:i"]
+[reevents_booking_form date_format="D, j M Y" time_format="H:i"]
+```
+
+Formats use the PHP date format tokens accepted by `wp_date()`.
+
 ## 4. Bookings
 
 Visitors submit the booking form without an account. Free bookings confirm immediately; paid bookings stay pending until the gateway confirms. The attendee receives mail when the booking is confirmed, cancelled or rejected; admin recipients get new, cancelled and refunded bookings. Both templates can be customized per event. See [Emails](emails.md).

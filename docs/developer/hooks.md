@@ -36,6 +36,12 @@ Maximum venues, organizers and categories in admin selects.
 
 Maximum venues in the front-end search filter.
 
+### `reevents_organizer_dropdown_limit`
+
+`apply_filters( 'reevents_organizer_dropdown_limit', 500 )`
+
+Maximum organizers in the front-end search filter.
+
 ### `reevents_client_ip`
 
 `apply_filters( 'reevents_client_ip', string $ip )`
