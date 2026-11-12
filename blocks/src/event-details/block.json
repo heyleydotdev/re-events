@@ -13,15 +13,71 @@
 			"type": "number",
 			"default": 0
 		},
+		"showImage": {
+			"type": "boolean",
+			"default": false
+		},
+		"imageSize": {
+			"type": "string",
+			"default": "large"
+		},
+		"showTitle": {
+			"type": "boolean",
+			"default": true
+		},
+		"titleTag": {
+			"type": "string",
+			"default": "h2"
+		},
+		"showStatus": {
+			"type": "boolean",
+			"default": true
+		},
 		"showVenue": {
 			"type": "boolean",
 			"default": true
+		},
+		"showVenueAddress": {
+			"type": "boolean",
+			"default": false
+		},
+		"showVenueMapLink": {
+			"type": "boolean",
+			"default": false
 		},
 		"showOrganizers": {
 			"type": "boolean",
 			"default": true
 		},
+		"showPrice": {
+			"type": "boolean",
+			"default": false
+		},
+		"showSeatsLeft": {
+			"type": "boolean",
+			"default": false
+		},
+		"showCategories": {
+			"type": "boolean",
+			"default": false
+		},
+		"showTags": {
+			"type": "boolean",
+			"default": false
+		},
+		"showExcerpt": {
+			"type": "boolean",
+			"default": false
+		},
+		"showEnd": {
+			"type": "boolean",
+			"default": true
+		},
 		"showOnlineLinks": {
+			"type": "boolean",
+			"default": true
+		},
+		"showCalendarLinks": {
 			"type": "boolean",
 			"default": true
 		},

@@ -13,7 +13,59 @@
 			"type": "number",
 			"default": 10
 		},
+		"search": {
+			"type": "string",
+			"default": ""
+		},
+		"order": {
+			"type": "string",
+			"default": "asc"
+		},
+		"orderby": {
+			"type": "string",
+			"default": "title"
+		},
+		"upcoming": {
+			"type": "boolean",
+			"default": false
+		},
 		"showDescription": {
+			"type": "boolean",
+			"default": true
+		},
+		"excerptLength": {
+			"type": "number",
+			"default": 30
+		},
+		"showImage": {
+			"type": "boolean",
+			"default": false
+		},
+		"imageSize": {
+			"type": "string",
+			"default": "thumbnail"
+		},
+		"showAddress": {
+			"type": "boolean",
+			"default": false
+		},
+		"showWebsite": {
+			"type": "boolean",
+			"default": false
+		},
+		"showMapLink": {
+			"type": "boolean",
+			"default": false
+		},
+		"showNextEvent": {
+			"type": "boolean",
+			"default": false
+		},
+		"titleTag": {
+			"type": "string",
+			"default": "a"
+		},
+		"link": {
 			"type": "boolean",
 			"default": true
 		},

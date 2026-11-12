@@ -27,6 +27,60 @@ final class Blocks {
 	}
 
 	/**
+	 * Block attribute to widget argument map.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function attribute_map(): array {
+		return [
+			'showKeyword'       => 'show_keyword',
+			'showVenue'         => 'show_venue',
+			'showCategory'      => 'show_category',
+			'showOrganizers'    => 'show_organizers',
+			'showOnlineLinks'   => 'show_online_links',
+			'showContent'       => 'show_content',
+			'showDates'         => 'show_dates',
+			'showUpcoming'      => 'show_upcoming',
+			'showResults'       => 'show_results',
+			'showDescription'   => 'show_description',
+			'showImage'         => 'show_image',
+			'showPrice'         => 'show_price',
+			'showExcerpt'       => 'show_excerpt',
+			'showCategories'    => 'show_categories',
+			'showTags'          => 'show_tags',
+			'showEnd'           => 'show_end',
+			'showSeatsLeft'     => 'show_seats_left',
+			'showCancelled'     => 'show_cancelled',
+			'titleTag'          => 'title_tag',
+			'excerptLength'     => 'excerpt_length',
+			'showTitle'         => 'show_title',
+			'showStatus'        => 'show_status',
+			'showCalendarLinks' => 'show_calendar_links',
+			'showVenueAddress'  => 'show_venue_address',
+			'showVenueMapLink'  => 'show_venue_map_link',
+			'showAddress'       => 'show_address',
+			'showWebsite'       => 'show_website',
+			'showMapLink'       => 'show_map_link',
+			'showNextEvent'     => 'show_next_event',
+			'showTag'           => 'show_tag',
+			'showOrganizer'     => 'show_organizer',
+			'showOrder'         => 'show_order',
+			'showToday'         => 'show_today',
+			'weekStart'         => 'week_start',
+			'defaultQuantity'   => 'default_quantity',
+			'maxQuantity'       => 'max_quantity',
+			'hideSoldOut'       => 'hide_sold_out',
+			'paginationKey'     => 'pagination_key',
+			'useQuery'          => 'use_query',
+			'imageSize'         => 'image_size',
+			'showNav'           => 'show_nav',
+			'className'         => 'class',
+			'wrapperClass'      => 'wrapper_class',
+			'emptyLabel'        => 'empty_label',
+		];
+	}
+
+	/**
 	 * Register blocks that have been built.
 	 */
 	public static function register_blocks(): void {
@@ -39,35 +93,7 @@ final class Blocks {
 			'map'           => 'map',
 		];
 
-		$attribute_map = [
-			'showKeyword'     => 'show_keyword',
-			'showVenue'       => 'show_venue',
-			'showCategory'    => 'show_category',
-			'showOrganizers'  => 'show_organizers',
-			'showOnlineLinks' => 'show_online_links',
-			'showContent'     => 'show_content',
-			'showDates'       => 'show_dates',
-			'showUpcoming'    => 'show_upcoming',
-			'showResults'     => 'show_results',
-			'showDescription' => 'show_description',
-			'showImage'       => 'show_image',
-			'showPrice'       => 'show_price',
-			'showExcerpt'     => 'show_excerpt',
-			'showCategories'  => 'show_categories',
-			'showTags'        => 'show_tags',
-			'showEnd'         => 'show_end',
-			'showSeatsLeft'   => 'show_seats_left',
-			'showCancelled'   => 'show_cancelled',
-			'titleTag'        => 'title_tag',
-			'excerptLength'   => 'excerpt_length',
-			'paginationKey'   => 'pagination_key',
-			'useQuery'        => 'use_query',
-			'imageSize'       => 'image_size',
-			'showNav'         => 'show_nav',
-			'className'       => 'class',
-			'wrapperClass'    => 'wrapper_class',
-			'emptyLabel'      => 'empty_label',
-		];
+		$attribute_map = self::attribute_map();
 
 		foreach ( $blocks as $block => $widget ) {
 			$path = RE_EVENTS_DIR . 'blocks/build/' . $block;
@@ -184,9 +210,37 @@ final class Blocks {
 		foreach ( [
 			'button_label'    => 'buttonLabel',
 			'success_message' => 'successMessage',
+			'heading'         => 'heading',
 		] as $arg => $attribute ) {
 			if ( '' !== (string) ( $attributes[ $attribute ] ?? '' ) ) {
 				$args[ $arg ] = (string) $attributes[ $attribute ];
+			}
+		}
+
+		foreach ( [
+			'ticket'     => 'ticket',
+			'occurrence' => 'occurrence',
+		] as $arg => $attribute ) {
+			if ( ! empty( $attributes[ $attribute ] ) ) {
+				$args[ $arg ] = (int) $attributes[ $attribute ];
+			}
+		}
+
+		foreach ( [
+			'show_price'    => 'showPrice',
+			'hide_sold_out' => 'hideSoldOut',
+		] as $arg => $attribute ) {
+			if ( array_key_exists( $attribute, $attributes ) ) {
+				$args[ $arg ] = (bool) $attributes[ $attribute ];
+			}
+		}
+
+		foreach ( [
+			'default_quantity' => 'defaultQuantity',
+			'max_quantity'     => 'maxQuantity',
+		] as $arg => $attribute ) {
+			if ( array_key_exists( $attribute, $attributes ) ) {
+				$args[ $arg ] = (int) $attributes[ $attribute ];
 			}
 		}
 

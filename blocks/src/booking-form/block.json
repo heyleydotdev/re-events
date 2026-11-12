@@ -13,6 +13,34 @@
 			"type": "number",
 			"default": 0
 		},
+		"ticket": {
+			"type": "number",
+			"default": 0
+		},
+		"occurrence": {
+			"type": "number",
+			"default": 0
+		},
+		"heading": {
+			"type": "string",
+			"default": ""
+		},
+		"showPrice": {
+			"type": "boolean",
+			"default": true
+		},
+		"defaultQuantity": {
+			"type": "number",
+			"default": 1
+		},
+		"maxQuantity": {
+			"type": "number",
+			"default": 0
+		},
+		"hideSoldOut": {
+			"type": "boolean",
+			"default": false
+		},
 		"buttonLabel": {
 			"type": "string",
 			"default": ""

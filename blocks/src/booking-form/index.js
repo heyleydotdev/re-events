@@ -1,12 +1,23 @@
 import { registerBlockType } from '@wordpress/blocks';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, TextControl } from '@wordpress/components';
+import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import ServerSideRender from '@wordpress/server-side-render';
 import metadata from './block.json';
 
 function Edit( { attributes, setAttributes } ) {
-	const { event, buttonLabel, successMessage } = attributes;
+	const {
+		event,
+		ticket,
+		occurrence,
+		heading,
+		showPrice,
+		defaultQuantity,
+		maxQuantity,
+		hideSoldOut,
+		buttonLabel,
+		successMessage,
+	} = attributes;
 
 	return (
 		<>
@@ -28,6 +39,92 @@ function Edit( { attributes, setAttributes } ) {
 									parseInt( value, 10 ) || 0
 								),
 							} )
+						}
+					/>
+					<TextControl
+						label={ __( 'Ticket ID', 're-events' ) }
+						type="number"
+						min={ 0 }
+						help={ __(
+							'Leave 0 for the first ticket.',
+							're-events'
+						) }
+						value={ String( ticket ) }
+						onChange={ ( value ) =>
+							setAttributes( {
+								ticket: Math.max(
+									0,
+									parseInt( value, 10 ) || 0
+								),
+							} )
+						}
+					/>
+					<TextControl
+						label={ __( 'Time ID', 're-events' ) }
+						type="number"
+						min={ 0 }
+						help={ __(
+							'Leave 0 for the first time.',
+							're-events'
+						) }
+						value={ String( occurrence ) }
+						onChange={ ( value ) =>
+							setAttributes( {
+								occurrence: Math.max(
+									0,
+									parseInt( value, 10 ) || 0
+								),
+							} )
+						}
+					/>
+					<TextControl
+						label={ __( 'Heading', 're-events' ) }
+						value={ heading }
+						onChange={ ( value ) =>
+							setAttributes( { heading: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show price', 're-events' ) }
+						checked={ showPrice }
+						onChange={ ( value ) =>
+							setAttributes( { showPrice: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Default seats', 're-events' ) }
+						type="number"
+						min={ 1 }
+						value={ String( defaultQuantity ) }
+						onChange={ ( value ) =>
+							setAttributes( {
+								defaultQuantity: Math.max(
+									1,
+									parseInt( value, 10 ) || 1
+								),
+							} )
+						}
+					/>
+					<TextControl
+						label={ __( 'Maximum seats', 're-events' ) }
+						type="number"
+						min={ 0 }
+						help={ __( '0 uses the ticket limit.', 're-events' ) }
+						value={ String( maxQuantity ) }
+						onChange={ ( value ) =>
+							setAttributes( {
+								maxQuantity: Math.max(
+									0,
+									parseInt( value, 10 ) || 0
+								),
+							} )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Hide sold-out tickets', 're-events' ) }
+						checked={ hideSoldOut }
+						onChange={ ( value ) =>
+							setAttributes( { hideSoldOut: value } )
 						}
 					/>
 					<TextControl

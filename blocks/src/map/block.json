@@ -16,6 +16,46 @@
 		"height": {
 			"type": "number",
 			"default": 400
+		},
+		"venue": {
+			"type": "number",
+			"default": 0
+		},
+		"upcoming": {
+			"type": "boolean",
+			"default": false
+		},
+		"search": {
+			"type": "string",
+			"default": ""
+		},
+		"center": {
+			"type": "string",
+			"default": ""
+		},
+		"zoom": {
+			"type": "number",
+			"default": 0
+		},
+		"fit": {
+			"type": "boolean",
+			"default": false
+		},
+		"link": {
+			"type": "boolean",
+			"default": true
+		},
+		"provider": {
+			"type": "string",
+			"default": ""
+		},
+		"showAddress": {
+			"type": "boolean",
+			"default": false
+		},
+		"showNextEvent": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"supports": {

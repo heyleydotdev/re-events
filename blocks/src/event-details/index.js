@@ -7,8 +7,27 @@ import ServerSideRender from '@wordpress/server-side-render';
 import metadata from './block.json';
 
 function Edit( { attributes, setAttributes } ) {
-	const { id, showVenue, showOrganizers, showOnlineLinks, showContent } =
-		attributes;
+	const {
+		id,
+		showImage,
+		imageSize,
+		showTitle,
+		titleTag,
+		showStatus,
+		showVenue,
+		showVenueAddress,
+		showVenueMapLink,
+		showOrganizers,
+		showPrice,
+		showSeatsLeft,
+		showCategories,
+		showTags,
+		showExcerpt,
+		showEnd,
+		showOnlineLinks,
+		showCalendarLinks,
+		showContent,
+	} = attributes;
 	const events = useSelect(
 		( select ) =>
 			select( 'core' ).getEntityRecords( 'postType', 'reevents_event', {
@@ -16,6 +35,24 @@ function Edit( { attributes, setAttributes } ) {
 			} ) || [],
 		[]
 	);
+	const imageSizes = useSelect( ( select ) => {
+		const store = select( 'core/block-editor' );
+		const sizes =
+			store && store.getSettings
+				? store.getSettings()?.imageSizes || []
+				: [];
+
+		return sizes.map( ( size ) => ( {
+			value: size.slug,
+			label: size.name,
+		} ) );
+	}, [] );
+	const imageSizeOptions = imageSizes.length
+		? imageSizes
+		: [ 'thumbnail', 'medium', 'large', 'full' ].map( ( size ) => ( {
+				value: size,
+				label: size,
+		  } ) );
 
 	return (
 		<>
@@ -39,10 +76,77 @@ function Edit( { attributes, setAttributes } ) {
 						}
 					/>
 					<ToggleControl
+						label={ __( 'Show image', 're-events' ) }
+						checked={ showImage }
+						onChange={ ( value ) =>
+							setAttributes( { showImage: value } )
+						}
+					/>
+					{ showImage && (
+						<SelectControl
+							label={ __( 'Image size', 're-events' ) }
+							value={ imageSize }
+							options={ imageSizeOptions }
+							onChange={ ( value ) =>
+								setAttributes( { imageSize: value } )
+							}
+						/>
+					) }
+					<ToggleControl
+						label={ __( 'Show title', 're-events' ) }
+						checked={ showTitle }
+						onChange={ ( value ) =>
+							setAttributes( { showTitle: value } )
+						}
+					/>
+					{ showTitle && (
+						<SelectControl
+							label={ __( 'Title markup', 're-events' ) }
+							value={ titleTag }
+							options={ [
+								{ value: 'h1', label: 'H1' },
+								{ value: 'h2', label: 'H2' },
+								{ value: 'h3', label: 'H3' },
+								{ value: 'div', label: 'DIV' },
+							] }
+							onChange={ ( value ) =>
+								setAttributes( { titleTag: value } )
+							}
+						/>
+					) }
+					<ToggleControl
+						label={ __( 'Show status', 're-events' ) }
+						checked={ showStatus }
+						onChange={ ( value ) =>
+							setAttributes( { showStatus: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show end date', 're-events' ) }
+						checked={ showEnd }
+						onChange={ ( value ) =>
+							setAttributes( { showEnd: value } )
+						}
+					/>
+					<ToggleControl
 						label={ __( 'Show venue', 're-events' ) }
 						checked={ showVenue }
 						onChange={ ( value ) =>
 							setAttributes( { showVenue: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show venue address', 're-events' ) }
+						checked={ showVenueAddress }
+						onChange={ ( value ) =>
+							setAttributes( { showVenueAddress: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show venue map link', 're-events' ) }
+						checked={ showVenueMapLink }
+						onChange={ ( value ) =>
+							setAttributes( { showVenueMapLink: value } )
 						}
 					/>
 					<ToggleControl
@@ -53,10 +157,52 @@ function Edit( { attributes, setAttributes } ) {
 						}
 					/>
 					<ToggleControl
+						label={ __( 'Show price', 're-events' ) }
+						checked={ showPrice }
+						onChange={ ( value ) =>
+							setAttributes( { showPrice: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show seats left', 're-events' ) }
+						checked={ showSeatsLeft }
+						onChange={ ( value ) =>
+							setAttributes( { showSeatsLeft: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show categories', 're-events' ) }
+						checked={ showCategories }
+						onChange={ ( value ) =>
+							setAttributes( { showCategories: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show tags', 're-events' ) }
+						checked={ showTags }
+						onChange={ ( value ) =>
+							setAttributes( { showTags: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show excerpt', 're-events' ) }
+						checked={ showExcerpt }
+						onChange={ ( value ) =>
+							setAttributes( { showExcerpt: value } )
+						}
+					/>
+					<ToggleControl
 						label={ __( 'Show online links', 're-events' ) }
 						checked={ showOnlineLinks }
 						onChange={ ( value ) =>
 							setAttributes( { showOnlineLinks: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show calendar links', 're-events' ) }
+						checked={ showCalendarLinks }
+						onChange={ ( value ) =>
+							setAttributes( { showCalendarLinks: value } )
 						}
 					/>
 					<ToggleControl

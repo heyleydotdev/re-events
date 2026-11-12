@@ -9,6 +9,34 @@
 	"keywords": [ "events", "calendar", "reevents" ],
 	"textdomain": "re-events",
 	"attributes": {
+		"category": {
+			"type": "string",
+			"default": "0"
+		},
+		"tag": {
+			"type": "string",
+			"default": ""
+		},
+		"venue": {
+			"type": "number",
+			"default": 0
+		},
+		"organizer": {
+			"type": "number",
+			"default": 0
+		},
+		"showCancelled": {
+			"type": "boolean",
+			"default": false
+		},
+		"showToday": {
+			"type": "boolean",
+			"default": false
+		},
+		"weekStart": {
+			"type": "string",
+			"default": "mon"
+		},
 		"showNav": {
 			"type": "boolean",
 			"default": true
