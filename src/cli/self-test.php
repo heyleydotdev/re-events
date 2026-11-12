@@ -159,6 +159,7 @@ final class Self_Test {
 			[
 				'upcoming' => true,
 				'per_page' => 100,
+				'search'   => 'Self test recurring',
 			]
 		);
 
