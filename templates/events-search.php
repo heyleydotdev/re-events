@@ -74,6 +74,7 @@ if ( ! empty( $widget_args['show_dates'] ) ) {
 
 if ( ! empty( $widget_args['show_upcoming'] ) ) {
 	echo '<p class="reevents-search-field">';
+	echo '<input type="hidden" name="reevents_upcoming" value="0" />';
 	echo '<label><input type="checkbox" name="reevents_upcoming" value="1" ' . checked( $filters['upcoming'], true, false ) . ' /> ' . esc_html( (string) ( $widget_args['upcoming_label'] ?? __( 'Only upcoming', 're-events' ) ) ) . '</label>';
 	echo '</p>';
 }

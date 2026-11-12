@@ -4,7 +4,7 @@
  *
  * @package ReEvents
  *
- * @var array{events: array<int, \ReEvents\Domain\Event>, summaries: array<int, array<string, mixed>>, args: array<string, mixed>, page: int, pages: int, total: int, base_url: string} $args
+ * @var array{events: array<int, \ReEvents\Domain\Event>, summaries: array<int, array<string, mixed>>, args: array<string, mixed>, pagination: string} $args
  */
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are scoped to the template include.
@@ -80,24 +80,8 @@ foreach ( $args['events'] as $event ) {
 
 echo '</ul>';
 
-$page_count = (int) ( $args['pages'] ?? 0 );
-
-if ( $page_count > 1 ) {
-	$links = paginate_links(
-		[
-			'base'      => add_query_arg( 'reevents_page', '%_%', (string) $args['base_url'] ),
-			'format'    => '%#%',
-			'current'   => max( 1, (int) $args['page'] ),
-			'total'     => $page_count,
-			'type'      => 'list',
-			'prev_text' => __( 'Previous', 're-events' ),
-			'next_text' => __( 'Next', 're-events' ),
-		]
-	);
-
-	if ( is_string( $links ) ) {
-		echo '<nav class="reevents-pagination" aria-label="' . esc_attr__( 'Event pages', 're-events' ) . '">' . $links . '</nav>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Core pagination markup.
-	}
+if ( '' !== (string) ( $args['pagination'] ?? '' ) ) {
+	echo $args['pagination']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by Pagination.
 }
 
 echo '</div>';

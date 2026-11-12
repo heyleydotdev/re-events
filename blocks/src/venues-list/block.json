@@ -16,6 +16,14 @@
 		"showDescription": {
 			"type": "boolean",
 			"default": true
+		},
+		"paginate": {
+			"type": "boolean",
+			"default": true
+		},
+		"paginationKey": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"supports": {

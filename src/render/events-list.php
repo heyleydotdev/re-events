@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace ReEvents\Render;
 
 use ReEvents\Data\Event_Repository;
+use ReEvents\Data\Meta;
 use ReEvents\Data\Ticket_Repository;
 use ReEvents\Query\Event_Query;
 
@@ -24,10 +25,42 @@ final class Events_List {
 	 * @param array<string, mixed> $args Widget arguments.
 	 */
 	public static function render( array $args ): string {
-		$requested = absint( $_GET['reevents_page'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public pagination.
-		$page      = max( 1, $requested > 0 ? $requested : (int) ( $args['page'] ?? 1 ) );
+		$paginate  = Pagination::enabled( $args );
+		$param     = Pagination::param( $args, 'reevents_page_', 'reevents_page' );
+		$page      = Pagination::page( $args, $param, $paginate );
+		$search    = (string) ( $args['search'] ?? '' );
+		$category  = (int) ( $args['category'] ?? 0 );
 		$venue     = $args['venue'] ?? 0;
 		$organizer = $args['organizer'] ?? 0;
+		$from      = (string) ( $args['from'] ?? '' );
+		$to        = (string) ( $args['to'] ?? '' );
+		$upcoming  = ! empty( $args['upcoming'] );
+
+		if ( ! empty( $args['use_query'] ) ) {
+			if ( self::has_query_key( 'reevents_search' ) ) {
+				$search = self::query_value( 'reevents_search' );
+			}
+
+			if ( self::has_query_key( 'reevents_category' ) ) {
+				$category = absint( self::query_value( 'reevents_category' ) );
+			}
+
+			if ( self::has_query_key( 'reevents_venue_filter' ) ) {
+				$venue = absint( self::query_value( 'reevents_venue_filter' ) );
+			}
+
+			if ( self::has_query_key( 'reevents_from' ) ) {
+				$from = Meta::sanitize_date( self::query_value( 'reevents_from' ) );
+			}
+
+			if ( self::has_query_key( 'reevents_to' ) ) {
+				$to = Meta::sanitize_date( self::query_value( 'reevents_to' ) );
+			}
+
+			if ( self::has_query_key( 'reevents_upcoming' ) ) {
+				$upcoming = ! empty( self::query_value( 'reevents_upcoming' ) );
+			}
+		}
 
 		if ( 'current' === $venue ) {
 			$venue = 'reevents_venue' === get_post_type() ? (int) get_the_ID() : -1;
@@ -41,13 +74,13 @@ final class Events_List {
 			[
 				'per_page'  => max( 1, (int) ( $args['limit'] ?? 5 ) ),
 				'page'      => $page,
-				'search'    => (string) ( $args['search'] ?? '' ),
-				'category'  => (int) ( $args['category'] ?? 0 ),
+				'search'    => $search,
+				'category'  => $category,
 				'venue'     => (int) $venue,
 				'organizer' => (int) $organizer,
-				'upcoming'  => ! empty( $args['upcoming'] ),
-				'from'      => (string) ( $args['from'] ?? '' ),
-				'to'        => (string) ( $args['to'] ?? '' ),
+				'upcoming'  => $upcoming,
+				'from'      => $from,
+				'to'        => $to,
 			]
 		);
 		$repo   = new Event_Repository();
@@ -75,19 +108,44 @@ final class Events_List {
 			update_object_term_cache( $event_ids, 'reevents_event_category' );
 		}
 
-		$base_url = (string) remove_query_arg( 'reevents_page' );
+		$base_url = (string) remove_query_arg( [ $param, 'reevents_page' ] );
+		$base_url = '' !== $base_url ? $base_url : home_url( '/' );
+		$pager    = $paginate ? Pagination::links( $param, $base_url, $page, (int) $result['pages'], __( 'Event pages', 're-events' ) ) : '';
 
 		return Template::render(
 			'events-list',
 			[
-				'events'    => $events,
-				'summaries' => $summaries,
-				'args'      => $args,
-				'page'      => $page,
-				'pages'     => (int) $result['pages'],
-				'total'     => (int) $result['total'],
-				'base_url'  => '' !== $base_url ? $base_url : home_url( '/' ),
+				'events'     => $events,
+				'summaries'  => $summaries,
+				'args'       => $args,
+				'pagination' => $pager,
 			]
 		);
+	}
+
+	/**
+	 * Whether the current URL carries a usable search value.
+	 *
+	 * @param string $key Query argument.
+	 */
+	private static function has_query_key( string $key ): bool {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only search filters.
+		return isset( $_GET[ $key ] ) && is_scalar( $_GET[ $key ] );
+		// phpcs:enable
+	}
+
+	/**
+	 * Read one sanitized search value.
+	 *
+	 * @param string $key Query argument.
+	 */
+	private static function query_value( string $key ): string {
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Read-only search filters, sanitized below.
+		if ( ! isset( $_GET[ $key ] ) || ! is_scalar( $_GET[ $key ] ) ) {
+			return '';
+		}
+
+		return sanitize_text_field( wp_unslash( $_GET[ $key ] ) );
+		// phpcs:enable
 	}
 }

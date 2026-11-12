@@ -25,9 +25,21 @@
 			"type": "boolean",
 			"default": true
 		},
+		"useQuery": {
+			"type": "boolean",
+			"default": false
+		},
 		"showVenue": {
 			"type": "boolean",
 			"default": true
+		},
+		"paginate": {
+			"type": "boolean",
+			"default": true
+		},
+		"paginationKey": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"supports": {

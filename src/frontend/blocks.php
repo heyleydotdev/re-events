@@ -50,6 +50,8 @@ final class Blocks {
 			'showUpcoming'    => 'show_upcoming',
 			'showResults'     => 'show_results',
 			'showDescription' => 'show_description',
+			'paginationKey'   => 'pagination_key',
+			'useQuery'        => 'use_query',
 			'showNav'         => 'show_nav',
 			'className'       => 'class',
 			'wrapperClass'    => 'wrapper_class',

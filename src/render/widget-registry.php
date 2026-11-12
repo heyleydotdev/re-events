@@ -74,6 +74,11 @@ final class Widget_Registry {
 						'type'    => 'toggle',
 						'default' => true,
 					],
+					'use_query'       => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Use the event search values in the current URL. Pair with a search form that hides its results.', 're-events' ),
+					],
 					'show_venue'      => [
 						'type'    => 'toggle',
 						'default' => true,
@@ -82,6 +87,16 @@ final class Widget_Registry {
 						'type'        => 'number',
 						'default'     => 0,
 						'description' => __( 'Page number. 0 uses the current page.', 're-events' ),
+					],
+					'paginate'        => [
+						'type'        => 'toggle',
+						'default'     => true,
+						'description' => __( 'Show pagination links. Turn off for sidebar and teaser lists.', 're-events' ),
+					],
+					'pagination_key'  => [
+						'type'        => 'text',
+						'default'     => '',
+						'description' => __( 'Suffix for the page URL argument when several lists share a page, for example main.', 're-events' ),
 					],
 					'show_image'      => [
 						'type'        => 'toggle',
@@ -229,6 +244,21 @@ final class Widget_Registry {
 					'limit'            => [
 						'type'    => 'number',
 						'default' => 10,
+					],
+					'page'             => [
+						'type'        => 'number',
+						'default'     => 1,
+						'description' => __( 'Page number. 1 is the first page.', 're-events' ),
+					],
+					'paginate'         => [
+						'type'        => 'toggle',
+						'default'     => true,
+						'description' => __( 'Show pagination links. Turn off for featured venue lists.', 're-events' ),
+					],
+					'pagination_key'   => [
+						'type'        => 'text',
+						'default'     => '',
+						'description' => __( 'Suffix for the page URL argument when several venue lists share a page, for example featured.', 're-events' ),
 					],
 					'show_description' => [
 						'type'    => 'toggle',

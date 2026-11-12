@@ -12,7 +12,16 @@ import ServerSideRender from '@wordpress/server-side-render';
 import metadata from './block.json';
 
 function Edit( { attributes, setAttributes } ) {
-	const { limit, category, venue, upcoming, showVenue } = attributes;
+	const {
+		limit,
+		category,
+		venue,
+		upcoming,
+		showVenue,
+		useQuery,
+		paginate,
+		paginationKey,
+	} = attributes;
 	const categories = useSelect(
 		( select ) =>
 			select( 'core' ).getEntityRecords(
@@ -98,6 +107,39 @@ function Edit( { attributes, setAttributes } ) {
 						checked={ showVenue }
 						onChange={ ( value ) =>
 							setAttributes( { showVenue: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Use search query', 're-events' ) }
+						help={ __(
+							'Use the values from a search form on the same page.',
+							're-events'
+						) }
+						checked={ useQuery }
+						onChange={ ( value ) =>
+							setAttributes( { useQuery: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show pagination', 're-events' ) }
+						help={ __(
+							'Turn off for sidebar and teaser lists.',
+							're-events'
+						) }
+						checked={ paginate }
+						onChange={ ( value ) =>
+							setAttributes( { paginate: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Pagination key', 're-events' ) }
+						help={ __(
+							'Only needed when several paginated lists share a page.',
+							're-events'
+						) }
+						value={ paginationKey }
+						onChange={ ( value ) =>
+							setAttributes( { paginationKey: value } )
 						}
 					/>
 				</PanelBody>

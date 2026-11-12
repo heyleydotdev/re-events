@@ -22,12 +22,16 @@ final class Venues_List {
 	 * @param array<string, mixed> $args Widget arguments.
 	 */
 	public static function render( array $args ): string {
-		$query = new WP_Query(
+		$paginate = Pagination::enabled( $args );
+		$param    = Pagination::param( $args, 'reevents_venue_page_', 'reevents_venue_page' );
+		$page     = Pagination::page( $args, $param, $paginate );
+		$query    = new WP_Query(
 			[
 				'post_type'      => 'reevents_venue',
 				'post_status'    => 'publish',
 				'posts_per_page' => max( 1, (int) ( $args['limit'] ?? 10 ) ),
-				'no_found_rows'  => true,
+				'paged'          => $page,
+				'no_found_rows'  => ! $paginate,
 				'orderby'        => 'title',
 				'order'          => 'ASC',
 			]
@@ -44,11 +48,16 @@ final class Venues_List {
 			];
 		}
 
+		$base_url = (string) remove_query_arg( [ $param, 'reevents_venue_page' ] );
+		$base_url = '' !== $base_url ? $base_url : home_url( '/' );
+		$pager    = $paginate ? Pagination::links( $param, $base_url, $page, (int) $query->max_num_pages, __( 'Venue pages', 're-events' ) ) : '';
+
 		return Template::render(
 			'venues-list',
 			[
-				'venues' => $venues,
-				'args'   => $args,
+				'venues'     => $venues,
+				'args'       => $args,
+				'pagination' => $pager,
 			]
 		);
 	}

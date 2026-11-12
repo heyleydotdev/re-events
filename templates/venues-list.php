@@ -4,7 +4,7 @@
  *
  * @package ReEvents
  *
- * @var array{venues: array<int, array{id: int, title: string, permalink: string, content: string}>, args: array<string, mixed>} $args
+ * @var array{venues: array<int, array{id: int, title: string, permalink: string, content: string}>, args: array<string, mixed>, pagination: string} $args
  */
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are scoped to the template include.
@@ -29,4 +29,9 @@ foreach ( $args['venues'] as $venue ) {
 }
 
 echo '</ul>';
+
+if ( '' !== (string) ( $args['pagination'] ?? '' ) ) {
+	echo $args['pagination']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by Pagination.
+}
+
 echo '</div>';

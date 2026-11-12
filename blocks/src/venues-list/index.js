@@ -6,7 +6,7 @@ import ServerSideRender from '@wordpress/server-side-render';
 import metadata from './block.json';
 
 function Edit( { attributes, setAttributes } ) {
-	const { limit, showDescription } = attributes;
+	const { limit, showDescription, paginate, paginationKey } = attributes;
 
 	return (
 		<>
@@ -31,6 +31,28 @@ function Edit( { attributes, setAttributes } ) {
 						checked={ showDescription }
 						onChange={ ( value ) =>
 							setAttributes( { showDescription: value } )
+						}
+					/>
+					<ToggleControl
+						label={ __( 'Show pagination', 're-events' ) }
+						help={ __(
+							'Turn off for featured venue lists.',
+							're-events'
+						) }
+						checked={ paginate }
+						onChange={ ( value ) =>
+							setAttributes( { paginate: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Pagination key', 're-events' ) }
+						help={ __(
+							'Only needed when several paginated lists share a page.',
+							're-events'
+						) }
+						value={ paginationKey }
+						onChange={ ( value ) =>
+							setAttributes( { paginationKey: value } )
 						}
 					/>
 				</PanelBody>

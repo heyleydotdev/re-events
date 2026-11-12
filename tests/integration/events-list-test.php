@@ -13,6 +13,7 @@ use ReEvents\CLI\Test_Factory;
 use ReEvents\Data\Ticket_Repository;
 use ReEvents\Query\Event_Query;
 use ReEvents\Render\Events_List;
+use ReEvents\Render\Venues_List;
 use ReEvents\Services\Occurrence_Service;
 use WP_UnitTestCase;
 
@@ -340,6 +341,254 @@ final class Events_List_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A teaser list ignores the page argument used by the main list.
+	 */
+	public function test_sidebar_list_ignores_main_page(): void {
+		$prefix = $this->events( 7 );
+
+		$_GET['reevents_page'] = '2';
+
+		$html = Events_List::render(
+			[
+				'limit'    => 5,
+				'paginate' => 0,
+				'upcoming' => false,
+				'search'   => $prefix,
+			]
+		);
+
+		self::assertStringContainsString( $prefix . ' 1', $html );
+		self::assertStringNotContainsString( 'reevents-pagination', $html );
+	}
+
+	/**
+	 * A custom pagination key reads and writes its own page argument.
+	 */
+	public function test_custom_pagination_key(): void {
+		$prefix = $this->events( 7 );
+
+		$_GET['reevents_page_main'] = '2';
+
+		$html = Events_List::render(
+			[
+				'limit'          => 3,
+				'pagination_key' => 'main',
+				'upcoming'       => false,
+				'search'         => $prefix,
+			]
+		);
+
+		self::assertStringContainsString( $prefix . ' 4', $html );
+		self::assertStringContainsString( 'reevents-pagination', $html );
+	}
+
+	/**
+	 * Venue lists paginate and expose the venue page argument.
+	 */
+	public function test_venue_list_paginates(): void {
+		$existing = get_posts(
+			[
+				'post_type'      => 'reevents_venue',
+				'post_status'    => 'any',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+			]
+		);
+
+		foreach ( $existing as $venue_id ) {
+			wp_delete_post( (int) $venue_id, true );
+		}
+
+		for ( $i = 1; $i <= 4; $i++ ) {
+			wp_insert_post(
+				[
+					'post_type'   => 'reevents_venue',
+					'post_status' => 'publish',
+					'post_title'  => 'Paged venue ' . $i,
+				]
+			);
+		}
+
+		$html = Venues_List::render(
+			[
+				'limit' => 2,
+				'page'  => 2,
+			]
+		);
+
+		self::assertStringContainsString( 'Paged venue 3', $html );
+		self::assertStringNotContainsString( 'Paged venue 1', $html );
+		self::assertStringContainsString( 'reevents-pagination', $html );
+	}
+
+	/**
+	 * The list can read the event search form values.
+	 */
+	public function test_list_uses_search_query(): void {
+		Test_Factory::event(
+			[
+				'title' => 'Searchable alpha',
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+1 day' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 day +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+				],
+			]
+		);
+		Test_Factory::event(
+			[
+				'title' => 'Searchable beta',
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+				],
+			]
+		);
+
+		$_GET['reevents_search'] = 'alpha';
+
+		$html = Events_List::render(
+			[
+				'use_query' => 1,
+				'limit'     => 10,
+				'upcoming'  => false,
+			]
+		);
+
+		self::assertStringContainsString( 'Searchable alpha', $html );
+		self::assertStringNotContainsString( 'Searchable beta', $html );
+	}
+
+	/**
+	 * Use-query keeps attributes whose fields the form did not submit.
+	 */
+	public function test_use_query_keeps_unsubmitted_attributes(): void {
+		$past   = Test_Factory::event(
+			[
+				'title' => 'Searchable alpha past',
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '-2 days' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '-2 days +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_status'    => 'scheduled',
+				],
+			]
+		);
+		$future = Test_Factory::event(
+			[
+				'title' => 'Searchable alpha future',
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_status'    => 'scheduled',
+				],
+			]
+		);
+
+		Occurrence_Service::sync( $past );
+		Occurrence_Service::sync( $future );
+
+		$_GET['reevents_search'] = 'alpha';
+
+		$html = Events_List::render(
+			[
+				'use_query' => 1,
+				'upcoming'  => true,
+				'limit'     => 10,
+			]
+		);
+
+		self::assertStringContainsString( 'Searchable alpha future', $html );
+		self::assertStringNotContainsString( 'Searchable alpha past', $html );
+	}
+
+	/**
+	 * Use-query applies submitted date filters.
+	 */
+	public function test_use_query_applies_dates(): void {
+		$inside  = Test_Factory::event(
+			[
+				'title' => 'Date range inside',
+				'meta'  => [
+					'_reevents_start_utc' => '2027-06-01 10:00:00',
+					'_reevents_end_utc'   => '2027-06-01 11:00:00',
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_status'    => 'scheduled',
+				],
+			]
+		);
+		$outside = Test_Factory::event(
+			[
+				'title' => 'Date range outside',
+				'meta'  => [
+					'_reevents_start_utc' => '2026-06-01 10:00:00',
+					'_reevents_end_utc'   => '2026-06-01 11:00:00',
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_status'    => 'scheduled',
+				],
+			]
+		);
+
+		Occurrence_Service::sync( $inside );
+		Occurrence_Service::sync( $outside );
+
+		$_GET['reevents_from'] = '2027-01-01';
+		$_GET['reevents_to']   = '2027-12-31';
+
+		$html = Events_List::render(
+			[
+				'use_query' => 1,
+				'upcoming'  => false,
+				'limit'     => 10,
+			]
+		);
+
+		self::assertStringContainsString( 'Date range inside', $html );
+		self::assertStringNotContainsString( 'Date range outside', $html );
+	}
+
+	/**
+	 * The list ignores search values unless explicitly asked.
+	 */
+	public function test_list_ignores_search_query_without_flag(): void {
+		Test_Factory::event(
+			[
+				'title' => 'Searchable alpha',
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+1 day' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 day +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+				],
+			]
+		);
+		Test_Factory::event(
+			[
+				'title' => 'Searchable beta',
+				'meta'  => [
+					'_reevents_start_utc' => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days' ) ),
+					'_reevents_end_utc'   => gmdate( 'Y-m-d H:i:s', strtotime( '+2 days +1 hour' ) ),
+					'_reevents_timezone'  => 'UTC',
+				],
+			]
+		);
+
+		$_GET['reevents_search'] = 'alpha';
+
+		$html = Events_List::render(
+			[
+				'limit'    => 10,
+				'upcoming' => false,
+			]
+		);
+
+		self::assertStringContainsString( 'Searchable alpha', $html );
+		self::assertStringContainsString( 'Searchable beta', $html );
+	}
+
+	/**
 	 * The page argument returns one page and pager links.
 	 */
 	public function test_page_argument(): void {
@@ -404,5 +653,25 @@ final class Events_List_Test extends WP_UnitTestCase {
 
 		self::assertSame( 1, substr_count( $html, '<li class="reevents-event">' ) );
 		self::assertStringContainsString( $prefix . ' 4', $html );
+	}
+
+	/**
+	 * Clear pagination query arguments.
+	 */
+	public function tear_down(): void {
+		unset(
+			$_GET['reevents_page'],
+			$_GET['reevents_page_main'],
+			$_GET['reevents_venue_page'],
+			$_GET['reevents_venue_page_featured'],
+			$_GET['reevents_search'],
+			$_GET['reevents_category'],
+			$_GET['reevents_venue_filter'],
+			$_GET['reevents_from'],
+			$_GET['reevents_to'],
+			$_GET['reevents_upcoming']
+		);
+
+		parent::tear_down();
 	}
 }
