@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-12T21:24:24+00:00\n"
+"POT-Creation-Date: 2026-11-12T22:53:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: re-events\n"
@@ -18,7 +18,7 @@ msgstr ""
 #: re-events.php
 #: src/admin/menu.php:39
 #: src/admin/menu.php:40
-#: src/admin/menu.php:271
+#: src/admin/menu.php:277
 msgid "ReEvents"
 msgstr ""
 
@@ -164,7 +164,7 @@ msgstr ""
 #: src/admin/attendees.php:35
 #: src/admin/attendees.php:36
 #: src/admin/attendees.php:60
-#: src/admin/menu.php:255
+#: src/admin/menu.php:256
 #: src/admin/quick-view.php:95
 #: src/services/booking-emails.php:475
 #: src/services/booking-validator.php:53
@@ -250,7 +250,7 @@ msgstr ""
 #: src/admin/bookings.php:35
 #: src/admin/bookings.php:36
 #: src/admin/bookings.php:66
-#: src/admin/menu.php:250
+#: src/admin/menu.php:251
 #: src/admin/settings.php:511
 msgid "Bookings"
 msgstr ""
@@ -361,27 +361,34 @@ msgstr ""
 msgid "ReEvents documentation"
 msgstr ""
 
-#: src/admin/menu.php:226
+#: src/admin/menu.php:227
 #: src/data/post-types.php:31
 #: blocks/build/events-list/index.js:1
 #: blocks/src/events-list/index.js:101
 msgid "Events"
 msgstr ""
 
-#: src/admin/menu.php:234
+#: src/admin/menu.php:235
 #: src/data/post-types.php:51
 #: blocks/build/venues-list/index.js:1
 #: blocks/src/venues-list/index.js:58
 msgid "Venues"
 msgstr ""
 
-#: src/admin/menu.php:242
+#: src/admin/menu.php:243
 #: src/admin/meta-boxes.php:411
 #: src/data/post-types.php:70
 msgid "Organizers"
 msgstr ""
 
-#: src/admin/menu.php:263
+#: src/admin/menu.php:261
+#: src/admin/statistics.php:36
+#: src/admin/statistics.php:37
+#: src/admin/statistics.php:130
+msgid "Statistics"
+msgstr ""
+
+#: src/admin/menu.php:269
 #: src/admin/settings.php:492
 msgid "Settings"
 msgstr ""
@@ -1385,6 +1392,103 @@ msgstr ""
 msgid "Saved — leave blank to keep"
 msgstr ""
 
+#: src/admin/statistics.php:97
+msgid "Total Sales"
+msgstr ""
+
+#: src/admin/statistics.php:102
+msgid "Total Tickets"
+msgstr ""
+
+#: src/admin/statistics.php:107
+msgid "Total Bookings"
+msgstr ""
+
+#: src/admin/statistics.php:112
+msgid "Average Sale"
+msgstr ""
+
+#: src/admin/statistics.php:117
+msgid "Average Ticket"
+msgstr ""
+
+#: src/admin/statistics.php:122
+msgid "Tickets / Booking"
+msgstr ""
+
+#: src/admin/statistics.php:134
+#: src/render/widget-registry.php:549
+#: src/render/widget-registry.php:1070
+#: templates/events-search.php:107
+msgid "From"
+msgstr ""
+
+#: src/admin/statistics.php:136
+#: src/render/widget-registry.php:553
+#: src/render/widget-registry.php:1071
+#: templates/events-search.php:112
+msgid "To"
+msgstr ""
+
+#: src/admin/statistics.php:138
+#: src/admin/ticket-editor.php:155
+msgid "Currency"
+msgstr ""
+
+#: src/admin/statistics.php:144
+msgid "Apply"
+msgstr ""
+
+#: src/admin/statistics.php:145
+msgid "Reset"
+msgstr ""
+
+#: src/admin/statistics.php:159
+msgid "All time"
+msgstr ""
+
+#: src/admin/statistics.php:162
+msgid "Defaults to the last 30 days. Choose All time to show the full history."
+msgstr ""
+
+#: src/admin/statistics.php:179
+msgid "Monthly Sales"
+msgstr ""
+
+#: src/admin/statistics.php:183
+msgid "No confirmed sales in this range."
+msgstr ""
+
+#: src/admin/statistics.php:188
+msgid "Confirmed bookings only. Free bookings count toward tickets and bookings. Sales are net of partial refunds. Amounts are shown in the selected currency."
+msgstr ""
+
+#: src/admin/statistics.php:215
+msgid "One or more dates were invalid. Showing the last 30 days."
+msgstr ""
+
+#: src/admin/statistics.php:219
+msgid "The start date must be before the end date. Showing the last 30 days."
+msgstr ""
+
+#. translators: %s: currency code.
+#: src/admin/statistics.php:299
+#, php-format
+msgid "Monthly net sales in %s"
+msgstr ""
+
+#. translators: %s: currency code.
+#: src/admin/statistics.php:300
+#: src/admin/statistics.php:321
+msgid "Monthly net sales"
+msgstr ""
+
+#. translators: %s: formatted amount.
+#: src/admin/statistics.php:331
+#, php-format
+msgid "Chart total: %s"
+msgstr ""
+
 #: src/admin/ticket-editor.php:44
 msgid "Tickets"
 msgstr ""
@@ -1413,10 +1517,6 @@ msgstr ""
 
 #: src/admin/ticket-editor.php:154
 msgid "Price"
-msgstr ""
-
-#: src/admin/ticket-editor.php:155
-msgid "Currency"
 msgstr ""
 
 #: src/admin/ticket-editor.php:159
@@ -1814,7 +1914,7 @@ msgstr ""
 msgid "Venue website."
 msgstr ""
 
-#: src/data/payment-repository.php:55
+#: src/data/payment-repository.php:56
 msgid "The payment could not be saved."
 msgstr ""
 
@@ -2619,18 +2719,6 @@ msgstr ""
 #: blocks/src/calendar/index.js:67
 #: blocks/src/events-list/index.js:124
 msgid "Category"
-msgstr ""
-
-#: src/render/widget-registry.php:549
-#: src/render/widget-registry.php:1070
-#: templates/events-search.php:107
-msgid "From"
-msgstr ""
-
-#: src/render/widget-registry.php:553
-#: src/render/widget-registry.php:1071
-#: templates/events-search.php:112
-msgid "To"
 msgstr ""
 
 #: src/render/widget-registry.php:557
@@ -4060,20 +4148,20 @@ msgstr ""
 #: src/services/payment-service.php:52
 #: src/services/payment-service.php:185
 #: src/services/payment-service.php:272
-#: src/services/payment-service.php:387
+#: src/services/payment-service.php:388
 msgid "Invalid payment gateway."
 msgstr ""
 
 #: src/services/payment-service.php:95
-#: src/services/payment-service.php:310
-#: src/services/payment-service.php:429
+#: src/services/payment-service.php:311
+#: src/services/payment-service.php:430
 msgid "The payment could not be updated."
 msgstr ""
 
 #: src/services/payment-service.php:165
 #: src/services/payment-service.php:210
 #: src/services/payment-service.php:262
-#: src/services/payment-service.php:381
+#: src/services/payment-service.php:382
 msgid "Payment not found."
 msgstr ""
 
@@ -4081,12 +4169,12 @@ msgstr ""
 msgid "A refund is already being processed."
 msgstr ""
 
-#: src/services/payment-service.php:351
+#: src/services/payment-service.php:352
 msgid "No successful payment was found."
 msgstr ""
 
-#: src/services/payment-service.php:463
-#: src/services/payment-service.php:474
+#: src/services/payment-service.php:464
+#: src/services/payment-service.php:475
 msgid "Awaiting approval"
 msgstr ""
 
