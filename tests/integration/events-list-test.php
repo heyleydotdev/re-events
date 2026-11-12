@@ -579,8 +579,9 @@ final class Events_List_Test extends WP_UnitTestCase {
 
 		$html = Events_List::render(
 			[
-				'limit'    => 10,
+				'limit'    => 100,
 				'upcoming' => false,
+				'search'   => 'Searchable',
 			]
 		);
 
