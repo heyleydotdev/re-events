@@ -10,7 +10,7 @@ Open **ReEvents → Settings**.
 - **Formats:** date and time formats used by every renderer.
 - **Booking rules:** require approval, unpaid hold window, custom attendee fields.
 - **Payments:** gateway, default currency, Stripe or PayPal credentials.
-- **Emails:** admin and attendee templates with placeholders.
+- **Emails:** sender and recipients, admin and attendee templates with placeholders, HTML layout and lifecycle mail.
 - **API:** enable the REST API, public reads, rate limit, CORS origins, feed token.
 
 ## 2. Content
@@ -41,7 +41,7 @@ For custom layouts, place field shortcodes next to each other instead of hiding 
 
 ## 4. Bookings
 
-Visitors submit the booking form without an account. Free bookings confirm immediately; paid bookings stay pending until the gateway confirms. The attendee receives the confirmation email, the admin address gets the booking email, and both can be customized per event.
+Visitors submit the booking form without an account. Free bookings confirm immediately; paid bookings stay pending until the gateway confirms. The attendee receives mail when the booking is confirmed, cancelled or rejected; admin recipients get new, cancelled and refunded bookings. Both templates can be customized per event. See [Emails](emails.md).
 
 Manage bookings under **ReEvents → Bookings**: view attendees, resend mail, cancel, refund, export CSV.
 

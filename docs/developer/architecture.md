@@ -55,7 +55,7 @@ REST controllers validate and sanitize request arguments, check capabilities, an
 
 `Booking_Service` owns booking creation, status changes, capacity reservation, and seat release. It runs inside a database transaction and emits `reevents_booking_created` and `reevents_booking_status_changed` for mail and integrations.
 
-`Booking_Emails` composes admin and attendee mail from global templates and per-event overrides. `Attendee_Export` streams CSV.
+`Booking_Emails` composes admin and attendee mail from global templates and per-event overrides, appends the generated booking details, and lets a detected site-wide email designer own the HTML envelope. `Attendee_Export` streams CSV.
 
 ## API
 

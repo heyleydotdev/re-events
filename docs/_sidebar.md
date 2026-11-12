@@ -6,6 +6,7 @@
 - [Public API](/api/public-api.md)
 - [Public API reference](/api/public-api-reference.md)
 - [Bookings](/bookings.md)
+- [Emails](/emails.md)
 - [Maps](/maps.md)
 - [Payments](/payments.md)
 - Developer

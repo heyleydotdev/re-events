@@ -42,6 +42,12 @@ Maximum venues in the front-end search filter.
 
 Overrides the address used by the rate limiter. Use it behind a trusted proxy. Settings → General → Client IP does the same for Cloudflare and `X-Forwarded-For` headers.
 
+### `reevents_email_format`
+
+`apply_filters( 'reevents_email_format', 'auto' )`
+
+Return `html` or `plain` to force the booking mail format. `auto` sends HTML unless a known site-wide email designer is active, then plain text. See [Emails](../emails.md).
+
 ### `reevents_geocode_venue`
 
 `apply_filters( 'reevents_geocode_venue', bool $enabled, int $venue_id )`
