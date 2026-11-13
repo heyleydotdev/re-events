@@ -276,6 +276,33 @@ Every registered widget is listed here. Arguments left at their default can be o
 [reevents_booking_form date_format="F j, Y" time_format="g:i a" show_price="1" default_quantity="1" ticket_label="Ticket" time_label="Time" quantity_label="Seats" name_label="Name" email_label="Email" button_label="Book" success_message="Booking confirmed." free_label="Free" reference_label="Reference:"]
 ```
 
+## My Bookings
+
+`[reevents_bookings]`
+
+Shows the current user's bookings with cancel and reserve-again actions. Visitors who are not logged in get a lookup form for their booking reference and the email used to book. Actions follow **Settings → Bookings → Self-service**.
+
+| Argument | Default | Description |
+| --- | --- | --- |
+| `class` | — | Extra class on the inner element. |
+| `wrapper_class` | — | Extra class on the wrapper. |
+| `heading` | My bookings | Heading above the list. Leave empty to hide it. |
+| `empty_label` | You have no bookings yet. | Message when the visitor has no bookings. |
+| `limit` | 20 | Maximum bookings shown. Capped at 100. |
+| `date_format` | site format | Date format for the event start. |
+| `time_format` | site format | Time format for the event start. |
+| `lookup_heading` | Find your booking | Heading on the guest lookup form. |
+| `lookup_button_label` | Find booking | Lookup form submit label. |
+| `reference_label` | Booking reference | Lookup reference field label. |
+| `email_label` | Email | Lookup email field label. |
+| `cancel_label` | Cancel booking | Cancel action label. |
+| `reactivate_label` | Reserve again | Restore action label. |
+| `free_label` | Free | Total shown for a free booking. |
+
+```text
+[reevents_bookings heading="My tickets" limit="20" cancel_label="Cancel booking" reactivate_label="Reserve again"]
+```
+
 ## Field shortcode
 
 `[reevents_field]` prints a single value for custom layouts:

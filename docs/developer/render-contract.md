@@ -246,6 +246,27 @@ Do not rely on inline styles. The plugin does not output them.
 | `free_label`        | `Free`               | Free ticket label                    |
 | `reference_label`   | `Reference:`         | Booking reference prefix             |
 
+### My Bookings — `[reevents_bookings]`
+
+| Argument               | Default               | Purpose                                   |
+| ---------------------- | --------------------- | ----------------------------------------- |
+| `class`                | empty                 | Extra class on the inner element          |
+| `wrapper_class`        | empty                 | Extra wrapper class                       |
+| `heading`              | `My bookings`         | Heading. Empty hides it                   |
+| `empty_label`          | `You have no bookings yet.` | Empty state                        |
+| `limit`                | `20`                  | Maximum bookings, capped at 100           |
+| `date_format`          | site format           | Event start date format                   |
+| `time_format`          | site format           | Event start time format                   |
+| `lookup_heading`       | `Find your booking`   | Guest lookup heading                      |
+| `lookup_button_label`  | `Find booking`        | Guest lookup button                       |
+| `reference_label`      | `Booking reference`   | Lookup reference label                    |
+| `email_label`          | `Email`               | Lookup email label                        |
+| `cancel_label`         | `Cancel booking`      | Cancel action label                       |
+| `reactivate_label`     | `Reserve again`       | Restore action label                      |
+| `free_label`           | `Free`                | Total for a free booking                  |
+
+Rules, access modes and the REST routes are described in [My bookings](/developer/my-bookings.md).
+
 ## Common classes
 
 - `reevents-events-list`, `reevents-event`, `reevents-event-title`, `reevents-event-title-link`

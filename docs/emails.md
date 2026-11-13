@@ -25,6 +25,7 @@ The details block is appended automatically. You do not need to repeat those fie
 | `{venue_address}` | Venue address |
 | `{ticket}` | Ticket name |
 | `{reference}` | Booking reference |
+| `{manage_url}` | Signed link to the booking in the My Bookings page. Empty when self-service or the manage page is off |
 | `{name}` | Attendee name |
 | `{email}` | Attendee email |
 | `{quantity}` | Seats |
