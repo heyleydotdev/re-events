@@ -1043,6 +1043,78 @@ final class Widget_Registry {
 			]
 		);
 
+		self::register(
+			'bookings',
+			[
+				'label'     => __( 'My Bookings', 're-events' ),
+				'shortcode' => 'reevents_bookings',
+				'renderer'  => [ Bookings::class, 'render' ],
+				'args'      => [
+					'class'               => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'wrapper_class'       => [
+						'type'    => 'text',
+						'default' => '',
+					],
+					'heading'             => [
+						'type'        => 'text',
+						'default'     => __( 'My bookings', 're-events' ),
+						'description' => __( 'Heading above the list. Leave empty to hide it.', 're-events' ),
+					],
+					'empty_label'         => [
+						'type'    => 'text',
+						'default' => __( 'You have no bookings yet.', 're-events' ),
+					],
+					'limit'               => [
+						'type'        => 'number',
+						'default'     => 20,
+						'description' => __( 'Maximum bookings shown. Capped at 100.', 're-events' ),
+					],
+					'date_format'         => [
+						'type'        => 'text',
+						'default'     => Event_Format::date_format(),
+						'description' => __( 'Date format. Defaults to the site format.', 're-events' ),
+					],
+					'time_format'         => [
+						'type'        => 'text',
+						'default'     => Event_Format::time_format(),
+						'description' => __( 'Time format. Defaults to the site format.', 're-events' ),
+					],
+					'lookup_heading'      => [
+						'type'        => 'text',
+						'default'     => __( 'Find your booking', 're-events' ),
+						'description' => __( 'Heading on the guest lookup form.', 're-events' ),
+					],
+					'lookup_button_label' => [
+						'type'    => 'text',
+						'default' => __( 'Find booking', 're-events' ),
+					],
+					'reference_label'     => [
+						'type'    => 'text',
+						'default' => __( 'Booking reference', 're-events' ),
+					],
+					'email_label'         => [
+						'type'    => 'text',
+						'default' => __( 'Email', 're-events' ),
+					],
+					'cancel_label'        => [
+						'type'    => 'text',
+						'default' => __( 'Cancel booking', 're-events' ),
+					],
+					'reactivate_label'    => [
+						'type'    => 'text',
+						'default' => __( 'Reserve again', 're-events' ),
+					],
+					'free_label'          => [
+						'type'    => 'text',
+						'default' => __( 'Free', 're-events' ),
+					],
+				],
+			]
+		);
+
 		self::decorate_args();
 	}
 
