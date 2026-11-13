@@ -149,6 +149,17 @@ final class Event_Details_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * An event without a start date renders without calendar links.
+	 */
+	public function test_missing_start_skips_calendar_links(): void {
+		$id = Test_Factory::event( [ 'title' => 'Undated event' ] );
+
+		$html = Event_Details::render( [ 'id' => $id ] );
+
+		self::assertStringNotContainsString( 'reevents-event-calendar-links', $html );
+	}
+
+	/**
 	 * The venue name links to its page while published.
 	 */
 	public function test_venue_link(): void {

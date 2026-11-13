@@ -85,6 +85,28 @@ final class Feeds_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Calendar links need a parseable start.
+	 */
+	public function test_calendar_links_need_a_start(): void {
+		$empty  = ( new Event_Repository() )->find( Test_Factory::event( [ 'title' => 'Undated event' ] ) );
+		$broken = ( new Event_Repository() )->find(
+			Test_Factory::event(
+				[
+					'title' => 'Broken date event',
+					'meta'  => [ '_reevents_start_utc' => 'not-a-date' ],
+				]
+			)
+		);
+
+		self::assertNotNull( $empty );
+		self::assertNotNull( $broken );
+		self::assertSame( [], Calendar_Links::links( $empty ) );
+		self::assertSame( [], Calendar_Links::links( $broken ) );
+		self::assertSame( '', Calendar_Links::google( $empty ) );
+		self::assertSame( '', Calendar_Links::outlook( $empty, 'https://outlook.live.com/calendar/0/deeplink/compose' ) );
+	}
+
+	/**
 	 * Password-protected events do not leak into feeds, schema or links.
 	 */
 	public function test_protected_event_is_not_exposed(): void {
