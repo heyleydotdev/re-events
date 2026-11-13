@@ -67,6 +67,23 @@
 
 			const button = form.querySelector( 'button[type="submit"]' );
 			const message = form.querySelector('.reevents-booking-message');
+
+			const setMessage = function (text, state) {
+				if (!message) {
+					return;
+				}
+
+				message.classList.remove('is-success', 'is-error');
+
+				if (state) {
+					message.classList.add(state);
+				}
+
+				message.textContent = text;
+			};
+
+			setMessage('');
+
 			const data = new FormData(form);
 			const headers = { 'Content-Type': 'application/json' };
 			const nonce = String(data.get('reevents_rest_nonce') || '');
@@ -120,16 +137,19 @@
 						const referenceLabel = form.dataset.referenceLabel || 'Reference:';
 						const reference = result.body.reference ? ' ' + referenceLabel + ' ' + result.body.reference : '';
 
-						message.textContent = success + reference;
+						setMessage(success + reference, 'is-success');
 						form.reset();
 						resetToken();
 						syncLimits();
 					} else {
-						message.textContent = result.body && result.body.message ? result.body.message : 'Booking failed.';
+						setMessage(
+							result.body && result.body.message ? result.body.message : 'Booking failed.',
+							'is-error'
+						);
 					}
 				})
 				.catch(function () {
-					message.textContent = 'Booking failed.';
+					setMessage('Booking failed.', 'is-error');
 				})
 				.finally(function () {
 					form.dataset.reeventsSubmitting = '';
