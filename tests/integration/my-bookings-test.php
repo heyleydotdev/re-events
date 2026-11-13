@@ -14,7 +14,9 @@ use ReEvents\Data\Booking_Repository;
 use ReEvents\Data\Payment_Repository;
 use ReEvents\Data\Ticket_Repository;
 use ReEvents\Frontend\Booking_Actions;
+use ReEvents\Frontend\Blocks;
 use ReEvents\Render\Bookings;
+use ReEvents\Render\Widget_Registry;
 use ReEvents\Services\Booking_Access;
 use ReEvents\Services\Booking_Emails;
 use ReEvents\Services\Booking_Self_Service;
@@ -314,14 +316,25 @@ final class My_Bookings_Test extends WP_UnitTestCase {
 	 * The block falls back to the registry labels and heading.
 	 */
 	public function test_block_uses_registry_defaults(): void {
+		$data = wp_json_file_decode( RE_EVENTS_DIR . 'blocks/src/bookings/block.json', [ 'associative' => true ] );
+
+		self::assertIsArray( $data );
+
+		$attributes = [];
+
+		foreach ( (array) ( $data['attributes'] ?? [] ) as $name => $definition ) {
+			$attributes[ (string) $name ] = $definition['default'] ?? null;
+		}
+
 		wp_set_current_user( 0 );
 
-		$html = do_blocks( '<!-- wp:reevents/bookings /-->' );
+		$html = Widget_Registry::render( 'bookings', Blocks::prepare_attributes( $attributes ) );
 
 		self::assertStringContainsString( 'reevents-bookings-heading', $html );
 		self::assertStringContainsString( '>Find booking<', $html );
 
-		$without = do_blocks( '<!-- wp:reevents/bookings {"showHeading":false} /-->' );
+		$attributes['showHeading'] = false;
+		$without                   = Widget_Registry::render( 'bookings', Blocks::prepare_attributes( $attributes ) );
 
 		self::assertStringNotContainsString( 'reevents-bookings-heading', $without );
 	}

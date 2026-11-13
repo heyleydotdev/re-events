@@ -100,8 +100,6 @@ final class Blocks {
 			'bookings'      => 'bookings',
 		];
 
-		$attribute_map = self::attribute_map();
-
 		foreach ( $blocks as $block => $widget ) {
 			$path = RE_EVENTS_DIR . 'blocks/build/' . $block;
 
@@ -112,15 +110,8 @@ final class Blocks {
 			register_block_type(
 				$path,
 				[
-					'render_callback' => static function ( array $attributes ) use ( $widget, $attribute_map ): string {
-						foreach ( $attribute_map as $from => $to ) {
-							if ( array_key_exists( $from, $attributes ) ) {
-								$attributes[ $to ] = $attributes[ $from ];
-								unset( $attributes[ $from ] );
-							}
-						}
-
-						return Widget_Registry::render( $widget, $attributes );
+					'render_callback' => static function ( array $attributes ) use ( $widget ): string {
+						return Widget_Registry::render( $widget, self::prepare_attributes( $attributes ) );
 					},
 				]
 			);
@@ -128,6 +119,23 @@ final class Blocks {
 
 		self::register_field_block();
 		self::register_booking_form_block();
+	}
+
+	/**
+	 * Map block attributes to widget arguments.
+	 *
+	 * @param array<string, mixed> $attributes Block attributes.
+	 * @return array<string, mixed>
+	 */
+	public static function prepare_attributes( array $attributes ): array {
+		foreach ( self::attribute_map() as $from => $to ) {
+			if ( array_key_exists( $from, $attributes ) ) {
+				$attributes[ $to ] = $attributes[ $from ];
+				unset( $attributes[ $from ] );
+			}
+		}
+
+		return $attributes;
 	}
 
 	/**
