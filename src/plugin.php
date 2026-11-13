@@ -34,6 +34,7 @@ use ReEvents\CLI\Self_Test;
 use ReEvents\CLI\Shortcode_Docs;
 use ReEvents\Frontend\Assets as Frontend_Assets;
 use ReEvents\Frontend\Blocks;
+use ReEvents\Frontend\Booking_Actions;
 use ReEvents\Frontend\Booking_Handler;
 use ReEvents\Frontend\Feeds;
 use ReEvents\Frontend\Payment_Return;
@@ -112,6 +113,7 @@ final class Plugin {
 		Payment_Service::register();
 		API_Keys::register();
 		Booking_Handler::register();
+		Booking_Actions::register();
 		Payment_Return::register();
 		Feeds::register();
 		Structured_Data::register();
