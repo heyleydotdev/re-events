@@ -149,6 +149,47 @@ final class Event_Details_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The venue name links to its page while published.
+	 */
+	public function test_venue_link(): void {
+		$venue = wp_insert_post(
+			[
+				'post_type'   => 'reevents_venue',
+				'post_status' => 'publish',
+				'post_title'  => 'Linked venue',
+			]
+		);
+
+		$id = Test_Factory::event(
+			[
+				'title' => 'Venue event',
+				'meta'  => [
+					'_reevents_start_utc' => '2027-06-01 10:00:00',
+					'_reevents_end_utc'   => '2027-06-01 11:00:00',
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_venue_id'  => $venue,
+				],
+			]
+		);
+
+		$html = Event_Details::render( [ 'id' => $id ] );
+
+		self::assertStringContainsString( '<a href="' . esc_url( (string) get_permalink( $venue ) ) . '">Linked venue</a>', $html );
+
+		wp_update_post(
+			[
+				'ID'          => $venue,
+				'post_status' => 'draft',
+			]
+		);
+
+		$draft = Event_Details::render( [ 'id' => $id ] );
+
+		self::assertStringContainsString( 'Linked venue', $draft );
+		self::assertStringNotContainsString( 'href="' . esc_url( (string) get_permalink( $venue ) ) . '"', $draft );
+	}
+
+	/**
 	 * Organizer names link to their pages.
 	 */
 	public function test_organizer_links(): void {
