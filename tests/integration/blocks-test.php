@@ -56,7 +56,7 @@ final class Blocks_Test extends WP_UnitTestCase {
 	 */
 	public function test_block_attributes_are_mapped(): void {
 		$map    = Blocks::attribute_map();
-		$blocks = [ 'events-list', 'event-details', 'venues-list', 'events-search', 'calendar', 'map' ];
+		$blocks = [ 'events-list', 'event-details', 'venues-list', 'events-search', 'calendar', 'map', 'bookings' ];
 
 		foreach ( $blocks as $block ) {
 			$file = RE_EVENTS_DIR . 'blocks/src/' . $block . '/block.json';
