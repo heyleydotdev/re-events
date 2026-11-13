@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-13T14:35:11+00:00\n"
+"POT-Creation-Date: 2026-11-13T16:33:49+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: re-events\n"
@@ -55,10 +55,10 @@ msgstr ""
 #: src/admin/bookings-table.php:56
 #: src/admin/bookings-table.php:263
 #: src/admin/quick-view.php:74
-#: src/admin/settings.php:661
+#: src/admin/settings.php:717
 #: src/data/post-types.php:31
 #: src/privacy.php:73
-#: src/services/booking-emails.php:395
+#: src/services/booking-emails.php:398
 #: src/services/booking-validator.php:50
 #: blocks/build/event-details/index.js:1
 #: blocks/build/field/index.js:1
@@ -80,10 +80,12 @@ msgid "Name"
 msgstr ""
 
 #: src/admin/attendees-table.php:56
-#: src/admin/settings.php:1110
+#: src/admin/settings.php:1176
 #: src/privacy.php:93
+#: src/render/bookings.php:324
 #: src/render/widget-registry.php:997
 #: src/render/widget-registry.php:998
+#: src/render/widget-registry.php:1100
 #: src/services/booking-validator.php:55
 #: src/services/booking-validator.php:209
 #: templates/booking-form.php:98
@@ -98,7 +100,7 @@ msgstr ""
 #: src/admin/attendees-table.php:58
 #: src/admin/bookings-table.php:59
 #: src/admin/quick-view.php:91
-#: src/admin/settings.php:819
+#: src/admin/settings.php:875
 msgid "Created"
 msgstr ""
 
@@ -112,7 +114,7 @@ msgstr ""
 
 #: src/admin/attendees-table.php:171
 #: src/admin/bookings-table.php:261
-#: src/render/widget-registry.php:1077
+#: src/render/widget-registry.php:1149
 msgid "Search events"
 msgstr ""
 
@@ -166,7 +168,7 @@ msgstr ""
 #: src/admin/attendees.php:60
 #: src/admin/menu.php:256
 #: src/admin/quick-view.php:95
-#: src/services/booking-emails.php:475
+#: src/services/booking-emails.php:478
 #: src/services/booking-validator.php:53
 msgid "Attendees"
 msgstr ""
@@ -184,15 +186,15 @@ msgstr ""
 #: src/admin/bookings.php:110
 #: src/admin/bookings.php:136
 #: src/admin/export.php:173
-#: src/admin/settings.php:696
-#: src/admin/settings.php:866
+#: src/admin/settings.php:752
+#: src/admin/settings.php:922
 #: src/services/api-keys.php:140
 #: src/services/api-keys.php:159
 msgid "Forbidden"
 msgstr ""
 
 #: src/admin/bookings-table.php:55
-#: src/services/booking-emails.php:447
+#: src/services/booking-emails.php:450
 msgid "Reference"
 msgstr ""
 
@@ -202,13 +204,13 @@ msgstr ""
 #: src/admin/quick-view.php:76
 #: src/admin/ticket-editor.php:176
 #: src/render/field.php:69
-#: src/services/booking-emails.php:451
+#: src/services/booking-emails.php:454
 msgid "Status"
 msgstr ""
 
 #: src/admin/bookings-table.php:58
 #: src/admin/quick-view.php:80
-#: src/services/booking-emails.php:443
+#: src/services/booking-emails.php:446
 msgid "Total"
 msgstr ""
 
@@ -222,13 +224,16 @@ msgid "Cancel"
 msgstr ""
 
 #: src/admin/bookings-table.php:196
+#: src/render/bookings.php:327
 #: src/render/widget-registry.php:209
 #: src/render/widget-registry.php:384
 #: src/render/widget-registry.php:1025
 #: src/render/widget-registry.php:1026
-#: src/render/widget-registry.php:1090
+#: src/render/widget-registry.php:1112
+#: src/render/widget-registry.php:1162
 #: src/rest/bookings-controller.php:394
-#: src/services/booking-emails.php:570
+#: src/rest/my-bookings-controller.php:375
+#: src/services/booking-emails.php:573
 #: templates/booking-form.php:78
 #: templates/event-details.php:91
 #: templates/events-list.php:86
@@ -251,11 +256,14 @@ msgstr ""
 #: src/admin/bookings.php:36
 #: src/admin/bookings.php:66
 #: src/admin/menu.php:251
-#: src/admin/settings.php:511
+#: src/admin/settings.php:567
+#: blocks/build/bookings/index.js:1
+#: blocks/src/bookings/index.js:38
 msgid "Bookings"
 msgstr ""
 
 #: src/admin/bookings.php:73
+#: src/render/bookings.php:262
 msgid "Booking cancelled."
 msgstr ""
 
@@ -289,8 +297,8 @@ msgstr ""
 #: src/admin/meta-boxes.php:340
 #: src/data/post-types.php:51
 #: src/render/widget-registry.php:555
-#: src/render/widget-registry.php:1079
-#: src/services/booking-emails.php:421
+#: src/render/widget-registry.php:1151
+#: src/services/booking-emails.php:424
 #: templates/events-search.php:55
 #: blocks/build/calendar/index.js:1
 #: blocks/build/events-list/index.js:1
@@ -305,7 +313,7 @@ msgstr ""
 
 #: src/admin/event-list.php:121
 #: src/render/widget-registry.php:579
-#: src/render/widget-registry.php:1088
+#: src/render/widget-registry.php:1160
 #: templates/events-search.php:43
 #: blocks/build/calendar/index.js:1
 #: blocks/build/events-list/index.js:1
@@ -316,7 +324,7 @@ msgstr ""
 
 #: src/admin/event-list.php:145
 #: src/render/widget-registry.php:583
-#: src/render/widget-registry.php:1089
+#: src/render/widget-registry.php:1161
 #: templates/events-search.php:57
 #: blocks/build/calendar/index.js:1
 #: blocks/build/events-list/index.js:1
@@ -334,10 +342,11 @@ msgstr ""
 
 #: src/admin/event-list.php:241
 #: src/admin/meta-boxes.php:442
+#: src/render/bookings.php:240
 #: src/render/widget-registry.php:129
 #: src/render/widget-registry.php:248
-#: src/render/widget-registry.php:1086
-#: src/services/booking-emails.php:583
+#: src/render/widget-registry.php:1158
+#: src/services/booking-emails.php:586
 #: templates/event-details.php:39
 #: templates/events-list.php:63
 msgid "Cancelled"
@@ -389,7 +398,7 @@ msgid "Statistics"
 msgstr ""
 
 #: src/admin/menu.php:269
-#: src/admin/settings.php:492
+#: src/admin/settings.php:548
 msgid "Settings"
 msgstr ""
 
@@ -419,7 +428,7 @@ msgstr ""
 
 #: src/admin/meta-boxes.php:137
 #: src/admin/meta-boxes.php:233
-#: src/services/booking-emails.php:407
+#: src/services/booking-emails.php:410
 msgid "Ends"
 msgstr ""
 
@@ -490,7 +499,7 @@ msgid "Monthly on day"
 msgstr ""
 
 #: src/admin/meta-boxes.php:236
-#: src/admin/settings.php:829
+#: src/admin/settings.php:885
 msgid "Never"
 msgstr ""
 
@@ -512,6 +521,8 @@ msgid "Occurrences"
 msgstr ""
 
 #: src/admin/meta-boxes.php:255
+#: blocks/build/bookings/index.js:1
+#: blocks/src/bookings/index.js:113
 msgid "Advanced"
 msgstr ""
 
@@ -539,7 +550,7 @@ msgstr ""
 #: src/admin/meta-boxes.php:467
 #: src/admin/meta-boxes.php:475
 #: src/admin/meta-boxes.php:488
-#: src/admin/settings.php:1155
+#: src/admin/settings.php:1221
 #: src/admin/ticket-editor.php:182
 msgid "Remove"
 msgstr ""
@@ -570,7 +581,7 @@ msgid "Add a venue"
 msgstr ""
 
 #: src/admin/meta-boxes.php:351
-#: src/admin/settings.php:191
+#: src/admin/settings.php:247
 msgid "None"
 msgstr ""
 
@@ -582,9 +593,9 @@ msgstr ""
 #: src/admin/meta-boxes.php:367
 #: src/admin/meta-boxes.php:374
 #: src/admin/meta-boxes.php:386
-#: src/admin/settings.php:806
-#: src/admin/settings.php:817
-#: src/admin/settings.php:1142
+#: src/admin/settings.php:862
+#: src/admin/settings.php:873
+#: src/admin/settings.php:1208
 #: blocks/build/field/index.js:1
 #: blocks/src/field/index.js:113
 msgid "Label"
@@ -702,14 +713,14 @@ msgid "ReEvents requires WordPress 6.5 or newer."
 msgstr ""
 
 #: src/admin/quick-view.php:71
-#: src/admin/settings.php:792
+#: src/admin/settings.php:848
 msgid "Close"
 msgstr ""
 
 #: src/admin/quick-view.php:78
 #: src/render/widget-registry.php:976
 #: src/render/widget-registry.php:977
-#: src/services/booking-emails.php:439
+#: src/services/booking-emails.php:442
 #: src/services/booking-validator.php:52
 #: templates/booking-form.php:88
 msgid "Seats"
@@ -719,14 +730,14 @@ msgstr ""
 #: src/privacy.php:85
 #: src/render/widget-registry.php:962
 #: src/render/widget-registry.php:963
-#: src/services/booking-emails.php:433
+#: src/services/booking-emails.php:436
 #: src/services/booking-validator.php:51
 #: templates/booking-form.php:68
 msgid "Ticket"
 msgstr ""
 
 #: src/admin/settings.php:88
-#: src/admin/settings.php:509
+#: src/admin/settings.php:565
 msgid "General"
 msgstr ""
 
@@ -795,12 +806,13 @@ msgid "Enable only behind Cloudflare or a trusted reverse proxy. Rate limits are
 msgstr ""
 
 #: src/admin/settings.php:145
-#: src/admin/settings.php:510
+#: src/admin/settings.php:566
 msgid "Formats"
 msgstr ""
 
 #: src/admin/settings.php:146
 #: blocks/build/booking-form/index.js:1
+#: blocks/build/bookings/index.js:1
 #: blocks/build/event-details/index.js:1
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
@@ -808,6 +820,7 @@ msgstr ""
 #: blocks/build/map/index.js:1
 #: blocks/build/venues-list/index.js:1
 #: blocks/src/booking-form/index.js:90
+#: blocks/src/bookings/index.js:61
 #: blocks/src/event-details/index.js:141
 #: blocks/src/events-list/index.js:276
 #: blocks/src/events-search/index.js:189
@@ -819,6 +832,7 @@ msgstr ""
 
 #: src/admin/settings.php:147
 #: blocks/build/booking-form/index.js:1
+#: blocks/build/bookings/index.js:1
 #: blocks/build/calendar/index.js:1
 #: blocks/build/event-details/index.js:1
 #: blocks/build/events-list/index.js:1
@@ -827,6 +841,7 @@ msgstr ""
 #: blocks/build/map/index.js:1
 #: blocks/build/venues-list/index.js:1
 #: blocks/src/booking-form/index.js:102
+#: blocks/src/bookings/index.js:67
 #: blocks/src/calendar/index.js:186
 #: blocks/src/event-details/index.js:153
 #: blocks/src/events-list/index.js:288
@@ -863,532 +878,585 @@ msgstr ""
 
 #: src/admin/settings.php:172
 #: src/admin/settings.php:176
-msgid "Attendee fields"
+msgid "Self-service"
 msgstr ""
 
 #: src/admin/settings.php:179
-msgid "Name and email are always collected. These fields are added to the booking form."
+msgid "Let visitors view and change their own bookings"
 msgstr ""
 
-#: src/admin/settings.php:183
-msgid "Payment gateway"
+#: src/admin/settings.php:180
+msgid "Adds cancel and reserve-again actions to the My Bookings widget."
 msgstr ""
 
 #: src/admin/settings.php:187
-msgid "Gateway"
+msgid "Cutoff"
 msgstr ""
 
 #: src/admin/settings.php:192
-msgid "Mock (testing)"
+msgid "Hours before the event start when changes close. 0 means until the event starts."
 msgstr ""
 
-#: src/admin/settings.php:193
-#: src/admin/settings.php:210
-msgid "Stripe"
+#: src/admin/settings.php:199
+msgid "Guest lookup"
 msgstr ""
 
-#: src/admin/settings.php:194
-#: src/admin/settings.php:255
-msgid "PayPal"
-msgstr ""
-
-#: src/admin/settings.php:196
-msgid "Choose the provider, then fill in its settings below. The mock gateway is for local checkout tests only."
+#: src/admin/settings.php:202
+msgid "Allow lookup by reference and email"
 msgstr ""
 
 #: src/admin/settings.php:203
-msgid "Default currency"
+msgid "Visitors without an account can find a booking with the reference and the email used to book."
 msgstr ""
 
-#: src/admin/settings.php:206
-msgid "Three-letter code used for new tickets when no currency is given."
+#: src/admin/settings.php:210
+msgid "Refunds"
+msgstr ""
+
+#: src/admin/settings.php:213
+msgid "Refund successful payments on cancel"
 msgstr ""
 
 #: src/admin/settings.php:214
-msgid "Stripe secret key"
+msgid "When off, paid bookings cannot be cancelled from the front end."
 msgstr ""
 
-#: src/admin/settings.php:217
-msgid "Secret API key from the Stripe dashboard."
+#: src/admin/settings.php:221
+msgid "Manage page"
 msgstr ""
 
 #: src/admin/settings.php:224
+msgid "Page that contains the My Bookings shortcode or block. Used by the {manage_url} email token."
+msgstr ""
+
+#: src/admin/settings.php:228
+#: src/admin/settings.php:232
+msgid "Attendee fields"
+msgstr ""
+
+#: src/admin/settings.php:235
+msgid "Name and email are always collected. These fields are added to the booking form."
+msgstr ""
+
+#: src/admin/settings.php:239
+msgid "Payment gateway"
+msgstr ""
+
+#: src/admin/settings.php:243
+msgid "Gateway"
+msgstr ""
+
+#: src/admin/settings.php:248
+msgid "Mock (testing)"
+msgstr ""
+
+#: src/admin/settings.php:249
+#: src/admin/settings.php:266
+msgid "Stripe"
+msgstr ""
+
+#: src/admin/settings.php:250
+#: src/admin/settings.php:311
+msgid "PayPal"
+msgstr ""
+
+#: src/admin/settings.php:252
+msgid "Choose the provider, then fill in its settings below. The mock gateway is for local checkout tests only."
+msgstr ""
+
+#: src/admin/settings.php:259
+msgid "Default currency"
+msgstr ""
+
+#: src/admin/settings.php:262
+msgid "Three-letter code used for new tickets when no currency is given."
+msgstr ""
+
+#: src/admin/settings.php:270
+msgid "Stripe secret key"
+msgstr ""
+
+#: src/admin/settings.php:273
+msgid "Secret API key from the Stripe dashboard."
+msgstr ""
+
+#: src/admin/settings.php:280
 msgid "Stripe webhook secret"
 msgstr ""
 
 #. translators: %s: webhook endpoint URL.
-#: src/admin/settings.php:229
+#: src/admin/settings.php:285
 #, php-format
 msgid "Signing secret of the webhook endpoint: %s"
 msgstr ""
 
-#: src/admin/settings.php:238
+#: src/admin/settings.php:294
 msgid "Success URL"
 msgstr ""
 
-#: src/admin/settings.php:241
-#: src/admin/settings.php:309
+#: src/admin/settings.php:297
+#: src/admin/settings.php:365
 msgid "Page shown after a completed payment. Defaults to the home page."
 msgstr ""
 
-#: src/admin/settings.php:248
+#: src/admin/settings.php:304
 msgid "Cancel URL"
 msgstr ""
 
-#: src/admin/settings.php:251
-#: src/admin/settings.php:319
+#: src/admin/settings.php:307
+#: src/admin/settings.php:375
 msgid "Page shown after a cancelled payment. Defaults to the home page."
 msgstr ""
 
-#: src/admin/settings.php:259
+#: src/admin/settings.php:315
 msgid "PayPal mode"
 msgstr ""
 
-#: src/admin/settings.php:263
+#: src/admin/settings.php:319
 msgid "Sandbox"
 msgstr ""
 
-#: src/admin/settings.php:264
+#: src/admin/settings.php:320
 msgid "Live"
 msgstr ""
 
-#: src/admin/settings.php:272
+#: src/admin/settings.php:328
 msgid "PayPal client ID"
 msgstr ""
 
-#: src/admin/settings.php:275
+#: src/admin/settings.php:331
 msgid "REST app client ID from the PayPal developer dashboard."
 msgstr ""
 
-#: src/admin/settings.php:282
+#: src/admin/settings.php:338
 msgid "PayPal client secret"
 msgstr ""
 
-#: src/admin/settings.php:285
+#: src/admin/settings.php:341
 msgid "REST app secret from the PayPal developer dashboard."
 msgstr ""
 
-#: src/admin/settings.php:292
+#: src/admin/settings.php:348
 msgid "PayPal webhook ID"
 msgstr ""
 
 #. translators: %s: webhook endpoint URL.
-#: src/admin/settings.php:297
+#: src/admin/settings.php:353
 #, php-format
 msgid "Webhook ID shown after creating the endpoint: %s"
 msgstr ""
 
-#: src/admin/settings.php:306
+#: src/admin/settings.php:362
 msgid "PayPal success URL"
 msgstr ""
 
-#: src/admin/settings.php:316
+#: src/admin/settings.php:372
 msgid "PayPal cancel URL"
 msgstr ""
 
-#: src/admin/settings.php:324
+#: src/admin/settings.php:380
 msgid "Sender and recipients"
 msgstr ""
 
-#: src/admin/settings.php:328
+#: src/admin/settings.php:384
 msgid "Admin recipients"
 msgstr ""
 
-#: src/admin/settings.php:331
+#: src/admin/settings.php:387
 msgid "Comma-separated addresses for booking notifications. Falls back to the site admin email."
 msgstr ""
 
-#: src/admin/settings.php:338
+#: src/admin/settings.php:394
 msgid "From name"
 msgstr ""
 
-#: src/admin/settings.php:341
+#: src/admin/settings.php:397
 msgid "Sender name on plugin mail. Leave empty to use the WordPress default."
 msgstr ""
 
-#: src/admin/settings.php:348
+#: src/admin/settings.php:404
 msgid "From address"
 msgstr ""
 
-#: src/admin/settings.php:351
+#: src/admin/settings.php:407
 msgid "Sender address on plugin mail. Leave empty to use the WordPress default."
 msgstr ""
 
-#: src/admin/settings.php:358
+#: src/admin/settings.php:414
 msgid "Reply-To"
 msgstr ""
 
-#: src/admin/settings.php:361
+#: src/admin/settings.php:417
 msgid "Optional reply address for plugin mail."
 msgstr ""
 
-#: src/admin/settings.php:369
-#: src/admin/settings.php:655
-#: src/admin/settings.php:735
+#: src/admin/settings.php:425
+#: src/admin/settings.php:711
+#: src/admin/settings.php:791
 msgid "Admin mail"
 msgstr ""
 
-#: src/admin/settings.php:373
-#: src/admin/settings.php:396
+#: src/admin/settings.php:429
+#: src/admin/settings.php:452
 msgid "Subject"
 msgstr ""
 
 #. translators: %s: placeholder tokens.
-#: src/admin/settings.php:376
+#: src/admin/settings.php:432
 #, php-format
 msgid "Placeholders: %s."
 msgstr ""
 
-#: src/admin/settings.php:383
-#: src/admin/settings.php:406
+#: src/admin/settings.php:439
+#: src/admin/settings.php:462
 msgid "Body"
 msgstr ""
 
-#: src/admin/settings.php:388
-#: src/admin/settings.php:411
+#: src/admin/settings.php:444
+#: src/admin/settings.php:467
 msgid "The booking details are appended automatically."
 msgstr ""
 
-#: src/admin/settings.php:392
-#: src/admin/settings.php:656
-#: src/admin/settings.php:735
+#: src/admin/settings.php:448
+#: src/admin/settings.php:712
+#: src/admin/settings.php:791
 msgid "Attendee mail"
 msgstr ""
 
-#: src/admin/settings.php:399
+#: src/admin/settings.php:455
 msgid "Same placeholders as the admin mail."
 msgstr ""
 
-#: src/admin/settings.php:416
+#: src/admin/settings.php:472
 msgid "REST API"
 msgstr ""
 
-#: src/admin/settings.php:420
-#: src/admin/settings.php:514
+#: src/admin/settings.php:476
+#: src/admin/settings.php:570
 msgid "API"
 msgstr ""
 
-#: src/admin/settings.php:423
+#: src/admin/settings.php:479
 msgid "Enable the plugin REST API"
 msgstr ""
 
-#: src/admin/settings.php:424
+#: src/admin/settings.php:480
 msgid "When disabled, external API requests are blocked. Admin screens continue to work."
 msgstr ""
 
-#: src/admin/settings.php:431
+#: src/admin/settings.php:487
 msgid "Public access"
 msgstr ""
 
-#: src/admin/settings.php:434
+#: src/admin/settings.php:490
 msgid "Allow unauthenticated read requests"
 msgstr ""
 
-#: src/admin/settings.php:435
+#: src/admin/settings.php:491
 msgid "Writes always require authentication."
 msgstr ""
 
-#: src/admin/settings.php:442
+#: src/admin/settings.php:498
 msgid "Default page size"
 msgstr ""
 
-#: src/admin/settings.php:447
+#: src/admin/settings.php:503
 msgid "Used when a request does not set per_page. Between 1 and 100."
 msgstr ""
 
-#: src/admin/settings.php:454
+#: src/admin/settings.php:510
 msgid "Rate limit"
 msgstr ""
 
-#: src/admin/settings.php:459
+#: src/admin/settings.php:515
 msgid "Maximum unauthenticated requests per minute per IP. 0 disables the limit."
 msgstr ""
 
-#: src/admin/settings.php:466
+#: src/admin/settings.php:522
 msgid "Allowed origins"
 msgstr ""
 
-#: src/admin/settings.php:469
+#: src/admin/settings.php:525
 msgid "One origin per line, for example https://app.example.com. Leave empty to disable CORS headers."
 msgstr ""
 
-#: src/admin/settings.php:476
+#: src/admin/settings.php:532
 msgid "Feed token"
 msgstr ""
 
-#: src/admin/settings.php:479
+#: src/admin/settings.php:535
 msgid "Optional token for private iCal and RSS links. Leave empty to keep private events out of feeds."
 msgstr ""
 
-#: src/admin/settings.php:491
-#: src/admin/settings.php:526
+#: src/admin/settings.php:547
+#: src/admin/settings.php:582
 msgid "ReEvents Settings"
 msgstr ""
 
-#: src/admin/settings.php:512
+#: src/admin/settings.php:568
 msgid "Payments"
 msgstr ""
 
-#: src/admin/settings.php:513
+#: src/admin/settings.php:569
 msgid "Emails"
 msgstr ""
 
-#: src/admin/settings.php:515
+#: src/admin/settings.php:571
 msgid "Tools"
 msgstr ""
 
-#: src/admin/settings.php:549
+#: src/admin/settings.php:605
 msgid "Save Changes"
 msgstr ""
 
-#: src/admin/settings.php:570
+#: src/admin/settings.php:626
 msgid "Occurrences rebuilt."
 msgstr ""
 
-#: src/admin/settings.php:573
+#: src/admin/settings.php:629
 msgid "Maintenance"
 msgstr ""
 
-#: src/admin/settings.php:577
+#: src/admin/settings.php:633
 msgid "Rebuild stored occurrences for every published event."
 msgstr ""
 
-#: src/admin/settings.php:578
+#: src/admin/settings.php:634
 msgid "Rebuild occurrences"
 msgstr ""
 
-#: src/admin/settings.php:580
+#: src/admin/settings.php:636
 msgid "Uninstall"
 msgstr ""
 
-#: src/admin/settings.php:588
+#: src/admin/settings.php:644
 msgid "Delete all ReEvents data when the plugin is uninstalled."
 msgstr ""
 
-#: src/admin/settings.php:591
+#: src/admin/settings.php:647
 msgid "Removes events, venues, organizers, bookings, attendees, settings and API keys. This cannot be undone."
 msgstr ""
 
-#: src/admin/settings.php:592
+#: src/admin/settings.php:648
 msgid "Save"
 msgstr ""
 
-#: src/admin/settings.php:607
+#: src/admin/settings.php:663
 msgid "Test email sent."
 msgstr ""
 
-#: src/admin/settings.php:609
+#: src/admin/settings.php:665
 msgid "The test email could not be sent. Check your site mail configuration."
 msgstr ""
 
 #. translators: %s: email plugin name.
-#: src/admin/settings.php:618
+#: src/admin/settings.php:674
 #, php-format
 msgid "A site-wide email designer is active: %s. ReEvents sends plain text and lets it add the header and footer."
 msgstr ""
 
-#: src/admin/settings.php:621
+#: src/admin/settings.php:677
 msgid "Manage plugins"
 msgstr ""
 
-#: src/admin/settings.php:624
+#: src/admin/settings.php:680
 msgid "ReEvents sends HTML email with a plain-text alternative."
 msgstr ""
 
-#: src/admin/settings.php:645
+#: src/admin/settings.php:701
 msgid "Send a test"
 msgstr ""
 
-#: src/admin/settings.php:646
+#: src/admin/settings.php:702
 msgid "Sends the saved template with sample values to the address below."
 msgstr ""
 
-#: src/admin/settings.php:652
+#: src/admin/settings.php:708
 msgid "Template"
 msgstr ""
 
-#: src/admin/settings.php:664
-#: src/admin/settings.php:736
+#: src/admin/settings.php:720
+#: src/admin/settings.php:792
 msgid "Global templates (sample data)"
 msgstr ""
 
-#: src/admin/settings.php:666
+#: src/admin/settings.php:722
 msgid "Event overrides"
 msgstr ""
 
-#: src/admin/settings.php:673
+#: src/admin/settings.php:729
 msgid "Global templates use sample data. Pick an event to test its overrides."
 msgstr ""
 
-#: src/admin/settings.php:677
+#: src/admin/settings.php:733
 msgid "Recipient"
 msgstr ""
 
-#: src/admin/settings.php:684
+#: src/admin/settings.php:740
 msgid "Send test email"
 msgstr ""
 
-#: src/admin/settings.php:685
+#: src/admin/settings.php:741
 msgid "Preview"
 msgstr ""
 
-#: src/admin/settings.php:712
+#: src/admin/settings.php:768
 msgid "Enter a valid email address."
 msgstr ""
 
-#: src/admin/settings.php:745
-#: src/admin/settings.php:752
+#: src/admin/settings.php:801
+#: src/admin/settings.php:808
 msgid "Email preview"
 msgstr ""
 
-#: src/admin/settings.php:749
+#: src/admin/settings.php:805
 msgid "Event:"
 msgstr ""
 
-#: src/admin/settings.php:750
+#: src/admin/settings.php:806
 msgid "Subject:"
 msgstr ""
 
-#: src/admin/settings.php:757
+#: src/admin/settings.php:813
 msgid "Plain text"
 msgstr ""
 
-#: src/admin/settings.php:760
+#: src/admin/settings.php:816
 msgid "Back to settings"
 msgstr ""
 
-#: src/admin/settings.php:781
+#: src/admin/settings.php:837
 msgid "API keys"
 msgstr ""
 
-#: src/admin/settings.php:782
+#: src/admin/settings.php:838
 msgid "Send a key as an Authorization: Bearer header. Keys inherit the capabilities of the user who created them."
 msgstr ""
 
-#: src/admin/settings.php:785
+#: src/admin/settings.php:841
 msgid "Dismiss this notice."
 msgstr ""
 
-#: src/admin/settings.php:786
+#: src/admin/settings.php:842
 msgid "API key revoked."
 msgstr ""
 
-#: src/admin/settings.php:794
+#: src/admin/settings.php:850
 msgid "Copy this key now"
 msgstr ""
 
-#: src/admin/settings.php:795
+#: src/admin/settings.php:851
 msgid "It will not be shown again."
 msgstr ""
 
-#: src/admin/settings.php:798
+#: src/admin/settings.php:854
 msgid "Copied"
 msgstr ""
 
-#: src/admin/settings.php:798
+#: src/admin/settings.php:854
 msgid "Copy key"
 msgstr ""
 
-#: src/admin/settings.php:807
+#: src/admin/settings.php:863
 msgid "Label, e.g. Zapier"
 msgstr ""
 
-#: src/admin/settings.php:808
+#: src/admin/settings.php:864
 msgid "Generate key"
 msgstr ""
 
-#: src/admin/settings.php:812
+#: src/admin/settings.php:868
 msgid "No API keys yet. Generate one above."
 msgstr ""
 
-#: src/admin/settings.php:818
+#: src/admin/settings.php:874
 msgid "User"
 msgstr ""
 
-#: src/admin/settings.php:820
+#: src/admin/settings.php:876
 msgid "Last used"
 msgstr ""
 
-#: src/admin/settings.php:821
+#: src/admin/settings.php:877
 msgid "Actions"
 msgstr ""
 
-#: src/admin/settings.php:837
+#: src/admin/settings.php:893
 msgid "Unknown"
 msgstr ""
 
-#: src/admin/settings.php:840
+#: src/admin/settings.php:896
 msgid "Revoke this API key? This cannot be undone."
 msgstr ""
 
-#: src/admin/settings.php:840
+#: src/admin/settings.php:896
 msgid "Revoke"
 msgstr ""
 
-#: src/admin/settings.php:1030
+#: src/admin/settings.php:1096
 msgid "[{site}] Booking {status_label}: {reference}"
 msgstr ""
 
-#: src/admin/settings.php:1031
+#: src/admin/settings.php:1097
 msgid "A booking is now {status_label}."
 msgstr ""
 
-#: src/admin/settings.php:1032
+#: src/admin/settings.php:1098
 msgid "Booking {status_label}: {event}"
 msgstr ""
 
-#: src/admin/settings.php:1033
+#: src/admin/settings.php:1099
 msgid ""
 "Hello {name},\n"
 "\n"
 "Your booking is {status_label}."
 msgstr ""
 
-#: src/admin/settings.php:1109
+#: src/admin/settings.php:1175
 msgid "Text"
 msgstr ""
 
-#: src/admin/settings.php:1111
+#: src/admin/settings.php:1177
 msgid "Telephone"
 msgstr ""
 
-#: src/admin/settings.php:1112
+#: src/admin/settings.php:1178
 msgid "Textarea"
 msgstr ""
 
-#: src/admin/settings.php:1113
+#: src/admin/settings.php:1179
 msgid "Checkbox"
 msgstr ""
 
-#: src/admin/settings.php:1125
+#: src/admin/settings.php:1191
 msgid "Add field"
 msgstr ""
 
-#: src/admin/settings.php:1143
+#: src/admin/settings.php:1209
 msgid "Type"
 msgstr ""
 
-#: src/admin/settings.php:1150
+#: src/admin/settings.php:1216
 msgid "Required"
 msgstr ""
 
-#: src/admin/settings.php:1153
+#: src/admin/settings.php:1219
 msgid "Move up"
 msgstr ""
 
-#: src/admin/settings.php:1154
+#: src/admin/settings.php:1220
 msgid "Move down"
 msgstr ""
 
-#: src/admin/settings.php:1155
+#: src/admin/settings.php:1221
 msgid "Remove field"
 msgstr ""
 
-#: src/admin/settings.php:1206
+#: src/admin/settings.php:1272
 msgid "Click a placeholder to insert it at the cursor."
 msgstr ""
 
-#: src/admin/settings.php:1221
+#: src/admin/settings.php:1287
 msgid "Saved — leave blank to keep"
 msgstr ""
 
@@ -1418,14 +1486,14 @@ msgstr ""
 
 #: src/admin/statistics.php:134
 #: src/render/widget-registry.php:559
-#: src/render/widget-registry.php:1080
+#: src/render/widget-registry.php:1152
 #: templates/events-search.php:107
 msgid "From"
 msgstr ""
 
 #: src/admin/statistics.php:136
 #: src/render/widget-registry.php:563
-#: src/render/widget-registry.php:1081
+#: src/render/widget-registry.php:1153
 #: templates/events-search.php:112
 msgid "To"
 msgstr ""
@@ -1549,7 +1617,7 @@ msgstr ""
 
 #: src/admin/venue-meta-boxes.php:57
 #: src/render/field.php:102
-#: src/services/booking-emails.php:425
+#: src/services/booking-emails.php:428
 msgid "Address"
 msgstr ""
 
@@ -1811,12 +1879,12 @@ msgstr ""
 msgid "Organizer fields"
 msgstr ""
 
-#: src/data/booking-repository.php:114
+#: src/data/booking-repository.php:176
 #: src/rest/bookings-controller.php:290
 msgid "The booking could not be saved."
 msgstr ""
 
-#: src/data/booking-repository.php:279
+#: src/data/booking-repository.php:341
 msgid "The attendee could not be saved."
 msgstr ""
 
@@ -2048,6 +2116,8 @@ msgid "ReEvents bookings"
 msgstr ""
 
 #: src/privacy.php:77
+#: src/render/bookings.php:323
+#: src/render/widget-registry.php:1096
 msgid "Booking reference"
 msgstr ""
 
@@ -2153,6 +2223,74 @@ msgstr ""
 msgid "The booking could not be created. Please try again."
 msgstr ""
 
+#: src/render/bookings.php:56
+msgid "This booking link is not valid."
+msgstr ""
+
+#: src/render/bookings.php:62
+#: src/services/booking-self-service.php:219
+msgid "The request expired. Please try again."
+msgstr ""
+
+#: src/render/bookings.php:64
+#: src/rest/my-bookings-controller.php:208
+msgid "Too many lookups. Please try again later."
+msgstr ""
+
+#: src/render/bookings.php:75
+#: src/rest/my-bookings-controller.php:214
+msgid "No booking matches that reference and email."
+msgstr ""
+
+#: src/render/bookings.php:238
+#: src/services/booking-emails.php:584
+msgid "Confirmed"
+msgstr ""
+
+#: src/render/bookings.php:242
+#: src/services/booking-emails.php:588
+msgid "Rejected"
+msgstr ""
+
+#: src/render/bookings.php:244
+#: src/services/booking-emails.php:590
+msgid "Pending"
+msgstr ""
+
+#: src/render/bookings.php:269
+msgid "Booking restored."
+msgstr ""
+
+#: src/render/bookings.php:319
+#: src/render/widget-registry.php:1063
+msgid "My bookings"
+msgstr ""
+
+#: src/render/bookings.php:320
+#: src/render/widget-registry.php:1068
+msgid "You have no bookings yet."
+msgstr ""
+
+#: src/render/bookings.php:321
+#: src/render/widget-registry.php:1087
+msgid "Find your booking"
+msgstr ""
+
+#: src/render/bookings.php:322
+#: src/render/widget-registry.php:1092
+msgid "Find booking"
+msgstr ""
+
+#: src/render/bookings.php:325
+#: src/render/widget-registry.php:1104
+msgid "Cancel booking"
+msgstr ""
+
+#: src/render/bookings.php:326
+#: src/render/widget-registry.php:1108
+msgid "Reserve again"
+msgstr ""
+
 #: src/render/calendar-links.php:36
 #: src/render/event-details.php:84
 #: src/render/widget-registry.php:290
@@ -2222,7 +2360,7 @@ msgid "Upcoming dates"
 msgstr ""
 
 #: src/render/field.php:68
-#: src/services/booking-emails.php:414
+#: src/services/booking-emails.php:417
 msgid "Time zone"
 msgstr ""
 
@@ -2344,6 +2482,7 @@ msgstr ""
 #: src/render/field.php:162
 #: src/render/widget-registry.php:50
 #: src/render/widget-registry.php:239
+#: src/render/widget-registry.php:1078
 msgid "Date format. Defaults to the site format."
 msgstr ""
 
@@ -2351,6 +2490,7 @@ msgstr ""
 #: src/render/widget-registry.php:55
 #: src/render/widget-registry.php:244
 #: src/render/widget-registry.php:757
+#: src/render/widget-registry.php:1083
 msgid "Time format. Defaults to the site format."
 msgstr ""
 
@@ -2421,7 +2561,7 @@ msgstr ""
 #: src/render/widget-registry.php:63
 #: src/render/widget-registry.php:252
 #: src/render/widget-registry.php:737
-#: src/render/widget-registry.php:1075
+#: src/render/widget-registry.php:1147
 #: templates/calendar.php:88
 #: templates/event-details.php:41
 #: templates/events-list.php:79
@@ -2563,7 +2703,7 @@ msgid "Venue:"
 msgstr ""
 
 #: src/render/widget-registry.php:260
-#: src/render/widget-registry.php:1087
+#: src/render/widget-registry.php:1159
 #: templates/event-details.php:84
 msgid "Organizers:"
 msgstr ""
@@ -2706,8 +2846,8 @@ msgstr ""
 
 #: src/render/widget-registry.php:543
 #: src/render/widget-registry.php:571
-#: src/render/widget-registry.php:1076
-#: src/render/widget-registry.php:1083
+#: src/render/widget-registry.php:1148
+#: src/render/widget-registry.php:1155
 #: templates/events-search.php:34
 #: templates/events-search.php:125
 #: blocks/build/events-list/index.js:1
@@ -2720,7 +2860,7 @@ msgid "Search"
 msgstr ""
 
 #: src/render/widget-registry.php:551
-#: src/render/widget-registry.php:1078
+#: src/render/widget-registry.php:1150
 #: templates/events-search.php:41
 #: blocks/build/calendar/index.js:1
 #: blocks/build/events-list/index.js:1
@@ -2730,20 +2870,20 @@ msgid "Category"
 msgstr ""
 
 #: src/render/widget-registry.php:567
-#: src/render/widget-registry.php:1060
-#: src/render/widget-registry.php:1082
+#: src/render/widget-registry.php:1132
+#: src/render/widget-registry.php:1154
 #: templates/events-search.php:120
 msgid "Only upcoming"
 msgstr ""
 
 #: src/render/widget-registry.php:575
-#: src/render/widget-registry.php:1084
+#: src/render/widget-registry.php:1156
 #: templates/events-search.php:128
 msgid "Clear"
 msgstr ""
 
 #: src/render/widget-registry.php:587
-#: src/render/widget-registry.php:1058
+#: src/render/widget-registry.php:1130
 #: templates/events-search.php:69
 #: blocks/build/calendar/index.js:1
 #: blocks/build/events-list/index.js:1
@@ -2868,7 +3008,9 @@ msgid "Booking Form"
 msgstr ""
 
 #: src/render/widget-registry.php:902
-#: src/render/widget-registry.php:1054
+#: src/render/widget-registry.php:1126
+#: blocks/build/bookings/index.js:1
+#: blocks/src/bookings/index.js:118
 msgid "CSS class"
 msgstr ""
 
@@ -2881,7 +3023,9 @@ msgid "Extra class on the form element."
 msgstr ""
 
 #: src/render/widget-registry.php:909
-#: src/render/widget-registry.php:1055
+#: src/render/widget-registry.php:1127
+#: blocks/build/bookings/index.js:1
+#: blocks/src/bookings/index.js:123
 msgid "Wrapper CSS class"
 msgstr ""
 
@@ -2980,6 +3124,8 @@ msgid "Placeholder inside the name field. Leave empty for none."
 msgstr ""
 
 #: src/render/widget-registry.php:996
+#: blocks/build/bookings/index.js:1
+#: blocks/src/bookings/index.js:93
 msgid "Email label"
 msgstr ""
 
@@ -3037,16 +3183,20 @@ msgid "Message shown after a successful booking."
 msgstr ""
 
 #: src/render/widget-registry.php:1024
-#: src/render/widget-registry.php:1090
+#: src/render/widget-registry.php:1162
+#: blocks/build/bookings/index.js:1
+#: blocks/src/bookings/index.js:108
 msgid "Free label"
 msgstr ""
 
 #: src/render/widget-registry.php:1027
-#: src/render/widget-registry.php:1090
+#: src/render/widget-registry.php:1162
 msgid "Text shown for a free ticket."
 msgstr ""
 
 #: src/render/widget-registry.php:1031
+#: blocks/build/bookings/index.js:1
+#: blocks/src/bookings/index.js:88
 msgid "Reference label"
 msgstr ""
 
@@ -3054,6 +3204,7 @@ msgstr ""
 #: src/render/widget-registry.php:1033
 #: templates/booking-form.php:19
 #: templates/booking-form.php:41
+#: templates/bookings.php:49
 msgid "Reference:"
 msgstr ""
 
@@ -3062,7 +3213,7 @@ msgid "Label shown before the booking reference."
 msgstr ""
 
 #: src/render/widget-registry.php:1038
-#: src/render/widget-registry.php:1074
+#: src/render/widget-registry.php:1146
 #: blocks/build/booking-form/index.js:1
 #: blocks/build/field/index.js:1
 #: blocks/src/booking-form/index.js:29
@@ -3071,63 +3222,79 @@ msgid "Event ID"
 msgstr ""
 
 #: src/render/widget-registry.php:1040
-#: src/render/widget-registry.php:1074
+#: src/render/widget-registry.php:1146
 #: blocks/build/booking-form/index.js:1
 #: blocks/src/booking-form/index.js:33
 msgid "Leave 0 to use the current event."
 msgstr ""
 
-#: src/render/widget-registry.php:1054
+#: src/render/widget-registry.php:1049
+msgid "My Bookings"
+msgstr ""
+
+#: src/render/widget-registry.php:1064
+msgid "Heading above the list. Leave empty to hide it."
+msgstr ""
+
+#: src/render/widget-registry.php:1073
+msgid "Maximum bookings shown. Capped at 100."
+msgstr ""
+
+#: src/render/widget-registry.php:1088
+msgid "Heading on the guest lookup form."
+msgstr ""
+
+#: src/render/widget-registry.php:1126
 msgid "Extra class on the widget."
 msgstr ""
 
-#: src/render/widget-registry.php:1054
+#: src/render/widget-registry.php:1126
 msgid "my-widget"
 msgstr ""
 
-#: src/render/widget-registry.php:1055
+#: src/render/widget-registry.php:1127
 msgid "Extra class on the wrapper."
 msgstr ""
 
-#: src/render/widget-registry.php:1055
+#: src/render/widget-registry.php:1127
 msgid "my-wrapper"
 msgstr ""
 
-#: src/render/widget-registry.php:1056
+#: src/render/widget-registry.php:1128
 msgid "Limit"
 msgstr ""
 
-#: src/render/widget-registry.php:1056
+#: src/render/widget-registry.php:1128
 msgid "Maximum number of items."
 msgstr ""
 
-#: src/render/widget-registry.php:1057
+#: src/render/widget-registry.php:1129
 msgid "Category ID"
 msgstr ""
 
-#: src/render/widget-registry.php:1057
+#: src/render/widget-registry.php:1129
 msgid "Category term ID, or `current` on a category page."
 msgstr ""
 
-#: src/render/widget-registry.php:1058
+#: src/render/widget-registry.php:1130
 msgid "Tag term ID or slug."
 msgstr ""
 
-#: src/render/widget-registry.php:1059
+#: src/render/widget-registry.php:1131
 #: blocks/build/field/index.js:1
 #: blocks/src/field/index.js:21
 msgid "Venue ID"
 msgstr ""
 
-#: src/render/widget-registry.php:1059
+#: src/render/widget-registry.php:1131
 msgid "Limit to a venue ID."
 msgstr ""
 
-#: src/render/widget-registry.php:1060
+#: src/render/widget-registry.php:1132
 msgid "Show upcoming events only."
 msgstr ""
 
-#: src/render/widget-registry.php:1061
+#: src/render/widget-registry.php:1133
 #: blocks/build/event-details/index.js:1
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
@@ -3137,11 +3304,11 @@ msgstr ""
 msgid "Show venue"
 msgstr ""
 
-#: src/render/widget-registry.php:1061
+#: src/render/widget-registry.php:1133
 msgid "Display the venue name."
 msgstr ""
 
-#: src/render/widget-registry.php:1062
+#: src/render/widget-registry.php:1134
 #: blocks/build/event-details/index.js:1
 #: blocks/build/events-list/index.js:1
 #: blocks/build/events-search/index.js:1
@@ -3151,29 +3318,29 @@ msgstr ""
 msgid "Show organizers"
 msgstr ""
 
-#: src/render/widget-registry.php:1062
+#: src/render/widget-registry.php:1134
 msgid "Display the organizer names."
 msgstr ""
 
-#: src/render/widget-registry.php:1063
+#: src/render/widget-registry.php:1135
 #: blocks/build/event-details/index.js:1
 #: blocks/src/event-details/index.js:253
 msgid "Show online links"
 msgstr ""
 
-#: src/render/widget-registry.php:1063
+#: src/render/widget-registry.php:1135
 msgid "Display online event links."
 msgstr ""
 
-#: src/render/widget-registry.php:1064
+#: src/render/widget-registry.php:1136
 msgid "Show content"
 msgstr ""
 
-#: src/render/widget-registry.php:1064
+#: src/render/widget-registry.php:1136
 msgid "Display the event description."
 msgstr ""
 
-#: src/render/widget-registry.php:1065
+#: src/render/widget-registry.php:1137
 #: blocks/build/event-details/index.js:1
 #: blocks/build/venues-list/index.js:1
 #: blocks/src/event-details/index.js:267
@@ -3181,207 +3348,210 @@ msgstr ""
 msgid "Show description"
 msgstr ""
 
-#: src/render/widget-registry.php:1065
+#: src/render/widget-registry.php:1137
 msgid "Display the venue description."
 msgstr ""
 
-#: src/render/widget-registry.php:1066
+#: src/render/widget-registry.php:1138
 #: blocks/build/events-search/index.js:1
 #: blocks/src/events-search/index.js:82
 msgid "Show keyword"
 msgstr ""
 
-#: src/render/widget-registry.php:1066
+#: src/render/widget-registry.php:1138
 msgid "Display the keyword field."
 msgstr ""
 
-#: src/render/widget-registry.php:1067
+#: src/render/widget-registry.php:1139
 #: blocks/build/events-search/index.js:1
 #: blocks/src/events-search/index.js:89
 msgid "Show category"
 msgstr ""
 
-#: src/render/widget-registry.php:1067
+#: src/render/widget-registry.php:1139
 msgid "Display the category field."
 msgstr ""
 
-#: src/render/widget-registry.php:1068
+#: src/render/widget-registry.php:1140
 #: blocks/build/events-search/index.js:1
 #: blocks/src/events-search/index.js:117
 msgid "Show dates"
 msgstr ""
 
-#: src/render/widget-registry.php:1068
+#: src/render/widget-registry.php:1140
 msgid "Display the date range fields."
 msgstr ""
 
-#: src/render/widget-registry.php:1069
+#: src/render/widget-registry.php:1141
 msgid "Show upcoming"
 msgstr ""
 
-#: src/render/widget-registry.php:1069
+#: src/render/widget-registry.php:1141
 msgid "Display the upcoming toggle."
 msgstr ""
 
-#: src/render/widget-registry.php:1070
+#: src/render/widget-registry.php:1142
 #: blocks/build/events-search/index.js:1
 #: blocks/src/events-search/index.js:157
 msgid "Show results"
 msgstr ""
 
-#: src/render/widget-registry.php:1070
+#: src/render/widget-registry.php:1142
 msgid "Display results below the form."
 msgstr ""
 
-#: src/render/widget-registry.php:1071
+#: src/render/widget-registry.php:1143
 msgid "Show navigation"
 msgstr ""
 
-#: src/render/widget-registry.php:1071
+#: src/render/widget-registry.php:1143
 msgid "Display previous and next month links."
 msgstr ""
 
-#: src/render/widget-registry.php:1072
+#: src/render/widget-registry.php:1144
 msgid "Month"
 msgstr ""
 
-#: src/render/widget-registry.php:1072
+#: src/render/widget-registry.php:1144
 msgid "Month in Y-m format. Leave empty for the current month."
 msgstr ""
 
-#: src/render/widget-registry.php:1073
+#: src/render/widget-registry.php:1145
 msgid "Height"
 msgstr ""
 
-#: src/render/widget-registry.php:1073
+#: src/render/widget-registry.php:1145
 msgid "Map height in pixels."
 msgstr ""
 
-#: src/render/widget-registry.php:1075
+#: src/render/widget-registry.php:1147
 msgid "Ongoing label"
 msgstr ""
 
-#: src/render/widget-registry.php:1075
+#: src/render/widget-registry.php:1147
 msgid "Label shown for ongoing events."
 msgstr ""
 
-#: src/render/widget-registry.php:1076
+#: src/render/widget-registry.php:1148
 msgid "Search label"
 msgstr ""
 
-#: src/render/widget-registry.php:1076
+#: src/render/widget-registry.php:1148
 msgid "Label above the keyword field."
 msgstr ""
 
-#: src/render/widget-registry.php:1077
+#: src/render/widget-registry.php:1149
 msgid "Search placeholder"
 msgstr ""
 
-#: src/render/widget-registry.php:1077
+#: src/render/widget-registry.php:1149
 msgid "Placeholder inside the keyword field."
 msgstr ""
 
-#: src/render/widget-registry.php:1078
+#: src/render/widget-registry.php:1150
 msgid "Category label"
 msgstr ""
 
-#: src/render/widget-registry.php:1078
+#: src/render/widget-registry.php:1150
 msgid "Label above the category field."
 msgstr ""
 
-#: src/render/widget-registry.php:1079
+#: src/render/widget-registry.php:1151
 msgid "Venue label"
 msgstr ""
 
-#: src/render/widget-registry.php:1079
+#: src/render/widget-registry.php:1151
 msgid "Label above the venue field."
 msgstr ""
 
-#: src/render/widget-registry.php:1080
+#: src/render/widget-registry.php:1152
 msgid "From label"
 msgstr ""
 
-#: src/render/widget-registry.php:1080
+#: src/render/widget-registry.php:1152
 msgid "Label above the start date."
 msgstr ""
 
-#: src/render/widget-registry.php:1081
+#: src/render/widget-registry.php:1153
 msgid "To label"
 msgstr ""
 
-#: src/render/widget-registry.php:1081
+#: src/render/widget-registry.php:1153
 msgid "Label above the end date."
 msgstr ""
 
-#: src/render/widget-registry.php:1082
+#: src/render/widget-registry.php:1154
 msgid "Upcoming label"
 msgstr ""
 
-#: src/render/widget-registry.php:1082
+#: src/render/widget-registry.php:1154
 msgid "Label for the upcoming toggle."
 msgstr ""
 
-#: src/render/widget-registry.php:1083
+#: src/render/widget-registry.php:1155
 msgid "Submit label"
 msgstr ""
 
-#: src/render/widget-registry.php:1083
+#: src/render/widget-registry.php:1155
 msgid "Text on the search button."
 msgstr ""
 
-#: src/render/widget-registry.php:1084
+#: src/render/widget-registry.php:1156
 msgid "Clear label"
 msgstr ""
 
-#: src/render/widget-registry.php:1084
+#: src/render/widget-registry.php:1156
 msgid "Text on the clear link."
 msgstr ""
 
-#: src/render/widget-registry.php:1085
+#: src/render/widget-registry.php:1157
+#: blocks/build/bookings/index.js:1
+#: blocks/src/bookings/index.js:56
 msgid "Empty message"
 msgstr ""
 
-#: src/render/widget-registry.php:1085
+#: src/render/widget-registry.php:1157
 msgid "Text shown when there are no results."
 msgstr ""
 
-#: src/render/widget-registry.php:1085
+#: src/render/widget-registry.php:1157
 msgid "No results found."
 msgstr ""
 
-#: src/render/widget-registry.php:1086
+#: src/render/widget-registry.php:1158
 msgid "Cancelled label"
 msgstr ""
 
-#: src/render/widget-registry.php:1086
+#: src/render/widget-registry.php:1158
 msgid "Label shown for cancelled events."
 msgstr ""
 
-#: src/render/widget-registry.php:1087
+#: src/render/widget-registry.php:1159
 msgid "Organizers label"
 msgstr ""
 
-#: src/render/widget-registry.php:1087
+#: src/render/widget-registry.php:1159
 msgid "Label shown before the organizer names."
 msgstr ""
 
-#: src/render/widget-registry.php:1088
+#: src/render/widget-registry.php:1160
 msgid "All categories label"
 msgstr ""
 
-#: src/render/widget-registry.php:1088
+#: src/render/widget-registry.php:1160
 msgid "Option for no category filter."
 msgstr ""
 
-#: src/render/widget-registry.php:1089
+#: src/render/widget-registry.php:1161
 msgid "All venues label"
 msgstr ""
 
-#: src/render/widget-registry.php:1089
+#: src/render/widget-registry.php:1161
 msgid "Option for no venue filter."
 msgstr ""
 
 #: src/rest/booking-form-controller.php:47
+#: src/rest/my-bookings-controller.php:451
 msgid "Event ID."
 msgstr ""
 
@@ -3414,6 +3584,8 @@ msgstr ""
 
 #: src/rest/bookings-controller.php:197
 #: src/rest/bookings-controller.php:358
+#: src/rest/my-bookings-controller.php:230
+#: src/rest/my-bookings-controller.php:255
 msgid "Invalid booking ID."
 msgstr ""
 
@@ -3428,11 +3600,13 @@ msgstr ""
 
 #: src/rest/bookings-controller.php:418
 #: src/rest/bookings-controller.php:521
+#: src/rest/my-bookings-controller.php:477
 msgid "Ticket ID."
 msgstr ""
 
 #: src/rest/bookings-controller.php:424
 #: src/rest/bookings-controller.php:517
+#: src/rest/my-bookings-controller.php:467
 msgid "Occurrence ID."
 msgstr ""
 
@@ -3443,6 +3617,7 @@ msgstr ""
 
 #: src/rest/bookings-controller.php:436
 #: src/rest/bookings-controller.php:559
+#: src/rest/my-bookings-controller.php:542
 msgid "Attendees."
 msgstr ""
 
@@ -3455,6 +3630,7 @@ msgid "Idempotency token for retries."
 msgstr ""
 
 #: src/rest/bookings-controller.php:472
+#: src/rest/my-bookings-controller.php:569
 msgid "Limit results to a booking status."
 msgstr ""
 
@@ -3465,16 +3641,21 @@ msgstr ""
 
 #: src/rest/bookings-controller.php:498
 #: src/rest/bookings-controller.php:600
+#: src/rest/my-bookings-controller.php:75
+#: src/rest/my-bookings-controller.php:416
+#: src/rest/my-bookings-controller.php:446
 msgid "Booking reference."
 msgstr ""
 
 #: src/rest/bookings-controller.php:503
 #: src/rest/events-controller.php:607
 #: src/rest/events-controller.php:731
+#: src/rest/my-bookings-controller.php:456
 msgid "Event title."
 msgstr ""
 
 #: src/rest/bookings-controller.php:508
+#: src/rest/my-bookings-controller.php:482
 #: src/rest/tickets-controller.php:359
 #: src/rest/tickets-controller.php:434
 msgid "Ticket name."
@@ -3494,23 +3675,28 @@ msgstr ""
 
 #: src/rest/bookings-controller.php:533
 #: src/rest/bookings-controller.php:583
+#: src/rest/my-bookings-controller.php:492
 msgid "Booking status."
 msgstr ""
 
 #: src/rest/bookings-controller.php:538
+#: src/rest/my-bookings-controller.php:497
 msgid "Total in the smallest currency unit."
 msgstr ""
 
 #: src/rest/bookings-controller.php:542
+#: src/rest/my-bookings-controller.php:502
 msgid "Formatted total."
 msgstr ""
 
 #: src/rest/bookings-controller.php:547
+#: src/rest/my-bookings-controller.php:507
 #: src/rest/tickets-controller.php:446
 msgid "Currency code."
 msgstr ""
 
 #: src/rest/bookings-controller.php:551
+#: src/rest/my-bookings-controller.php:512
 msgid "Creation time in UTC."
 msgstr ""
 
@@ -3669,6 +3855,7 @@ msgid "Additional occurrence dates in UTC (Y-m-d H:i:s)."
 msgstr ""
 
 #: src/rest/events-controller.php:805
+#: src/rest/my-bookings-controller.php:461
 msgid "Event permalink."
 msgstr ""
 
@@ -3690,6 +3877,87 @@ msgstr ""
 
 #: src/rest/events-controller.php:854
 msgid "Occurrence status."
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:59
+msgid "List My Bookings"
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:81
+msgid "Attendee email used for the booking."
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:89
+msgid "Find Booking"
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:104
+msgid "Get My Booking"
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:115
+msgid "cancel or reactivate."
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:122
+msgid "Update My Booking"
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:139
+#: src/rest/my-bookings-controller.php:204
+#: src/rest/my-bookings-controller.php:269
+#: src/services/booking-self-service.php:217
+msgid "Booking changes are disabled."
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:146
+#: src/rest/routes.php:66
+msgid "Authentication required."
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:275
+msgid "Sorry, you are not allowed to access this booking."
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:395
+#: src/rest/my-bookings-controller.php:441
+msgid "Booking ID."
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:411
+msgid "Signed key from a booking email."
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:421
+msgid "Attendee email."
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:472
+msgid "Start in UTC."
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:487
+msgid "Seats."
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:517
+msgid "Whether the booking can be cancelled."
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:522
+msgid "Whether the booking can be restored."
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:527
+msgid "Whether cancelling refunds a payment."
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:532
+msgid "Why cancelling is blocked."
+msgstr ""
+
+#: src/rest/my-bookings-controller.php:537
+msgid "Why restoring is blocked."
 msgstr ""
 
 #: src/rest/organizers-controller.php:99
@@ -3747,19 +4015,15 @@ msgstr ""
 msgid "The API is disabled."
 msgstr ""
 
-#: src/rest/routes.php:66
-msgid "Authentication required."
-msgstr ""
-
 #: src/rest/routes.php:72
 msgid "Too many requests. Try again later."
 msgstr ""
 
-#: src/rest/routes.php:179
+#: src/rest/routes.php:182
 msgid "Payment gateway ID."
 msgstr ""
 
-#: src/rest/routes.php:196
+#: src/rest/routes.php:199
 msgid "Too many webhook requests. Try again later."
 msgstr ""
 
@@ -3932,32 +4196,40 @@ msgstr ""
 msgid "API key"
 msgstr ""
 
-#: src/services/booking-emails.php:399
+#: src/services/booking-emails.php:402
 msgid "When"
 msgstr ""
 
-#: src/services/booking-emails.php:475
+#: src/services/booking-emails.php:478
 msgid "Attendee"
 msgstr ""
 
-#: src/services/booking-emails.php:519
+#: src/services/booking-emails.php:522
 msgid "Sample Event"
 msgstr ""
 
-#: src/services/booking-emails.php:537
+#: src/services/booking-emails.php:540
 msgid "Sample Attendee"
 msgstr ""
 
-#: src/services/booking-emails.php:581
-msgid "Confirmed"
+#: src/services/booking-self-service.php:211
+msgid "Changes are closed for this booking."
 msgstr ""
 
-#: src/services/booking-emails.php:585
-msgid "Rejected"
+#: src/services/booking-self-service.php:213
+msgid "This booking can no longer be changed online. Please contact the organizer."
 msgstr ""
 
-#: src/services/booking-emails.php:587
-msgid "Pending"
+#: src/services/booking-self-service.php:215
+msgid "A payment for this booking is still processing. Please try again later."
+msgstr ""
+
+#: src/services/booking-self-service.php:221
+msgid "This booking is no longer available."
+msgstr ""
+
+#: src/services/booking-self-service.php:223
+msgid "This booking cannot be changed."
 msgstr ""
 
 #: src/services/booking-service.php:81
@@ -4186,6 +4458,10 @@ msgstr ""
 msgid "Awaiting approval"
 msgstr ""
 
+#: templates/bookings.php:52
+msgid "The payment is refunded when you cancel."
+msgstr ""
+
 #: templates/calendar.php:36
 msgid "Previous month"
 msgstr ""
@@ -4267,11 +4543,14 @@ msgid "Leave 0 for the first time."
 msgstr ""
 
 #: blocks/build/booking-form/index.js:1
+#: blocks/build/bookings/index.js:1
 #: blocks/src/booking-form/index.js:83
+#: blocks/src/bookings/index.js:41
 msgid "Heading"
 msgstr ""
 
 #: blocks/build/booking-form/index.js:1
+#: blocks/build/bookings/index.js:1
 #: blocks/build/calendar/index.js:1
 #: blocks/build/event-details/index.js:1
 #: blocks/build/events-list/index.js:1
@@ -4281,6 +4560,8 @@ msgstr ""
 #: blocks/build/venues-list/index.js:1
 #: blocks/src/booking-form/index.js:93
 #: blocks/src/booking-form/index.js:105
+#: blocks/src/bookings/index.js:63
+#: blocks/src/bookings/index.js:69
 #: blocks/src/calendar/index.js:189
 #: blocks/src/event-details/index.js:144
 #: blocks/src/event-details/index.js:156
@@ -4326,6 +4607,41 @@ msgstr ""
 #: blocks/build/booking-form/index.js:1
 #: blocks/src/booking-form/index.js:150
 msgid "Hide sold-out tickets"
+msgstr ""
+
+#: blocks/build/bookings/index.js:1
+#: blocks/src/bookings/index.js:43
+msgid "Leave empty to hide the heading."
+msgstr ""
+
+#: blocks/build/bookings/index.js:1
+#: blocks/src/bookings/index.js:46
+msgid "Bookings shown"
+msgstr ""
+
+#: blocks/build/bookings/index.js:1
+#: blocks/src/bookings/index.js:73
+msgid "Labels"
+msgstr ""
+
+#: blocks/build/bookings/index.js:1
+#: blocks/src/bookings/index.js:78
+msgid "Lookup heading"
+msgstr ""
+
+#: blocks/build/bookings/index.js:1
+#: blocks/src/bookings/index.js:83
+msgid "Lookup button"
+msgstr ""
+
+#: blocks/build/bookings/index.js:1
+#: blocks/src/bookings/index.js:98
+msgid "Cancel label"
+msgstr ""
+
+#: blocks/build/bookings/index.js:1
+#: blocks/src/bookings/index.js:103
+msgid "Restore label"
 msgstr ""
 
 #: blocks/build/calendar/index.js:1
@@ -4884,6 +5200,7 @@ msgid "tickets"
 msgstr ""
 
 #: blocks/build/booking-form/block.json
+#: blocks/build/bookings/block.json
 #: blocks/build/calendar/block.json
 #: blocks/build/event-details/block.json
 #: blocks/build/events-list/block.json
@@ -4892,6 +5209,7 @@ msgstr ""
 #: blocks/build/map/block.json
 #: blocks/build/venues-list/block.json
 #: blocks/src/booking-form/block.json
+#: blocks/src/bookings/block.json
 #: blocks/src/calendar/block.json
 #: blocks/src/event-details/block.json
 #: blocks/src/events-list/block.json
@@ -4901,6 +5219,36 @@ msgstr ""
 #: blocks/src/venues-list/block.json
 msgctxt "block keyword"
 msgid "reevents"
+msgstr ""
+
+#: blocks/build/bookings/block.json
+#: blocks/src/bookings/block.json
+msgctxt "block title"
+msgid "My Bookings"
+msgstr ""
+
+#: blocks/build/bookings/block.json
+#: blocks/src/bookings/block.json
+msgctxt "block description"
+msgid "Show the visitor's bookings with cancel and restore actions."
+msgstr ""
+
+#: blocks/build/bookings/block.json
+#: blocks/src/bookings/block.json
+msgctxt "block keyword"
+msgid "bookings"
+msgstr ""
+
+#: blocks/build/bookings/block.json
+#: blocks/src/bookings/block.json
+msgctxt "block keyword"
+msgid "rsvp"
+msgstr ""
+
+#: blocks/build/bookings/block.json
+#: blocks/src/bookings/block.json
+msgctxt "block keyword"
+msgid "my bookings"
 msgstr ""
 
 #: blocks/build/calendar/block.json
