@@ -79,6 +79,8 @@ Do not rely on inline styles. The plugin does not output them.
 | `show_venue`        | `true`        | Show the venue                       |
 | `show_venue_address` | `false`      | Venue address                        |
 | `show_venue_map_link` | `false`     | Venue map link                       |
+| `show_venue_map`    | `false`       | Embed the venue map                  |
+| `venue_map_height`  | `320`         | Embedded map height in pixels        |
 | `show_organizers`   | `true`        | Show organizers                      |
 | `show_online_links` | `true`        | Show online links                    |
 | `show_calendar_links` | `true`      | Show add-to-calendar links           |

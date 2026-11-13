@@ -87,6 +87,8 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `show_end` | 1 | Show the end date and time. |
 | `show_venue_address` | 0 | Show the venue address. |
 | `show_venue_map_link` | 0 | Show a map link for the venue. |
+| `show_venue_map` | 0 | Embed the venue map. |
+| `venue_map_height` | 320 | Embedded map height in pixels. |
 | `free_label` | Free | Price label for free events. |
 | `sold_out_label` | Sold out | Label when no ticket has seats left. |
 | `show_content` | 1 | Display the event description. |
