@@ -18,6 +18,9 @@ use ReEvents\Data\Ticket_Repository;
 use ReEvents\Data\Venue_Repository;
 use ReEvents\Domain\Event;
 use ReEvents\Query\Event_Query;
+use ReEvents\Services\Booking_Access;
+use ReEvents\Services\Currency;
+use ReEvents\Services\Booking_Self_Service;
 use ReEvents\Services\Booking_Service;
 use ReEvents\Services\Booking_Validator;
 use ReEvents\Services\Event_Service;
@@ -987,6 +990,183 @@ function reevents_update_booking_status( int $booking_id, string $status ) {
 	return is_wp_error( $result ) ? $result : reevents_get_booking( $booking_id );
 }
 
+/**
+ * Read the current user's bookings.
+ *
+ * Requires a logged-in user and self-service enabled. Each item adds
+ * `event_url`, `start_utc`, `ticket_name`, `total_formatted`, `attendees`
+ * and the self-service `rules` fields.
+ *
+ * @since 1.0.0
+ *
+ * @param array<string, mixed> $args `per_page` (max 50, default 10), `page`, `status`, `search`.
+ * @return array<int, array<string, mixed>>|WP_Error
+ */
+function reevents_get_my_bookings( array $args = [] ) {
+	if ( ! Booking_Self_Service::enabled() ) {
+		return reevents_api_error( 'reevents_self_service_disabled', __( 'Booking changes are disabled.', 're-events' ), 403 );
+	}
+
+	$user_id = get_current_user_id();
+
+	if ( $user_id <= 0 ) {
+		return reevents_api_error( 'reevents_booking_forbidden', __( 'Authentication required.', 're-events' ), 401 );
+	}
+
+	[ $per_page, $offset ] = Booking_Self_Service::pagination( (int) ( $args['per_page'] ?? 10 ), (int) ( $args['page'] ?? 1 ) );
+	$result                = ( new Booking_Repository() )->query(
+		[
+			'user_id' => $user_id,
+			'status'  => isset( $args['status'] ) ? sanitize_key( (string) $args['status'] ) : '',
+			'search'  => isset( $args['search'] ) ? sanitize_text_field( (string) $args['search'] ) : '',
+			'limit'   => $per_page,
+			'offset'  => $offset,
+		]
+	);
+	$rules                 = Booking_Self_Service::rules_many( $result['items'] );
+	$tickets               = [];
+	$attendees             = ( new Booking_Repository() )->attendees_many(
+		array_map( static fn( array $booking ): int => (int) $booking['id'], $result['items'] )
+	);
+	$items                 = [];
+
+	foreach ( ( new Ticket_Repository() )->for_events( array_map( static fn( array $booking ): int => (int) $booking['event_id'], $result['items'] ) ) as $event_tickets ) {
+		foreach ( $event_tickets as $ticket ) {
+			$tickets[ (int) $ticket['id'] ] = $ticket;
+		}
+	}
+
+	foreach ( $result['items'] as $booking ) {
+		$id                     = (int) $booking['id'];
+		$booking['ticket_name'] = (string) ( $tickets[ (int) $booking['ticket_id'] ]['name'] ?? '' );
+		$booking['attendees']   = $attendees[ $id ] ?? [];
+		$items[]                = reevents_api_my_booking_data( $booking, $rules[ $id ] ?? [] );
+	}
+
+	return $items;
+}
+
+/**
+ * Find a booking with its reference and attendee email.
+ *
+ * Requires self-service and guest lookup to be enabled.
+ *
+ * @since 1.0.0
+ *
+ * @param string $reference Booking reference.
+ * @param string $email     Email used for the booking.
+ * @return array<string, mixed>|WP_Error
+ */
+function reevents_lookup_booking( string $reference, string $email ) {
+	if ( ! Booking_Self_Service::enabled() ) {
+		return reevents_api_error( 'reevents_self_service_disabled', __( 'Booking changes are disabled.', 're-events' ), 403 );
+	}
+
+	if ( ! Settings::get( 'self_service_guest', true ) ) {
+		return reevents_api_error( 'reevents_guest_lookup_disabled', __( 'Booking lookup is disabled.', 're-events' ), 403 );
+	}
+
+	$booking = Booking_Access::lookup( $reference, $email );
+
+	if ( ! $booking ) {
+		return reevents_api_error( 'reevents_booking_not_found', __( 'Booking not found.', 're-events' ), 404 );
+	}
+
+	return reevents_api_my_booking_data( $booking, Booking_Self_Service::rules( $booking ) );
+}
+
+/**
+ * Read what the caller may do with a booking.
+ *
+ * Credentials may be a signed `key`, or `reference` plus `email`. Event
+ * managers and the booking owner need no credentials.
+ *
+ * @since 1.0.0
+ *
+ * @param int                  $booking_id  Booking ID.
+ * @param array<string, mixed> $credentials `key`, or `reference` and `email`.
+ * @return array<string, mixed>|WP_Error
+ */
+function reevents_get_booking_rules( int $booking_id, array $credentials = [] ) {
+	$booking = ( new Booking_Repository() )->find( $booking_id );
+
+	if ( ! $booking ) {
+		return reevents_api_error( 'reevents_booking_not_found', __( 'Booking not found.', 're-events' ), 404 );
+	}
+
+	$access = reevents_api_booking_access( $booking, $credentials );
+
+	if ( is_wp_error( $access ) ) {
+		return $access;
+	}
+
+	return Booking_Self_Service::rules( $booking );
+}
+
+/**
+ * Cancel a booking through the self-service rules.
+ *
+ * A successful payment is refunded first when refunds are enabled.
+ *
+ * @since 1.0.0
+ *
+ * @param int                  $booking_id  Booking ID.
+ * @param array<string, mixed> $credentials `key`, or `reference` and `email`.
+ * @return array<string, mixed>|WP_Error
+ */
+function reevents_cancel_booking( int $booking_id, array $credentials = [] ) {
+	$booking = ( new Booking_Repository() )->find( $booking_id );
+
+	if ( ! $booking ) {
+		return reevents_api_error( 'reevents_booking_not_found', __( 'Booking not found.', 're-events' ), 404 );
+	}
+
+	$access = reevents_api_booking_access( $booking, $credentials );
+
+	if ( is_wp_error( $access ) ) {
+		return $access;
+	}
+
+	$result = Booking_Self_Service::cancel( $booking_id );
+
+	if ( is_wp_error( $result ) ) {
+		return $result;
+	}
+
+	return reevents_api_booking_state( $booking_id );
+}
+
+/**
+ * Restore a cancelled free booking through the self-service rules.
+ *
+ * @since 1.0.0
+ *
+ * @param int                  $booking_id  Booking ID.
+ * @param array<string, mixed> $credentials `key`, or `reference` and `email`.
+ * @return array<string, mixed>|WP_Error
+ */
+function reevents_reactivate_booking( int $booking_id, array $credentials = [] ) {
+	$booking = ( new Booking_Repository() )->find( $booking_id );
+
+	if ( ! $booking ) {
+		return reevents_api_error( 'reevents_booking_not_found', __( 'Booking not found.', 're-events' ), 404 );
+	}
+
+	$access = reevents_api_booking_access( $booking, $credentials );
+
+	if ( is_wp_error( $access ) ) {
+		return $access;
+	}
+
+	$result = Booking_Self_Service::reactivate( $booking_id );
+
+	if ( is_wp_error( $result ) ) {
+		return $result;
+	}
+
+	return reevents_api_booking_state( $booking_id );
+}
+
 /*
  * Settings.
  */
@@ -1058,6 +1238,39 @@ function reevents_api_can_read_booking( array $booking ): bool {
  */
 function reevents_api_can_manage_event( int $event_id ): bool {
 	return current_user_can( 'edit_post', $event_id ) || current_user_can( 'reevents_manage_bookings' );
+}
+
+/**
+ * Check reading access for a self-service booking.
+ *
+ * Event managers and the booking owner need no credentials.
+ *
+ * @param array<string, mixed> $booking     Booking.
+ * @param array<string, mixed> $credentials `key`, or `reference` and `email`.
+ * @return bool|WP_Error
+ */
+function reevents_api_booking_access( array $booking, array $credentials ) {
+	if ( reevents_api_can_read_booking( $booking ) || Booking_Access::authorize( $booking, $credentials ) ) {
+		return true;
+	}
+
+	return reevents_api_error( 'reevents_booking_forbidden', __( 'You are not allowed to access this booking.', 're-events' ), 403 );
+}
+
+/**
+ * Reload a booking with its rules after a change.
+ *
+ * @param int $booking_id Booking ID.
+ * @return array<string, mixed>|WP_Error
+ */
+function reevents_api_booking_state( int $booking_id ) {
+	$booking = ( new Booking_Repository() )->find( $booking_id );
+
+	if ( ! $booking ) {
+		return reevents_api_error( 'reevents_booking_not_found', __( 'Booking not found.', 're-events' ), 404 );
+	}
+
+	return reevents_api_my_booking_data( $booking, Booking_Self_Service::rules( $booking ) );
 }
 
 /**
@@ -1134,4 +1347,35 @@ function reevents_api_booking_data( array $booking ): array {
 	$booking['event_title'] = (string) ( $booking['event_title'] ?? get_the_title( (int) $booking['event_id'] ) );
 
 	return $booking;
+}
+
+/**
+ * Serialize a booking with its self-service rules.
+ *
+ * @param array<string, mixed> $booking Booking row.
+ * @param array<string, mixed> $rules   Rules from Booking_Self_Service.
+ * @return array<string, mixed>
+ */
+function reevents_api_my_booking_data( array $booking, array $rules ): array {
+	if ( ! array_key_exists( 'ticket_name', $booking ) ) {
+		$ticket                 = ( new Ticket_Repository() )->find( (int) $booking['ticket_id'] );
+		$booking['ticket_name'] = (string) ( $ticket['name'] ?? '' );
+	}
+
+	if ( ! array_key_exists( 'attendees', $booking ) ) {
+		$booking['attendees'] = ( new Booking_Repository() )->attendees( (int) $booking['id'] );
+	}
+
+	$data = reevents_api_booking_data( $booking );
+
+	$data['event_url']         = (int) $booking['event_id'] > 0 ? (string) get_permalink( (int) $booking['event_id'] ) : '';
+	$data['start_utc']         = (string) ( $rules['start_utc'] ?? '' );
+	$data['total_formatted']   = (int) $booking['total_minor'] > 0 ? Currency::format( (int) $booking['total_minor'], (string) $booking['currency'] ) : __( 'Free', 're-events' );
+	$data['can_cancel']        = ! empty( $rules['can_cancel'] );
+	$data['can_reactivate']    = ! empty( $rules['can_reactivate'] );
+	$data['refund_on_cancel']  = ! empty( $rules['refund_on_cancel'] );
+	$data['cancel_reason']     = (string) ( $rules['cancel_reason'] ?? '' );
+	$data['reactivate_reason'] = (string) ( $rules['reactivate_reason'] ?? '' );
+
+	return $data;
 }

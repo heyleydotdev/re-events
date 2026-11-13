@@ -85,12 +85,19 @@ Ticket fields: `name`, `description`, `price_minor`, `currency`, `capacity`, `mi
 | `reevents_get_booking_attendees( int $id ): array\|WP_Error` | `edit_post` or `reevents_manage_bookings` |
 | `reevents_create_booking( array $data ): array\|WP_Error` | Public, same as REST |
 | `reevents_update_booking_status( int $id, string $status ): array\|WP_Error` | `edit_post` or `reevents_manage_bookings` |
+| `reevents_get_my_bookings( array $args = [] ): array\|WP_Error` | Logged-in owner, self-service on |
+| `reevents_lookup_booking( string $reference, string $email ): array\|WP_Error` | Reference + email, guest lookup on |
+| `reevents_get_booking_rules( int $id, array $credentials = [] ): array\|WP_Error` | Owner, manager, signed key or reference + email |
+| `reevents_cancel_booking( int $id, array $credentials = [] ): array\|WP_Error` | Owner, manager, signed key or reference + email |
+| `reevents_reactivate_booking( int $id, array $credentials = [] ): array\|WP_Error` | Owner, manager, signed key or reference + email |
 
 Booking creation fields: `event_id`, `ticket_id`, `occurrence_id`, `quantity`, `attendees`, `booking_token`. Use one token per form load so retries return the existing booking. Paid bookings add `checkout_url` when a gateway is configured. The token is remembered for five minutes, matching the REST endpoint, so a much later retry creates a new booking.
 
 `reevents_get_event_bookings()` accepts `status`, `per_page` (max 100, default 20) and `page`.
 
 There is no delete helper. Cancel or reject the booking instead.
+
+The self-service helpers add `event_url`, `start_utc`, `ticket_name`, `total_formatted`, `attendees`, `can_cancel`, `can_reactivate`, `refund_on_cancel`, `cancel_reason` and `reactivate_reason` to the booking row. `reevents_get_my_bookings()` accepts `per_page` (max 50, default 10), `page`, `status` and `search`. The credential argument takes a signed `key`, or `reference` plus `email`; the owner and event managers need none. The rules follow **Settings → Bookings → Self-service**, and a paid cancellation is refunded first when refunds are enabled.
 
 ## Settings
 

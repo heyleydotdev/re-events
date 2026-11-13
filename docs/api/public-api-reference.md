@@ -8,6 +8,21 @@ Return the public API version.
 
 **Since:** 1.0.0
 
+## `reevents_cancel_booking()`
+
+Cancel a booking through the self-service rules.
+
+A successful payment is refunded first when refunds are enabled.
+
+**Parameters**
+
+- `int $booking_id` — Booking ID.
+- `array<string,mixed> $credentials` — `key`, or `reference` and `email`.
+
+**Returns:** `array<string,mixed>|\WP_Error`
+
+**Since:** 1.0.0
+
 ## `reevents_create_booking()`
 
 Create a booking.
@@ -192,6 +207,22 @@ Requires edit access to the event or `reevents_manage_bookings`.
 
 **Since:** 1.0.0
 
+## `reevents_get_booking_rules()`
+
+Read what the caller may do with a booking.
+
+Credentials may be a signed `key`, or `reference` plus `email`. Event
+managers and the booking owner need no credentials.
+
+**Parameters**
+
+- `int $booking_id` — Booking ID.
+- `array<string,mixed> $credentials` — `key`, or `reference` and `email`.
+
+**Returns:** `array<string,mixed>|\WP_Error`
+
+**Since:** 1.0.0
+
 ## `reevents_get_categories()`
 
 Read event categories.
@@ -281,6 +312,22 @@ Read published events.
 
 **Since:** 1.0.0
 
+## `reevents_get_my_bookings()`
+
+Read the current user's bookings.
+
+Requires a logged-in user and self-service enabled. Each item adds
+`event_url`, `start_utc`, `ticket_name`, `total_formatted`, `attendees`
+and the self-service `rules` fields.
+
+**Parameters**
+
+- `array<string,mixed> $args` — `per_page` (max 50, default 10), `page`, `status`, `search`.
+
+**Returns:** `array<int,array<string,mixed>>|\WP_Error`
+
+**Since:** 1.0.0
+
 ## `reevents_get_organizer()`
 
 Read one organizer.
@@ -348,6 +395,34 @@ Read published venues.
 - `array<string,mixed> $args` — Arguments accepted by Venue_Repository::query().
 
 **Returns:** `array<int,array<string,mixed>>`
+
+**Since:** 1.0.0
+
+## `reevents_lookup_booking()`
+
+Find a booking with its reference and attendee email.
+
+Requires self-service and guest lookup to be enabled.
+
+**Parameters**
+
+- `string $reference` — Booking reference.
+- `string $email` — Email used for the booking.
+
+**Returns:** `array<string,mixed>|\WP_Error`
+
+**Since:** 1.0.0
+
+## `reevents_reactivate_booking()`
+
+Restore a cancelled free booking through the self-service rules.
+
+**Parameters**
+
+- `int $booking_id` — Booking ID.
+- `array<string,mixed> $credentials` — `key`, or `reference` and `email`.
+
+**Returns:** `array<string,mixed>|\WP_Error`
 
 **Since:** 1.0.0
 
