@@ -125,6 +125,8 @@ final class Event_Details_Test extends WP_UnitTestCase {
 				'show_excerpt'        => true,
 				'show_venue_address'  => true,
 				'show_venue_map_link' => true,
+				'show_venue_map'      => true,
+				'venue_map_height'    => 300,
 				'date_format'         => 'Y/m/d',
 				'time_format'         => 'H:i',
 			]
@@ -142,6 +144,105 @@ final class Event_Details_Test extends WP_UnitTestCase {
 		self::assertStringContainsString( 'Detail teaser', $html );
 		self::assertStringContainsString( '1 Test Street', $html );
 		self::assertStringContainsString( 'openstreetmap.org', $html );
+		self::assertStringContainsString( 'reevents-event-map', $html );
+		self::assertStringContainsString( 'data-height="300"', $html );
+	}
+
+	/**
+	 * Organizer names link to their pages.
+	 */
+	public function test_organizer_links(): void {
+		$organizer = wp_insert_post(
+			[
+				'post_type'   => 'reevents_organizer',
+				'post_status' => 'publish',
+				'post_title'  => 'Linked organizer',
+			]
+		);
+
+		$id = Test_Factory::event(
+			[
+				'title' => 'Organizer event',
+				'meta'  => [
+					'_reevents_start_utc'     => '2027-06-01 10:00:00',
+					'_reevents_end_utc'       => '2027-06-01 11:00:00',
+					'_reevents_timezone'      => 'UTC',
+					'_reevents_organizer_ids' => [ $organizer ],
+				],
+			]
+		);
+
+		$html = Event_Details::render( [ 'id' => $id ] );
+
+		self::assertStringContainsString( '<a href="' . esc_url( (string) get_permalink( $organizer ) ) . '">Linked organizer</a>', $html );
+
+		wp_update_post(
+			[
+				'ID'          => $organizer,
+				'post_status' => 'draft',
+			]
+		);
+
+		$draft = Event_Details::render( [ 'id' => $id ] );
+
+		self::assertStringContainsString( 'Linked organizer', $draft );
+		self::assertStringNotContainsString( 'href="' . esc_url( (string) get_permalink( $organizer ) ) . '"', $draft );
+	}
+
+	/**
+	 * The venue map is embedded only when it is asked for and the venue is public.
+	 */
+	public function test_venue_map_requires_toggle_and_published_venue(): void {
+		$venue = wp_insert_post(
+			[
+				'post_type'   => 'reevents_venue',
+				'post_status' => 'publish',
+				'post_title'  => 'Mapped venue',
+			]
+		);
+
+		update_post_meta( $venue, '_reevents_lat', '51.5' );
+		update_post_meta( $venue, '_reevents_lng', '-0.12' );
+
+		$id = Test_Factory::event(
+			[
+				'title' => 'Mapped event',
+				'meta'  => [
+					'_reevents_start_utc' => '2027-06-01 10:00:00',
+					'_reevents_end_utc'   => '2027-06-01 11:00:00',
+					'_reevents_timezone'  => 'UTC',
+					'_reevents_venue_id'  => $venue,
+				],
+			]
+		);
+
+		self::assertStringNotContainsString( 'reevents-event-map', Event_Details::render( [ 'id' => $id ] ) );
+		self::assertStringContainsString(
+			'reevents-event-map',
+			Event_Details::render(
+				[
+					'id'             => $id,
+					'show_venue_map' => true,
+				]
+			)
+		);
+
+		wp_update_post(
+			[
+				'ID'          => $venue,
+				'post_status' => 'draft',
+			]
+		);
+
+		$hidden = Event_Details::render(
+			[
+				'id'             => $id,
+				'show_venue_map' => true,
+			]
+		);
+
+		self::assertStringNotContainsString( 'reevents-event-map', $hidden );
+		self::assertStringNotContainsString( 'No mapped venues', $hidden );
 	}
 
 	/**
