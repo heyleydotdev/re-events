@@ -253,6 +253,7 @@ Do not rely on inline styles. The plugin does not output them.
 | `class`                | empty                 | Extra class on the inner element          |
 | `wrapper_class`        | empty                 | Extra wrapper class                       |
 | `heading`              | `My bookings`         | Heading. Empty hides it                   |
+| `show_heading`         | `true`                | Show the heading                          |
 | `empty_label`          | `You have no bookings yet.` | Empty state                        |
 | `limit`                | `20`                  | Maximum bookings, capped at 100           |
 | `date_format`          | site format           | Event start date format                   |

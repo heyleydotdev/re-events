@@ -19,9 +19,10 @@ ReEvents adds an event domain to WordPress without a page builder lock-in.
 * Organizers with descriptions and organizer types.
 * Tickets with price, currency, capacity, sale window and per-booking limits.
 * Bookings with capacity reservations in a database transaction, approvals and unpaid holds.
+* Self-service booking page: visitors see their bookings and cancel or reserve again; guests use a reference and email or a signed email link.
 * Stripe and PayPal checkout, refunds and signed webhooks.
 * Admin booking screens, attendee export, HTML mail templates with status notifications and CSV import/export.
-* Shortcodes and Gutenberg blocks for lists, details, search, calendar, map, booking form and single event fields.
+* Shortcodes and Gutenberg blocks for lists, details, search, calendar, map, booking form, my bookings and single event fields.
 * Semantic HTML with no frontend CSS; your theme owns the design.
 * REST API, PHP API, iCal/RSS feeds and schema.org output.
 
@@ -46,6 +47,10 @@ No. Every widget uses semantic HTML and stable classes so the theme controls sty
 = Can attendees book without an account? =
 
 Yes. Bookings are guest-first. Free bookings confirm immediately; paid bookings wait for the gateway.
+
+= Can attendees change or cancel a booking? =
+
+Yes, when self-service is enabled. Logged-in visitors see their bookings; guests use the reference and email from their confirmation, or the signed link in the email. Free bookings can be reserved again while seats remain, and a paid cancellation refunds through the configured gateway.
 
 = Where is personal data handled? =
 

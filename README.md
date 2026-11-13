@@ -24,6 +24,7 @@ ReEvents adds a complete event domain to WordPress: a calendar, sellable tickets
 - **Venues and organizers** — addresses, coordinates and websites; geocoding on save; OpenStreetMap by default, Google Maps optional.
 - **Tickets** — free RSVP and paid tickets with price, currency, capacity, sale window and per-booking limits.
 - **Bookings** — guest checkout, optional approval, unpaid holds, atomic seat reservation and cancellation.
+- **Self-service** — visitors see their bookings and cancel or reserve again from a shortcode, block or REST route. Guests use a reference and email, or the signed link in their email.
 - **Payments** — Stripe Checkout and PayPal Orders with refunds and signed webhooks.
 - **Admin** — booking and attendee tables, check-in, resend email, HTML mail templates and CSV export.
 - **Output** — shortcodes, Gutenberg blocks and a PHP API; no CSS to override.
@@ -77,6 +78,7 @@ For custom layouts, compose single fields instead of styling around the event te
 | Calendar         | `[reevents_calendar]`     | `reevents/calendar`         |
 | Map              | `[reevents_map]`          | `reevents/map`              |
 | Booking form     | `[reevents_booking_form]` | `reevents/booking-form`     |
+| My bookings      | `[reevents_bookings]`     | `reevents/bookings`         |
 | Single field     | `[reevents_field]`        | `reevents/field`            |
 
 ## Payments

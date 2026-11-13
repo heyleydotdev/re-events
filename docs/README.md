@@ -10,7 +10,7 @@ ReEvents adds events, venues, organizers, tickets, bookings and Stripe/PayPal pa
 - [Custom booking forms](api/booking-form.md) — schema endpoint, payload and field errors.
 - [Public API](api/public-api.md) — PHP functions for events, tickets and bookings.
 - [Public API reference](api/public-api-reference.md) — generated function signatures.
-- [Bookings](bookings.md) — timeslots, capacity and cancellation.
+- [Bookings](bookings.md) — timeslots, capacity, self-service and cancellation.
 - [Emails](emails.md) — templates, placeholders, lifecycle and email designers.
 - [Maps](maps.md) — OpenStreetMap, Google Maps and geocoding.
 - [Payments](payments.md) — Stripe and PayPal setup, webhooks and test checks.

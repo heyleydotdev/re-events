@@ -9,6 +9,7 @@ Open **ReEvents → Settings**.
 - **General:** default event timezone, time display (site, event or visitor), map provider, Google Maps key and the trusted-proxy client IP option for rate limits.
 - **Formats:** date and time formats used by every renderer.
 - **Booking rules:** require approval, unpaid hold window, custom attendee fields.
+- **Self-service:** enable booking changes, close them a number of hours before the start, allow guest lookup, refund on cancel and pick the page that hosts the My Bookings widget.
 - **Payments:** gateway, default currency, Stripe or PayPal credentials.
 - **Emails:** sender and recipients, admin and attendee templates with placeholders, HTML layout and lifecycle mail.
 - **API:** enable the REST API, public reads, rate limit, CORS origins, feed token.
@@ -22,12 +23,14 @@ Open **ReEvents → Settings**.
 
 An event without an active ticket shows “No tickets are available.” in the booking form.
 
+Add `[reevents_bookings]` to a page so visitors can see their bookings and cancel or reserve again. Points of the flow are covered in [My bookings](developer/my-bookings.md).
+
 ## 3. Output
 
 Use a block, a shortcode or your theme:
 
-- **Blocks:** Events List, Event Details, Venues List, Events Search, Calendar, Map, Event Field, Booking Form.
-- **Shortcodes:** `[reevents_events]`, `[reevents_event]`, `[reevents_venues]`, `[reevents_search]`, `[reevents_calendar]`, `[reevents_map]`, `[reevents_booking_form]`, `[reevents_field]`.
+- **Blocks:** Events List, Event Details, Venues List, Events Search, Calendar, Map, Event Field, Booking Form, My Bookings.
+- **Shortcodes:** `[reevents_events]`, `[reevents_event]`, `[reevents_venues]`, `[reevents_search]`, `[reevents_calendar]`, `[reevents_map]`, `[reevents_booking_form]`, `[reevents_bookings]`, `[reevents_field]`.
 - **Theme:** call the renderers or the [public PHP API](api/public-api.md).
 
 To put a search form above a separate list, hide the search results and let the list read the query:
