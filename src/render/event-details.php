@@ -71,6 +71,7 @@ final class Event_Details {
 			$organizers[] = [
 				'name' => $title,
 				'type' => implode( ', ', $names ),
+				'url'  => 'publish' === get_post_status( $organizer_id ) ? (string) get_permalink( $organizer_id ) : '',
 			];
 		}
 
@@ -88,15 +89,28 @@ final class Event_Details {
 			);
 		}
 
-		$venue_address = '';
-		$venue_map     = '';
+		$venue_address  = '';
+		$venue_map      = '';
+		$venue_map_html = '';
 
 		if ( $event->venue_id ) {
+			$lat           = (string) get_post_meta( $event->venue_id, '_reevents_lat', true );
+			$lng           = (string) get_post_meta( $event->venue_id, '_reevents_lng', true );
 			$venue_address = (string) get_post_meta( $event->venue_id, '_reevents_address', true );
-			$venue_map     = Field::map_link(
-				(string) get_post_meta( $event->venue_id, '_reevents_lat', true ),
-				(string) get_post_meta( $event->venue_id, '_reevents_lng', true )
-			);
+			$venue_map     = Field::map_link( $lat, $lng );
+
+			if ( ! empty( $args['show_venue_map'] ) && 'publish' === get_post_status( $event->venue_id ) && '' !== $lat && '' !== $lng ) {
+				$venue_map_html = Map::render(
+					[
+						'venue'         => $event->venue_id,
+						'limit'         => 1,
+						'height'        => max( 200, (int) ( $args['venue_map_height'] ?? 320 ) ),
+						'link'          => false,
+						'show_address'  => ! empty( $args['show_venue_address'] ),
+						'wrapper_class' => 'reevents-event-map',
+					]
+				);
+			}
 		}
 
 		$summary = [];
@@ -128,6 +142,7 @@ final class Event_Details {
 				'venue'          => $venue,
 				'venue_address'  => $venue_address,
 				'venue_map'      => $venue_map,
+				'venue_map_html' => $venue_map_html,
 				'organizers'     => $organizers,
 				'calendar_links' => $calendar_links,
 				'summary'        => $summary,

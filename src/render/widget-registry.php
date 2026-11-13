@@ -369,6 +369,16 @@ final class Widget_Registry {
 						'default'     => false,
 						'description' => __( 'Show a map link for the venue.', 're-events' ),
 					],
+					'show_venue_map'      => [
+						'type'        => 'toggle',
+						'default'     => false,
+						'description' => __( 'Embed the venue map.', 're-events' ),
+					],
+					'venue_map_height'    => [
+						'type'        => 'number',
+						'default'     => 320,
+						'description' => __( 'Embedded map height in pixels.', 're-events' ),
+					],
 					'free_label'          => [
 						'type'        => 'text',
 						'default'     => __( 'Free', 're-events' ),

@@ -4,7 +4,7 @@
  *
  * @package ReEvents
  *
- * @var array{event: \ReEvents\Domain\Event, content: string, venue: string, organizers: array<int, array{name:string,type:string}>, args: array<string, mixed>} $args
+ * @var array{event: \ReEvents\Domain\Event, content: string, venue: string, venue_address: string, venue_map: string, venue_map_html: string, organizers: array<int, array{name:string,type:string,url:string}>, args: array<string, mixed>} $args
  */
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are scoped to the template include.
@@ -64,11 +64,21 @@ if ( ! empty( $settings['show_venue_map_link'] ) && '' !== (string) $args['venue
 	echo '<p class="reevents-event-venue-map"><a href="' . esc_url( (string) $args['venue_map'] ) . '">' . esc_html__( 'Map', 're-events' ) . '</a></p>';
 }
 
+if ( '' !== (string) $args['venue_map_html'] ) {
+	echo $args['venue_map_html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped by the map template.
+}
+
 if ( $on( 'show_organizers' ) && ! empty( $args['organizers'] ) ) {
 	$organizers = [];
 
 	foreach ( $args['organizers'] as $organizer ) {
-		$organizers[] = esc_html( $organizer['name'] ) . ( '' !== $organizer['type'] ? ' (' . esc_html( $organizer['type'] ) . ')' : '' );
+		$name = esc_html( $organizer['name'] );
+
+		if ( '' !== (string) $organizer['url'] ) {
+			$name = '<a href="' . esc_url( (string) $organizer['url'] ) . '">' . $name . '</a>';
+		}
+
+		$organizers[] = $name . ( '' !== $organizer['type'] ? ' (' . esc_html( $organizer['type'] ) . ')' : '' );
 	}
 
 	echo '<p class="reevents-event-organizers">' . esc_html( (string) ( $settings['organizers_label'] ?? __( 'Organizers:', 're-events' ) ) ) . ' ' . implode( ', ', $organizers ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
