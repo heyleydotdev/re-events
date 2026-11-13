@@ -114,6 +114,52 @@ final class Payment_Repository {
 	}
 
 	/**
+	 * Booking IDs that have at least one successful payment.
+	 *
+	 * @param int[] $booking_ids Booking IDs.
+	 * @return int[]
+	 */
+	public function succeeded_booking_ids( array $booking_ids ): array {
+		return $this->booking_ids_by_status( 'succeeded', $booking_ids );
+	}
+
+	/**
+	 * Booking IDs that have at least one payment still processing.
+	 *
+	 * @param int[] $booking_ids Booking IDs.
+	 * @return int[]
+	 */
+	public function pending_booking_ids( array $booking_ids ): array {
+		return $this->booking_ids_by_status( 'pending', $booking_ids );
+	}
+
+	/**
+	 * Booking IDs with a payment in the given status.
+	 *
+	 * @param string $status      Payment status.
+	 * @param int[]  $booking_ids Booking IDs.
+	 * @return int[]
+	 */
+	private function booking_ids_by_status( string $status, array $booking_ids ): array {
+		global $wpdb;
+
+		$booking_ids = array_values( array_unique( array_filter( array_map( 'intval', $booking_ids ) ) ) );
+
+		if ( ! $booking_ids ) {
+			return [];
+		}
+
+		$table        = $this->table();
+		$placeholders = implode( ',', array_fill( 0, count( $booking_ids ), '%d' ) );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Internal table name and generated placeholders.
+		$ids = $wpdb->get_col( $wpdb->prepare( "SELECT DISTINCT booking_id FROM {$table} WHERE status = %s AND booking_id IN ({$placeholders})", $status, ...$booking_ids ) );
+		// phpcs:enable
+
+		return is_array( $ids ) ? array_map( 'intval', $ids ) : [];
+	}
+
+	/**
 	 * Get payments for a booking.
 	 *
 	 * @param int $booking_id Booking ID.

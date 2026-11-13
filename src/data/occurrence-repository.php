@@ -146,6 +146,37 @@ final class Occurrence_Repository {
 	}
 
 	/**
+	 * Find many occurrences in one query.
+	 *
+	 * @param int[] $ids Occurrence IDs.
+	 * @return array<int, array<string, mixed>> Rows keyed by occurrence ID.
+	 */
+	public function find_many( array $ids ): array {
+		global $wpdb;
+
+		$ids = array_values( array_unique( array_filter( array_map( 'intval', $ids ) ) ) );
+
+		if ( ! $ids ) {
+			return [];
+		}
+
+		$table        = $this->table();
+		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Internal table name and generated placeholders.
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE id IN ({$placeholders})", ...$ids ), ARRAY_A );
+		// phpcs:enable
+
+		$found = [];
+
+		foreach ( (array) $rows as $row ) {
+			$found[ (int) $row['id'] ] = $row;
+		}
+
+		return $found;
+	}
+
+	/**
 	 * Reserve seats for an occurrence.
 	 *
 	 * @param int $id       Occurrence ID.

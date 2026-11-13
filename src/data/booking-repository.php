@@ -53,6 +53,27 @@ final class Booking_Repository {
 	}
 
 	/**
+	 * Find a booking by reference.
+	 *
+	 * @param string $reference Booking reference.
+	 * @return array<string, mixed>|null
+	 */
+	public function find_by_reference( string $reference ): ?array {
+		global $wpdb;
+
+		if ( '' === $reference ) {
+			return null;
+		}
+
+		$table = $this->table();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Internal table name.
+		$row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$table} WHERE reference = %s LIMIT 1", $reference ), ARRAY_A );
+
+		return is_array( $row ) ? $this->hydrate( $row ) : null;
+	}
+
+	/**
 	 * Get attendees for a booking.
 	 *
 	 * @param int $booking_id Booking ID.
@@ -69,18 +90,59 @@ final class Booking_Repository {
 		$attendees = [];
 
 		foreach ( (array) $rows as $row ) {
-			$attendees[] = [
-				'id'         => (int) ( $row['id'] ?? 0 ),
-				'booking_id' => (int) ( $row['booking_id'] ?? 0 ),
-				'ticket_id'  => (int) ( $row['ticket_id'] ?? 0 ),
-				'name'       => (string) ( $row['name'] ?? '' ),
-				'email'      => (string) ( $row['email'] ?? '' ),
-				'fields'     => json_decode( (string) ( $row['fields_json'] ?? '[]' ), true ),
-				'checked_in' => (bool) ( $row['checked_in'] ?? false ),
-			];
+			$attendees[] = self::hydrate_attendee( (array) $row );
 		}
 
 		return $attendees;
+	}
+
+	/**
+	 * Get attendees for many bookings in one query.
+	 *
+	 * @param int[] $booking_ids Booking IDs.
+	 * @return array<int, array<int, array<string, mixed>>> Attendees keyed by booking ID.
+	 */
+	public function attendees_many( array $booking_ids ): array {
+		global $wpdb;
+
+		$booking_ids = array_values( array_unique( array_filter( array_map( 'intval', $booking_ids ) ) ) );
+
+		if ( ! $booking_ids ) {
+			return [];
+		}
+
+		$table        = $this->attendees_table();
+		$placeholders = implode( ',', array_fill( 0, count( $booking_ids ), '%d' ) );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Internal table name and generated placeholders.
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table} WHERE booking_id IN ({$placeholders}) ORDER BY id ASC", ...$booking_ids ), ARRAY_A );
+		// phpcs:enable
+
+		$grouped = [];
+
+		foreach ( (array) $rows as $row ) {
+			$grouped[ (int) $row['booking_id'] ][] = self::hydrate_attendee( (array) $row );
+		}
+
+		return $grouped;
+	}
+
+	/**
+	 * Hydrate an attendee row.
+	 *
+	 * @param array<string, mixed> $row Row.
+	 * @return array<string, mixed>
+	 */
+	private static function hydrate_attendee( array $row ): array {
+		return [
+			'id'         => (int) ( $row['id'] ?? 0 ),
+			'booking_id' => (int) ( $row['booking_id'] ?? 0 ),
+			'ticket_id'  => (int) ( $row['ticket_id'] ?? 0 ),
+			'name'       => (string) ( $row['name'] ?? '' ),
+			'email'      => (string) ( $row['email'] ?? '' ),
+			'fields'     => json_decode( (string) ( $row['fields_json'] ?? '[]' ), true ),
+			'checked_in' => (bool) ( $row['checked_in'] ?? false ),
+		];
 	}
 
 	/**
