@@ -58,6 +58,8 @@ final class Blocks {
 			'showCalendarLinks' => 'show_calendar_links',
 			'showVenueAddress'  => 'show_venue_address',
 			'showVenueMapLink'  => 'show_venue_map_link',
+			'showVenueMap'      => 'show_venue_map',
+			'venueMapHeight'    => 'venue_map_height',
 			'showAddress'       => 'show_address',
 			'showWebsite'       => 'show_website',
 			'showMapLink'       => 'show_map_link',

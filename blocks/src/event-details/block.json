@@ -45,6 +45,14 @@
 			"type": "boolean",
 			"default": false
 		},
+		"showVenueMap": {
+			"type": "boolean",
+			"default": false
+		},
+		"venueMapHeight": {
+			"type": "number",
+			"default": 320
+		},
 		"showOrganizers": {
 			"type": "boolean",
 			"default": true

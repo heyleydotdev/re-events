@@ -22,6 +22,8 @@ function Edit( { attributes, setAttributes } ) {
 		showVenue,
 		showVenueAddress,
 		showVenueMapLink,
+		showVenueMap,
+		venueMapHeight,
 		showOrganizers,
 		showPrice,
 		showSeatsLeft,
@@ -180,6 +182,31 @@ function Edit( { attributes, setAttributes } ) {
 							setAttributes( { showVenueMapLink: value } )
 						}
 					/>
+					<ToggleControl
+						label={ __( 'Embed venue map', 're-events' ) }
+						help={ __(
+							'Requires venue coordinates.',
+							're-events'
+						) }
+						checked={ showVenueMap }
+						onChange={ ( value ) =>
+							setAttributes( { showVenueMap: value } )
+						}
+					/>
+					{ showVenueMap && (
+						<TextControl
+							label={ __( 'Map height (px)', 're-events' ) }
+							type="number"
+							min={ 200 }
+							value={ String( venueMapHeight ) }
+							onChange={ ( value ) =>
+								setAttributes( {
+									venueMapHeight:
+										parseInt( value, 10 ) || 320,
+								} )
+							}
+						/>
+					) }
 					<ToggleControl
 						label={ __( 'Show organizers', 're-events' ) }
 						checked={ showOrganizers }
