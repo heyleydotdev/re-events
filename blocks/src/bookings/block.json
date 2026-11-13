@@ -9,59 +9,19 @@
 	"keywords": [ "bookings", "rsvp", "my bookings", "reevents" ],
 	"textdomain": "re-events",
 	"attributes": {
-		"heading": {
-			"type": "string",
-			"default": ""
-		},
-		"emptyLabel": {
-			"type": "string",
-			"default": ""
-		},
 		"limit": {
 			"type": "number",
 			"default": 20
+		},
+		"showHeading": {
+			"type": "boolean",
+			"default": true
 		},
 		"dateFormat": {
 			"type": "string",
 			"default": ""
 		},
 		"timeFormat": {
-			"type": "string",
-			"default": ""
-		},
-		"lookupHeading": {
-			"type": "string",
-			"default": ""
-		},
-		"lookupButtonLabel": {
-			"type": "string",
-			"default": ""
-		},
-		"referenceLabel": {
-			"type": "string",
-			"default": ""
-		},
-		"emailLabel": {
-			"type": "string",
-			"default": ""
-		},
-		"cancelLabel": {
-			"type": "string",
-			"default": ""
-		},
-		"reactivateLabel": {
-			"type": "string",
-			"default": ""
-		},
-		"freeLabel": {
-			"type": "string",
-			"default": ""
-		},
-		"className": {
-			"type": "string",
-			"default": ""
-		},
-		"wrapperClass": {
 			"type": "string",
 			"default": ""
 		}

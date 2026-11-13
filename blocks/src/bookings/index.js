@@ -1,47 +1,22 @@
 import { registerBlockType } from '@wordpress/blocks';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, RangeControl, TextControl } from '@wordpress/components';
+import {
+	PanelBody,
+	RangeControl,
+	TextControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import ServerSideRender from '@wordpress/server-side-render';
 import metadata from './block.json';
 
 function Edit( { attributes, setAttributes } ) {
-	const {
-		heading,
-		emptyLabel,
-		limit,
-		dateFormat,
-		timeFormat,
-		lookupHeading,
-		lookupButtonLabel,
-		referenceLabel,
-		emailLabel,
-		cancelLabel,
-		reactivateLabel,
-		freeLabel,
-		className,
-		wrapperClass,
-	} = attributes;
-
-	const text = ( key, label, value, help ) => (
-		<TextControl
-			label={ label }
-			value={ value }
-			help={ help }
-			onChange={ ( next ) => setAttributes( { [ key ]: next } ) }
-		/>
-	);
+	const { limit, showHeading, dateFormat, timeFormat } = attributes;
 
 	return (
 		<>
 			<InspectorControls>
 				<PanelBody title={ __( 'Bookings', 're-events' ) }>
-					{ text(
-						'heading',
-						__( 'Heading', 're-events' ),
-						heading,
-						__( 'Leave empty to hide the heading.', 're-events' )
-					) }
 					<RangeControl
 						label={ __( 'Bookings shown', 're-events' ) }
 						min={ 1 }
@@ -51,78 +26,35 @@ function Edit( { attributes, setAttributes } ) {
 							setAttributes( { limit: value || 20 } )
 						}
 					/>
-					{ text(
-						'emptyLabel',
-						__( 'Empty message', 're-events' ),
-						emptyLabel
-					) }
-					{ text(
-						'dateFormat',
-						__( 'Date format', 're-events' ),
-						dateFormat,
-						__( 'Leave empty to use the site format.', 're-events' )
-					) }
-					{ text(
-						'timeFormat',
-						__( 'Time format', 're-events' ),
-						timeFormat,
-						__( 'Leave empty to use the site format.', 're-events' )
-					) }
-				</PanelBody>
-				<PanelBody
-					title={ __( 'Labels', 're-events' ) }
-					initialOpen={ false }
-				>
-					{ text(
-						'lookupHeading',
-						__( 'Lookup heading', 're-events' ),
-						lookupHeading
-					) }
-					{ text(
-						'lookupButtonLabel',
-						__( 'Lookup button', 're-events' ),
-						lookupButtonLabel
-					) }
-					{ text(
-						'referenceLabel',
-						__( 'Reference label', 're-events' ),
-						referenceLabel
-					) }
-					{ text(
-						'emailLabel',
-						__( 'Email label', 're-events' ),
-						emailLabel
-					) }
-					{ text(
-						'cancelLabel',
-						__( 'Cancel label', 're-events' ),
-						cancelLabel
-					) }
-					{ text(
-						'reactivateLabel',
-						__( 'Restore label', 're-events' ),
-						reactivateLabel
-					) }
-					{ text(
-						'freeLabel',
-						__( 'Free label', 're-events' ),
-						freeLabel
-					) }
-				</PanelBody>
-				<PanelBody
-					title={ __( 'Advanced', 're-events' ) }
-					initialOpen={ false }
-				>
-					{ text(
-						'className',
-						__( 'CSS class', 're-events' ),
-						className
-					) }
-					{ text(
-						'wrapperClass',
-						__( 'Wrapper CSS class', 're-events' ),
-						wrapperClass
-					) }
+					<ToggleControl
+						label={ __( 'Show heading', 're-events' ) }
+						checked={ showHeading }
+						onChange={ ( value ) =>
+							setAttributes( { showHeading: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Date format', 're-events' ) }
+						value={ dateFormat }
+						help={ __(
+							'Leave empty to use the site format.',
+							're-events'
+						) }
+						onChange={ ( value ) =>
+							setAttributes( { dateFormat: value } )
+						}
+					/>
+					<TextControl
+						label={ __( 'Time format', 're-events' ) }
+						value={ timeFormat }
+						help={ __(
+							'Leave empty to use the site format.',
+							're-events'
+						) }
+						onChange={ ( value ) =>
+							setAttributes( { timeFormat: value } )
+						}
+					/>
 				</PanelBody>
 			</InspectorControls>
 			<div { ...useBlockProps() }>

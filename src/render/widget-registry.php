@@ -1063,9 +1063,15 @@ final class Widget_Registry {
 						'default'     => __( 'My bookings', 're-events' ),
 						'description' => __( 'Heading above the list. Leave empty to hide it.', 're-events' ),
 					],
+					'show_heading'        => [
+						'type'        => 'toggle',
+						'default'     => true,
+						'description' => __( 'Show the heading above the list.', 're-events' ),
+					],
 					'empty_label'         => [
-						'type'    => 'text',
-						'default' => __( 'You have no bookings yet.', 're-events' ),
+						'type'        => 'text',
+						'default'     => __( 'You have no bookings yet.', 're-events' ),
+						'description' => __( 'Message shown when the visitor has no bookings.', 're-events' ),
 					],
 					'limit'               => [
 						'type'        => 'number',
@@ -1088,24 +1094,29 @@ final class Widget_Registry {
 						'description' => __( 'Heading on the guest lookup form.', 're-events' ),
 					],
 					'lookup_button_label' => [
-						'type'    => 'text',
-						'default' => __( 'Find booking', 're-events' ),
+						'type'        => 'text',
+						'default'     => __( 'Find booking', 're-events' ),
+						'description' => __( 'Text on the lookup submit button.', 're-events' ),
 					],
 					'reference_label'     => [
-						'type'    => 'text',
-						'default' => __( 'Booking reference', 're-events' ),
+						'type'        => 'text',
+						'default'     => __( 'Booking reference', 're-events' ),
+						'description' => __( 'Label for the reference field.', 're-events' ),
 					],
 					'email_label'         => [
-						'type'    => 'text',
-						'default' => __( 'Email', 're-events' ),
+						'type'        => 'text',
+						'default'     => __( 'Email', 're-events' ),
+						'description' => __( 'Label for the email field.', 're-events' ),
 					],
 					'cancel_label'        => [
-						'type'    => 'text',
-						'default' => __( 'Cancel booking', 're-events' ),
+						'type'        => 'text',
+						'default'     => __( 'Cancel booking', 're-events' ),
+						'description' => __( 'Text on the cancel button.', 're-events' ),
 					],
 					'reactivate_label'    => [
-						'type'    => 'text',
-						'default' => __( 'Reserve again', 're-events' ),
+						'type'        => 'text',
+						'default'     => __( 'Reserve again', 're-events' ),
+						'description' => __( 'Text on the restore button.', 're-events' ),
 					],
 					'free_label'          => [
 						'type'    => 'text',

@@ -107,7 +107,7 @@ final class Bookings {
 		return Template::render(
 			'bookings',
 			[
-				'heading' => (string) $args['heading'],
+				'heading' => ! empty( $args['show_heading'] ) ? (string) $args['heading'] : '',
 				'notice'  => $notice,
 				'cards'   => $cards,
 				'lookup'  => $lookup,
@@ -317,6 +317,7 @@ final class Bookings {
 	private static function defaults( array $args ): array {
 		$args['limit']               = max( 1, min( 100, (int) ( $args['limit'] ?? 20 ) ) );
 		$args['heading']             = (string) ( $args['heading'] ?? __( 'My bookings', 're-events' ) );
+		$args['show_heading']        = ! isset( $args['show_heading'] ) || ! empty( $args['show_heading'] );
 		$args['empty_label']         = (string) ( $args['empty_label'] ?? __( 'You have no bookings yet.', 're-events' ) );
 		$args['lookup_heading']      = (string) ( $args['lookup_heading'] ?? __( 'Find your booking', 're-events' ) );
 		$args['lookup_button_label'] = (string) ( $args['lookup_button_label'] ?? __( 'Find booking', 're-events' ) );
