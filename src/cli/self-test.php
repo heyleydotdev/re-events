@@ -474,6 +474,11 @@ final class Self_Test {
 	private static function check_rest( array &$failures ): void {
 		wp_set_current_user( 1 );
 
+		$routes = rest_get_server()->get_routes( 're-events/v1' );
+		self::assert( isset( $routes['/re-events/v1/my-bookings'] ), 'My bookings route is missing.', $failures );
+		self::assert( isset( $routes['/re-events/v1/my-bookings/lookup'] ), 'Booking lookup route is missing.', $failures );
+		self::assert( isset( $routes['/re-events/v1/my-bookings/(?P<id>[\\d]+)'] ), 'Single booking route is missing.', $failures );
+
 		$create = new WP_REST_Request( 'POST', '/re-events/v1/events' );
 		$create->set_header( 'Content-Type', 'application/json' );
 		$create->set_body(
