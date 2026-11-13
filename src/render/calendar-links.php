@@ -27,7 +27,7 @@ final class Calendar_Links {
 	 * @return array<int, array{label:string,url:string}>
 	 */
 	public static function links( Event $event, array $labels = [] ): array {
-		if ( 'cancelled' === $event->status ) {
+		if ( 'cancelled' === $event->status || ! self::has_valid_start( $event ) ) {
 			return [];
 		}
 
@@ -57,6 +57,10 @@ final class Calendar_Links {
 	 * @param Event $event Event.
 	 */
 	public static function google( Event $event ): string {
+		if ( ! self::has_valid_start( $event ) ) {
+			return '';
+		}
+
 		return add_query_arg(
 			[
 				'action'   => 'TEMPLATE',
@@ -76,6 +80,10 @@ final class Calendar_Links {
 	 * @param string $base  Provider base URL.
 	 */
 	public static function outlook( Event $event, string $base ): string {
+		if ( ! self::has_valid_start( $event ) ) {
+			return '';
+		}
+
 		$params = [
 			'path'     => '/calendar/action/compose',
 			'rru'      => 'addevent',
@@ -125,7 +133,31 @@ final class Calendar_Links {
 			return $start->format( 'Ymd' ) . '/' . $end->modify( '+1 day' )->format( 'Ymd' );
 		}
 
-		return gmdate( 'Ymd\THis\Z', strtotime( $event->start_utc ) ) . '/' . gmdate( 'Ymd\THis\Z', strtotime( '' !== $event->end_utc ? $event->end_utc : $event->start_utc ) );
+		$start = self::date( $event->start_utc );
+		$end   = self::date( '' !== $event->end_utc ? $event->end_utc : $event->start_utc );
+
+		return $start->format( 'Ymd\THis\Z' ) . '/' . $end->format( 'Ymd\THis\Z' );
+	}
+
+	/**
+	 * Whether the event has a parseable start time.
+	 *
+	 * @param Event $event Event.
+	 */
+	private static function has_valid_start( Event $event ): bool {
+		if ( '' === $event->start_utc ) {
+			return false;
+		}
+
+		$date = DateTimeImmutable::createFromFormat( '!Y-m-d H:i:s', $event->start_utc, new DateTimeZone( 'UTC' ) );
+
+		if ( ! $date instanceof DateTimeImmutable ) {
+			return false;
+		}
+
+		$errors = DateTimeImmutable::getLastErrors();
+
+		return ! is_array( $errors ) || ( 0 === $errors['warning_count'] && 0 === $errors['error_count'] );
 	}
 
 	/**
