@@ -94,7 +94,7 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `show_content` | 1 | Display the event description. |
 
 ```text
-[reevents_event date_format="F j, Y" time_format="g:i a" cancelled_label="Cancelled" ongoing_label="Ongoing" venue_label="Venue:" organizers_label="Organizers:" show_venue="1" show_organizers="1" show_online_links="1" show_calendar_links="1" calendar_label="Add to calendar" google_label="Google" outlook_label="Outlook" office365_label="Office 365" ical_label="Apple / iCal" image_size="large" show_title="1" title_tag="h2" show_status="1" show_end="1" free_label="Free" sold_out_label="Sold out" show_content="1"]
+[reevents_event date_format="F j, Y" time_format="g:i a" cancelled_label="Cancelled" ongoing_label="Ongoing" venue_label="Venue:" organizers_label="Organizers:" show_venue="1" show_organizers="1" show_online_links="1" show_calendar_links="1" calendar_label="Add to calendar" google_label="Google" outlook_label="Outlook" office365_label="Office 365" ical_label="Apple / iCal" image_size="large" show_title="1" title_tag="h2" show_status="1" show_end="1" venue_map_height="320" free_label="Free" sold_out_label="Sold out" show_content="1"]
 ```
 
 ## Venues List
@@ -280,27 +280,26 @@ Every registered widget is listed here. Arguments left at their default can be o
 
 `[reevents_bookings]`
 
-Shows the current user's bookings with cancel and reserve-again actions. Visitors who are not logged in get a lookup form for their booking reference and the email used to book. Actions follow **Settings → Bookings → Self-service**.
-
 | Argument | Default | Description |
 | --- | --- | --- |
-| `class` | — | Extra class on the inner element. |
+| `class` | — | Extra class on the widget. |
 | `wrapper_class` | — | Extra class on the wrapper. |
 | `heading` | My bookings | Heading above the list. Leave empty to hide it. |
-| `empty_label` | You have no bookings yet. | Message when the visitor has no bookings. |
+| `show_heading` | 1 | Show the heading above the list. |
+| `empty_label` | You have no bookings yet. | Message shown when the visitor has no bookings. |
 | `limit` | 20 | Maximum bookings shown. Capped at 100. |
-| `date_format` | site format | Date format for the event start. |
-| `time_format` | site format | Time format for the event start. |
+| `date_format` | F j, Y | Date format. Defaults to the site format. |
+| `time_format` | g:i a | Time format. Defaults to the site format. |
 | `lookup_heading` | Find your booking | Heading on the guest lookup form. |
-| `lookup_button_label` | Find booking | Lookup form submit label. |
-| `reference_label` | Booking reference | Lookup reference field label. |
-| `email_label` | Email | Lookup email field label. |
-| `cancel_label` | Cancel booking | Cancel action label. |
-| `reactivate_label` | Reserve again | Restore action label. |
-| `free_label` | Free | Total shown for a free booking. |
+| `lookup_button_label` | Find booking | Text on the lookup submit button. |
+| `reference_label` | Booking reference | Label for the reference field. |
+| `email_label` | Email | Label for the email field. |
+| `cancel_label` | Cancel booking | Text on the cancel button. |
+| `reactivate_label` | Reserve again | Text on the restore button. |
+| `free_label` | Free | Text shown for a free ticket. |
 
 ```text
-[reevents_bookings heading="My tickets" limit="20" cancel_label="Cancel booking" reactivate_label="Reserve again"]
+[reevents_bookings heading="My bookings" show_heading="1" empty_label="You have no bookings yet." limit="20" date_format="F j, Y" time_format="g:i a" lookup_heading="Find your booking" lookup_button_label="Find booking" reference_label="Booking reference" email_label="Email" cancel_label="Cancel booking" reactivate_label="Reserve again" free_label="Free"]
 ```
 
 ## Field shortcode
