@@ -174,10 +174,12 @@ final class OpenAPI {
 			];
 		}
 
+		$summary = isset( $handler['summary'] ) ? trim( (string) $handler['summary'] ) : '';
+
 		$operation = [
 			'operationId' => self::operation_id( $method, $path ),
 			'tags'        => [ self::tag( $path ) ],
-			'summary'     => self::summary( $path, $method, $component, $response ),
+			'summary'     => '' !== $summary ? $summary : self::summary( $path, $method, $component, $response ),
 			'responses'   => self::responses( $method, $path, $component, $response ),
 		];
 
@@ -590,6 +592,7 @@ final class OpenAPI {
 			'categories' => 'Categories',
 			'tickets'    => 'Bookings',
 			'bookings'   => 'Bookings',
+			'my-bookings' => 'Bookings',
 			default      => 'System',
 		};
 	}

@@ -62,7 +62,7 @@ final class Routes {
 			return $result;
 		}
 
-		if ( ! Settings::get( 'api_public', true ) ) {
+		if ( ! Settings::get( 'api_public', true ) && ! str_starts_with( $request->get_route(), '/re-events/v1/my-bookings' ) ) {
 			return new WP_Error( 'rest_forbidden', __( 'Authentication required.', 're-events' ), [ 'status' => 401 ] );
 		}
 
@@ -163,6 +163,9 @@ final class Routes {
 
 		$bookings = new Bookings_Controller();
 		$bookings->register_routes();
+
+		$my_bookings = new My_Bookings_Controller();
+		$my_bookings->register_routes();
 
 		$booking_form = new Booking_Form_Controller();
 		$booking_form->register_routes();
