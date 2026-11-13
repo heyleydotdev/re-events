@@ -4,7 +4,7 @@
  *
  * @package ReEvents
  *
- * @var array{event: \ReEvents\Domain\Event, content: string, venue: string, venue_address: string, venue_map: string, venue_map_html: string, organizers: array<int, array{name:string,type:string,url:string}>, args: array<string, mixed>} $args
+ * @var array{event: \ReEvents\Domain\Event, content: string, venue: string, venue_url: string, venue_address: string, venue_map: string, venue_map_html: string, organizers: array<int, array{name:string,type:string,url:string}>, args: array<string, mixed>} $args
  */
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are scoped to the template include.
@@ -53,7 +53,13 @@ if ( '' !== $start ) {
 }
 
 if ( $on( 'show_venue' ) && '' !== $args['venue'] ) {
-	echo '<p class="reevents-event-venue">' . esc_html( (string) ( $settings['venue_label'] ?? __( 'Venue:', 're-events' ) ) ) . ' ' . esc_html( $args['venue'] ) . '</p>';
+	$venue_name = esc_html( $args['venue'] );
+
+	if ( '' !== (string) $args['venue_url'] ) {
+		$venue_name = '<a href="' . esc_url( (string) $args['venue_url'] ) . '">' . $venue_name . '</a>';
+	}
+
+	echo '<p class="reevents-event-venue">' . esc_html( (string) ( $settings['venue_label'] ?? __( 'Venue:', 're-events' ) ) ) . ' ' . $venue_name . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped above.
 }
 
 if ( ! empty( $settings['show_venue_address'] ) && '' !== (string) $args['venue_address'] ) {

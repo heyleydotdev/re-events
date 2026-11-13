@@ -43,6 +43,7 @@ final class Event_Details {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core content filter.
 		$content    = $post && ! post_password_required( $id ) ? (string) apply_filters( 'the_content', $post->post_content ) : '';
 		$venue      = $event->venue_id ? (string) get_the_title( $event->venue_id ) : '';
+		$venue_url  = $event->venue_id && 'publish' === get_post_status( $event->venue_id ) ? (string) get_permalink( $event->venue_id ) : '';
 		$organizers = [];
 
 		if ( $event->venue_id ) {
@@ -140,6 +141,7 @@ final class Event_Details {
 				'event'          => $event,
 				'content'        => $content,
 				'venue'          => $venue,
+				'venue_url'      => $venue_url,
 				'venue_address'  => $venue_address,
 				'venue_map'      => $venue_map,
 				'venue_map_html' => $venue_map_html,
