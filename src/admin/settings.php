@@ -169,6 +169,62 @@ final class Settings {
 			],
 			'bookings_rules'
 		);
+		self::add_section( 'bookings', __( 'Self-service', 're-events' ), 'bookings_self_service' );
+		self::add_field(
+			'bookings',
+			'self_service',
+			__( 'Self-service', 're-events' ),
+			[
+				'type'        => 'checkbox',
+				'label'       => __( 'Let visitors view and change their own bookings', 're-events' ),
+				'description' => __( 'Adds cancel and reserve-again actions to the My Bookings widget.', 're-events' ),
+			],
+			'bookings_self_service'
+		);
+		self::add_field(
+			'bookings',
+			'self_service_cutoff',
+			__( 'Cutoff', 're-events' ),
+			[
+				'type'        => 'number',
+				'min'         => 0,
+				'max'         => 720,
+				'description' => __( 'Hours before the event start when changes close. 0 means until the event starts.', 're-events' ),
+			],
+			'bookings_self_service'
+		);
+		self::add_field(
+			'bookings',
+			'self_service_guest',
+			__( 'Guest lookup', 're-events' ),
+			[
+				'type'        => 'checkbox',
+				'label'       => __( 'Allow lookup by reference and email', 're-events' ),
+				'description' => __( 'Visitors without an account can find a booking with the reference and the email used to book.', 're-events' ),
+			],
+			'bookings_self_service'
+		);
+		self::add_field(
+			'bookings',
+			'self_service_refund',
+			__( 'Refunds', 're-events' ),
+			[
+				'type'        => 'checkbox',
+				'label'       => __( 'Refund successful payments on cancel', 're-events' ),
+				'description' => __( 'When off, paid bookings cannot be cancelled from the front end.', 're-events' ),
+			],
+			'bookings_self_service'
+		);
+		self::add_field(
+			'bookings',
+			'self_service_page',
+			__( 'Manage page', 're-events' ),
+			[
+				'type'        => 'url',
+				'description' => __( 'Page that contains the My Bookings shortcode or block. Used by the {manage_url} email token.', 're-events' ),
+			],
+			'bookings_self_service'
+		);
 		self::add_section( 'bookings', __( 'Attendee fields', 're-events' ), 'bookings_fields' );
 		self::add_field(
 			'bookings',
@@ -949,9 +1005,14 @@ final class Settings {
 				break;
 
 			case 'bookings':
-				$settings['require_approval'] = ! empty( $input['require_approval'] );
-				$settings['hold_minutes']     = max( 5, min( 1440, absint( $input['hold_minutes'] ?? 30 ) ) );
-				$settings['attendee_fields']  = self::sanitize_attendee_fields( $input['attendee_fields'] ?? [] );
+				$settings['require_approval']    = ! empty( $input['require_approval'] );
+				$settings['hold_minutes']        = max( 5, min( 1440, absint( $input['hold_minutes'] ?? 30 ) ) );
+				$settings['attendee_fields']     = self::sanitize_attendee_fields( $input['attendee_fields'] ?? [] );
+				$settings['self_service']        = ! empty( $input['self_service'] );
+				$settings['self_service_guest']  = ! empty( $input['self_service_guest'] );
+				$settings['self_service_refund'] = ! empty( $input['self_service_refund'] );
+				$settings['self_service_cutoff'] = max( 0, min( 720, absint( $input['self_service_cutoff'] ?? 0 ) ) );
+				$settings['self_service_page']   = esc_url_raw( (string) ( $input['self_service_page'] ?? '' ) );
 				break;
 
 			case 'payments':
@@ -1023,6 +1084,11 @@ final class Settings {
 			'require_approval'         => false,
 			'hold_minutes'             => 30,
 			'attendee_fields'          => [],
+			'self_service'             => true,
+			'self_service_cutoff'      => 0,
+			'self_service_guest'       => true,
+			'self_service_refund'      => true,
+			'self_service_page'        => '',
 			'email_admin_recipients'   => '',
 			'email_from_name'          => '',
 			'email_from_address'       => '',
