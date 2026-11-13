@@ -36,6 +36,20 @@ final class Booking_Self_Service {
 	}
 
 	/**
+	 * Clamp a page request.
+	 *
+	 * @param int $per_page Requested page size.
+	 * @param int $page     Requested page number.
+	 * @return array{0:int,1:int} Page size and offset.
+	 */
+	public static function pagination( int $per_page, int $page ): array {
+		$per_page = min( 50, max( 1, $per_page ) );
+		$page     = max( 1, $page );
+
+		return [ $per_page, ( $page - 1 ) * $per_page ];
+	}
+
+	/**
 	 * Rules for a set of bookings, loaded in batches.
 	 *
 	 * @param array<int, array<string, mixed>>        $bookings    Bookings.

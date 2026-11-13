@@ -173,18 +173,17 @@ final class My_Bookings_Controller extends WP_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_items( $request ) {
-		$per_page = min( 50, max( 1, (int) $request['per_page'] ) );
-		$page     = max( 1, (int) $request['page'] );
-		$result   = ( new Booking_Repository() )->query(
+		[ $per_page, $offset ] = Booking_Self_Service::pagination( (int) $request['per_page'], (int) $request['page'] );
+		$result                = ( new Booking_Repository() )->query(
 			[
 				'user_id' => get_current_user_id(),
 				'limit'   => $per_page,
-				'offset'  => ( $page - 1 ) * $per_page,
+				'offset'  => $offset,
 				'status'  => sanitize_key( (string) $request['status'] ),
 				'search'  => sanitize_text_field( (string) $request['search'] ),
 			]
 		);
-		$items    = $this->prepare_many( $result['items'] );
+		$items                 = $this->prepare_many( $result['items'] );
 
 		$response = rest_ensure_response( $items );
 		$response->header( 'X-WP-Total', (string) $result['total'] );
