@@ -82,6 +82,13 @@ final class Blocks {
 			'className'         => 'class',
 			'wrapperClass'      => 'wrapper_class',
 			'emptyLabel'        => 'empty_label',
+			'lookupHeading'     => 'lookup_heading',
+			'lookupButtonLabel' => 'lookup_button_label',
+			'referenceLabel'    => 'reference_label',
+			'emailLabel'        => 'email_label',
+			'cancelLabel'       => 'cancel_label',
+			'reactivateLabel'   => 'reactivate_label',
+			'freeLabel'         => 'free_label',
 		];
 	}
 
@@ -96,6 +103,7 @@ final class Blocks {
 			'events-search' => 'events-search',
 			'calendar'      => 'calendar',
 			'map'           => 'map',
+			'bookings'      => 'bookings',
 		];
 
 		$attribute_map = self::attribute_map();
