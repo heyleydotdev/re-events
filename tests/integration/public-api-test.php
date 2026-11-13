@@ -259,6 +259,99 @@ final class Public_API_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Self-service helpers list, look up and change a booking.
+	 */
+	public function test_my_booking_api(): void {
+		$fixture = $this->fixture();
+
+		$items = \reevents_get_my_bookings();
+
+		self::assertIsArray( $items );
+		self::assertSame( $fixture['booking'], (int) $items[0]['id'] );
+		self::assertTrue( $items[0]['can_cancel'] );
+		self::assertArrayHasKey( 'event_url', $items[0] );
+		self::assertArrayHasKey( 'ticket_name', $items[0] );
+		self::assertArrayHasKey( 'total_formatted', $items[0] );
+		self::assertArrayHasKey( 'attendees', $items[0] );
+
+		$guest_id = Test_Factory::booking(
+			$fixture['event'],
+			$fixture['ticket'],
+			[
+				'user_id'   => 0,
+				'attendees' => [
+					[
+						'name'  => 'Guest',
+						'email' => 'guest@example.com',
+					],
+				],
+			]
+		);
+		$guest    = ( new \ReEvents\Data\Booking_Repository() )->find( $guest_id );
+
+		self::assertIsArray( $guest );
+
+		wp_set_current_user( 0 );
+
+		$rules = \reevents_get_booking_rules(
+			$guest_id,
+			[
+				'reference' => (string) $guest['reference'],
+				'email'     => 'guest@example.com',
+			]
+		);
+
+		self::assertIsArray( $rules );
+		self::assertTrue( $rules['can_cancel'] );
+
+		$denied = \reevents_get_booking_rules(
+			$guest_id,
+			[
+				'reference' => (string) $guest['reference'],
+				'email'     => 'wrong@example.com',
+			]
+		);
+
+		self::assertWPError( $denied );
+		self::assertSame( 403, $denied->get_error_data()['status'] );
+
+		$lookup = \reevents_lookup_booking( (string) $guest['reference'], 'guest@example.com' );
+
+		self::assertIsArray( $lookup );
+		self::assertTrue( $lookup['can_cancel'] );
+
+		self::assertWPError( \reevents_lookup_booking( (string) $guest['reference'], 'wrong@example.com' ) );
+
+		$cancelled = \reevents_cancel_booking(
+			$guest_id,
+			[
+				'reference' => (string) $guest['reference'],
+				'email'     => 'guest@example.com',
+			]
+		);
+
+		self::assertIsArray( $cancelled );
+		self::assertSame( 'cancelled', $cancelled['status'] );
+		self::assertTrue( $cancelled['can_reactivate'] );
+
+		$restored = \reevents_reactivate_booking(
+			$guest_id,
+			[
+				'reference' => (string) $guest['reference'],
+				'email'     => 'guest@example.com',
+			]
+		);
+
+		self::assertIsArray( $restored );
+		self::assertSame( 'confirmed', $restored['status'] );
+
+		$guest_list = \reevents_get_my_bookings();
+
+		self::assertWPError( $guest_list );
+		self::assertSame( 401, $guest_list->get_error_data()['status'] );
+	}
+
+	/**
 	 * The same booking token returns the same booking.
 	 */
 	public function test_booking_token_is_idempotent(): void {

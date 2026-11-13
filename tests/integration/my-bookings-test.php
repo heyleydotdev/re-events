@@ -311,6 +311,22 @@ final class My_Bookings_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The block falls back to the registry labels and heading.
+	 */
+	public function test_block_uses_registry_defaults(): void {
+		wp_set_current_user( 0 );
+
+		$html = do_blocks( '<!-- wp:reevents/bookings /-->' );
+
+		self::assertStringContainsString( 'reevents-bookings-heading', $html );
+		self::assertStringContainsString( '>Find booking<', $html );
+
+		$without = do_blocks( '<!-- wp:reevents/bookings {"showHeading":false} /-->' );
+
+		self::assertStringNotContainsString( 'reevents-bookings-heading', $without );
+	}
+
+	/**
 	 * The lookup form keeps the subdirectory out of its action URL.
 	 */
 	public function test_current_url_strips_subdirectory(): void {

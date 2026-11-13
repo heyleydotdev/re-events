@@ -44,6 +44,7 @@ final class Widget_Registry_Test extends WP_UnitTestCase {
 			'bookings'      => [
 				'limit',
 				'heading',
+				'show_heading',
 				'empty_label',
 				'date_format',
 				'time_format',
