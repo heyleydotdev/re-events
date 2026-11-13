@@ -16,6 +16,7 @@ use ReEvents\Data\Ticket_Repository;
 use ReEvents\Domain\Event;
 use ReEvents\Render\Event_Format;
 use ReEvents\Render\Template;
+use ReEvents\Services\Booking_Access;
 
 /**
  * Sends booking notifications.
@@ -56,6 +57,7 @@ final class Booking_Emails {
 			'{venue_address}',
 			'{ticket}',
 			'{reference}',
+			'{manage_url}',
 			'{name}',
 			'{email}',
 			'{quantity}',
@@ -364,6 +366,7 @@ final class Booking_Emails {
 			'{venue_address}' => $event && $event->venue_id ? (string) get_post_meta( $event->venue_id, '_reevents_address', true ) : '',
 			'{ticket}'        => $ticket_name,
 			'{reference}'     => (string) ( $booking['reference'] ?? '' ),
+			'{manage_url}'    => Booking_Access::manage_url( $booking ),
 			'{name}'          => (string) ( $attendee['name'] ?? '' ),
 			'{email}'         => (string) ( $attendee['email'] ?? '' ),
 			'{quantity}'      => (string) ( $booking['quantity'] ?? 1 ),
