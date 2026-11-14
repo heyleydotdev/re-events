@@ -313,6 +313,71 @@ final class My_Bookings_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The booking list pages through the current user's bookings.
+	 */
+	public function test_pagination(): void {
+		$fixture = $this->fixture( 168, 20 );
+
+		for ( $i = 0; $i < 3; $i++ ) {
+			$this->booking( $fixture, $this->owner );
+		}
+
+		wp_set_current_user( $this->owner );
+
+		$first = Bookings::render( [ 'limit' => 2 ] );
+
+		self::assertSame( 2, substr_count( $first, '<li class="reevents-booking' ) );
+		self::assertStringContainsString( 'reevents-pagination', $first );
+		self::assertStringContainsString( 'reevents_bookings_page=2', $first );
+
+		$_GET['reevents_bookings_page'] = '2';
+
+		$second = Bookings::render( [ 'limit' => 2 ] );
+
+		self::assertSame( 1, substr_count( $second, '<li class="reevents-booking' ) );
+
+		$_GET['reevents_bookings_page'] = '3';
+
+		$last = Bookings::render( [ 'limit' => 2 ] );
+
+		self::assertSame( 1, substr_count( $last, '<li class="reevents-booking' ) );
+		self::assertStringNotContainsString( 'reevents-bookings-lookup', $last );
+
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Test fixture value, restored below.
+		$original_uri = isset( $_SERVER['REQUEST_URI'] ) ? (string) $_SERVER['REQUEST_URI'] : '/';
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Test fixture value.
+		$_SERVER['REQUEST_URI'] = '/my-bookings/?reevents_booking_result=cancelled&reevents_bookings_page=2';
+
+		$notice_page = Bookings::render( [ 'limit' => 2 ] );
+
+		$_SERVER['REQUEST_URI'] = $original_uri;
+		unset( $_GET['reevents_bookings_page'] );
+
+		self::assertMatchesRegularExpression( '/<nav class="reevents-pagination".*?<\/nav>/s', $notice_page );
+		preg_match( '/<nav class="reevents-pagination".*?<\/nav>/s', $notice_page, $pager );
+		self::assertStringNotContainsString( 'reevents_booking_result', $pager[0] );
+		self::assertStringContainsString( 'href="/my-bookings/"', $pager[0] );
+
+		$off = Bookings::render(
+			[
+				'limit'    => 2,
+				'paginate' => false,
+			]
+		);
+
+		self::assertStringNotContainsString( 'reevents-pagination', $off );
+
+		$keyed = Bookings::render(
+			[
+				'limit'          => 2,
+				'pagination_key' => 'mine',
+			]
+		);
+
+		self::assertStringContainsString( 'reevents_bookings_page_mine=2', $keyed );
+	}
+
+	/**
 	 * The block falls back to the registry labels and heading.
 	 */
 	public function test_block_uses_registry_defaults(): void {
