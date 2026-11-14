@@ -75,6 +75,11 @@ final class Pagination {
 
 		$separator = str_contains( $base_url, '?' ) ? '&' : '?';
 
+		$strip = static function ( string $link ): string {
+			return (string) remove_query_arg( [ 'reevents_booking_result', 'reevents_booking_reason' ], $link );
+		};
+
+		add_filter( 'paginate_links', $strip );
 		$links = paginate_links(
 			[
 				'base'      => $base_url . '%_%',
@@ -86,6 +91,7 @@ final class Pagination {
 				'next_text' => __( 'Next', 're-events' ),
 			]
 		);
+		remove_filter( 'paginate_links', $strip );
 
 		return '<nav class="reevents-pagination" aria-label="' . esc_attr( $label ) . '">' . $links . '</nav>';
 	}
