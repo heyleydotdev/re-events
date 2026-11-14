@@ -4,7 +4,7 @@
  *
  * @package ReEvents
  *
- * @var array{heading: string, notice: array{type:string,message:string}|null, cards: array<int, array<string, mixed>>, lookup: array<string, string>|null, empty: string, args: array<string, mixed>} $args
+ * @var array{heading: string, notice: array{type:string,message:string}|null, cards: array<int, array<string, mixed>>, lookup: array<string, string>|null, empty: string, pagination: string, args: array<string, mixed>} $args
  */
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Variables are scoped to the template include.
@@ -99,6 +99,10 @@ if ( ! empty( $args['cards'] ) ) {
 	}
 
 	echo '</ul>';
+
+	if ( '' !== (string) $args['pagination'] ) {
+		echo $args['pagination']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built by Pagination.
+	}
 } elseif ( $args['lookup'] ) {
 	$lookup = $args['lookup'];
 

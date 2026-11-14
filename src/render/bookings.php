@@ -39,6 +39,13 @@ final class Bookings {
 		$single   = null;
 		$notice   = self::notice();
 		$lookup   = null;
+		$total    = 0;
+
+		$paginate = Pagination::enabled( $args );
+		$param    = Pagination::param( $args, 'reevents_bookings_page_', 'reevents_bookings_page' );
+		$page     = Pagination::page( $args, $param, $paginate );
+		$limit    = (int) $args['limit'];
+		$pages    = 0;
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended -- Read-only credentials.
 		$signed_id   = isset( $_GET['reevents_booking'] ) ? absint( wp_unslash( $_GET['reevents_booking'] ) ) : 0;
@@ -80,16 +87,29 @@ final class Bookings {
 		$user_id = get_current_user_id();
 
 		if ( ! $single && $user_id > 0 ) {
-			$query    = ( new Booking_Repository() )->query(
-				[
-					'user_id' => $user_id,
-					'limit'   => (int) $args['limit'],
-				]
-			);
+			$fetch = static function ( int $page ) use ( $user_id, $limit ): array {
+				return ( new Booking_Repository() )->query(
+					[
+						'user_id' => $user_id,
+						'limit'   => $limit,
+						'offset'  => ( $page - 1 ) * $limit,
+					]
+				);
+			};
+
+			$query    = $fetch( $page );
 			$bookings = $query['items'];
+			$total    = (int) $query['total'];
+			$pages    = 0 === $total ? 0 : (int) ceil( $total / max( 1, $limit ) );
+
+			if ( $pages > 0 && $page > $pages ) {
+				$page     = $pages;
+				$query    = $fetch( $page );
+				$bookings = $query['items'];
+			}
 		}
 
-		if ( ! $single && ! $bookings && Settings::get( 'self_service_guest', true ) ) {
+		if ( ! $single && 0 === $total && Settings::get( 'self_service_guest', true ) ) {
 			$lookup = [
 				'action'    => self::current_url(),
 				'nonce'     => wp_create_nonce( 'reevents_lookup' ),
@@ -104,15 +124,24 @@ final class Bookings {
 		$items = $single ? [ $single ] : $bookings;
 		$cards = self::cards( $items, $args, $credentials );
 
+		$base_url = (string) remove_query_arg(
+			[ $param, 'reevents_bookings_page', 'reevents_booking_result', 'reevents_booking_reason' ]
+		);
+		$base_url = '' !== $base_url ? $base_url : home_url( '/' );
+		$pager    = $paginate && ! $single
+			? Pagination::links( $param, $base_url, $page, $pages, __( 'Booking pages', 're-events' ) )
+			: '';
+
 		return Template::render(
 			'bookings',
 			[
-				'heading' => ! empty( $args['show_heading'] ) ? (string) $args['heading'] : '',
-				'notice'  => $notice,
-				'cards'   => $cards,
-				'lookup'  => $lookup,
-				'empty'   => (string) $args['empty_label'],
-				'args'    => $args,
+				'heading'    => ! empty( $args['show_heading'] ) ? (string) $args['heading'] : '',
+				'notice'     => $notice,
+				'cards'      => $cards,
+				'lookup'     => $lookup,
+				'empty'      => (string) $args['empty_label'],
+				'pagination' => $pager,
+				'args'       => $args,
 			]
 		);
 	}

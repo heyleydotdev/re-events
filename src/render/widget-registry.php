@@ -1076,7 +1076,17 @@ final class Widget_Registry {
 					'limit'               => [
 						'type'        => 'number',
 						'default'     => 20,
-						'description' => __( 'Maximum bookings shown. Capped at 100.', 're-events' ),
+						'description' => __( 'Bookings per page. Capped at 100.', 're-events' ),
+					],
+					'paginate'            => [
+						'type'        => 'toggle',
+						'default'     => true,
+						'description' => __( 'Split the list into pages.', 're-events' ),
+					],
+					'pagination_key'      => [
+						'type'        => 'text',
+						'default'     => '',
+						'description' => __( 'Suffix for the page query argument when several lists share a page.', 're-events' ),
 					],
 					'date_format'         => [
 						'type'        => 'text',
