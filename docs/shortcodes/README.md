@@ -287,7 +287,9 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `heading` | My bookings | Heading above the list. Leave empty to hide it. |
 | `show_heading` | 1 | Show the heading above the list. |
 | `empty_label` | You have no bookings yet. | Message shown when the visitor has no bookings. |
-| `limit` | 20 | Maximum bookings shown. Capped at 100. |
+| `limit` | 20 | Bookings per page. Capped at 100. |
+| `paginate` | 1 | Split the list into pages. |
+| `pagination_key` | — | Suffix for the page query argument when several lists share a page. |
 | `date_format` | F j, Y | Date format. Defaults to the site format. |
 | `time_format` | g:i a | Time format. Defaults to the site format. |
 | `lookup_heading` | Find your booking | Heading on the guest lookup form. |
@@ -299,7 +301,7 @@ Every registered widget is listed here. Arguments left at their default can be o
 | `free_label` | Free | Text shown for a free ticket. |
 
 ```text
-[reevents_bookings heading="My bookings" show_heading="1" empty_label="You have no bookings yet." limit="20" date_format="F j, Y" time_format="g:i a" lookup_heading="Find your booking" lookup_button_label="Find booking" reference_label="Booking reference" email_label="Email" cancel_label="Cancel booking" reactivate_label="Reserve again" free_label="Free"]
+[reevents_bookings heading="My bookings" show_heading="1" empty_label="You have no bookings yet." limit="20" paginate="1" date_format="F j, Y" time_format="g:i a" lookup_heading="Find your booking" lookup_button_label="Find booking" reference_label="Booking reference" email_label="Email" cancel_label="Cancel booking" reactivate_label="Reserve again" free_label="Free"]
 ```
 
 ## Field shortcode
