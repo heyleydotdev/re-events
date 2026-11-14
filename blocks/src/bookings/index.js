@@ -11,7 +11,14 @@ import ServerSideRender from '@wordpress/server-side-render';
 import metadata from './block.json';
 
 function Edit( { attributes, setAttributes } ) {
-	const { limit, showHeading, dateFormat, timeFormat } = attributes;
+	const {
+		limit,
+		showHeading,
+		paginate,
+		paginationKey,
+		dateFormat,
+		timeFormat,
+	} = attributes;
 
 	return (
 		<>
@@ -33,6 +40,26 @@ function Edit( { attributes, setAttributes } ) {
 							setAttributes( { showHeading: value } )
 						}
 					/>
+					<ToggleControl
+						label={ __( 'Show pagination', 're-events' ) }
+						checked={ paginate }
+						onChange={ ( value ) =>
+							setAttributes( { paginate: value } )
+						}
+					/>
+					{ paginate && (
+						<TextControl
+							label={ __( 'Pagination key', 're-events' ) }
+							help={ __(
+								'Only needed when several paginated lists share a page.',
+								're-events'
+							) }
+							value={ paginationKey }
+							onChange={ ( value ) =>
+								setAttributes( { paginationKey: value } )
+							}
+						/>
+					) }
 					<TextControl
 						label={ __( 'Date format', 're-events' ) }
 						value={ dateFormat }

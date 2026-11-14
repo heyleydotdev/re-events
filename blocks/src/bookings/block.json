@@ -17,6 +17,14 @@
 			"type": "boolean",
 			"default": true
 		},
+		"paginate": {
+			"type": "boolean",
+			"default": true
+		},
+		"paginationKey": {
+			"type": "string",
+			"default": ""
+		},
 		"dateFormat": {
 			"type": "string",
 			"default": ""
