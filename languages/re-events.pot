@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-13T23:51:20+00:00\n"
+"POT-Creation-Date: 2026-11-14T00:19:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: re-events\n"
@@ -82,7 +82,7 @@ msgstr ""
 #: src/admin/attendees-table.php:56
 #: src/admin/settings.php:1176
 #: src/privacy.php:93
-#: src/render/bookings.php:341
+#: src/render/bookings.php:354
 #: src/render/widget-registry.php:997
 #: src/render/widget-registry.php:998
 #: src/render/widget-registry.php:1118
@@ -225,7 +225,7 @@ msgstr ""
 
 #: src/admin/bookings-table.php:196
 #: src/api.php:1373
-#: src/render/bookings.php:344
+#: src/render/bookings.php:357
 #: src/render/widget-registry.php:209
 #: src/render/widget-registry.php:384
 #: src/render/widget-registry.php:1025
@@ -264,7 +264,7 @@ msgid "Bookings"
 msgstr ""
 
 #: src/admin/bookings.php:73
-#: src/render/bookings.php:278
+#: src/render/bookings.php:291
 msgid "Booking cancelled."
 msgstr ""
 
@@ -343,7 +343,7 @@ msgstr ""
 
 #: src/admin/event-list.php:241
 #: src/admin/meta-boxes.php:442
-#: src/render/bookings.php:256
+#: src/render/bookings.php:269
 #: src/render/widget-registry.php:129
 #: src/render/widget-registry.php:248
 #: src/render/widget-registry.php:1179
@@ -2143,7 +2143,7 @@ msgid "ReEvents bookings"
 msgstr ""
 
 #: src/privacy.php:77
-#: src/render/bookings.php:340
+#: src/render/bookings.php:353
 #: src/render/widget-registry.php:1113
 msgid "Booking reference"
 msgstr ""
@@ -2250,74 +2250,74 @@ msgstr ""
 msgid "The booking could not be created. Please try again."
 msgstr ""
 
-#: src/render/bookings.php:61
+#: src/render/bookings.php:63
 msgid "This booking link is not valid."
 msgstr ""
 
-#: src/render/bookings.php:67
+#: src/render/bookings.php:69
 #: src/services/booking-self-service.php:233
 msgid "The request expired. Please try again."
 msgstr ""
 
-#: src/render/bookings.php:69
+#: src/render/bookings.php:71
 #: src/rest/my-bookings-controller.php:207
 msgid "Too many lookups. Please try again later."
 msgstr ""
 
-#: src/render/bookings.php:80
+#: src/render/bookings.php:82
 #: src/rest/my-bookings-controller.php:213
 msgid "No booking matches that reference and email."
 msgstr ""
 
-#: src/render/bookings.php:119
+#: src/render/bookings.php:132
 msgid "Booking pages"
 msgstr ""
 
-#: src/render/bookings.php:254
+#: src/render/bookings.php:267
 #: src/services/booking-emails.php:584
 msgid "Confirmed"
 msgstr ""
 
-#: src/render/bookings.php:258
+#: src/render/bookings.php:271
 #: src/services/booking-emails.php:588
 msgid "Rejected"
 msgstr ""
 
-#: src/render/bookings.php:260
+#: src/render/bookings.php:273
 #: src/services/booking-emails.php:590
 msgid "Pending"
 msgstr ""
 
-#: src/render/bookings.php:285
+#: src/render/bookings.php:298
 msgid "Booking restored."
 msgstr ""
 
-#: src/render/bookings.php:335
+#: src/render/bookings.php:348
 #: src/render/widget-registry.php:1063
 msgid "My bookings"
 msgstr ""
 
-#: src/render/bookings.php:337
+#: src/render/bookings.php:350
 #: src/render/widget-registry.php:1073
 msgid "You have no bookings yet."
 msgstr ""
 
-#: src/render/bookings.php:338
+#: src/render/bookings.php:351
 #: src/render/widget-registry.php:1103
 msgid "Find your booking"
 msgstr ""
 
-#: src/render/bookings.php:339
+#: src/render/bookings.php:352
 #: src/render/widget-registry.php:1108
 msgid "Find booking"
 msgstr ""
 
-#: src/render/bookings.php:342
+#: src/render/bookings.php:355
 #: src/render/widget-registry.php:1123
 msgid "Cancel booking"
 msgstr ""
 
-#: src/render/bookings.php:343
+#: src/render/bookings.php:356
 #: src/render/widget-registry.php:1128
 msgid "Reserve again"
 msgstr ""
@@ -2568,11 +2568,11 @@ msgstr ""
 msgid "Unknown field \"%s\"."
 msgstr ""
 
-#: src/render/pagination.php:85
+#: src/render/pagination.php:90
 msgid "Previous"
 msgstr ""
 
-#: src/render/pagination.php:86
+#: src/render/pagination.php:91
 msgid "Next"
 msgstr ""
 
