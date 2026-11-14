@@ -7,8 +7,15 @@
 /.editorconfig
 /.gitignore
 /.distignore
+/.gitattributes
+/.phpunit.result.cache
+/.phpcs.cache
+/.phpstan-cache
 /AGENTS.md
 /PLAN.md
+/CODE_OF_CONDUCT.md
+/TRADEMARK.md
+/re-events.zip
 /composer.json
 /composer.lock
 /package.json
