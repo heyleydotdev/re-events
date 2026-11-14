@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '[0-9]*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Check the tag matches every version
+        run: |
+          version="$(sed -n 's/^ \* Version: //p' re-events.php | head -n1)"
+          test "$version" = "$GITHUB_REF_NAME" || {
+            echo "Tag $GITHUB_REF_NAME does not match plugin version $version"
+            exit 1
+          }
+          grep -q "Stable tag: $GITHUB_REF_NAME" readme.txt
+          grep -q "\"version\": \"$GITHUB_REF_NAME\"" package.json
+          grep -q "define( 'RE_EVENTS_VERSION', '$GITHUB_REF_NAME' );" re-events.php
+          jq -e --arg v "$GITHUB_REF_NAME" '.info.version == $v' docs/api/openapi.json >/dev/null
+
+      - name: Install and test
+        run: |
+          composer install --no-interaction --prefer-dist
+          composer lint
+          composer test
+
+      - name: Build the release zip
+        run: composer release
+
+      - name: Checksum the zip
+        run: sha256sum re-events.zip > re-events.zip.sha256
+
+      - name: Create the GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            re-events.zip \
+            re-events.zip.sha256 \
+            --title "ReEvents $GITHUB_REF_NAME" \
+            --generate-notes \
+            --verify-tag
