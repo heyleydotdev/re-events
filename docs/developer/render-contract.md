@@ -255,7 +255,9 @@ Do not rely on inline styles. The plugin does not output them.
 | `heading`              | `My bookings`         | Heading. Empty hides it                   |
 | `show_heading`         | `true`                | Show the heading                          |
 | `empty_label`          | `You have no bookings yet.` | Empty state                        |
-| `limit`                | `20`                  | Maximum bookings, capped at 100           |
+| `limit`                | `20`                  | Bookings per page, capped at 100          |
+| `paginate`             | `true`                | Split the list into pages                 |
+| `pagination_key`       | empty                 | Suffix for the page query argument        |
 | `date_format`          | site format           | Event start date format                   |
 | `time_format`          | site format           | Event start time format                   |
 | `lookup_heading`       | `Find your booking`   | Guest lookup heading                      |

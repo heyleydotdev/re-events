@@ -99,7 +99,9 @@ The template is `templates/bookings.php` and can be overridden in `re-events/boo
 | `.reevents-bookings-lookup` | Guest lookup form |
 | `.reevents-bookings-notice` | Result notice, `role="status"` |
 
-Actions are plain `POST` forms to `admin-post.php` with a nonce and hidden credentials, so the widget works without JavaScript. A successful action redirects back to the same page with `reevents_booking_result` and an optional `reevents_booking_reason`.
+Actions are plain `POST` forms to `admin-post.php` with a nonce and hidden credentials, so the widget works without JavaScript.
+
+Long lists page with `limit` (bookings per page) plus `paginate` and `pagination_key`. The page argument is `reevents_bookings_page`, or `reevents_bookings_page_{key}` when a key is set, so several lists can share a page. A successful action redirects back to the same page with `reevents_booking_result` and an optional `reevents_booking_reason`.
 
 ## Limits
 
